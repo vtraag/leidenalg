@@ -376,6 +376,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
             #ifdef DEBUG
               cerr << "Consider random neighbour community " << neigh_comm << "." << endl;
             #endif
+            // Calculate the possible improvement of the moving the node to that community/
             possible_improv = partition->diff_move(v, neigh_comm);
             if (possible_improv > 0)
             {
