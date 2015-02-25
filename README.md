@@ -1,12 +1,13 @@
 INTRODUCTION
 ============
 
-This package implements the louvain algorithm in C++ and exposes it to
-python. It relies on (python-)igraph for it to function. Besides the relative
-flexibility of the implementation, it also scales well, and can be run on graphs
-of millions of nodes (as long as they can fit in memory). The core function is
-``find_partition`` which finds the optimal partition using the louvain algorithm for
-a number of different methods. The methods currently implemented are:
+This package implements the louvain algorithm in ``C++`` and exposes it to
+``python``. It relies on (python-)``igraph`` for it to function. Besides the
+relative flexibility of the implementation, it also scales well, and can be run
+on graphs of millions of nodes (as long as they can fit in memory). The core
+function is ``find_partition`` which finds the optimal partition using the
+louvain algorithm for a number of different methods. The methods currently
+implemented are:
 
 Modularity
   This method compares the actual graph to the expected graph, taking into
@@ -110,9 +111,9 @@ part.significance = louvain.quality(G, partition, method='Significance');
 
 You can also find partition for multiplex graphs. For each layer you then
 specify the objective function, and the overall objective function is simply the
-sum over all layers, weighted by some weight. If we denote by $q_k$ the quality
-of layer $k$ and the weight by $w_k$, the overall quality is then $q = \sum_k
-w_k q_k$.  This can also be useful in case you have negative links. In
+sum over all layers, weighted by some weight. If we denote by ``q_k`` the quality
+of layer ``k`` and the weight by ``w_k``, the overall quality is then ``q = sum_k
+w_k q_k``.  This can also be useful in case you have negative links. In
 principle, this could also be used to detect temporal communities in a dynamic
 setting, cf. [7].
 

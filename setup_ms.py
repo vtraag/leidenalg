@@ -9,18 +9,46 @@ import os
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
+import sys
+# Check if working with Python 3
+PY3 = (sys.version > '3');
+# Check if 64 bit or not
+x64 = (sys.maxsize > 2**32);
+
+print("Building for " + ( "Python 3" if PY3 else "Python 2" ) + " with a " + ( "64" if x64 else "32" ) + " bits architecture.");
+
+if PY3:
+  if x64:
+    inc_dir = 'igraph-0.7.0-msvc-py3/include';
+    lib_dir = 'igraph-0.7.0-msvc-py3/Release/x64';
+  else:
+    inc_dir = 'igraph-0.7.0-msvc-py3/include';
+    lib_dir = 'igraph-0.7.0-msvc-py3/Release/win32';
+else:
+  if x64:
+    inc_dir = 'igraph-0.7.0-msvc-py2.7/include';
+    lib_dir = 'igraph-0.7.0-msvc-py2.7/Release/x64';
+  else:
+    inc_dir = 'igraph-0.7.0-msvc-py2.7/include';
+    lib_dir = 'igraph-0.7.0-msvc-py2.7/Release/win32';
+
+print("Using include dir: " + inc_dir);
+print("Using library dir: " + lib_dir);
+
 louvain_ext = Extension('louvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     libraries = ['igraph'],
-                    include_dirs=['include', 'igraph-0.7.0-msvc/include'],
-                    library_dirs=['wlib', 'igraph-0.7.0-msvc/Release/x64']);
+                    include_dirs=['include', inc_dir],
+                    library_dirs=['wlib', lib_dir]);
 
 options =  dict(
   name = 'louvain',
   version = '0.5',
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
-  long_description=read('README'),
+  long_description=read('README.md'),
   license = 'GPLv3+',
+  url = 'https://github.com/vtraag/louvain-igraph',
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
