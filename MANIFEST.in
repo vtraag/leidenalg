@@ -1,0 +1,3 @@
+include LICENSE
+include INSTALL
+recursive-include include *.h
