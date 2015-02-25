@@ -110,9 +110,9 @@ part.significance = louvain.quality(G, partition, method='Significance');
 
 You can also find partition for multiplex graphs. For each layer you then
 specify the objective function, and the overall objective function is simply the
-sum over all layers, weighted by some weight. If we denote by $q_k$ the quality
-of layer $k$ and the weight by $w_k$, the overall quality is then $q = \sum_k
-w_k q_k$.  This can also be useful in case you have negative links. In
+sum over all layers, weighted by some weight. If we denote by ``q_k`` the quality
+of layer ``k`` and the weight by ``w_k``, the overall quality is then ``q = sum_k
+w_k q_k``.  This can also be useful in case you have negative links. In
 principle, this could also be used to detect temporal communities in a dynamic
 setting, cf. [7].
 
