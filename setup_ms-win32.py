@@ -41,7 +41,7 @@ options =  dict(
   name = 'louvain',
   version = '0.5',
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
-  long_description=read('README'),
+  long_description=read('README.md'),
   license = 'GPLv3+',
 
   author = 'V.A. Traag',
