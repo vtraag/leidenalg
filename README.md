@@ -86,34 +86,44 @@ support. So, use python. Please refer to the documentation within the python
 package for more details on function calls and parameters.
 
 To start, make sure to import the packages:
->>> import louvain
->>> import igraph as ig
+```python
+import louvain
+import igraph as ig
+```
 
 We'll create a random graph for testing purposes:
->>> G = ig.Graph.Erdos_Renyi(100, 0.1);
+```python
+G = ig.Graph.Erdos_Renyi(100, 0.1);
+```
 
 For simply finding a partition use:
->>> part = louvain.find_partition(G, method='Modularity');
+```python
+part = louvain.find_partition(G, method='Modularity');
+```
 
 Notice that ``part`` now contains an additional variable, ``part.quality`` which
 stores the quality of the partition as calculated by the used method. You can
 always get the quality of the partition using another method by calling
->>> part.significance = louvain.quality(G, partition, method='Significance');
+```python
+part.significance = louvain.quality(G, partition, method='Significance');
+```
 
 You can also find partition for multiplex graphs. For each layer you then
 specify the objective function, and the overall objective function is simply the
-sum over all layers, weighted by some weight. If we denote by q_k the quality of
-layer k and the weight by w_k, the overall quality is then q = sum_k w_k*q_k.
-This can also be useful in case you have negative links. In principle, this
-could also be used to detect temporal communities in a dynamic setting, cf. [7].
+sum over all layers, weighted by some weight. If we denote by $q_k$ the quality
+of layer $k$ and the weight by $w_k$, the overall quality is then $q = \sum_k
+w_k q_k$.  This can also be useful in case you have negative links. In
+principle, this could also be used to detect temporal communities in a dynamic
+setting, cf. [7].
 
 For example, assuming you have a graph with positive weights ``G_positive`` and
 a graph with negative weights ``G_negative``, and you want to use Modularity for
 finding a partition, you can use
-
->>> membership, quality = louvain.find_partition_multiplex([
->>>   louvain.Layer(graph=G_positive, method='Modularity', layer_weight=1.0),
->>>   louvain.Layer(graph=G_negative, method='Modularity', layer_weight=-1.0)])
+```python
+membership, quality = louvain.find_partition_multiplex([
+louvain.Layer(graph=G_positive, method='Modularity', layer_weight=1.0),
+louvain.Layer(graph=G_negative, method='Modularity', layer_weight=-1.0)])
+```
 
 Notice the negative layer weight is ``-1.0`` for the negative graph, since we
 want those edges to fall between communities rather than within. One particular
@@ -126,7 +136,9 @@ neighbouring communities (which is the default).
 Various methods (such as Reichardt and Bornholdt's Potts model, or CPM) support
 a (linear) resolution parameter, which can be effectively bisected, cf. [4]. You
 can do this by calling:
->>> res_parts = louvain.bisect(G, method='CPM', resolution_range=[0,1]);
+```python
+res_parts = louvain.bisect(G, method='CPM', resolution_range=[0,1]);
+```
 Notice this may take some time to run, as it effectively calls
 louvain.find_partition for various resolution parameters (depending on the
 settings possibly hundreds of times).
@@ -136,13 +148,15 @@ values a ``NamedTuple`` with variables ``partition`` and ``bisect_value``, which
 contains the partition and the value at which the resolution was bisected (the
 value of the ``bisect_func`` of the ``bisect`` function). You could for example
 plot the bisection value of all the found partitions by using:
->>> import pandas as pd
->>> import matplotlib.pyplot as plt
->>> res_df = pd.DataFrame({
->>>          'resolution': res_parts.keys(),
->>>          'bisect_value': [bisect.bisect_value for bisect in res_parts.values()]});
->>> plt.step(res_df['resolution'], res_df['bisect_value']);
->>> plt.xscale('log');
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+res_df = pd.DataFrame({
+         'resolution': res_parts.keys(),
+         'bisect_value': [bisect.bisect_value for bisect in res_parts.values()]});
+plt.step(res_df['resolution'], res_df['bisect_value']);
+plt.xscale('log');
+```
 
 REFERENCES
 ==========
