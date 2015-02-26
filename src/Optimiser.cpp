@@ -355,7 +355,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
           /****************************RAND COMM***********************************/
           case RAND_COMM:
             // Select a random community.
-            neigh_comm = rand() % partition->nb_communities();
+            neigh_comm = partition->membership(graph->get_random_node());
             #ifdef DEBUG
               cerr << "Consider random community " << neigh_comm << "." << endl;
             #endif
@@ -370,9 +370,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
           /****************************RAND NEIGH COMM*****************************/
           case RAND_NEIGH_COMM:
             // Select a random community from the neighbours.
-            neigh = graph->get_neighbours(v, IGRAPH_ALL);
-            size_t rand_neigh = (*neigh)[rand() % neigh->size()];
-            neigh_comm = partition->membership(rand_neigh);
+            neigh_comm = partition->membership(graph->get_random_neighbour(v, IGRAPH_ALL));
             #ifdef DEBUG
               cerr << "Consider random neighbour community " << neigh_comm << "." << endl;
             #endif
@@ -543,7 +541,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           break;
         /****************************RAND COMM***********************************/
         case RAND_COMM:
-          neigh_comm = rand() % partitions[0]->nb_communities();
+          neigh_comm = partitions[0]->membership(graphs[0]->get_random_node());
           #ifdef DEBUG
             cerr << "Consider random community " << neigh_comm << "." << endl;
           #endif
@@ -554,20 +552,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           break;
         /****************************RAND NEIGH COMM*****************************/
         case RAND_NEIGH_COMM:
-          // First get neighbours in all layers
-          neigh = graphs[0]->get_neighbours(v, IGRAPH_ALL);
-          for (size_t layer = 1; layer < nb_layers; layer++)
-          {
-            neigh_ext = graphs[layer]->get_neighbours(v, IGRAPH_ALL);
-            neigh->insert(neigh->end(), neigh_ext->begin(), neigh_ext->end());
-            delete neigh_ext;
-          }
-          // Then choose a random neighbour.
-          size_t rand_neigh = (*neigh)[rand() % neigh->size()];
-          delete neigh;
           // Community membership should be consistent across layers
           // anyway, so just read it once.
-          neigh_comm = partitions[0]->membership(rand_neigh);
+          // First select a random layer
+          size_t rand_layer = graphs[0]->get_random_int(0, nb_layers - 1);
+          neigh_comm = partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL));
           #ifdef DEBUG
             cerr << "Consider random neighbour community " << neigh_comm << "." << endl;
           #endif

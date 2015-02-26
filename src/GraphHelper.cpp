@@ -232,6 +232,7 @@ void Graph::set_self_weights()
 
 void Graph::init_admin()
 {
+
   size_t m = this->ecount();
 
   // Determine total weight in the graph.
@@ -413,6 +414,79 @@ Graph::get_neighbours(size_t v, igraph_neimode_t mode)
     igraph_vector_e_ptr(&neighbours, degree));
   igraph_vector_destroy(&neighbours);
   return neighs;
+}
+
+/********************************************************************************
+ * This should return a random neighbour in O(1)
+ ********************************************************************************/
+size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
+{
+  size_t node=v;
+  size_t rand_neigh = -1;
+
+  if (this->degree(v, mode) <= 0)
+    throw Exception("Cannot select a random neighbour for an isolated node.");
+
+  if (igraph_is_directed(this->_graph) && mode != IGRAPH_ALL)
+  {
+    if (mode == IGRAPH_OUT)
+    {
+      // Get indices of where neighbours are
+      size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->os)[node];
+      size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->os)[node+1];
+      // Get a random index from them
+      size_t rand_neigh_idx = igraph_rng_get_integer(igraph_rng_default(), cum_degree_this_node, cum_degree_next_node - 1);
+      // Return the neighbour at that index
+      #ifdef DEBUG
+        cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
+      #endif
+      rand_neigh = VECTOR(this->_graph->to)[ (size_t)VECTOR(this->_graph->oi)[rand_neigh_idx] ];
+    }
+    else if (mode == IGRAPH_IN)
+    {
+      // Get indices of where neighbours are
+      size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->is)[node];
+      size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->is)[node+1];
+      // Get a random index from them
+      size_t rand_neigh_idx = igraph_rng_get_integer(igraph_rng_default(), cum_degree_this_node, cum_degree_next_node - 1);
+      #ifdef DEBUG
+        cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
+      #endif
+      // Return the neighbour at that index
+      rand_neigh = VECTOR(this->_graph->from)[ (size_t)VECTOR(this->_graph->ii)[rand_neigh_idx] ];
+    }
+  }
+  else
+  {
+    // both in- and out- neighbors in a directed graph.
+    size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[node];
+    size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[node];
+
+    size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[node+1];
+    size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[node+1];
+
+    size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
+    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
+
+    size_t rand_idx = igraph_rng_get_integer(igraph_rng_default(), 0, total_outdegree + total_indegree - 1);
+
+    #ifdef DEBUG
+      cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
+    #endif
+    // From among in or out neighbours?
+    if (rand_idx < total_outdegree)
+    { // From among outgoing neighbours
+      size_t rand_neigh_idx = cum_outdegree_this_node + rand_idx;
+      rand_neigh = VECTOR(this->_graph->to)[ (size_t)VECTOR(this->_graph->oi)[rand_neigh_idx] ];
+    }
+    else
+    { // From among incoming neighbours
+      size_t rand_neigh_idx = cum_indegree_this_node + rand_idx - total_outdegree;
+      rand_neigh = VECTOR(this->_graph->from)[ (size_t)VECTOR(this->_graph->ii)[rand_neigh_idx] ];
+    }
+  }
+
+  return rand_neigh;
 }
 
 /****************************************************************************
