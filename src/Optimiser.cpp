@@ -86,7 +86,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
   MutableVertexPartition* collapsed_partition = NULL;
 
   // Do one iteration of optimisation
-  double improv = this->move_nodes(partition);
+  double improv = this->move_nodes(partition, this->consider_comms);
   // As long as there remains improvement iterate
   while (improv > this->eps)
   {
@@ -114,7 +114,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
            << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
     #endif
     // Optimise partition for collapsed graph
-    improv = this->move_nodes(collapsed_partition);
+    improv = this->move_nodes(collapsed_partition, this->consider_comms);
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     partition->from_coarser_partition(collapsed_partition);
@@ -169,7 +169,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
   vector<MutableVertexPartition*> collapsed_partitions(nb_layers, NULL);
 
   // Do one iteration of optimisation
-  double improv = this->move_nodes(partitions, layer_weights);
+  double improv = this->move_nodes(partitions, layer_weights, this->consider_comms);
 
   // As long as there remains improvement iterate
   while (improv > this->eps)
@@ -210,7 +210,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
       #endif
     }
     // Optimise partition for all collapsed graphs
-    improv = this->move_nodes(collapsed_partitions, layer_weights);
+    improv = this->move_nodes(collapsed_partitions, layer_weights, this->consider_comms);
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graphs as a whole.
     for (size_t layer = 0; layer < nb_layers; layer++)
@@ -244,7 +244,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
     Parameters:
       partition -- The partition to optimise.
 ******************************************************************************/
-double Optimiser::move_nodes(MutableVertexPartition* partition)
+double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_comms)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes(MutableVertexPartition* partition)" << endl;
@@ -435,7 +435,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
     partitions -- The partitions to optimise.
     layer_weights -- The weights used for the different layers.
 ******************************************************************************/
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
