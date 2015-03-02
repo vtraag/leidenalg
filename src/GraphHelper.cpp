@@ -344,7 +344,6 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
   igraph_neighbors(this->_graph, &neighbours, v, mode);
   for (size_t i = 0; i < degree; i++)
   {
-    size_t e = VECTOR(incident_edges)[i];
     size_t u = VECTOR(neighbours)[i];
 
     // If it is an edge to the requested community
@@ -356,6 +355,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
       #ifdef DEBUG
         cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
       #endif
+      size_t e = VECTOR(incident_edges)[i];
       // Get the weight of the edge
       double w = this->_edge_weights[e];
       // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
@@ -367,7 +367,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     #ifdef DEBUG
     else
     {
-      cerr << "\t" << "Ignore edge (" << v << "-" << u << "), Comm (" << comm << ") weight: " << this->_edge_weights[e] << "." << endl;
+      cerr << "\t" << "Ignore edge (" << v << "-" << u << "), Comm (" << comm << ") weight: " << this->_edge_weights[VECTOR(incident_edges)[i]] << "." << endl;
     }
     #endif
   }
