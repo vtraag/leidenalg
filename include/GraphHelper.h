@@ -80,6 +80,16 @@ class Graph
       get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector< size_t >*
       get_neighbours(size_t v, igraph_neimode_t mode);
+    size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
+    inline size_t get_random_node()
+    {
+      return this->get_random_int(0, this->vcount() - 1);
+    };
+
+    inline size_t get_random_int(size_t from, size_t to)
+    {
+      return igraph_rng_get_integer(igraph_rng_default(), from, to);
+    };
 
     inline size_t vcount() { return igraph_vcount(this->_graph); };
     inline size_t ecount() { return igraph_ecount(this->_graph); };
@@ -161,6 +171,7 @@ class Graph
     void set_default_edge_weight();
     void set_default_node_size();
     void set_self_weights();
+
 };
 
 // We need this ugly way to include the MutableVertexPartition

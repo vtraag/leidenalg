@@ -246,7 +246,7 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   size_t node_size = this->graph->node_size(v);
   size_t old_comm = this->_membership[v];
 
-  // Incidentally, this is indepentend of whether we take into account self-loops or not
+  // Incidentally, this is independent of whether we take into account self-loops or not
   // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
   // adaptation of the community sizes, otherwise the calculations are incorrect.
   _total_possible_edges_in_all_comms += 2.0*node_size*(this->_csize[new_comm] - this->_csize[old_comm] + node_size)/(2.0 - this->graph->is_directed());
