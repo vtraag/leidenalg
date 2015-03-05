@@ -86,7 +86,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
   MutableVertexPartition* collapsed_partition = NULL;
 
   // Do one iteration of optimisation
-  double improv = this->move_nodes(partition);
+  double improv = this->move_nodes(partition, this->consider_comms);
   // As long as there remains improvement iterate
   while (improv > this->eps)
   {
@@ -114,7 +114,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
            << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
     #endif
     // Optimise partition for collapsed graph
-    improv = this->move_nodes(collapsed_partition);
+    improv = this->move_nodes(collapsed_partition, this->consider_comms);
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     partition->from_coarser_partition(collapsed_partition);
@@ -169,7 +169,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
   vector<MutableVertexPartition*> collapsed_partitions(nb_layers, NULL);
 
   // Do one iteration of optimisation
-  double improv = this->move_nodes(partitions, layer_weights);
+  double improv = this->move_nodes(partitions, layer_weights, this->consider_comms);
 
   // As long as there remains improvement iterate
   while (improv > this->eps)
@@ -210,7 +210,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
       #endif
     }
     // Optimise partition for all collapsed graphs
-    improv = this->move_nodes(collapsed_partitions, layer_weights);
+    improv = this->move_nodes(collapsed_partitions, layer_weights, this->consider_comms);
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graphs as a whole.
     for (size_t layer = 0; layer < nb_layers; layer++)
@@ -244,7 +244,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
     Parameters:
       partition -- The partition to optimise.
 ******************************************************************************/
-double Optimiser::move_nodes(MutableVertexPartition* partition)
+double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_comms)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes(MutableVertexPartition* partition)" << endl;
@@ -355,7 +355,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
           /****************************RAND COMM***********************************/
           case RAND_COMM:
             // Select a random community.
-            neigh_comm = rand() % partition->nb_communities();
+            neigh_comm = partition->membership(graph->get_random_node());
             #ifdef DEBUG
               cerr << "Consider random community " << neigh_comm << "." << endl;
             #endif
@@ -370,9 +370,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
           /****************************RAND NEIGH COMM*****************************/
           case RAND_NEIGH_COMM:
             // Select a random community from the neighbours.
-            neigh = graph->get_neighbours(v, IGRAPH_ALL);
-            size_t rand_neigh = (*neigh)[rand() % neigh->size()];
-            neigh_comm = partition->membership(rand_neigh);
+            neigh_comm = partition->membership(graph->get_random_neighbour(v, IGRAPH_ALL));
             #ifdef DEBUG
               cerr << "Consider random neighbour community " << neigh_comm << "." << endl;
             #endif
@@ -437,7 +435,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
     partitions -- The partitions to optimise.
     layer_weights -- The weights used for the different layers.
 ******************************************************************************/
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -543,7 +541,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           break;
         /****************************RAND COMM***********************************/
         case RAND_COMM:
-          neigh_comm = rand() % partitions[0]->nb_communities();
+          neigh_comm = partitions[0]->membership(graphs[0]->get_random_node());
           #ifdef DEBUG
             cerr << "Consider random community " << neigh_comm << "." << endl;
           #endif
@@ -554,20 +552,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           break;
         /****************************RAND NEIGH COMM*****************************/
         case RAND_NEIGH_COMM:
-          // First get neighbours in all layers
-          neigh = graphs[0]->get_neighbours(v, IGRAPH_ALL);
-          for (size_t layer = 1; layer < nb_layers; layer++)
-          {
-            neigh_ext = graphs[layer]->get_neighbours(v, IGRAPH_ALL);
-            neigh->insert(neigh->end(), neigh_ext->begin(), neigh_ext->end());
-            delete neigh_ext;
-          }
-          // Then choose a random neighbour.
-          size_t rand_neigh = (*neigh)[rand() % neigh->size()];
-          delete neigh;
           // Community membership should be consistent across layers
           // anyway, so just read it once.
-          neigh_comm = partitions[0]->membership(rand_neigh);
+          // First select a random layer
+          size_t rand_layer = graphs[0]->get_random_int(0, nb_layers - 1);
+          neigh_comm = partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL));
           #ifdef DEBUG
             cerr << "Consider random neighbour community " << neigh_comm << "." << endl;
           #endif

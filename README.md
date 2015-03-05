@@ -1,42 +1,44 @@
 INTRODUCTION
 ============
 
-This package implements the louvain algorithm in ``C++`` and exposes it to
+This package implements the louvain algorithm [1] in ``C++`` and exposes it to
 ``python``. It relies on (python-)``igraph`` for it to function. Besides the
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
 function is ``find_partition`` which finds the optimal partition using the
-louvain algorithm for a number of different methods. The methods currently
-implemented are:
+louvain algorithm for a number of different methods. The original implementation
+is available from https://sites.google.com/site/findcommunities/. The methods
+currently implemented are:
 
 Modularity
   This method compares the actual graph to the expected graph, taking into
-  account the degree of the nodes [1]. The expected graph is based on a
+  account the degree of the nodes [2]. The expected graph is based on a
   configuration null-model.
 
 RBConfiguration
-  This is an extension of modularity which includes a resolution parameter [2].
+  This is an extension of modularity which includes a resolution parameter [3].
   In general, a higher resolution parameter will lead to smaller communities.
 
 RBER
   A variant of the previous method that instead of a configuration null-model
   uses a Erdös-Rényi null-model in which each edge has the same probability of
-  appearing [2].
+  appearing [3].
 
 CPM
   This method compares to a fixed resolution parameter, so that it finds
   communities that have an internal density higher than the resolution
   parameter, and is separated from other communities with a density lowerer than
-  the resolution parameter [3].
+  the resolution parameter [4].
 
 Significance
   This is a probabilistic method based on the idea of assessing the probability
-  of finding such dense subgraphs in an (ER) random graph [4].
+  of finding such dense subgraphs in an (ER) random graph [5].
 
 Surprise
   Another probabilistic method, but rather than the probability of finding dense
   subgraphs, it focuses on the probability of so many edges within communities
-  [5, 6].
+  [6, 7].
+
 
 INSTALLATION
 ============
@@ -115,7 +117,7 @@ sum over all layers, weighted by some weight. If we denote by ``q_k`` the qualit
 of layer ``k`` and the weight by ``w_k``, the overall quality is then ``q = sum_k
 w_k q_k``.  This can also be useful in case you have negative links. In
 principle, this could also be used to detect temporal communities in a dynamic
-setting, cf. [7].
+setting, cf. [8].
 
 For example, assuming you have a graph with positive weights ``G_positive`` and
 a graph with negative weights ``G_negative``, and you want to use Modularity for
@@ -135,7 +137,7 @@ the partition. Notice that this runs much slower than only considering
 neighbouring communities (which is the default).
 
 Various methods (such as Reichardt and Bornholdt's Potts model, or CPM) support
-a (linear) resolution parameter, which can be effectively bisected, cf. [4]. You
+a (linear) resolution parameter, which can be effectively bisected, cf. [5]. You
 can do this by calling:
 ```python
 res_parts = louvain.bisect(G, method='CPM', resolution_range=[0,1]);
@@ -164,18 +166,20 @@ REFERENCES
 
 Please cite the references appropriately in case they are used.
 
-1. Newman, M. & Girvan, M. Finding and evaluating community structure in networks.
+1. Blondel, V. D., Guillaume, J.-L., Lambiotte, R. & Lefebvre, E. Fast unfolding
+   of communities in large networks. J. Stat. Mech. 2008, P10008 (2008).
+2. Newman, M. & Girvan, M. Finding and evaluating community structure in networks.
    Physical Review E 69, 026113 (2004).
-2. Reichardt, J. & Bornholdt, S. Partitioning and modularity of graphs with arbitrary
+3. Reichardt, J. & Bornholdt, S. Partitioning and modularity of graphs with arbitrary
    degree distribution. Physical Review E 76, 015102 (2007).
-3. Traag, V. A., Van Dooren, P. & Nesterov, Y. Narrow scope for resolution-limit-free
+4. Traag, V. A., Van Dooren, P. & Nesterov, Y. Narrow scope for resolution-limit-free
    community detection. Physical Review E 84, 016114 (2011).
-4. Traag, V. A., Krings, G. & Van Dooren, P. Significant scales in community structure.
+5. Traag, V. A., Krings, G. & Van Dooren, P. Significant scales in community structure.
    Scientific Reports 3, 2930 (2013).
-5. Aldecoa, R. & Marín, I. Surprise maximization reveals the community structure
+6. Aldecoa, R. & Marín, I. Surprise maximization reveals the community structure
    of complex networks. Scientific reports 3, 1060 (2013).
-6. Traag, V.A., Aldecoa, R. & Delvenne, J.-C. Detecting communities using Asymptotical
+7. Traag, V.A., Aldecoa, R. & Delvenne, J.-C. Detecting communities using Asymptotical
    Surprise. Forthcoming (2015).
-7. Mucha, P. J., Richardson, T., Macon, K., Porter, M. A. & Onnela, J.-P.
+8. Mucha, P. J., Richardson, T., Macon, K., Porter, M. A. & Onnela, J.-P.
    Community structure in time-dependent, multiscale, and multiplex networks.
    Science 328, 876–8 (2010).
