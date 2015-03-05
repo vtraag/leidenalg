@@ -1,0 +1,11 @@
+0.5.2
+- Ensured that random neighbour selection works in O(1) rather than O(k), with k the average number of neighbours.
+- Optimized the calculation of weight from/to community.
+- Included some missing references.
+
+0.5.1
+Corrected some mistakes which prevented it from being properly used on PyPi.
+No serious changes were made.
+
+0.5
+Initial release
