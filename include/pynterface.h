@@ -98,6 +98,7 @@ extern "C"
       PyModule_AddIntConstant(module, "ALL_NEIGH_COMMS", Optimiser::ALL_NEIGH_COMMS);
       PyModule_AddIntConstant(module, "RAND_COMM", Optimiser::RAND_COMM);
       PyModule_AddIntConstant(module, "RAND_NEIGH_COMM", Optimiser::RAND_NEIGH_COMM);
+      PyModule_AddIntConstant(module, "RAND_WEIGHT_NEIGH_COMM", Optimiser::RAND_WEIGHT_NEIGH_COMM);
 
       if (module == NULL)
           INITERROR;
