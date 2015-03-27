@@ -330,38 +330,41 @@ void Graph::init_admin()
     this->_density = 2*w/normalise;
 
   // Init weighted sampling
-  this->_weighted_neigh_prob_preproc.clear();
-  this->_weighted_neigh_prob_preproc.resize(n);
-  for (size_t v = 0; v < n; v++)
+  if (this->_is_weighted)
   {
-    size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
-    size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
-
-    size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
-    size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
-
-    size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
-    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
-
-    size_t k = total_outdegree + total_indegree;
-    if (k > 0)
+    this->_weighted_neigh_prob_preproc.clear();
+    this->_weighted_neigh_prob_preproc.resize(n);
+    for (size_t v = 0; v < n; v++)
     {
-      double* weights = new double[k];
-      size_t idx = 0;
-      for (size_t i = 0; i < total_outdegree; i++)
+      size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
+      size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
+
+      size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
+      size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
+
+      size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
+      size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
+
+      size_t k = total_outdegree + total_indegree;
+      if (k > 0)
       {
-        size_t neigh_idx = cum_outdegree_this_node + i;
-        weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
+        double* weights = new double[k];
+        size_t idx = 0;
+        for (size_t i = 0; i < total_outdegree; i++)
+        {
+          size_t neigh_idx = cum_outdegree_this_node + i;
+          weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
+        }
+        for (size_t i = 0; i < total_indegree; i++)
+        {
+          size_t neigh_idx = cum_indegree_this_node + i;
+          weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
+        }
+        this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
       }
-      for (size_t i = 0; i < total_indegree; i++)
-      {
-        size_t neigh_idx = cum_indegree_this_node + i;
-        weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
-      }
-      this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
     }
+    this->_rng = gsl_rng_alloc(gsl_rng_taus);
   }
-  this->_rng = gsl_rng_alloc(gsl_rng_taus);
 }
 
 double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode)
@@ -527,37 +530,44 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
 
 size_t Graph::get_weighted_random_neighbour(size_t v, igraph_neimode_t mode)
 {
-  // TODO: Currently only implemented random selection for all nodes, not for only
-  // incoming / outgoing nodes. Question is: do we really need that as well?
+  if (this->_is_weighted)
+  {
+    // TODO: Currently only implemented random selection for all nodes, not for only
+    // incoming / outgoing nodes. Question is: do we really need that as well?
 
-  // both in- and out- neighbors in a directed graph.
-  size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
-  size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
+    // both in- and out- neighbors in a directed graph.
+    size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
+    size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
 
-  size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
-  size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
+    size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
+    size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
 
-  size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
-  size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
+    size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
+    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
-  size_t rand_idx = gsl_ran_discrete(this->_rng, this->_weighted_neigh_prob_preproc[v]);
+    size_t rand_idx = gsl_ran_discrete(this->_rng, this->_weighted_neigh_prob_preproc[v]);
 
-  #ifdef DEBUG
-    cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
-  #endif
-  size_t rand_neigh = NULL;
-  // From among in or out neighbours?
-  if (rand_idx < total_outdegree)
-  { // From among outgoing neighbours
-    size_t rand_neigh_idx = cum_outdegree_this_node + rand_idx;
-    rand_neigh = VECTOR(this->_graph->to)[ (size_t)VECTOR(this->_graph->oi)[rand_neigh_idx] ];
+    #ifdef DEBUG
+      cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
+    #endif
+    size_t rand_neigh = NULL;
+    // From among in or out neighbours?
+    if (rand_idx < total_outdegree)
+    { // From among outgoing neighbours
+      size_t rand_neigh_idx = cum_outdegree_this_node + rand_idx;
+      rand_neigh = VECTOR(this->_graph->to)[ (size_t)VECTOR(this->_graph->oi)[rand_neigh_idx] ];
+    }
+    else
+    { // From among incoming neighbours
+      size_t rand_neigh_idx = cum_indegree_this_node + rand_idx - total_outdegree;
+      rand_neigh = VECTOR(this->_graph->from)[ (size_t)VECTOR(this->_graph->ii)[rand_neigh_idx] ];
+    }
+    return rand_neigh;
   }
   else
-  { // From among incoming neighbours
-    size_t rand_neigh_idx = cum_indegree_this_node + rand_idx - total_outdegree;
-    rand_neigh = VECTOR(this->_graph->from)[ (size_t)VECTOR(this->_graph->ii)[rand_neigh_idx] ];
+  {
+    return this->get_random_neighbour(v, mode);
   }
-  return rand_neigh;
 }
 
 /****************************************************************************
