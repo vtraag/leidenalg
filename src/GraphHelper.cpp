@@ -344,20 +344,22 @@ void Graph::init_admin()
     size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
     size_t k = total_outdegree + total_indegree;
-    double* weights = new double[k];
-    size_t idx = 0;
-    for (size_t i = 0; i < total_outdegree; i++)
+    if (k > 0)
     {
-      size_t neigh_idx = cum_outdegree_this_node + i;
-      weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
+      double* weights = new double[k];
+      size_t idx = 0;
+      for (size_t i = 0; i < total_outdegree; i++)
+      {
+        size_t neigh_idx = cum_outdegree_this_node + i;
+        weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
+      }
+      for (size_t i = 0; i < total_indegree; i++)
+      {
+        size_t neigh_idx = cum_indegree_this_node + i;
+        weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
+      }
+      this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
     }
-    for (size_t i = 0; i < total_indegree; i++)
-    {
-      size_t neigh_idx = cum_indegree_this_node + i;
-      weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
-    }
-    this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
-
   }
   this->_rng = gsl_rng_alloc(gsl_rng_taus);
 }
