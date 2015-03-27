@@ -177,7 +177,8 @@ Graph::~Graph()
     igraph_destroy(this->_graph);
     delete this->_graph;
   }
-  gsl_rng_free(this->_rng);
+  if (this->_is_weighted)
+    gsl_rng_free(this->_rng);
 }
 
 void Graph::set_defaults()
