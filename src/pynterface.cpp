@@ -163,7 +163,9 @@ extern "C"
     delete partition->get_graph();
     delete partition;
 
-    return Py_BuildValue("Od", membership, q);
+    PyObject* result = Py_BuildValue("Od", membership, q);
+    Py_DECREF(membership);
+    return result;
   }
 
   static PyObject* _quality(PyObject *self, PyObject *args, PyObject *keywds)
