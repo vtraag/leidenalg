@@ -292,7 +292,7 @@ extern "C"
       size_t m = PyList_Size(py_weights);
       weights.resize(m);
       for (size_t e = 0; e < m; e++)
-        weights[e] = PyLong_AsLong(PyList_GetItem(py_weights, e));
+        weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
 
       graph = new Graph(py_graph, weights);
     }
@@ -324,6 +324,7 @@ extern "C"
       partition = create_partition(graph, method, &initial_membership, resolution_parameter);
     else
       partition = create_partition(graph, method, NULL, resolution_parameter);
+
     return partition;
   }
 
