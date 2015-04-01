@@ -91,7 +91,6 @@ extern "C"
         PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
       PyList_SetItem(membership, v, item);
-      Py_DECREF(item);
     }
 
     for (size_t layer; layer < nb_layers; layer++)
@@ -155,7 +154,6 @@ extern "C"
         PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
       PyList_SetItem(membership, v, item);
-      Py_DECREF(item);
     }
 
     #ifdef DEBUG
