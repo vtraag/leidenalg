@@ -22,3 +22,4 @@ louvain-igraph.layout
 louvain.log
 igraph-0.7.0.tar.gz
 **/*.swp
+valgrind-python.supp
