@@ -172,13 +172,17 @@ Graph::Graph()
 
 Graph::~Graph()
 {
+  if (this->_is_weighted)
+  {
+    for (size_t v = 0; v < this->vcount(); v++)
+      gsl_ran_discrete_free(this->_weighted_neigh_prob_preproc[v]);
+    gsl_rng_free(this->_rng);
+  }
   if (this->_remove_graph)
   {
     igraph_destroy(this->_graph);
     delete this->_graph;
   }
-  if (this->_is_weighted)
-    gsl_rng_free(this->_rng);
 }
 
 void Graph::set_defaults()
@@ -362,6 +366,7 @@ void Graph::init_admin()
           weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
         }
         this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
+        delete[] weights;
       }
     }
     this->_rng = gsl_rng_alloc(gsl_rng_taus);
