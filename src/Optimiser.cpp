@@ -507,8 +507,6 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       size_t v_comm = -1;
       size_t neigh_comm;
       set<size_t>* neigh_comms = NULL;
-      vector<size_t>* neigh = NULL;
-      vector<size_t>* neigh_ext = NULL;
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
       switch (consider_comms)
