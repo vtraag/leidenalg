@@ -84,12 +84,15 @@ extern "C"
     partition = partitions[0];
     PyObject* membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
+    {
       #if PY_MAJOR_VERSION >= 3
-        PyList_SetItem(membership, v, PyLong_FromLong(partition->membership(v)));
+        PyObject* item = PyLong_FromLong(partition->membership(v))
       #else
-        PyList_SetItem(membership, v, PyInt_FromLong(partition->membership(v)));
+        PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
-
+      PyList_SetItem(membership, v, item);
+      Py_DECREF(item);
+    }
 
     for (size_t layer; layer < nb_layers; layer++)
     {
@@ -145,11 +148,15 @@ extern "C"
     size_t n = partition->get_graph()->vcount();
     PyObject* membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
+    {
       #if PY_MAJOR_VERSION >= 3
-        PyList_SetItem(membership, v, PyLong_FromLong(partition->membership(v)));
+        PyObject* item = PyLong_FromLong(partition->membership(v))
       #else
-        PyList_SetItem(membership, v, PyInt_FromLong(partition->membership(v)));
+        PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
+      PyList_SetItem(membership, v, item);
+      Py_DECREF(item);
+    }
 
     double q = partition->quality();
 
