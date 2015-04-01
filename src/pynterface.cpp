@@ -158,6 +158,10 @@ extern "C"
       Py_DECREF(item);
     }
 
+    #ifdef DEBUG
+      cerr << "Constructed membership Python list for returning." << endl;
+    #endif
+
     double q = partition->quality();
 
     delete partition->get_graph();
@@ -165,6 +169,10 @@ extern "C"
 
     PyObject* result = Py_BuildValue("Od", membership, q);
     Py_DECREF(membership);
+
+    #ifdef DEBUG
+      cerr << "Constructed return object." << endl;
+    #endif
     return result;
   }
 
