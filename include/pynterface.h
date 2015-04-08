@@ -1,8 +1,6 @@
 #ifndef PYNTERFACE_H_INCLUDED
 #define PYNTERFACE_H_INCLUDED
 
-#define DEBUG
-
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
 #endif
