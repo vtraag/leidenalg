@@ -172,7 +172,7 @@ Graph::Graph()
 
 Graph::~Graph()
 {
-  if (this->_is_weighted)
+  if (this->_initialized_weighted_neigh_selection)
   {
     for (size_t v = 0; v < this->vcount(); v++)
       gsl_ran_discrete_free(this->_weighted_neigh_prob_preproc[v]);
@@ -334,44 +334,49 @@ void Graph::init_admin()
   else
     this->_density = 2*w/normalise;
 
-  // Init weighted sampling
-  if (this->_is_weighted)
-  {
-    this->_weighted_neigh_prob_preproc.clear();
-    this->_weighted_neigh_prob_preproc.resize(n);
-    for (size_t v = 0; v < n; v++)
-    {
-      size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
-      size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
-
-      size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
-      size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
-
-      size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
-      size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
-
-      size_t k = total_outdegree + total_indegree;
-      if (k > 0)
-      {
-        double* weights = new double[k];
-        size_t idx = 0;
-        for (size_t i = 0; i < total_outdegree; i++)
-        {
-          size_t neigh_idx = cum_outdegree_this_node + i;
-          weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
-        }
-        for (size_t i = 0; i < total_indegree; i++)
-        {
-          size_t neigh_idx = cum_indegree_this_node + i;
-          weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
-        }
-        this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
-        delete[] weights;
-      }
-    }
-    this->_rng = gsl_rng_alloc(gsl_rng_taus);
-  }
+  this->_initialized_weighted_neigh_selection = false;
 }
+
+void Graph::init_weighted_neigh_selection()
+{
+  size_t n = this->vcount();
+  // Init weighted sampling
+  this->_weighted_neigh_prob_preproc.clear();
+  this->_weighted_neigh_prob_preproc.resize(n);
+  for (size_t v = 0; v < n; v++)
+  {
+    size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
+    size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
+
+    size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
+    size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
+
+    size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
+    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
+
+    size_t k = total_outdegree + total_indegree;
+    if (k > 0)
+    {
+      double* weights = new double[k];
+      size_t idx = 0;
+      for (size_t i = 0; i < total_outdegree; i++)
+      {
+        size_t neigh_idx = cum_outdegree_this_node + i;
+        weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
+      }
+      for (size_t i = 0; i < total_indegree; i++)
+      {
+        size_t neigh_idx = cum_indegree_this_node + i;
+        weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
+      }
+      this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
+      delete[] weights;
+    }
+  }
+  this->_rng = gsl_rng_alloc(gsl_rng_taus);
+  this->_initialized_weighted_neigh_selection = true;
+}
+
 
 double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode)
 {
@@ -538,6 +543,9 @@ size_t Graph::get_weighted_random_neighbour(size_t v, igraph_neimode_t mode)
 {
   if (this->_is_weighted)
   {
+    if (!this->_initialized_weighted_neigh_selection)
+      this->init_weighted_neigh_selection();
+
     // TODO: Currently only implemented random selection for all nodes, not for only
     // incoming / outgoing nodes. Question is: do we really need that as well?
 

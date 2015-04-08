@@ -170,10 +170,12 @@ class Graph
     int _correct_self_loops;
     double _density;
 
+    int _initialized_weighted_neigh_selection;
     gsl_rng* _rng;
     vector<gsl_ran_discrete_t*> _weighted_neigh_prob_preproc; // Used for sampling a random neighbour when using a weighted graph.
 
     void init_admin();
+    void init_weighted_neigh_selection();
     void set_defaults();
     void set_default_edge_weight();
     void set_default_node_size();
