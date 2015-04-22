@@ -520,7 +520,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     if (collapsed_edge_weights[v_comm].count(u_comm) > 0)
       collapsed_edge_weights[v_comm][u_comm] += w;
     else
-      collapsed_edge_weights[v_comm][u_comm] == w;
+      collapsed_edge_weights[v_comm][u_comm] = w;
   }
 
   // Now create vector for edges, first determined the number of edges
@@ -535,6 +535,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
 
   igraph_vector_t edges;
   vector<double> collapsed_weights(m_collapsed, 0.0);
+  double total_collapsed_weight = 0.0;
 
   igraph_vector_init(&edges, 2*m_collapsed); // Vector or edges with edges (edge[0], edge[1]), (edge[2], edge[3]), etc...
 
@@ -549,6 +550,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
       VECTOR(edges)[2*e_idx] = v;
       VECTOR(edges)[2*e_idx+1] = u;
       collapsed_weights[e_idx] = w;
+      total_collapsed_weight += w;
       if (e_idx >= m_collapsed)
         throw Exception("Maximum number of possible edges exceeded.");
       // next edge
@@ -556,9 +558,12 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     }
   }
 
+  if (total_collapsed_weight != this->total_weight())
+    throw Exception("Total collapsed weight is not equal to original weight.");
+
   // Create graph based on edges
   igraph_t* graph = new igraph_t();
-  igraph_create(graph, &edges, n_collapsed, true);
+  igraph_create(graph, &edges, n_collapsed, this->is_directed());
   igraph_vector_destroy(&edges);
 
   if ((size_t) igraph_vcount(graph) != partition->nb_communities())

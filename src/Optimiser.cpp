@@ -1,13 +1,5 @@
 #include "Optimiser.h"
 
-#define DEBUG
-
-#ifdef DEBUG
-#include <iostream>
-  using std::cerr;
-  using std::endl;
-#endif
-
 /****************************************************************************
   Create a new Optimiser object
 
