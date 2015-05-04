@@ -191,7 +191,7 @@ def find_partition(graph, method, initial_membership=None, weight=None,
       # Make sure it is a list
       weight = list(weight);
   if initial_membership is not None:
-    gen = _ig.UniqueIdGenerator;
+    gen = _ig.UniqueIdGenerator();
     initial_membership = [gen[m] for m in initial_membership];
   membership, quality = _c_louvain._find_partition(pygraph_t, method, initial_membership, weight, resolution_parameter, consider_comms);
   partition = _ig.VertexClustering(graph, membership);
