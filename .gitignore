@@ -13,6 +13,7 @@ Makefile
 **/*.o
 **/*.so
 files.txt
+files_py3.txt
 callgrind*
 main.cpp
 louvain-dists.zip

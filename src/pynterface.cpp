@@ -86,7 +86,7 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       #if PY_MAJOR_VERSION >= 3
-        PyObject* item = PyLong_FromLong(partition->membership(v))
+        PyObject* item = PyLong_FromLong(partition->membership(v));
       #else
         PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
@@ -149,7 +149,7 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       #if PY_MAJOR_VERSION >= 3
-        PyObject* item = PyLong_FromLong(partition->membership(v))
+        PyObject* item = PyLong_FromLong(partition->membership(v));
       #else
         PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
