@@ -309,6 +309,9 @@ extern "C"
     }
     #ifdef DEBUG
       cerr << "Created graph " << graph << endl;
+      cerr << "Number of nodes " << graph->vcount() << endl;
+      cerr << "Number of edges " << graph->ecount() << endl;
+      cerr << "Total weight " << graph->total_weight() << endl;
     #endif
 
     vector<size_t> initial_membership;
