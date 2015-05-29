@@ -286,7 +286,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
     // We normally initialize the normal vertex order
     // of considering node 0,1,...
     vector<size_t> vertex_order = range(n);
-    // But if we use a random order, we shuffly this order.
+    // But if we use a random order, we shuffle this order.
     if (this->random_order)
       random_shuffle( vertex_order.begin(), vertex_order.end() );
 
