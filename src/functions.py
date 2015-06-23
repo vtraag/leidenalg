@@ -303,7 +303,10 @@ def bisect(
     Whether the bisectioning will be done on a linear or on a logarithmic basis
     (if possible).
 
-  returns: a list of partitions and resolution values.
+  returns: an ordered dictionary of partitions and resolution values. The key-value pair
+  is constituded by the resolution parameter and a BisectPartition object which contains the
+  found partition and the bisection value. The partition returned for gamma_1 should be optimal
+  from resolution parameter in the interval [gamma_1, gamma_2).
     """
   # Helper function for cleaning values to be a stepwise function
   def clean_stepwise(bisect_values):

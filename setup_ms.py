@@ -20,18 +20,18 @@ print("Building for " + ( "Python 3" if PY3 else "Python 2" ) + " with a " + ( "
 
 if PY3:
   if x64:
-    inc_dir = 'igraph-0.7.0-msvc-py3/include';
-    lib_dir = 'igraph-0.7.0-msvc-py3/Release/x64';
+    inc_dir = 'igraph-0.7.1-msvc-py3/include';
+    lib_dir = 'igraph-0.7.1-msvc-py3/Release/x64';
   else:
-    inc_dir = 'igraph-0.7.0-msvc-py3/include';
-    lib_dir = 'igraph-0.7.0-msvc-py3/Release/win32';
+    inc_dir = 'igraph-0.7.1-msvc-py3/include';
+    lib_dir = 'igraph-0.7.1-msvc-py3/Release/win32';
 else:
   if x64:
-    inc_dir = 'igraph-0.7.0-msvc-py2.7/include';
-    lib_dir = 'igraph-0.7.0-msvc-py2.7/Release/x64';
+    inc_dir = 'igraph-0.7.1-msvc-py2.7/include';
+    lib_dir = 'igraph-0.7.1-msvc-py2.7/Release/x64';
   else:
-    inc_dir = 'igraph-0.7.0-msvc-py2.7/include';
-    lib_dir = 'igraph-0.7.0-msvc-py2.7/Release/win32';
+    inc_dir = 'igraph-0.7.1-msvc-py2.7/include';
+    lib_dir = 'igraph-0.7.1-msvc-py2.7/Release/win32';
 
 print("Using include dir: " + inc_dir);
 print("Using library dir: " + lib_dir);
