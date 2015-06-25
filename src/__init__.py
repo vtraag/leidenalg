@@ -7,7 +7,7 @@ of millions of nodes (as long as they can fit in memory). The core function is
 ``find_partition`` which finds the optimal partition using the louvain algorithm
 for a number of different methods. The methods currently implemented are:
 
-* Modularity
+* Modularity.
   This method compares the actual graph to the expected graph, taking into
   account the degree of the nodes [1]. The expected graph is based on a
   configuration null-model. Notice that we use the non-normalized version (i.e.
@@ -21,7 +21,7 @@ for a number of different methods. The methods currently implemented are:
   where `A_ij = 1` if there is an edge between node `i` and `j`, `k_i` is the degree of
   node `i` and `s_i` is the community of node i.
 
-* RBConfiguration
+* RBConfiguration.
   This is an extension of modularity which includes a resolution parameter [2].
   In general, a higher resolution parameter will lead to smaller communities.
   The formal definition is
@@ -33,7 +33,7 @@ for a number of different methods. The methods currently implemented are:
   where `gamma` is the resolution value, and the other variables are the same as
   for Modularity.
 
-* RBER
+* RBER.
   A variant of the previous method that instead of a configuration null-model
   uses a Erdös-Rényi null-model in which each edge has the same probability of
   appearing [2]. The formal definition is
@@ -46,7 +46,7 @@ for a number of different methods. The methods currently implemented are:
   for Modularity, with `gamma` a resolution parameter.
 
 
-* CPM
+* CPM.
   This method compares to a fixed resolution parameter, so that it finds
   communities that have an internal density higher than the resolution
   parameter, and is separated from other communities with a density lower than
@@ -59,7 +59,7 @@ for a number of different methods. The methods currently implemented are:
   with `gamma` a resolution parameter, and the other variables are the same as for
   Modularity.
 
-* Significance
+* Significance.
   This is a probabilistic method based on the idea of assessing the probability
   of finding such dense subgraphs in an (ER) random graph [4]. The formal
   definition is
@@ -73,7 +73,7 @@ for a number of different methods. The methods currently implemented are:
   community `c`, `p_c` is the density of the community `c`, and `p` the general density
   of the graph, and `D(x || y)` is the binary Kullback-Leibler divergence.
 
-* Surprise
+* Surprise.
   Another probabilistic method, but rather than the probability of finding dense
   subgraphs, it focuses on the probability of so many edges within communities
   [5, 6]. The formal definition is
