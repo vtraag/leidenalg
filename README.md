@@ -15,19 +15,23 @@ Modularity
   we don't divide by the number of edges), so that this Modularity values
   generally does not fall between 0 and 1. The formal definition is
 
+  ```
   H = sum_ij (A_ij - k_i k_j / 2m) d(s_i, s_j),
+  ```
 
-  where A_ij = 1 if there is an edge between node i and j, k_i is the degree of
-  node i and s_i is the community of node i.
+  where `A_ij = 1` if there is an edge between node `i` and `j`, `k_i` is the degree of
+  node `i` and `s_i` is the community of node i.
 
 RBConfiguration
   This is an extension of modularity which includes a resolution parameter [2].
   In general, a higher resolution parameter will lead to smaller communities.
   The formal definition is
 
+  ```
   H = sum_ij (A_ij - gamma k_i k_j / 2m) d(s_i, s_j),
+  ```
 
-  where gamma is the resolution value, and the other variables are the same as
+  where `gamma` is the resolution value, and the other variables are the same as
   for Modularity.
 
 RBER
@@ -35,10 +39,12 @@ RBER
   uses a Erdös-Rényi null-model in which each edge has the same probability of
   appearing [2]. The formal definition is
 
+  ```
   H = sum_ij (A_ij - gamma p) d(s_i, s_j),
+  ```
 
-  where p is the density of the graph, and the other variables are the same as
-  for Modularity, with gamma a resolution parameter.
+  where `p` is the density of the graph, and the other variables are the same as
+  for Modularity, with `gamma` a resolution parameter.
 
 
 CPM
@@ -47,9 +53,11 @@ CPM
   parameter, and is separated from other communities with a density lower than
   the resolution parameter [3].The formal definition is
 
+  ```
   H = sum_ij (A_ij - gamma ) d(s_i, s_j),
+  ```
 
-  with gamma a resolution parameter, and the other variables are the same as for
+  with `gamma` a resolution parameter, and the other variables are the same as for
   Modularity.
 
 Significance
@@ -57,22 +65,26 @@ Significance
   of finding such dense subgraphs in an (ER) random graph [4]. The formal
   definition is
 
+  ```
   H = sum_c M_c D(p_c || p)
+  ```
 
-  where M_c is the number of possible edges in community c, i.e. n_c (n_c - 1)/2
-  for undirected graphs and twice that for directed grahs with n_c the size of
-  community c, p_c is the density of the community c, and p the general density
-  of the graph, and D(x || y) is the binary Kullback-Leibler divergence.
+  where `M_c` is the number of possible edges in community `c`, i.e. `n_c (n_c - 1)/2`
+  for undirected graphs and twice that for directed grahs with `n_c` the size of
+  community `c`, `p_c` is the density of the community `c`, and `p` the general density
+  of the graph, and `D(x || y)` is the binary Kullback-Leibler divergence.
 
 Surprise
   Another probabilistic method, but rather than the probability of finding dense
   subgraphs, it focuses on the probability of so many edges within communities
   [5, 6]. The formal definition is
 
+  ```
   H = m D(q || <q>)
+  ```
 
-  where m is the number of edges, q is the proportion of edges within
-  communities (i.e. sum_c m_c / m) and <q> is the expected proportion of edges
+  where `m` is the number of edges, `q` is the proportion of edges within
+  communities (i.e. `sum_c m_c / m`) and `<q>` is the expected proportion of edges
   within communities in an Erdős–Rényi graph.
 
 INSTALLATION
