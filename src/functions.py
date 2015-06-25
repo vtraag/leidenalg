@@ -191,7 +191,7 @@ def find_partition(graph, method, initial_membership=None, weight=None,
       # Make sure it is a list
       weight = list(weight);
   if initial_membership is not None:
-    gen = _ig.UniqueIdGenerator;
+    gen = _ig.UniqueIdGenerator();
     initial_membership = [gen[m] for m in initial_membership];
   membership, quality = _c_louvain._find_partition(pygraph_t, method, initial_membership, weight, resolution_parameter, consider_comms);
   partition = _ig.VertexClustering(graph, membership);
@@ -303,10 +303,7 @@ def bisect(
     Whether the bisectioning will be done on a linear or on a logarithmic basis
     (if possible).
 
-  returns: an ordered dictionary of partitions and resolution values. The key-value pair
-  is constituded by the resolution parameter and a BisectPartition object which contains the
-  found partition and the bisection value. The partition returned for gamma_1 should be optimal
-  from resolution parameter in the interval [gamma_1, gamma_2).
+  returns: a list of partitions and resolution values.
     """
   # Helper function for cleaning values to be a stepwise function
   def clean_stepwise(bisect_values):

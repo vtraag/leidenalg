@@ -84,12 +84,14 @@ extern "C"
     partition = partitions[0];
     PyObject* membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
+    {
       #if PY_MAJOR_VERSION >= 3
-        PyList_SetItem(membership, v, PyLong_FromLong(partition->membership(v)));
+        PyObject* item = PyLong_FromLong(partition->membership(v));
       #else
-        PyList_SetItem(membership, v, PyInt_FromLong(partition->membership(v)));
+        PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
-
+      PyList_SetItem(membership, v, item);
+    }
 
     for (size_t layer; layer < nb_layers; layer++)
     {
@@ -145,18 +147,23 @@ extern "C"
     size_t n = partition->get_graph()->vcount();
     PyObject* membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
+    {
       #if PY_MAJOR_VERSION >= 3
-        PyList_SetItem(membership, v, PyLong_FromLong(partition->membership(v)));
+        PyObject* item = PyLong_FromLong(partition->membership(v));
       #else
-        PyList_SetItem(membership, v, PyInt_FromLong(partition->membership(v)));
+        PyObject* item = PyInt_FromLong(partition->membership(v));
       #endif
+      PyList_SetItem(membership, v, item);
+    }
 
     double q = partition->quality();
 
     delete partition->get_graph();
     delete partition;
 
-    return Py_BuildValue("Od", membership, q);
+    PyObject* result = Py_BuildValue("Od", membership, q);
+    Py_DECREF(membership);
+    return result;
   }
 
   static PyObject* _quality(PyObject *self, PyObject *args, PyObject *keywds)
@@ -292,7 +299,7 @@ extern "C"
       size_t m = PyList_Size(py_weights);
       weights.resize(m);
       for (size_t e = 0; e < m; e++)
-        weights[e] = PyLong_AsLong(PyList_GetItem(py_weights, e));
+        weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
 
       graph = new Graph(py_graph, weights);
     }
@@ -302,6 +309,9 @@ extern "C"
     }
     #ifdef DEBUG
       cerr << "Created graph " << graph << endl;
+      cerr << "Number of nodes " << graph->vcount() << endl;
+      cerr << "Number of edges " << graph->ecount() << endl;
+      cerr << "Total weight " << graph->total_weight() << endl;
     #endif
 
     vector<size_t> initial_membership;
@@ -324,6 +334,7 @@ extern "C"
       partition = create_partition(graph, method, &initial_membership, resolution_parameter);
     else
       partition = create_partition(graph, method, NULL, resolution_parameter);
+
     return partition;
   }
 

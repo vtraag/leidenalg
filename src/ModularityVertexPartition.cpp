@@ -113,7 +113,7 @@ double ModularityVertexPartition::diff_move(size_t v, size_t new_comm)
 /*****************************************************************************
   Give the modularity of the partition.
 
-  We here use the unscaled version of modularity, in other words, we don't
+  We here use the unscaled version of modularity, in other words, we don"t
   normalise by the number of edges.
 ******************************************************************************/
 double ModularityVertexPartition::quality()
