@@ -1,7 +1,8 @@
 0.5.3
-- Fixed bug concerning weights (were rounded to integers)
-- Improved documentation
+- Fixed bug concerning weights (were rounded to integers).
+- Improved documentation.
 - Included an HOWTO on extending the current package.
+- Fixed some minor bugs.
 
 0.5.2
 - Ensured that random neighbour selection works in O(1) rather than O(k), with k the average number of neighbours.
