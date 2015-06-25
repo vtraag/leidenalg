@@ -3,6 +3,8 @@ build/
 dist/
 igraph-0.7.0-msvc-py2.7/
 igraph-0.7.0-msvc-py3/
+igraph-0.7.1-msvc-py2.7/
+igraph-0.7.1-msvc-py3/
 louvain.egg-info/
 louvain-0.5/
 wlib/
@@ -22,5 +24,7 @@ louvain-igraph.depend
 louvain-igraph.layout
 louvain.log
 igraph-0.7.0.tar.gz
+igraph-0.7.1.tar.gz
+igraphcore/
 **/*.swp
 valgrind-python.supp
