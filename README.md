@@ -188,7 +188,7 @@ Notice the negative layer weight is ``-1.0`` for the negative graph, since we
 want those edges to fall between communities rather than within. One particular
 problem when using negative links, is that the optimal community is no longer
 guaranteed to be connected (it may be a multipartite partition). You may
-therefore need the options consider_comms=ALL_COMMS to improve the quality of
+therefore need the options `consider_comms=ALL_COMMS` to improve the quality of
 the partition. Notice that this runs much slower than only considering
 neighbouring communities (which is the default).
 
@@ -199,14 +199,14 @@ can do this by calling:
 res_parts = louvain.bisect(G, method='CPM', resolution_range=[0,1]);
 ```
 Notice this may take some time to run, as it effectively calls
-louvain.find_partition for various resolution parameters (depending on the
+`louvain.find_partition` for various resolution parameters (depending on the
 settings possibly hundreds of times).
 
-Then ``res_parts`` is a dictionary containing as keys the resolution, and as
-values a ``NamedTuple`` with variables ``partition`` and ``bisect_value``, which
+Then `res_parts` is a dictionary containing as keys the resolution, and as
+values a `NamedTuple` with variables `partition` and `bisect_value`, which
 contains the partition and the value at which the resolution was bisected (the
-value of the ``bisect_func`` of the ``bisect`` function). You could for example
-plot the bisection value of all the found partitions by using:
+value of the `bisect_func` of the `bisect` function). You could for example plot
+the bisection value of all the found partitions by using:
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt
