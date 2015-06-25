@@ -1,44 +1,91 @@
 INTRODUCTION
 ============
 
-This package implements the louvain algorithm [1] in ``C++`` and exposes it to
-``python``. It relies on (python-)``igraph`` for it to function. Besides the
-relative flexibility of the implementation, it also scales well, and can be run
-on graphs of millions of nodes (as long as they can fit in memory). The core
-function is ``find_partition`` which finds the optimal partition using the
-louvain algorithm for a number of different methods. The original implementation
-is available from https://sites.google.com/site/findcommunities/. The methods
-currently implemented are:
+This package implements the louvain algorithm in `C++` and exposes it to `python`.
+It relies on `(python-)igraph` for it to function. Besides the relative
+flexibility of the implementation, it also scales well, and can be run on graphs
+of millions of nodes (as long as they can fit in memory). The core function is
+``find_partition`` which finds the optimal partition using the louvain algorithm
+for a number of different methods. The methods currently implemented are:
 
-Modularity
+* Modularity.
   This method compares the actual graph to the expected graph, taking into
-  account the degree of the nodes [2]. The expected graph is based on a
-  configuration null-model.
+  account the degree of the nodes [1]. The expected graph is based on a
+  configuration null-model. Notice that we use the non-normalized version (i.e.
+  we don't divide by the number of edges), so that this Modularity values
+  generally does not fall between 0 and 1. The formal definition is
 
-RBConfiguration
-  This is an extension of modularity which includes a resolution parameter [3].
+  ```
+  H = sum_ij (A_ij - k_i k_j / 2m) d(s_i, s_j),
+  ```
+
+  where `A_ij = 1` if there is an edge between node `i` and `j`, `k_i` is the degree of
+  node `i` and `s_i` is the community of node i.
+
+* RBConfiguration.
+  This is an extension of modularity which includes a resolution parameter [2].
   In general, a higher resolution parameter will lead to smaller communities.
+  The formal definition is
 
-RBER
+  ```
+  H = sum_ij (A_ij - gamma k_i k_j / 2m) d(s_i, s_j),
+  ```
+
+  where `gamma` is the resolution value, and the other variables are the same as
+  for Modularity.
+
+* RBER.
   A variant of the previous method that instead of a configuration null-model
   uses a Erdös-Rényi null-model in which each edge has the same probability of
-  appearing [3].
+  appearing [2]. The formal definition is
 
-CPM
+  ```
+  H = sum_ij (A_ij - gamma p) d(s_i, s_j),
+  ```
+
+  where `p` is the density of the graph, and the other variables are the same as
+  for Modularity, with `gamma` a resolution parameter.
+
+
+* CPM.
   This method compares to a fixed resolution parameter, so that it finds
   communities that have an internal density higher than the resolution
-  parameter, and is separated from other communities with a density lowerer than
-  the resolution parameter [4].
+  parameter, and is separated from other communities with a density lower than
+  the resolution parameter [3].The formal definition is
 
-Significance
+  ```
+  H = sum_ij (A_ij - gamma ) d(s_i, s_j),
+  ```
+
+  with `gamma` a resolution parameter, and the other variables are the same as for
+  Modularity.
+
+* Significance.
   This is a probabilistic method based on the idea of assessing the probability
-  of finding such dense subgraphs in an (ER) random graph [5].
+  of finding such dense subgraphs in an (ER) random graph [4]. The formal
+  definition is
 
-Surprise
+  ```
+  H = sum_c M_c D(p_c || p)
+  ```
+
+  where `M_c` is the number of possible edges in community `c`, i.e. `n_c (n_c - 1)/2`
+  for undirected graphs and twice that for directed grahs with `n_c` the size of
+  community `c`, `p_c` is the density of the community `c`, and `p` the general density
+  of the graph, and `D(x || y)` is the binary Kullback-Leibler divergence.
+
+* Surprise.
   Another probabilistic method, but rather than the probability of finding dense
   subgraphs, it focuses on the probability of so many edges within communities
-  [6, 7].
+  [5, 6]. The formal definition is
 
+  ```
+  H = m D(q || <q>)
+  ```
+
+  where `m` is the number of edges, `q` is the proportion of edges within
+  communities (i.e. `sum_c m_c / m`) and `<q>` is the expected proportion of edges
+  within communities in an Erdős–Rényi graph.
 
 INSTALLATION
 ============
@@ -104,6 +151,15 @@ For simply finding a partition use:
 part = louvain.find_partition(G, method='Modularity');
 ```
 
+In case you want to use a weighted graph, you can store this in an edge
+attribute:
+```python
+G.es['weight'] = 1.0;
+part = louvain.find_partition(G, method='Modularity', weight='weight');
+```
+Please note that not all methods are necessarily capable of handling weighted
+graphs.
+
 Notice that ``part`` now contains an additional variable, ``part.quality`` which
 stores the quality of the partition as calculated by the used method. You can
 always get the quality of the partition using another method by calling
@@ -132,7 +188,7 @@ Notice the negative layer weight is ``-1.0`` for the negative graph, since we
 want those edges to fall between communities rather than within. One particular
 problem when using negative links, is that the optimal community is no longer
 guaranteed to be connected (it may be a multipartite partition). You may
-therefore need the options consider_comms=ALL_COMMS to improve the quality of
+therefore need the options `consider_comms=ALL_COMMS` to improve the quality of
 the partition. Notice that this runs much slower than only considering
 neighbouring communities (which is the default).
 
@@ -143,14 +199,14 @@ can do this by calling:
 res_parts = louvain.bisect(G, method='CPM', resolution_range=[0,1]);
 ```
 Notice this may take some time to run, as it effectively calls
-louvain.find_partition for various resolution parameters (depending on the
+`louvain.find_partition` for various resolution parameters (depending on the
 settings possibly hundreds of times).
 
-Then ``res_parts`` is a dictionary containing as keys the resolution, and as
-values a ``NamedTuple`` with variables ``partition`` and ``bisect_value``, which
+Then `res_parts` is a dictionary containing as keys the resolution, and as
+values a `NamedTuple` with variables `partition` and `bisect_value`, which
 contains the partition and the value at which the resolution was bisected (the
-value of the ``bisect_func`` of the ``bisect`` function). You could for example
-plot the bisection value of all the found partitions by using:
+value of the `bisect_func` of the `bisect` function). You could for example plot
+the bisection value of all the found partitions by using:
 ```python
 import pandas as pd
 import matplotlib.pyplot as plt

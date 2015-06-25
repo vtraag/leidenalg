@@ -35,7 +35,7 @@ from subprocess import Popen, PIPE
 from textwrap import dedent
 
 # Global version number. Keep the format of the next line intact.
-VERSION = '0.7'
+VERSION = '0.7.1'
 
 # Check Python's version info and exit early if it is too old
 if sys.version_info < (2, 5):
@@ -579,7 +579,7 @@ louvain_ext = Extension('louvain._c_louvain',
 
 options =  dict(
   name = 'louvain',
-  version = '0.5.2',
+  version = '0.5.3',
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
   long_description=read('README.md'),
   license = 'GPLv3+',

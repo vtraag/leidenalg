@@ -508,32 +508,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   size_t n = this->vcount();
   size_t m = this->ecount();
 
-  igraph_t* graph = new igraph_t();
-  igraph_copy(graph, this->_graph);
-
-  // First set the mapping for the contraction
-  igraph_vector_t mapping;
-  igraph_vector_init(&mapping, n);
-  for (size_t v = 0; v < n; v++)
-    VECTOR(mapping)[v] = partition->membership(v);
-
-  // Contact the vertices
-  igraph_contract_vertices(graph, &mapping, NULL);
-  igraph_vector_destroy(&mapping);
-
-  // Simplify the graph so there remains only one edge between
-  // each node, but do not remove self loops
-  igraph_simplify(graph, true, false, NULL);
-
-  if ((size_t) igraph_vcount(graph) != partition->nb_communities())
-    throw Exception("Something went wrong with collapsing the graph.");
-
-  // Calculate new node sizes
-  vector<size_t> csizes(igraph_vcount(graph), 0);
-  for (size_t c = 0; c < partition->nb_communities(); c++)
-    csizes[c] = partition->csize(c);
-
-  vector<double> collapsed_weight(igraph_ecount(graph), 0.0);
+  vector< map<size_t, double> > collapsed_edge_weights(partition->nb_communities());
 
   igraph_integer_t v, u;
   for (size_t e = 0; e < m; e++)
@@ -542,13 +517,65 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     igraph_edge(this->_graph, e, &v, &u);
     size_t v_comm = partition->membership((size_t)v);
     size_t u_comm = partition->membership((size_t)u);
-    igraph_integer_t collapsed_edge;
-    igraph_get_eid(graph, &collapsed_edge,
-      v_comm, u_comm, true, true);
-    collapsed_weight[collapsed_edge] += w;
+    if (collapsed_edge_weights[v_comm].count(u_comm) > 0)
+      collapsed_edge_weights[v_comm][u_comm] += w;
+    else
+      collapsed_edge_weights[v_comm][u_comm] = w;
   }
 
-  Graph* G = new Graph(graph, collapsed_weight, csizes);
+  // Now create vector for edges, first determined the number of edges
+  size_t m_collapsed = 0;
+  size_t n_collapsed = partition->nb_communities();
+
+  for (vector< map<size_t, double> >::iterator itr = collapsed_edge_weights.begin();
+       itr != collapsed_edge_weights.end(); itr++)
+  {
+      m_collapsed += itr->size();
+  }
+
+  igraph_vector_t edges;
+  vector<double> collapsed_weights(m_collapsed, 0.0);
+  double total_collapsed_weight = 0.0;
+
+  igraph_vector_init(&edges, 2*m_collapsed); // Vector or edges with edges (edge[0], edge[1]), (edge[2], edge[3]), etc...
+
+  size_t e_idx = 0;
+  for (size_t v = 0; v < n_collapsed; v++)
+  {
+    for (map<size_t, double>::iterator itr = collapsed_edge_weights[v].begin();
+         itr != collapsed_edge_weights[v].end(); itr++)
+    {
+      size_t u = itr->first;
+      double w = itr->second;
+      VECTOR(edges)[2*e_idx] = v;
+      VECTOR(edges)[2*e_idx+1] = u;
+      collapsed_weights[e_idx] = w;
+      total_collapsed_weight += w;
+      if (e_idx >= m_collapsed)
+        throw Exception("Maximum number of possible edges exceeded.");
+      // next edge
+      e_idx += 1;
+    }
+  }
+
+  double const eps = 1e-6;
+  if (fabs(total_collapsed_weight - this->total_weight()) > eps)
+    throw Exception("Total collapsed weight is not equal to original weight.");
+
+  // Create graph based on edges
+  igraph_t* graph = new igraph_t();
+  igraph_create(graph, &edges, n_collapsed, this->is_directed());
+  igraph_vector_destroy(&edges);
+
+  if ((size_t) igraph_vcount(graph) != partition->nb_communities())
+    throw Exception("Something went wrong with collapsing the graph.");
+
+  // Calculate new node sizes
+  vector<size_t> csizes(n_collapsed, 0);
+  for (size_t c = 0; c < partition->nb_communities(); c++)
+    csizes[c] = partition->csize(c);
+
+  Graph* G = new Graph(graph, collapsed_weights, csizes);
   G->_remove_graph = true;
   #ifdef DEBUG
     cerr << "exit Graph::collapse_graph(vector<size_t> membership)" << endl << endl;
