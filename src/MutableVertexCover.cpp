@@ -95,8 +95,9 @@ void MutableVertexCover::init_admin()
   size_t nb_comms = 0;
   for (size_t i = 0; i < n; i++)
   {
-    if (this->_membership[i] + 1 > nb_comms)
-      nb_comms = this->_membership[i] + 1;
+    size_t m = max(this->_membership[i]) + 1;
+    if (m > nb_comms)
+      nb_comms = m;
   }
 
   // Reset administration
@@ -115,47 +116,59 @@ void MutableVertexCover::init_admin()
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
   {
-    size_t v_comm = this->_membership[v];
-    // Add this node to the community sets
-    this->community[v_comm]->insert(v);
-    // Update the community size
-    this->_csize[v_comm] += this->graph->node_size(v);
-
-    // Loop over all incident edges
-    vector< pair<size_t, size_t> >* neigh_edges
-      = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
-
-    for (vector< pair<size_t, size_t> >::iterator v_it = neigh_edges->begin();
-         v_it != neigh_edges->end(); v_it++)
+    vector<size_t> v_comms = this->_membership[v];
+    for (vector<size_t>::iterator it=v_comms.begin();
+            it!=v_comms.end();
+            it++)
     {
-      size_t u = v_it->first;
-      size_t e = v_it->second;
-      size_t u_comm = this->_membership[u];
-      // Get the weight of the edge
-      double w = this->graph->edge_weight(e);
-      // Add weight to the outgoing weight of community of v
-      this->_total_weight_from_comm[v_comm] += w;
-      #ifdef DEBUG
-        cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to from_comm " << v_comm <<  "." << endl;
-      #endif
-      // Add weight to the incoming weight of community of u
-      this->_total_weight_to_comm[u_comm] += w;
-      #ifdef DEBUG
-        cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to to_comm " << u_comm << "." << endl;
-      #endif
-      // If it is an edge within a community
-      if (v_comm == u_comm)
-      {
-        if (!this->graph->is_directed())
-          w /= 2.0;
-        this->_total_weight_in_comm[v_comm] += w;
-        this->_total_weight_in_all_comms += w;
-        #ifdef DEBUG
-          cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to in_comm " << v_comm << "." << endl;
-        #endif
-      }
+        size_t v_comm = *it;
+        // Add this node to the community sets
+        this->community[v_comm]->insert(v);
+        // Update the community size
+        this->_csize[v_comm] += this->graph->node_size(v);
+
+        // Loop over all incident edges
+        vector< pair<size_t, size_t> >* neigh_edges
+          = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
+
+        for (vector< pair<size_t, size_t> >::iterator v_it = neigh_edges->begin();
+             v_it != neigh_edges->end(); v_it++)
+        {
+          size_t u = v_it->first;
+          size_t e = v_it->second;
+          vector<size_t> u_comms = this->_membership[u];
+          for (vector<size_t>::iterator it_u=u_comms.begin();
+                  it_u!=u_comms.end();
+                  it_u++)
+          {
+              size_t u_comm = *it_u;
+              // Get the weight of the edge
+              double w = this->graph->edge_weight(e);
+              // Add weight to the outgoing weight of community of v
+              this->_total_weight_from_comm[v_comm] += w;
+              #ifdef DEBUG
+                cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to from_comm " << v_comm <<  "." << endl;
+              #endif
+              // Add weight to the incoming weight of community of u
+              this->_total_weight_to_comm[u_comm] += w;
+              #ifdef DEBUG
+                cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to to_comm " << u_comm << "." << endl;
+              #endif
+              // If it is an edge within a community
+              if (v_comm == u_comm)
+              {
+                if (!this->graph->is_directed())
+                  w /= 2.0;
+                this->_total_weight_in_comm[v_comm] += w;
+                this->_total_weight_in_all_comms += w;
+                #ifdef DEBUG
+                  cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to in_comm " << v_comm << "." << endl;
+                #endif
+              }
+          }
+        }
+        delete neigh_edges;
     }
-    delete neigh_edges;
   }
 
   this->_total_possible_edges_in_all_comms = 0;
@@ -210,7 +223,13 @@ void MutableVertexCover::renumber_communities()
   }
 
   for (size_t i = 0; i < this->graph->vcount(); i++)
-    this->_membership[i] = new_comm_id[this->_membership[i]];
+  {
+    vector<size_t> comms = this->_membership[i];
+    for (size_t idx = 0; idx < comms.size(); idx++)
+    {
+      comms[idx] = new_comm_id[comms[idx]];
+    }
+  }
 
   this->clean_mem();
   this->init_admin();
@@ -220,7 +239,7 @@ void MutableVertexCover::renumber_communities()
  Renumber the communities using the provided membership vector. Notice that this
  doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexCover::renumber_communities(vector<size_t> new_membership)
+void MutableVertexCover::renumber_communities(vector< vector<size_t> > new_membership)
 {
   for (size_t i = 0; i < this->graph->vcount(); i++)
     this->_membership[i] = new_membership[i];
@@ -244,7 +263,6 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
 
   // Keep track of all possible edges in all communities;
   size_t node_size = this->graph->node_size(v);
-  size_t old_comm = this->_membership[v];
 
   // Incidentally, this is independent of whether we take into account self-loops or not
   // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
@@ -284,63 +302,69 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
       size_t u = v_it->first;
       size_t e = v_it->second;
 
-      size_t u_comm = this->_membership[u];
-      // Get the weight of the edge
-      double w = this->graph->edge_weight(e);
-      if (mode == IGRAPH_OUT)
+      vector<size_t> u_comms = this->_membership[u];
+      for (vector<size_t>::iterator it_u=u_comms.begin();
+              it_u!=u_comms.end();
+              it_u++)
       {
-        // Remove the weight from the outgoing weights of the old community
-        this->_total_weight_from_comm[old_comm] -= w;
-        // Add the weight to the outgoing weights of the new community
-        this->_total_weight_from_comm[new_comm] += w;
-        #ifdef DEBUG
-          cerr << "\t" << "Moving link (" << v << "-" << u << ") "
-               << "outgoing weight " << w
-               << " from " << old_comm << " to " << new_comm
-               << "." << endl;
-        #endif
-      }
-      else if (mode == IGRAPH_IN)
-      {
-        // Remove the weight from the outgoing weights of the old community
-        this->_total_weight_to_comm[old_comm] -= w;
-        // Add the weight to the outgoing weights of the new community
-        this->_total_weight_to_comm[new_comm] += w;
-        #ifdef DEBUG
-          cerr << "\t" << "Moving link (" << v << "-" << u << ") "
-               << "incoming weight " << w
-               << " from " << old_comm << " to " << new_comm
-               << "." << endl;
-        #endif
-      }
-      else
-        throw Exception("Incorrect mode for updating the admin.");
-      // Get internal weight (if it is an internal edge)
-      double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
-      // If it is an internal edge in the old community
-      if (old_comm == u_comm)
-      {
-        // Remove the internal weight
-        this->_total_weight_in_comm[old_comm] -= int_weight;
-        this->_total_weight_in_all_comms -= int_weight;
-        #ifdef DEBUG
-          cerr << "\t" << "From link (" << v << "-" << u << ") "
-               << "remove internal weight " << int_weight
-               << " from " << old_comm << "." << endl;
-        #endif
-      }
-      // If it is an internal edge in the new community
-      // i.e. if u is in the new community, or if it is a self loop
-      if ((new_comm == u_comm) || (u == v))
-      {
-        // Add the internal weight
-        this->_total_weight_in_comm[new_comm] += int_weight;
-        this->_total_weight_in_all_comms += int_weight;
-        #ifdef DEBUG
-          cerr << "\t" << "From link (" << v << "-" << u << ") "
-               << "add internal weight " << int_weight
-               << " to " << new_comm << "." << endl;
-        #endif
+          size_t u_comm = *it_u;
+        // Get the weight of the edge
+        double w = this->graph->edge_weight(e);
+        if (mode == IGRAPH_OUT)
+        {
+          // Remove the weight from the outgoing weights of the old community
+          this->_total_weight_from_comm[old_comm] -= w;
+          // Add the weight to the outgoing weights of the new community
+          this->_total_weight_from_comm[new_comm] += w;
+          #ifdef DEBUG
+            cerr << "\t" << "Moving link (" << v << "-" << u << ") "
+                 << "outgoing weight " << w
+                 << " from " << old_comm << " to " << new_comm
+                 << "." << endl;
+          #endif
+        }
+        else if (mode == IGRAPH_IN)
+        {
+          // Remove the weight from the outgoing weights of the old community
+          this->_total_weight_to_comm[old_comm] -= w;
+          // Add the weight to the outgoing weights of the new community
+          this->_total_weight_to_comm[new_comm] += w;
+          #ifdef DEBUG
+            cerr << "\t" << "Moving link (" << v << "-" << u << ") "
+                 << "incoming weight " << w
+                 << " from " << old_comm << " to " << new_comm
+                 << "." << endl;
+          #endif
+        }
+        else
+          throw Exception("Incorrect mode for updating the admin.");
+        // Get internal weight (if it is an internal edge)
+        double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
+        // If it is an internal edge in the old community
+        if (old_comm == u_comm)
+        {
+          // Remove the internal weight
+          this->_total_weight_in_comm[old_comm] -= int_weight;
+          this->_total_weight_in_all_comms -= int_weight;
+          #ifdef DEBUG
+            cerr << "\t" << "From link (" << v << "-" << u << ") "
+                 << "remove internal weight " << int_weight
+                 << " from " << old_comm << "." << endl;
+          #endif
+        }
+        // If it is an internal edge in the new community
+        // i.e. if u is in the new community, or if it is a self loop
+        if ((new_comm == u_comm) || (u == v))
+        {
+          // Add the internal weight
+          this->_total_weight_in_comm[new_comm] += int_weight;
+          this->_total_weight_in_all_comms += int_weight;
+          #ifdef DEBUG
+            cerr << "\t" << "From link (" << v << "-" << u << ") "
+                 << "add internal weight " << int_weight
+                 << " to " << new_comm << "." << endl;
+          #endif
+        }
       }
     }
     delete neigh_edges;
@@ -354,7 +378,8 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
          << ", calculated check_total_weight_in_all_comms=" << check_total_weight_in_all_comms << endl;
   #endif
   // Update the membership vector
-  this->_membership[v] = new_comm;
+  this->_membership[v].remove(old_comm);
+  this->_membership[v].insert(new_comm);
   #ifdef DEBUG
     cerr << "exit MutableVertexCover::move_node(" << v << ", " << new_comm << ")" << endl << endl;
   #endif

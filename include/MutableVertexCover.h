@@ -90,7 +90,7 @@ class MutableVertexCover
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    void renumber_communities(vector<size_t> new_membership);
+    void renumber_communities(vector< vector<size_t> > new_membership);
     void from_coarser_Cover(MutableVertexCover* Cover);
     void from_Cover(MutableVertexCover* Cover);
 

@@ -32,6 +32,20 @@ template <class T> T sum(vector<T> vec)
   return sum_of_elems;
 };
 
+template <class T> T max(vector<T> vec)
+{
+  T m;
+  typename vector<T>::iterator it = vec.begin();
+  if (it != vec.end())
+    m = *it;
+  for(typename vector<T>::iterator it=vec.begin();
+      it!=vec.end();
+      it++)
+      if (*it > m)
+        m = *it;
+  return m;
+};
+
 class Exception : std::exception
 {
   public:
