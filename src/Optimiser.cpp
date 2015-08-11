@@ -514,7 +514,6 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
             }
           }
           delete neigh_comms;
-          break;
           #ifdef DEBUG
             // If we are debugging, calculate quality function
             double q1 = cover->quality();

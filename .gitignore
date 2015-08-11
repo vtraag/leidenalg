@@ -12,6 +12,7 @@ bin/
 obj/
 Makefile
 *.log
+*.cbTemp
 **/*.o
 **/*.so
 files.txt
