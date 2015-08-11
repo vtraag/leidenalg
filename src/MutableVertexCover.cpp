@@ -29,7 +29,7 @@
 *****************************************************************************/
 
 MutableVertexCover::MutableVertexCover(Graph* graph,
-      vector< vector<size_t> > membership)
+      vector< set<size_t> > membership)
 {
   this->graph = graph;
   if (membership.size() != graph->vcount())
@@ -116,8 +116,8 @@ void MutableVertexCover::init_admin()
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
   {
-    vector<size_t> v_comms = this->_membership[v];
-    for (vector<size_t>::iterator it=v_comms.begin();
+    set<size_t> v_comms = this->_membership[v];
+    for (set<size_t>::iterator it=v_comms.begin();
             it!=v_comms.end();
             it++)
     {
@@ -136,8 +136,8 @@ void MutableVertexCover::init_admin()
         {
           size_t u = v_it->first;
           size_t e = v_it->second;
-          vector<size_t> u_comms = this->_membership[u];
-          for (vector<size_t>::iterator it_u=u_comms.begin();
+          set<size_t> u_comms = this->_membership[u];
+          for (set<size_t>::iterator it_u=u_comms.begin();
                   it_u!=u_comms.end();
                   it_u++)
           {
@@ -224,11 +224,15 @@ void MutableVertexCover::renumber_communities()
 
   for (size_t i = 0; i < this->graph->vcount(); i++)
   {
-    vector<size_t> comms = this->_membership[i];
-    for (size_t idx = 0; idx < comms.size(); idx++)
+    set<size_t> comms = this->_membership[i];
+    set<size_t> new_comms;
+    for (set<size_t>::iterator it = comms.begin();
+         it != comms.end();
+         it++)
     {
-      comms[idx] = new_comm_id[comms[idx]];
+      new_comms.insert(new_comm_id[*it]);
     }
+    this->_membership[i] = new_comms;
   }
 
   this->clean_mem();
@@ -239,7 +243,7 @@ void MutableVertexCover::renumber_communities()
  Renumber the communities using the provided membership vector. Notice that this
  doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexCover::renumber_communities(vector< vector<size_t> > new_membership)
+void MutableVertexCover::renumber_communities(vector< set<size_t> > new_membership)
 {
   for (size_t i = 0; i < this->graph->vcount(); i++)
     this->_membership[i] = new_membership[i];
@@ -257,7 +261,7 @@ void MutableVertexCover::renumber_communities(vector< vector<size_t> > new_membe
 void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
 {
   #ifdef DEBUG
-    cerr << "void MutableVertexCover::move_node(" << v << ", " << new_comm << ")" << endl;
+    cerr << "void MutableVertexCover::move_node(" << v << ", " << old_comm << ", " << new_comm << ")" << endl;
   #endif
   // Move node and update internal administration
 
@@ -302,8 +306,8 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
       size_t u = v_it->first;
       size_t e = v_it->second;
 
-      vector<size_t> u_comms = this->_membership[u];
-      for (vector<size_t>::iterator it_u=u_comms.begin();
+      set<size_t> u_comms = this->_membership[u];
+      for (set<size_t>::iterator it_u=u_comms.begin();
               it_u!=u_comms.end();
               it_u++)
       {
@@ -378,7 +382,7 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
          << ", calculated check_total_weight_in_all_comms=" << check_total_weight_in_all_comms << endl;
   #endif
   // Update the membership vector
-  this->_membership[v].remove(old_comm);
+  this->_membership[v].erase(old_comm);
   this->_membership[v].insert(new_comm);
   #ifdef DEBUG
     cerr << "exit MutableVertexCover::move_node(" << v << ", " << new_comm << ")" << endl << endl;
@@ -387,30 +391,9 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
 
 
 /****************************************************************************
- Read new communities from coarser Cover assuming that the community
- represents a node in the coarser Cover (with the same index as the
- community number).
-****************************************************************************/
-void MutableVertexCover::from_coarser_Cover(MutableVertexCover* Cover)
-{
-  // Read the coarser Cover
-  for (size_t v = 0; v < this->graph->vcount(); v++)
-  {
-    // What is the community of the node
-    size_t v_comm_level1 = this->_membership[v];
-    // In the coarser Cover, the node should have the community id
-    // so that the community of that node gives the coarser community.
-    size_t v_comm_level2 = Cover->membership(v_comm_level1);
-    this->_membership[v] = v_comm_level2;
-  }
-  this->clean_mem();
-  this->init_admin();
-}
-
-/****************************************************************************
  Read new Cover from another Cover.
 ****************************************************************************/
-void MutableVertexCover::from_Cover(MutableVertexCover* Cover)
+void MutableVertexCover::from_cover(MutableVertexCover* Cover)
 {
   // Assign the membership of every node in the supplied Cover
   // to the one in this Cover
@@ -462,7 +445,11 @@ set<size_t>* MutableVertexCover::get_neigh_comms(size_t v, igraph_neimode_t mode
   set<size_t>* neigh_comms = new set<size_t>();
   for (size_t i=0; i < this->graph->degree(v, mode); i++)
   {
-    neigh_comms->insert( this->membership((*neigh)[i]) );
+    set<size_t> comms = this->_membership[(*neigh)[i]];
+    for (set<size_t>::iterator it = comms.begin();
+          it != comms.end();
+          it++)
+      neigh_comms->insert( *it );
   }
   delete neigh;
   return neigh_comms;

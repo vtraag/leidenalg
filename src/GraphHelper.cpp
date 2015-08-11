@@ -13,11 +13,11 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
-vector< vector<size_t> > range_cover(size_t n)
+vector< set<size_t> > range_cover(size_t n)
 {
-  vector< vector<size_t> > range_vec(n);
+  vector< set<size_t> > range_vec(n);
   for(size_t i = 0; i<n; i++)
-    range_vec[i].push_back(i);
+    range_vec[i].insert(i);
   return range_vec;
 }
 
@@ -359,6 +359,54 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
       size_t u_comm = (*membership)[u];
     #endif
     if ((*membership)[u] == comm)
+    {
+      #ifdef DEBUG
+        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+      #endif
+      size_t e = VECTOR(incident_edges)[i];
+      // Get the weight of the edge
+      double w = this->_edge_weights[e];
+      // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
+      if (u == v && !this->is_directed())
+          w /= 2.0;
+
+      total_w += w;
+    }
+    #ifdef DEBUG
+    else
+    {
+      cerr << "\t" << "Ignore edge (" << v << "-" << u << "), Comm (" << comm << ") weight: " << this->_edge_weights[VECTOR(incident_edges)[i]] << "." << endl;
+    }
+    #endif
+  }
+  igraph_vector_destroy(&incident_edges);
+  igraph_vector_destroy(&neighbours);
+  #ifdef DEBUG
+    cerr << "exit Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+  #endif
+  return total_w;
+}
+
+double Graph::weight_tofrom_community(size_t v, size_t comm, vector< set<size_t> >* membership, igraph_neimode_t mode)
+{
+  // Weight between vertex and community
+  #ifdef DEBUG
+    cerr << "double Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+  #endif
+  double total_w = 0.0;
+  size_t degree = this->degree(v, mode);
+  igraph_vector_t incident_edges, neighbours;
+  igraph_vector_init(&incident_edges, degree);
+  igraph_vector_init(&neighbours, degree);
+  igraph_incident(this->_graph, &incident_edges, v, mode);
+  igraph_neighbors(this->_graph, &neighbours, v, mode);
+  for (size_t i = 0; i < degree; i++)
+  {
+    size_t u = VECTOR(neighbours)[i];
+
+    // If it is an edge to the requested community
+    set<size_t> u_comms = (*membership)[u];
+    if (u_comms.count(comm) > 0)
     {
       #ifdef DEBUG
         cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;

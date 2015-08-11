@@ -92,7 +92,7 @@ void MutableVertexPartition::init_admin()
   size_t n = this->graph->vcount();
 
   // First determine number of communities (assuming they are consecutively numbered
-  size_t nb_comms = max(membership) + 1;
+  size_t nb_comms = max<size_t>(this->_membership) + 1;
 
   // Reset administration
   this->community.clear();

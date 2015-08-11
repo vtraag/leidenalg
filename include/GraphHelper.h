@@ -2,6 +2,7 @@
 #define GRAPHHELPER_INCLUDED
 
 #include <igraph.h>
+#include <set>
 #include <vector>
 #include <exception>
 
@@ -13,12 +14,13 @@
 
 class MutableVertexPartition;
 
+using std::set;
 using std::vector;
 using std::pair;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
-vector< vector<size_t> > range_cover(size_t n);
+vector< set<size_t> > range_cover(size_t n);
 
 double KL(double q, double p);
 
@@ -40,6 +42,20 @@ template <class T> T max(vector<T> vec)
     m = *it;
   for(typename vector<T>::iterator it=vec.begin();
       it!=vec.end();
+      it++)
+      if (*it > m)
+        m = *it;
+  return m;
+};
+
+template <class T> T max(set<T> s)
+{
+  T m;
+  typename set<T>::iterator it = s.begin();
+  if (it != s.end())
+    m = *it;
+  for(typename set<T>::iterator it=s.begin();
+      it!=s.end();
       it++)
       if (*it > m)
         m = *it;
@@ -91,6 +107,7 @@ class Graph
     Graph* collapse_graph(MutableVertexPartition* partition);
 
     double weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode);
+    double weight_tofrom_community(size_t v, size_t comm, vector< set<size_t> >* membership, igraph_neimode_t mode);
     vector< pair<size_t, size_t> >*
       get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector< size_t >*

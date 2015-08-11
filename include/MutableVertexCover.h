@@ -46,14 +46,14 @@ class MutableVertexCover
 {
   public:
     MutableVertexCover(Graph* graph,
-        vector< vector<size_t> > membership);
+        vector< set<size_t> > membership);
     MutableVertexCover(Graph* graph);
     virtual MutableVertexCover* create(Graph* graph);
 
     virtual ~MutableVertexCover();
 
-    inline vector<size_t> membership(size_t v) { return this->_membership[v]; };
-    inline vector< vector<size_t> > membership() { return this->_membership; };
+    inline set<size_t> membership(size_t v) { return this->_membership[v]; };
+    inline vector< set<size_t> > membership() { return this->_membership; };
 
     size_t csize(size_t comm);
     set<size_t>* get_community(size_t comm);
@@ -90,9 +90,8 @@ class MutableVertexCover
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    void renumber_communities(vector< vector<size_t> > new_membership);
-    void from_coarser_Cover(MutableVertexCover* Cover);
-    void from_Cover(MutableVertexCover* Cover);
+    void renumber_communities(vector< set<size_t> > new_membership);
+    void from_cover(MutableVertexCover* Cover);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };
     inline double total_weight_from_comm(size_t comm) { return this->_total_weight_from_comm[comm]; };
@@ -109,7 +108,7 @@ class MutableVertexCover
 
     void init_admin();
 
-    vector< vector<size_t> > _membership; // Membership vector, i.e. \sigma_i = c means that node i is in community c
+    vector< set<size_t> > _membership; // Membership vector, i.e. \sigma_i = c means that node i is in community c
 
     Graph* graph;
 
