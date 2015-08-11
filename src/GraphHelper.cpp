@@ -13,6 +13,14 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
+vector< vector<size_t> > range_cover(size_t n)
+{
+  vector< vector<size_t> > range_vec(n);
+  for(size_t i = 0; i<n; i++)
+    range_vec[i].push_back(i);
+  return range_vec;
+}
+
 /****************************************************************************
   The binary Kullback-Leibler divergence.
 ****************************************************************************/

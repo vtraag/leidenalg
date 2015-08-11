@@ -18,6 +18,7 @@ using std::pair;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
+vector< vector<size_t> > range_cover(size_t n);
 
 double KL(double q, double p);
 
