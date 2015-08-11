@@ -475,12 +475,13 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
       // Only take into account nodes of degree higher than zero
       if (graph->degree(v, IGRAPH_ALL) > 0)
       {
-        set<size_t> v_comms = cover->membership(v);
+        // We need to copy the set here because the set changes while iterating
+        // (not sure actually, should check it)
+        set<size_t> v_comms = set<size_t>(cover->membership(v));
         for (set<size_t>::iterator it_comm = v_comms.begin();
              it_comm != v_comms.end();
              it_comm++)
         {
-
           // What is the current community of the node
           size_t v_comm = *it_comm;
           // What is the improvement per community if we move the node to one of

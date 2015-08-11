@@ -7,6 +7,7 @@
 #include <set>
 
 #ifdef DEBUG
+#include <iostream>
   using std::cerr;
   using std::endl;
 #endif

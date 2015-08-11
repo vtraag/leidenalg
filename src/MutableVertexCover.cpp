@@ -271,7 +271,9 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   // Incidentally, this is independent of whether we take into account self-loops or not
   // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
   // adaptation of the community sizes, otherwise the calculations are incorrect.
-  _total_possible_edges_in_all_comms += 2.0*node_size*(this->_csize[new_comm] - this->_csize[old_comm] + node_size)/(2.0 - this->graph->is_directed());
+  size_t cn = this->_csize[new_comm];
+  size_t co = this->_csize[old_comm];
+  _total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn - (ptrdiff_t)co + (ptrdiff_t)node_size)/(2.0 - this->graph->is_directed());
 
   // Remove from old community
   this->community[old_comm]->erase(v);
@@ -311,7 +313,7 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
               it_u!=u_comms.end();
               it_u++)
       {
-          size_t u_comm = *it_u;
+        size_t u_comm = *it_u;
         // Get the weight of the edge
         double w = this->graph->edge_weight(e);
         if (mode == IGRAPH_OUT)

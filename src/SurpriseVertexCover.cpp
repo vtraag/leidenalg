@@ -83,22 +83,17 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
       cerr << "\t" << "m_new: " << m_new << ", n_new: " << n_new << "." << endl;
     #endif
 
-    double q = mc/m;
-    double s = (double)nc2/(double)n2;
-    double q_new = (mc - m_old + m_new)/m;
+    double q = mc/(double)nc2;
+    double nc2_new = nc2 + 2*(ptrdiff_t)nsize*((ptrdiff_t)n_new - (ptrdiff_t)n_old + (ptrdiff_t)nsize)/normalise;
+    double q_new = (mc - m_old + m_new)/(double)nc2_new;
+    double p = m/(double)n2;
     #ifdef DEBUG
       cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
+      cerr << "\t" << "q:\t" << q << "." << endl;
+      cerr << "\t" << "q_new:\t" << q_new << "." << endl;
+      cerr << "\t" << "p:\t" << p << "." << endl;
     #endif
-    double s_new = (double)(nc2 + 2*nsize*(n_new - n_old + nsize)/normalise)/(double)n2;
-    #ifdef DEBUG
-      cerr << "\t" << "nc2 + 2*nsize*(n_new - n_old + nsize)/normalise=" << nc2 + 2*nsize*(n_new - n_old + nsize)/normalise << endl;
-    #endif
-    #ifdef DEBUG
-      cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
-      cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
-    #endif
-    diff = m*(KL(q_new, s_new) - KL(q, s));
-
+    diff = nc2_new*KL(q_new, p) - nc2*KL(q, p);
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -130,12 +125,17 @@ double SurpriseVertexCover::quality()
   #ifdef DEBUG
     cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;
   #endif
-  double q = mc/m;
-  double s = (double)nc2/(double)n2;
+
+  double q = mc/(double)nc2;
+  double p = m/(double)n2;
   #ifdef DEBUG
-    cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
+    cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
+    cerr << "\t" << "q:\t" << q << "." << endl;
+    cerr << "\t" << "q_new:\t" << q_new << "." << endl;
+    cerr << "\t" << "p:\t" << p << "." << endl;
   #endif
-  double S = m*KL(q,s);
+  double S = nc2*KL(q, p);
+
   #ifdef DEBUG
     cerr << "exit SignificanceVertexCover::quality()" << endl;
     cerr << "return " << S << endl << endl;
