@@ -505,13 +505,17 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
               it_neigh_comm != neigh_comms->end(); ++it_neigh_comm)
           {
             size_t neigh_comm = *it_neigh_comm;
-            // Calculate the possible improvement of the moving the node to that community/
-            double possible_improv = cover->diff_move(v, v_comm, neigh_comm);
-            // We're only interested in the maximum.
-            if (possible_improv > max_improv)
+            // Only consider the improvement if the node isn't already a member of the community
+            if (v_comms.count(neigh_comm) == 0)
             {
-              max_improv = possible_improv;
-              max_comm = neigh_comm;
+              // Calculate the possible improvement of the moving the node to that community
+              double possible_improv = cover->diff_move(v, v_comm, neigh_comm);
+              // We're only interested in the maximum.
+              if (possible_improv > max_improv)
+              {
+                max_improv = possible_improv;
+                max_comm = neigh_comm;
+              }
             }
           }
           delete neigh_comms;

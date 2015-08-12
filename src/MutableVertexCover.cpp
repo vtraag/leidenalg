@@ -263,6 +263,9 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   #ifdef DEBUG
     cerr << "void MutableVertexCover::move_node(" << v << ", " << old_comm << ", " << new_comm << ")" << endl;
   #endif
+  // We should only move nodes if the node isn't already a member of the new community.
+  if (new_comm == old_comm || this->_membership[v].count(new_comm) > 0)
+    return;
   // Move node and update internal administration
 
   // Keep track of all possible edges in all communities;

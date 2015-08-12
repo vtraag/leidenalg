@@ -34,7 +34,9 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
     cerr << "\t" << "nsize: " << nsize << endl;
   #endif
   double diff = 0.0;
-  if (new_comm != old_comm)
+  // Make sure we don't move from the same comm to the new comm
+  // and also that the community is not already in the membership vector.
+  if (new_comm != old_comm && this->_membership[v].count(new_comm) == 0)
   {
     double normalise = (2.0 - this->graph->is_directed());
     double m = this->graph->total_weight();
