@@ -6,7 +6,7 @@
 class SurpriseVertexCover: public MutableVertexCover
 {
   public:
-    SurpriseVertexCover(Graph* graph, vector< set<size_t> > membership);
+    SurpriseVertexCover(Graph* graph, vector< set<size_t>* > membership);
     SurpriseVertexCover(Graph* graph, SurpriseVertexCover* Cover);
     SurpriseVertexCover(Graph* graph);
     virtual ~SurpriseVertexCover();

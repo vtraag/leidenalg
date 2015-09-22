@@ -1,6 +1,7 @@
 #include "MutableVertexCover.h"
 
 #ifdef DEBUG
+#include <iostream>
   using std::cerr;
   using std::endl;
 #endif
@@ -29,7 +30,7 @@
 *****************************************************************************/
 
 MutableVertexCover::MutableVertexCover(Graph* graph,
-      vector< set<size_t> > membership)
+      vector< set<size_t>* > membership)
 {
   this->graph = graph;
   if (membership.size() != graph->vcount())
@@ -68,7 +69,9 @@ void MutableVertexCover::clean_mem()
 
 size_t MutableVertexCover::csize(size_t comm)
 {
-  return this->_csize[comm];
+  size_t csize = this->_csize[comm];
+  size_t alt_csize = this->community[comm]->size();
+  return csize;
 }
 
 set<size_t>* MutableVertexCover::get_community(size_t comm)
@@ -79,6 +82,78 @@ set<size_t>* MutableVertexCover::get_community(size_t comm)
 size_t MutableVertexCover::nb_communities()
 {
   return this->community.size();
+}
+
+// Get overlap
+set<size_t>* MutableVertexCover::get_overlap(vector<size_t> comms)
+{
+  set<size_t>* intersection = NULL;
+  for (vector<size_t>::iterator it = comms.begin();
+        it != comms.end(); it++)
+  {
+    size_t comm = *it;
+    set<size_t>* vertex_set = this->community[comm];
+    if (intersection == NULL)
+    {
+      // Set pointer to first community set
+      intersection = new set<size_t>();
+      std::copy(
+        vertex_set->begin(), vertex_set->end(),
+        std::inserter( *intersection, intersection->begin() ) );
+    }
+    else
+    {
+      // Calculate intersection
+      set<size_t> tmp;
+      std::set_intersection(intersection->begin(), intersection->end(),
+                            vertex_set->begin(), vertex_set->end(),
+                            std::inserter(tmp, tmp.begin()));
+      // Copy into intersection
+      intersection->clear();
+      std::copy(
+        tmp.begin(), tmp.end(),
+        std::inserter( *intersection, intersection->begin() ) );
+    }
+    if (intersection->empty())
+      break;
+  }
+  return intersection;
+}
+
+size_t MutableVertexCover::csize_overlap(vector<size_t> comms)
+{
+  return this->get_overlap(comms)->size();
+}
+
+set<size_t>* MutableVertexCover::get_overlap(size_t comm1, size_t comm2)
+{
+  vector<size_t> comms(2);
+  comms[0] = comm1; comms[1] = comm2;
+  return this->get_overlap(comms);
+}
+
+size_t MutableVertexCover::csize_overlap(size_t comm1, size_t comm2)
+{
+  return this->get_overlap(comm1, comm2)->size();
+}
+
+size_t MutableVertexCover::possible_overlapping_edges()
+{
+  size_t n_overlap = 0;
+  for (size_t c = 0; c < this->nb_communities(); c++)
+  {
+    for (size_t d = c + 1; d < this->nb_communities(); d++)
+    {
+      size_t n_cd = this->csize_overlap(c, d);
+      size_t possible_edges = 0;
+      if (this->graph->correct_self_loops())
+        possible_edges = n_cd*n_cd/(2.0 - this->graph->is_directed());
+      else
+        possible_edges = n_cd*(n_cd-1)/(2.0 - this->graph->is_directed());
+      n_overlap += possible_edges;
+    }
+  }
+  return n_overlap;
 }
 
 /****************************************************************************
@@ -95,7 +170,7 @@ void MutableVertexCover::init_admin()
   size_t nb_comms = 0;
   for (size_t i = 0; i < n; i++)
   {
-    size_t m = max(this->_membership[i]) + 1;
+    size_t m = max(*(this->_membership[i])) + 1;
     if (m > nb_comms)
       nb_comms = m;
   }
@@ -116,9 +191,9 @@ void MutableVertexCover::init_admin()
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
   {
-    set<size_t> v_comms = this->_membership[v];
-    for (set<size_t>::iterator it=v_comms.begin();
-            it!=v_comms.end();
+    set<size_t>* v_comms = this->_membership[v];
+    for (set<size_t>::iterator it=v_comms->begin();
+            it!=v_comms->end();
             it++)
     {
         size_t v_comm = *it;
@@ -136,9 +211,9 @@ void MutableVertexCover::init_admin()
         {
           size_t u = v_it->first;
           size_t e = v_it->second;
-          set<size_t> u_comms = this->_membership[u];
-          for (set<size_t>::iterator it_u=u_comms.begin();
-                  it_u!=u_comms.end();
+          set<size_t>* u_comms = this->_membership[u];
+          for (set<size_t>::iterator it_u=u_comms->begin();
+                  it_u!=u_comms->end();
                   it_u++)
           {
               size_t u_comm = *it_u;
@@ -224,14 +299,15 @@ void MutableVertexCover::renumber_communities()
 
   for (size_t i = 0; i < this->graph->vcount(); i++)
   {
-    set<size_t> comms = this->_membership[i];
-    set<size_t> new_comms;
-    for (set<size_t>::iterator it = comms.begin();
-         it != comms.end();
+    set<size_t>* comms = this->_membership[i];
+    set<size_t>* new_comms = new set<size_t>();
+    for (set<size_t>::iterator it = comms->begin();
+         it != comms->end();
          it++)
     {
-      new_comms.insert(new_comm_id[*it]);
+      new_comms->insert(new_comm_id[*it]);
     }
+    delete comms;
     this->_membership[i] = new_comms;
   }
 
@@ -243,7 +319,7 @@ void MutableVertexCover::renumber_communities()
  Renumber the communities using the provided membership vector. Notice that this
  doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexCover::renumber_communities(vector< set<size_t> > new_membership)
+void MutableVertexCover::renumber_communities(vector< set<size_t>* > new_membership)
 {
   for (size_t i = 0; i < this->graph->vcount(); i++)
     this->_membership[i] = new_membership[i];
@@ -264,7 +340,7 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
     cerr << "void MutableVertexCover::move_node(" << v << ", " << old_comm << ", " << new_comm << ")" << endl;
   #endif
   // We should only move nodes if the node isn't already a member of the new community.
-  if (new_comm == old_comm || this->_membership[v].count(new_comm) > 0)
+  if (new_comm == old_comm || this->_membership[v]->count(new_comm) > 0)
     return;
   // Move node and update internal administration
 
@@ -311,9 +387,9 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
       size_t u = v_it->first;
       size_t e = v_it->second;
 
-      set<size_t> u_comms = this->_membership[u];
-      for (set<size_t>::iterator it_u=u_comms.begin();
-              it_u!=u_comms.end();
+      set<size_t>* u_comms = this->_membership[u];
+      for (set<size_t>::iterator it_u=u_comms->begin();
+              it_u!=u_comms->end();
               it_u++)
       {
         size_t u_comm = *it_u;
@@ -387,8 +463,8 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
          << ", calculated check_total_weight_in_all_comms=" << check_total_weight_in_all_comms << endl;
   #endif
   // Update the membership vector
-  this->_membership[v].erase(old_comm);
-  this->_membership[v].insert(new_comm);
+  this->_membership[v]->erase(old_comm);
+  this->_membership[v]->insert(new_comm);
   #ifdef DEBUG
     cerr << "exit MutableVertexCover::move_node(" << v << ", " << new_comm << ")" << endl << endl;
   #endif
@@ -450,9 +526,9 @@ set<size_t>* MutableVertexCover::get_neigh_comms(size_t v, igraph_neimode_t mode
   set<size_t>* neigh_comms = new set<size_t>();
   for (size_t i=0; i < this->graph->degree(v, mode); i++)
   {
-    set<size_t> comms = this->_membership[(*neigh)[i]];
-    for (set<size_t>::iterator it = comms.begin();
-          it != comms.end();
+    set<size_t>* comms = this->_membership[(*neigh)[i]];
+    for (set<size_t>::iterator it = comms->begin();
+          it != comms->end();
           it++)
       neigh_comms->insert( *it );
   }

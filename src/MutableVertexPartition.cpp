@@ -68,7 +68,9 @@ void MutableVertexPartition::clean_mem()
 
 size_t MutableVertexPartition::csize(size_t comm)
 {
-  return this->_csize[comm];
+  size_t csize = this->_csize[comm];
+  size_t alt_csize = this->community[comm]->size();
+  return csize;
 }
 
 set<size_t>* MutableVertexPartition::get_community(size_t comm)

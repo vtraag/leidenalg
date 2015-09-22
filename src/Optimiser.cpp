@@ -477,9 +477,13 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
       {
         // We need to copy the set here because the set changes while iterating
         // (not sure actually, should check it)
-        set<size_t> v_comms = set<size_t>(cover->membership(v));
-        for (set<size_t>::iterator it_comm = v_comms.begin();
-             it_comm != v_comms.end();
+        set<size_t>* v_comms = new set<size_t>();
+        set<size_t>* v_comm_tmp = cover->membership(v);
+        std::copy(
+          v_comm_tmp->begin(), v_comm_tmp->end(),
+          std::inserter( *v_comms, v_comms->begin() ) );
+        for (set<size_t>::iterator it_comm = v_comms->begin();
+             it_comm != v_comms->end();
              it_comm++)
         {
           // What is the current community of the node
@@ -506,7 +510,7 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
           {
             size_t neigh_comm = *it_neigh_comm;
             // Only consider the improvement if the node isn't already a member of the community
-            if (v_comms.count(neigh_comm) == 0)
+            if (v_comms->count(neigh_comm) == 0)
             {
               // Calculate the possible improvement of the moving the node to that community
               double possible_improv = cover->diff_move(v, v_comm, neigh_comm);
@@ -549,6 +553,7 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
                 << ", q2 - q1=" << q2 - q1 << ")" << endl;
           #endif
         }
+        delete v_comms;
       }
     }
     // Keep track of total improvement over multiple loops

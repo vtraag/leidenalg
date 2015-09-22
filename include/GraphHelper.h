@@ -20,7 +20,7 @@ using std::pair;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
-vector< set<size_t> > range_cover(size_t n);
+vector< set<size_t>* > range_cover(size_t n);
 
 double KL(double q, double p);
 
@@ -107,7 +107,7 @@ class Graph
     Graph* collapse_graph(MutableVertexPartition* partition);
 
     double weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode);
-    double weight_tofrom_community(size_t v, size_t comm, vector< set<size_t> >* membership, igraph_neimode_t mode);
+    double weight_tofrom_community(size_t v, size_t comm, vector< set<size_t>* >* membership, igraph_neimode_t mode);
     vector< pair<size_t, size_t> >*
       get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector< size_t >*

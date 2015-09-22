@@ -13,11 +13,14 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
-vector< set<size_t> > range_cover(size_t n)
+vector< set<size_t>* > range_cover(size_t n)
 {
-  vector< set<size_t> > range_vec(n);
+  vector< set<size_t>* > range_vec(n);
   for(size_t i = 0; i<n; i++)
-    range_vec[i].insert(i);
+  {
+    range_vec[i] = new set<size_t>();
+    range_vec[i]->insert(i);
+  }
   return range_vec;
 }
 
@@ -387,7 +390,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
   return total_w;
 }
 
-double Graph::weight_tofrom_community(size_t v, size_t comm, vector< set<size_t> >* membership, igraph_neimode_t mode)
+double Graph::weight_tofrom_community(size_t v, size_t comm, vector< set<size_t>* >* membership, igraph_neimode_t mode)
 {
   // Weight between vertex and community
   #ifdef DEBUG
@@ -405,8 +408,8 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector< set<size_t>
     size_t u = VECTOR(neighbours)[i];
 
     // If it is an edge to the requested community
-    set<size_t> u_comms = (*membership)[u];
-    if (u_comms.count(comm) > 0)
+    set<size_t>* u_comms = (*membership)[u];
+    if (u_comms->count(comm) > 0)
     {
       #ifdef DEBUG
         cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;

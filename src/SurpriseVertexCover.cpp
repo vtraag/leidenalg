@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 SurpriseVertexCover::SurpriseVertexCover(Graph* graph,
-      vector< set<size_t> > membership) :
+      vector< set<size_t>* > membership) :
         MutableVertexCover(graph,
         membership)
 { }
@@ -36,7 +36,7 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
   double diff = 0.0;
   // Make sure we don't move from the same comm to the new comm
   // and also that the community is not already in the membership vector.
-  if (new_comm != old_comm && this->_membership[v].count(new_comm) == 0)
+  if (new_comm != old_comm && this->_membership[v]->count(new_comm) == 0)
   {
     double normalise = (2.0 - this->graph->is_directed());
     double m = this->graph->total_weight();
@@ -86,7 +86,8 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
     #endif
 
     double q = mc/(double)nc2;
-    double nc2_new = nc2 + 2*(ptrdiff_t)nsize*((ptrdiff_t)n_new - (ptrdiff_t)n_old + (ptrdiff_t)nsize)/normalise;
+    double delta_nc2 = 2*(ptrdiff_t)nsize*((ptrdiff_t)n_new - (ptrdiff_t)n_old + (ptrdiff_t)nsize)/normalise;
+    double nc2_new = nc2 + delta_nc2;
     double q_new = (mc - m_old + m_new)/(double)nc2_new;
     double p = m/(double)n2;
     #ifdef DEBUG
@@ -94,8 +95,37 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
       cerr << "\t" << "q:\t" << q << "." << endl;
       cerr << "\t" << "q_new:\t" << q_new << "." << endl;
       cerr << "\t" << "p:\t" << p << "." << endl;
+      cerr << "\t" << "nc2:\t" << nc2 << "." << endl;
+      cerr << "\t" << "delta_nc2:\t" << delta_nc2 << "." << endl;
+      cerr << "\t" << "nc2_new:\t" << nc2_new << "." << endl;
     #endif
-    diff = nc2_new*KL(q_new, p) - nc2*KL(q, p);
+
+    // The number of edges (without counting doubles) is simply the
+    // total number of internal edges, minus the overlapping edges.
+    size_t M_int = nc2 - this->possible_overlapping_edges();
+    set<size_t>* comm_set = this->membership(v);
+    size_t delta_M_int = 0;
+    for (set<size_t>::iterator it = comm_set->begin();
+          it != comm_set->end(); it++)
+    {
+      size_t v_comm = *it;
+      size_t n_ad = this->csize_overlap(v_comm, old_comm);
+      size_t n_bd = this->csize_overlap(v_comm, new_comm);
+      #ifdef DEBUG
+        cerr << "\t" << "v_comm=" << v_comm << endl;
+        cerr << "\t" << "overlap old=" << n_ad << endl;
+        cerr << "\t" << "overlap new=" << n_bd << endl;
+      #endif
+      delta_M_int += 2*(n_bd - n_ad + 1)/normalise;
+    }
+    size_t M_int_new = M_int + delta_M_int;
+    #ifdef DEBUG
+      cerr << "\t" << "M_int=" << M_int << endl;
+      cerr << "\t" << "delta M_int=" << delta_M_int << "." << endl;
+      cerr << "\t" << "M_int_new=" << M_int_new << "." << endl;
+    #endif
+
+    diff = M_int_new*KL(q_new, p) - M_int*KL(q, p);
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -115,6 +145,7 @@ double SurpriseVertexCover::quality()
   double normalise = (2.0 - this->graph->is_directed());
   double mc = this->total_weight_in_all_comms();
   size_t nc2 = this->total_possible_edges_in_all_comms();
+  size_t M_int = nc2 - this->possible_overlapping_edges();
   double m = this->graph->total_weight();
   size_t n = this->graph->total_size();
 
@@ -125,18 +156,16 @@ double SurpriseVertexCover::quality()
     n2 = n*(n-1)/normalise;
 
   #ifdef DEBUG
-    cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;
+    cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << ", M_int = " << M_int << "." << endl;
   #endif
 
   double q = mc/(double)nc2;
   double p = m/(double)n2;
   #ifdef DEBUG
-    cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
     cerr << "\t" << "q:\t" << q << "." << endl;
-    cerr << "\t" << "q_new:\t" << q_new << "." << endl;
     cerr << "\t" << "p:\t" << p << "." << endl;
   #endif
-  double S = nc2*KL(q, p);
+  double S = M_int*KL(q, p);
 
   #ifdef DEBUG
     cerr << "exit SignificanceVertexCover::quality()" << endl;

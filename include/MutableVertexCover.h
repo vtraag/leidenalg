@@ -8,6 +8,8 @@
 #include <utility>
 #include <algorithm>
 
+#define DEBUG
+
 using std::string;
 using std::map;
 using std::set;
@@ -46,18 +48,28 @@ class MutableVertexCover
 {
   public:
     MutableVertexCover(Graph* graph,
-        vector< set<size_t> > membership);
+        vector< set<size_t>* > membership);
     MutableVertexCover(Graph* graph);
     virtual MutableVertexCover* create(Graph* graph);
 
     virtual ~MutableVertexCover();
 
-    inline set<size_t> membership(size_t v) { return this->_membership[v]; };
-    inline vector< set<size_t> > membership() { return this->_membership; };
+    inline set<size_t>* membership(size_t v) { return this->_membership[v]; };
+    inline vector< set<size_t>* > membership() { return this->_membership; };
 
     size_t csize(size_t comm);
     set<size_t>* get_community(size_t comm);
     size_t nb_communities();
+
+    // Get overlap
+    set<size_t>* get_overlap(vector<size_t> comms);
+    size_t csize_overlap(vector<size_t> comms);
+    set<size_t>* get_overlap(size_t comm1, size_t comm2);
+    size_t csize_overlap(size_t comm1, size_t comm2);
+
+    // Number of possible overlapping edges (i.e. the number of pairs
+    // of nodes which are in any overlapping communities).
+    size_t possible_overlapping_edges();
 
     // Functions to move a node from a community to another community
     void move_node(size_t v, size_t old_comm, size_t new_comm);
@@ -90,7 +102,7 @@ class MutableVertexCover
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    void renumber_communities(vector< set<size_t> > new_membership);
+    void renumber_communities(vector< set<size_t>* > new_membership);
     void from_cover(MutableVertexCover* Cover);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };
@@ -108,7 +120,7 @@ class MutableVertexCover
 
     void init_admin();
 
-    vector< set<size_t> > _membership; // Membership vector, i.e. \sigma_i = c means that node i is in community c
+    vector< set<size_t>* > _membership; // Membership vector, i.e. \sigma_i = c means that node i is in community c
 
     Graph* graph;
 
