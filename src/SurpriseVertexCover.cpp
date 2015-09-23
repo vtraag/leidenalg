@@ -102,9 +102,9 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
 
     // The number of edges (without counting doubles) is simply the
     // total number of internal edges, minus the overlapping edges.
-    size_t M_int = nc2 - this->possible_overlapping_edges();
+    size_t M_int = nc2 - this->total_possible_overlapping_edges();
     set<size_t>* comm_set = this->membership(v);
-    size_t delta_M_int = 0;
+    ptrdiff_t delta_M_int = 0;
     for (set<size_t>::iterator it = comm_set->begin();
           it != comm_set->end(); it++)
     {
@@ -116,9 +116,9 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
         cerr << "\t" << "overlap old=" << n_ad << endl;
         cerr << "\t" << "overlap new=" << n_bd << endl;
       #endif
-      delta_M_int += 2*(n_bd - n_ad + 1)/normalise;
+      delta_M_int += 2*((ptrdiff_t)n_bd - (ptrdiff_t)n_ad + 1)/normalise;
     }
-    size_t M_int_new = M_int + delta_M_int;
+    size_t M_int_new = M_int + delta_M_int + delta_nc2;
     #ifdef DEBUG
       cerr << "\t" << "M_int=" << M_int << endl;
       cerr << "\t" << "delta M_int=" << delta_M_int << "." << endl;
@@ -145,7 +145,7 @@ double SurpriseVertexCover::quality()
   double normalise = (2.0 - this->graph->is_directed());
   double mc = this->total_weight_in_all_comms();
   size_t nc2 = this->total_possible_edges_in_all_comms();
-  size_t M_int = nc2 - this->possible_overlapping_edges();
+  size_t M_int = nc2 - this->total_possible_overlapping_edges();
   double m = this->graph->total_weight();
   size_t n = this->graph->total_size();
 

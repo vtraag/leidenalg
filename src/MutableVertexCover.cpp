@@ -122,38 +122,43 @@ set<size_t>* MutableVertexCover::get_overlap(vector<size_t> comms)
 
 size_t MutableVertexCover::csize_overlap(vector<size_t> comms)
 {
-  return this->get_overlap(comms)->size();
+  set<size_t>* intersection = this->get_overlap(comms);
+  size_t csize = intersection->size();
+  delete intersection;
+  return csize;
 }
 
 set<size_t>* MutableVertexCover::get_overlap(size_t comm1, size_t comm2)
 {
-  vector<size_t> comms(2);
-  comms[0] = comm1; comms[1] = comm2;
-  return this->get_overlap(comms);
+  set<size_t>* intersection = new set<size_t>();
+  set<size_t>* vertex_set1 = this->community[comm1];
+  if (comm1 != comm2)
+  {
+    set<size_t>* vertex_set2 = this->community[comm2];
+    std::set_intersection(vertex_set1->begin(), vertex_set1->end(),
+                          vertex_set2->begin(), vertex_set2->end(),
+                          std::inserter( *intersection, intersection->begin()));
+  }
+  else
+  {
+    std::copy(
+        vertex_set1->begin(), vertex_set1->end(),
+        std::inserter( *intersection, intersection->begin() ) );
+  }
+  return intersection;
 }
 
 size_t MutableVertexCover::csize_overlap(size_t comm1, size_t comm2)
 {
-  return this->get_overlap(comm1, comm2)->size();
-}
-
-size_t MutableVertexCover::possible_overlapping_edges()
-{
-  size_t n_overlap = 0;
-  for (size_t c = 0; c < this->nb_communities(); c++)
+  if (comm1 != comm2)
   {
-    for (size_t d = c + 1; d < this->nb_communities(); d++)
-    {
-      size_t n_cd = this->csize_overlap(c, d);
-      size_t possible_edges = 0;
-      if (this->graph->correct_self_loops())
-        possible_edges = n_cd*n_cd/(2.0 - this->graph->is_directed());
-      else
-        possible_edges = n_cd*(n_cd-1)/(2.0 - this->graph->is_directed());
-      n_overlap += possible_edges;
-    }
+    set<size_t>* intersection = this->get_overlap(comm1, comm2);
+    size_t csize = intersection->size();
+    delete intersection;
+    return csize;
   }
-  return n_overlap;
+  else // comm1 and comm2 are the same, which is just the csize
+    return this->_csize[comm1];
 }
 
 /****************************************************************************
@@ -166,7 +171,7 @@ void MutableVertexCover::init_admin()
   #endif
   size_t n = this->graph->vcount();
 
-  // First determine number of communities (assuming they are consecutively numbered
+  // First determine number of communities (assuming they are consecutively numbered)
   size_t nb_comms = 0;
   for (size_t i = 0; i < n; i++)
   {
@@ -246,6 +251,7 @@ void MutableVertexCover::init_admin()
     }
   }
 
+  // Count possible internal edges
   this->_total_possible_edges_in_all_comms = 0;
   for (size_t c = 0; c < nb_comms; c++)
   {
@@ -264,10 +270,29 @@ void MutableVertexCover::init_admin()
     this->_total_possible_edges_in_all_comms += possible_edges;
   }
 
+  // Count overlapping possible edges
+  this->_total_possible_overlapping_edges = 0;
+  for (size_t c = 0; c < this->nb_communities(); c++)
+  {
+    for (size_t d = c + 1; d < this->nb_communities(); d++)
+    {
+      size_t n_cd = this->csize_overlap(c, d);
+      size_t possible_edges = 0;
+      if (this->graph->correct_self_loops())
+        possible_edges = n_cd*n_cd/(2.0 - this->graph->is_directed());
+      else
+        possible_edges = n_cd*(n_cd-1)/(2.0 - this->graph->is_directed());
+      this->_total_possible_overlapping_edges += possible_edges;
+
+      #ifdef DEBUG
+        cerr << "\t" << "c=" << c << ", d=" << d << ", possible_edges=" << possible_edges << endl;
+      #endif
+    }
+  }
+
   #ifdef DEBUG
     cerr << "exit MutableVertexCover::init_admin()" << endl << endl;
   #endif
-
 }
 
 /****************************************************************************
@@ -352,7 +377,23 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   // adaptation of the community sizes, otherwise the calculations are incorrect.
   size_t cn = this->_csize[new_comm];
   size_t co = this->_csize[old_comm];
-  _total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn - (ptrdiff_t)co + (ptrdiff_t)node_size)/(2.0 - this->graph->is_directed());
+  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn - (ptrdiff_t)co + (ptrdiff_t)node_size)/(2.0 - this->graph->is_directed());
+
+  // Count the change in the possible overlapping edges
+  set<size_t>* comm_set = this->membership(v);
+  for (set<size_t>::iterator it = comm_set->begin();
+        it != comm_set->end(); it++)
+  {
+    size_t v_comm = *it;
+    size_t n_ad = this->csize_overlap(v_comm, old_comm);
+    size_t n_bd = this->csize_overlap(v_comm, new_comm);
+    #ifdef DEBUG
+      cerr << "\t" << "v_comm=" << v_comm << endl;
+      cerr << "\t" << "overlap old=" << n_ad << endl;
+      cerr << "\t" << "overlap new=" << n_bd << endl;
+    #endif
+    this->_total_possible_overlapping_edges += 2*((ptrdiff_t)n_bd - (ptrdiff_t)n_ad + 1)/(2.0 - this->graph->is_directed());
+  }
 
   // Remove from old community
   this->community[old_comm]->erase(v);

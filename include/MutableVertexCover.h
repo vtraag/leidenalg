@@ -8,8 +8,6 @@
 #include <utility>
 #include <algorithm>
 
-#define DEBUG
-
 using std::string;
 using std::map;
 using std::set;
@@ -67,10 +65,6 @@ class MutableVertexCover
     set<size_t>* get_overlap(size_t comm1, size_t comm2);
     size_t csize_overlap(size_t comm1, size_t comm2);
 
-    // Number of possible overlapping edges (i.e. the number of pairs
-    // of nodes which are in any overlapping communities).
-    size_t possible_overlapping_edges();
-
     // Functions to move a node from a community to another community
     void move_node(size_t v, size_t old_comm, size_t new_comm);
     virtual double diff_move(size_t v, size_t old_comm, size_t new_comm)
@@ -110,6 +104,7 @@ class MutableVertexCover
     inline double total_weight_to_comm(size_t comm) { return this->_total_weight_to_comm[comm]; };
     inline double total_weight_in_all_comms() { return this->_total_weight_in_all_comms; };
     inline size_t total_possible_edges_in_all_comms() { return this->_total_possible_edges_in_all_comms; };
+    inline size_t total_possible_overlapping_edges() { return this->_total_possible_overlapping_edges; };
 
     double weight_to_comm(size_t v, size_t comm);
     double weight_from_comm(size_t v, size_t comm);
@@ -145,6 +140,7 @@ class MutableVertexCover
     // Keep track of the total internal weight
     double _total_weight_in_all_comms;
     size_t _total_possible_edges_in_all_comms;
+    size_t _total_possible_overlapping_edges;
 
     void clean_mem();
     void init_graph_admin();
