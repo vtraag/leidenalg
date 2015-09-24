@@ -104,21 +104,28 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
     // total number of internal edges, minus the overlapping edges.
     size_t M_int = nc2 - this->total_possible_overlapping_edges();
     set<size_t>* comm_set = this->membership(v);
-    ptrdiff_t delta_M_int = 0;
+    ptrdiff_t delta_overlap = 0;
     for (set<size_t>::iterator it = comm_set->begin();
           it != comm_set->end(); it++)
     {
       size_t v_comm = *it;
-      size_t n_ad = this->csize_overlap(v_comm, old_comm);
-      size_t n_bd = this->csize_overlap(v_comm, new_comm);
+      if (v_comm != old_comm)
+      {
+        size_t n_ad = this->csize_overlap(v_comm, old_comm);
+        delta_overlap += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+      }
+      if (v_comm != new_comm)
+      {
+        size_t n_bd = this->csize_overlap(v_comm, new_comm);
+        delta_overlap += (2*(ptrdiff_t)n_bd + 1)/normalise;
+      }
       #ifdef DEBUG
         cerr << "\t" << "v_comm=" << v_comm << endl;
         cerr << "\t" << "overlap old=" << n_ad << endl;
         cerr << "\t" << "overlap new=" << n_bd << endl;
       #endif
-      delta_M_int += 2*((ptrdiff_t)n_bd - (ptrdiff_t)n_ad + 1)/normalise;
     }
-    size_t M_int_new = M_int + delta_M_int + delta_nc2;
+    size_t M_int_new = M_int + delta_overlap + delta_nc2;
     #ifdef DEBUG
       cerr << "\t" << "M_int=" << M_int << endl;
       cerr << "\t" << "delta M_int=" << delta_M_int << "." << endl;
