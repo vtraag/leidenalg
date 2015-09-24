@@ -271,6 +271,8 @@ void MutableVertexCover::init_admin()
   }
 
   // Count overlapping possible edges
+  // This can be replaced by Tr(BB^T BB^T) which can be calculated
+  // fast using sparse matrix eigenvalues.
   this->_total_possible_overlapping_edges = 0;
   for (size_t c = 0; c < this->nb_communities(); c++)
   {
@@ -377,7 +379,8 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   // adaptation of the community sizes, otherwise the calculations are incorrect.
   size_t cn = this->_csize[new_comm];
   size_t co = this->_csize[old_comm];
-  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn - (ptrdiff_t)co + (ptrdiff_t)node_size)/(2.0 - this->graph->is_directed());
+  double normalise = (2.0 - this->graph->is_directed());
+  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn - (ptrdiff_t)co + (ptrdiff_t)node_size)/normalise;
 
   // Count the change in the possible overlapping edges
   set<size_t>* comm_set = this->membership(v);
@@ -385,14 +388,21 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
         it != comm_set->end(); it++)
   {
     size_t v_comm = *it;
-    size_t n_ad = this->csize_overlap(v_comm, old_comm);
-    size_t n_bd = this->csize_overlap(v_comm, new_comm);
+    if (v_comm != old_comm)
+    {
+      size_t n_ad = this->csize_overlap(v_comm, old_comm);
+      this->_total_possible_overlapping_edges += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+    }
+    if (v_comm != new_comm)
+    {
+      size_t n_bd = this->csize_overlap(v_comm, new_comm);
+      this->_total_possible_overlapping_edges += (2*(ptrdiff_t)n_bd + 1)/normalise;
+    }
     #ifdef DEBUG
       cerr << "\t" << "v_comm=" << v_comm << endl;
       cerr << "\t" << "overlap old=" << n_ad << endl;
       cerr << "\t" << "overlap new=" << n_bd << endl;
     #endif
-    this->_total_possible_overlapping_edges += 2*((ptrdiff_t)n_bd - (ptrdiff_t)n_ad + 1)/(2.0 - this->graph->is_directed());
   }
 
   // Remove from old community
