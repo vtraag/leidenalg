@@ -551,7 +551,7 @@ void MutableVertexCover::add_node(size_t v, size_t new_comm)
   // adaptation of the community sizes, otherwise the calculations are incorrect.
   size_t cn = this->_csize[new_comm];
   double normalise = (2.0 - this->graph->is_directed());
-  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn + (ptrdiff_t)node_size)/normalise;
+  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*(ptrdiff_t)cn/normalise;
 
   // Count the change in the possible overlapping edges
   set<size_t>* comm_set = this->membership(v);

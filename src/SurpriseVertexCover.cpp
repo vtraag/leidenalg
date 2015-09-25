@@ -27,7 +27,7 @@ SurpriseVertexCover::~SurpriseVertexCover()
 double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm)
 {
   #ifdef DEBUG
-    cerr << "virtual double SurpriseVertexCover::diff_move(" << v << ", " << old_comm << ", " << new_comm << ")" << endl;
+    cerr << "double SurpriseVertexCover::diff_move(" << v << ", " << old_comm << ", " << new_comm << ")" << endl;
   #endif
   size_t nsize = this->graph->node_size(v);
   #ifdef DEBUG
@@ -129,7 +129,7 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
         #endif
       }
     }
-    size_t M_int_new = M_int + delta_overlap + delta_nc2;
+    size_t M_int_new = M_int - delta_overlap + delta_nc2;
     #ifdef DEBUG
       cerr << "\t" << "M_int=" << M_int << endl;
       cerr << "\t" << "delta_overlap=" << delta_overlap << "." << endl;
@@ -151,7 +151,7 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
 double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
 {
   #ifdef DEBUG
-    cerr << "virtual double SurpriseVertexCover::diff_add(" << v << ", " << new_comm << ")" << endl;
+    cerr << "double SurpriseVertexCover::diff_add(" << v << ", " << new_comm << ")" << endl;
   #endif
   size_t nsize = this->graph->node_size(v);
   #ifdef DEBUG
@@ -232,7 +232,7 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
         #endif
       }
     }
-    size_t M_int_new = M_int + delta_overlap + delta_nc2;
+    size_t M_int_new = M_int - delta_overlap + delta_nc2;
     #ifdef DEBUG
       cerr << "\t" << "M_int=" << M_int << endl;
       cerr << "\t" << "delta_overlap=" << delta_overlap << "." << endl;
@@ -245,7 +245,7 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
     #endif
   }
   #ifdef DEBUG
-    cerr << "exit double SurpriseVertexCover::diff_move(" << v << ", " << new_comm << ")" << endl;
+    cerr << "exit double SurpriseVertexCover::diff_add(" << v << ", " << new_comm << ")" << endl;
     cerr << "return " << diff << endl << endl;
   #endif
   return diff;
@@ -254,7 +254,7 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
 double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
 {
   #ifdef DEBUG
-    cerr << "virtual double SurpriseVertexCover::diff_remove(" << v << ", " << old_comm << ")" << endl;
+    cerr << "double SurpriseVertexCover::diff_remove(" << v << ", " << old_comm << ")" << endl;
   #endif
   size_t nsize = this->graph->node_size(v);
   #ifdef DEBUG
@@ -334,7 +334,7 @@ double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
         #endif
       }
     }
-    size_t M_int_new = M_int + delta_overlap + delta_nc2;
+    size_t M_int_new = M_int - delta_overlap + delta_nc2;
     #ifdef DEBUG
       cerr << "\t" << "M_int=" << M_int << endl;
       cerr << "\t" << "delta_overlap=" << delta_overlap << "." << endl;
