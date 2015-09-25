@@ -5,6 +5,7 @@
 #include "MutableVertexCover.h"
 #include <algorithm>
 #include <set>
+#include <limits>
 
 #ifdef DEBUG
 #include <iostream>
@@ -33,7 +34,11 @@ class Optimiser
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
+
+    // For a cover we node only move nodes, we also add and delete them
     double move_nodes(MutableVertexCover* cover, int consider_comms);
+    double add_nodes(MutableVertexCover* cover, int consider_comms);
+    double remove_nodes(MutableVertexCover* cover, int consider_comms);
 
     // The multiplex functions that simultaneously optimize multiple graphs and partitions (i.e. methods)
     // Each node will be in the same community in all graphs, and the graphs are expected to have identical nodes

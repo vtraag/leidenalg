@@ -402,7 +402,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
           // and report difference
           double q2 = partition->quality();
 
-          if (fabs((q2 - q1) - max_improv) > 1e-6)
+          if (fabs((q2 - q1) - max_improv) > 1e-6 && max_comm != v_comm)
           {
             cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
             //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
@@ -478,9 +478,8 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
         // We need to copy the set here because the set changes while iterating
         // (not sure actually, should check it)
         set<size_t>* v_comms = new set<size_t>();
-        set<size_t>* v_comm_tmp = cover->membership(v);
         std::copy(
-          v_comm_tmp->begin(), v_comm_tmp->end(),
+          cover->membership(v)->begin(), cover->membership(v)->end(),
           std::inserter( *v_comms, v_comms->begin() ) );
         for (set<size_t>::iterator it_comm = v_comms->begin();
              it_comm != v_comms->end();
@@ -542,7 +541,7 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
             // and report difference
             double q2 = cover->quality();
 
-            if (fabs((q2 - q1) - max_improv) > 1e-6)
+            if (fabs((q2 - q1) - max_improv) > 1e-6 && max_comm != v_comm)
             {
               cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
               //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
@@ -553,6 +552,247 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
                 << ", q2 - q1=" << q2 - q1 << ")" << endl;
           #endif
         }
+        delete v_comms;
+      }
+    }
+    // Keep track of total improvement over multiple loops
+    total_improv += improv;
+  }
+  cover->renumber_communities();
+
+  return total_improv;
+}
+
+double Optimiser::add_nodes(MutableVertexCover* cover, int consider_comms)
+{
+  #ifdef DEBUG
+    cerr << "double Optimiser::move_nodes(MutableVertexCover* cover)" << endl;
+  #endif
+  // get graph
+  Graph* graph = cover->get_graph();
+  // Number of iterations
+  size_t itr = 0;
+  // Total improvement while moving nodes
+  double total_improv = 0.0;
+  // Improvement for one loop
+  double improv = 2*this->eps;
+  // Number of nodes in the graph
+  size_t n = graph->vcount();
+  // Number of added nodes during one loop
+  size_t nb_adds = 2*n;
+  // Initialize the degree vector
+  // If we want to debug the function, we will calculate some additional values.
+  // In particular, the following consistencies could be checked:
+  // (1) - The difference in the quality function after a move should match
+  //       the reported difference when calling diff_move.
+  // (2) - The quality function should be exactly the same value after
+  //       aggregating/collapsing the graph.
+
+  // As long as we keep on improving and we don't exceed the
+  // maximum number of iterations and number of moves.
+  while (improv > this->eps &&
+         nb_adds > n*this->delta &&
+         itr < this->max_itr)
+  {
+    // Increase number of iterations
+    itr += 1;
+
+    // Initialize number of moves and improvement
+    nb_adds = 0;
+    improv = 0.0;
+
+    // Establish vertex order
+    // We normally initialize the normal vertex order
+    // of considering node 0,1,...
+    vector<size_t> vertex_order = range(n);
+    // But if we use a random order, we shuffle this order.
+    if (this->random_order)
+      random_shuffle( vertex_order.begin(), vertex_order.end() );
+
+    // For each node
+    for(vector<size_t>::iterator it_vertex = vertex_order.begin();
+        it_vertex != vertex_order.end(); ++it_vertex) {
+      size_t v = *it_vertex; // The actual vertex we will now consider
+      // Only take into account nodes of degree higher than zero
+      if (graph->degree(v, IGRAPH_ALL) > 0)
+      {
+        double max_improv = -std::numeric_limits<double>::infinity();
+        size_t max_comm = -1;
+
+        // Keep track of the possible improvements and (neighbouring) communities.
+        size_t neigh_comm;
+        double possible_improv;
+        set<size_t>* neigh_comms = NULL;
+        vector<size_t>* neigh = NULL;
+        /****************************ALL NEIGH COMMS*****************************/
+        #ifdef DEBUG
+          cerr << "Consider all neighbour communities." << endl;
+        #endif
+        // In which communities are its neighbours
+        neigh_comms = cover->get_neigh_comms(v, IGRAPH_ALL);
+        // Loop through the communities of the neighbours
+        for(set<size_t>::iterator it_neigh_comm = neigh_comms->begin();
+            it_neigh_comm != neigh_comms->end(); ++it_neigh_comm)
+        {
+          size_t neigh_comm = *it_neigh_comm;
+          // Only consider the improvement if the node isn't already a member of the community
+          if (cover->membership(v)->count(neigh_comm) == 0)
+          {
+            // Calculate the possible improvement of the moving the node to that community
+            double possible_improv = cover->diff_add(v, neigh_comm);
+            // We're only interested in the maximum.
+            if (possible_improv > max_improv)
+            {
+              max_improv = possible_improv;
+              max_comm = neigh_comm;
+            }
+          }
+        }
+        delete neigh_comms;
+        #ifdef DEBUG
+          // If we are debugging, calculate quality function
+          double q1 = cover->quality();
+        #endif
+        // If we actually plan to move the nove
+        if (max_improv > 0.0)
+        {
+          // Keep track of improvement
+          improv += max_improv;
+          // Actually move the node
+          cover->add_node(v, max_comm);
+          // Keep track of number of moves
+          nb_adds += 1;
+        }
+        #ifdef DEBUG
+          // If we are debugging, calculate quality function
+          // and report difference
+          double q2 = cover->quality();
+
+          if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
+          {
+            cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
+            //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
+          }
+          cerr << "Add node " << v
+              << " to " << max_comm
+              << " (diff_move=" << max_improv
+              << ", q2 - q1=" << q2 - q1 << ")" << endl;
+        #endif
+      }
+    }
+    // Keep track of total improvement over multiple loops
+    total_improv += improv;
+  }
+  cover->renumber_communities();
+
+  return total_improv;
+}
+
+double Optimiser::remove_nodes(MutableVertexCover* cover, int consider_comms)
+{
+  #ifdef DEBUG
+    cerr << "double Optimiser::move_nodes(MutableVertexCover* cover)" << endl;
+  #endif
+  // get graph
+  Graph* graph = cover->get_graph();
+  // Number of iterations
+  size_t itr = 0;
+  // Total improvement while moving nodes
+  double total_improv = 0.0;
+  // Improvement for one loop
+  double improv = 2*this->eps;
+  // Number of nodes in the graph
+  size_t n = graph->vcount();
+  // Number of moved nodes during one loop
+  size_t nb_removes = 2*n;
+  // Initialize the degree vector
+  // If we want to debug the function, we will calculate some additional values.
+  // In particular, the following consistencies could be checked:
+  // (1) - The difference in the quality function after a move should match
+  //       the reported difference when calling diff_move.
+  // (2) - The quality function should be exactly the same value after
+  //       aggregating/collapsing the graph.
+
+  // As long as we keep on improving and we don't exceed the
+  // maximum number of iterations and number of moves.
+  while (improv > this->eps &&
+         nb_removes > n*this->delta &&
+         itr < this->max_itr)
+  {
+    // Increase number of iterations
+    itr += 1;
+
+    // Initialize number of moves and improvement
+    nb_removes = 0;
+    improv = 0.0;
+
+    // Establish vertex order
+    // We normally initialize the normal vertex order
+    // of considering node 0,1,...
+    vector<size_t> vertex_order = range(n);
+    // But if we use a random order, we shuffle this order.
+    if (this->random_order)
+      random_shuffle( vertex_order.begin(), vertex_order.end() );
+
+    // For each node
+    for(vector<size_t>::iterator it_vertex = vertex_order.begin();
+        it_vertex != vertex_order.end(); ++it_vertex) {
+      size_t v = *it_vertex; // The actual vertex we will now consider
+      // Only take into account nodes of degree higher than zero
+      if (graph->degree(v, IGRAPH_ALL) > 0)
+      {
+        // What is the improvement per community if we move the node to one of
+        // the other communities, and what is the maximum improvement?
+        double max_improv = -std::numeric_limits<double>::infinity();
+        size_t max_comm = -1;
+
+        // We need to copy the set here because the set changes while iterating
+        set<size_t>* v_comms = new set<size_t>();
+        std::copy(
+          cover->membership(v)->begin(), cover->membership(v)->end(),
+          std::inserter( *v_comms, v_comms->begin() ) );
+        for (set<size_t>::iterator it_comm = v_comms->begin();
+             it_comm != v_comms->end();
+             it_comm++)
+        {
+          // What is the current community of the node
+          size_t v_comm = *it_comm;
+          double possible_improv = cover->diff_remove(v, v_comm);
+          if (possible_improv > max_improv)
+          {
+            max_improv = possible_improv;
+            max_comm = v_comm;
+          }
+        }
+        #ifdef DEBUG
+          // If we are debugging, calculate quality function
+          double q1 = cover->quality();
+        #endif
+        // If we actually plan to move the nove
+        if (max_improv > 0.0)
+        {
+          // Keep track of improvement
+          improv += max_improv;
+          // Actually move the node
+          cover->remove_node(v, max_comm);
+          // Keep track of number of moves
+          nb_removes += 1;
+        }
+        #ifdef DEBUG
+          // If we are debugging, calculate quality function
+          // and report difference
+          double q2 = cover->quality();
+
+          if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
+          {
+            cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
+            //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
+          }
+          cerr << "Remove node " << v
+              << " from " << max_comm
+              << " (diff_move=" << max_improv
+              << ", q2 - q1=" << q2 - q1 << ")" << endl;
+        #endif
         delete v_comms;
       }
     }
@@ -741,7 +981,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           // and report difference
           double q2 = partition->quality();
 
-          if (fabs((q2 - q1) - max_improv) > 1e-6)
+          if (fabs((q2 - q1) - max_improv) > 1e-6 && max_comm != v_comm)
           {
             cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
             //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");

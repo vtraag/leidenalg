@@ -359,6 +359,7 @@ void MutableVertexCover::renumber_communities(vector< set<size_t>* > new_members
   Move a node to a new community and update the administration.
   Parameters:
     v        -- Node to move.
+    old_comm -- From which community to move it.
     new_comm -- To which community should it move.
 *****************************************************************************/
 void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
@@ -366,8 +367,8 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   #ifdef DEBUG
     cerr << "void MutableVertexCover::move_node(" << v << ", " << old_comm << ", " << new_comm << ")" << endl;
   #endif
-  // We should only move nodes if the node isn't already a member of the new community.
-  if (new_comm == old_comm || this->_membership[v]->count(new_comm) > 0)
+  // We should only move nodes if the node isn't already a member of the new community and is a member of the old community
+  if (new_comm == old_comm || this->_membership[v]->count(new_comm) > 0 || this->_membership[v]->count(old_comm) == 0)
     return;
   // Move node and update internal administration
 
@@ -388,21 +389,25 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
         it != comm_set->end(); it++)
   {
     size_t v_comm = *it;
+    #ifdef DEBUG
+      cerr << "\t" << "v_comm=" << v_comm << endl;
+    #endif
     if (v_comm != old_comm)
     {
       size_t n_ad = this->csize_overlap(v_comm, old_comm);
       this->_total_possible_overlapping_edges += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+      #ifdef DEBUG
+        cerr << "\t" << "overlap old=" << n_ad << endl;
+      #endif
     }
     if (v_comm != new_comm)
     {
       size_t n_bd = this->csize_overlap(v_comm, new_comm);
       this->_total_possible_overlapping_edges += (2*(ptrdiff_t)n_bd + 1)/normalise;
+      #ifdef DEBUG
+        cerr << "\t" << "overlap new=" << n_bd << endl;
+      #endif
     }
-    #ifdef DEBUG
-      cerr << "\t" << "v_comm=" << v_comm << endl;
-      cerr << "\t" << "overlap old=" << n_ad << endl;
-      cerr << "\t" << "overlap new=" << n_bd << endl;
-    #endif
   }
 
   // Remove from old community
@@ -521,6 +526,286 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   #endif
 }
 
+/****************************************************************************
+  Add a node to a new community and update the administration.
+  Parameters:
+    v        -- Node to move.
+    new_comm -- To which community should it move.
+*****************************************************************************/
+void MutableVertexCover::add_node(size_t v, size_t new_comm)
+{
+  #ifdef DEBUG
+    cerr << "void MutableVertexCover::add_node(" << v << ", " << new_comm << ")" << endl;
+  #endif
+  // We should only add a node if the node isn't already a member of the new community.
+  if (this->_membership[v]->count(new_comm) > 0)
+    return;
+
+  // Add node and update internal administration
+
+  // Keep track of all possible edges in all communities;
+  size_t node_size = this->graph->node_size(v);
+
+  // Incidentally, this is independent of whether we take into account self-loops or not
+  // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
+  // adaptation of the community sizes, otherwise the calculations are incorrect.
+  size_t cn = this->_csize[new_comm];
+  double normalise = (2.0 - this->graph->is_directed());
+  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*((ptrdiff_t)cn + (ptrdiff_t)node_size)/normalise;
+
+  // Count the change in the possible overlapping edges
+  set<size_t>* comm_set = this->membership(v);
+  for (set<size_t>::iterator it = comm_set->begin();
+        it != comm_set->end(); it++)
+  {
+    size_t v_comm = *it;
+    #ifdef DEBUG
+      cerr << "\t" << "v_comm=" << v_comm << endl;
+    #endif
+    if (v_comm != new_comm)
+    {
+      size_t n_bd = this->csize_overlap(v_comm, new_comm);
+      this->_total_possible_overlapping_edges += (2*(ptrdiff_t)n_bd + 1)/normalise;
+      #ifdef DEBUG
+        cerr << "\t" << "overlap new=" << n_bd << endl;
+      #endif
+    }
+  }
+
+  // Add to new community
+  this->community[new_comm]->insert(v);
+  this->_csize[new_comm] += this->graph->node_size(v);
+
+  // Switch outgoing links
+
+  // Use set for incident edges, because self loop appears twice
+  igraph_neimode_t modes[2] = {IGRAPH_OUT, IGRAPH_IN};
+  for (size_t mode_i = 0; mode_i < 2; mode_i++)
+  {
+    igraph_neimode_t mode = modes[mode_i];
+    vector< pair<size_t, size_t> >* neigh_edges
+      = this->graph->get_neighbour_edges(v, mode);
+
+    #ifdef DEBUG
+      if (mode == IGRAPH_OUT)
+        cerr << "\t" << "Looping over outgoing links." << endl;
+      else if (mode == IGRAPH_IN)
+        cerr << "\t" << "Looping over incoming links." << endl;
+      else
+        cerr << "\t" << "Looping over unknown mode." << endl;
+    #endif
+
+    for (vector< pair<size_t, size_t> >::iterator v_it = neigh_edges->begin();
+         v_it != neigh_edges->end(); v_it++)
+    {
+      size_t u = v_it->first;
+      size_t e = v_it->second;
+
+      set<size_t>* u_comms = this->_membership[u];
+      for (set<size_t>::iterator it_u=u_comms->begin();
+              it_u!=u_comms->end();
+              it_u++)
+      {
+        size_t u_comm = *it_u;
+        // Get the weight of the edge
+        double w = this->graph->edge_weight(e);
+        if (mode == IGRAPH_OUT)
+        {
+          // Add the weight to the outgoing weights of the new community
+          this->_total_weight_from_comm[new_comm] += w;
+          #ifdef DEBUG
+            cerr << "\t" << "Add link (" << v << "-" << u << ") "
+                 << "outgoing weight " << w
+                 << " to " << new_comm
+                 << "." << endl;
+          #endif
+        }
+        else if (mode == IGRAPH_IN)
+        {
+          // Add the weight to the outgoing weights of the new community
+          this->_total_weight_to_comm[new_comm] += w;
+          #ifdef DEBUG
+            cerr << "\t" << "Add link (" << v << "-" << u << ") "
+                 << "incoming weight " << w
+                 << " to " << new_comm
+                 << "." << endl;
+          #endif
+        }
+        else
+          throw Exception("Incorrect mode for updating the admin.");
+        // Get internal weight (if it is an internal edge)
+        double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
+        // If it is an internal edge in the new community
+        // i.e. if u is in the new community, or if it is a self loop
+        if ((new_comm == u_comm) || (u == v))
+        {
+          // Add the internal weight
+          this->_total_weight_in_comm[new_comm] += int_weight;
+          this->_total_weight_in_all_comms += int_weight;
+          #ifdef DEBUG
+            cerr << "\t" << "From link (" << v << "-" << u << ") "
+                 << "add internal weight " << int_weight
+                 << " to " << new_comm << "." << endl;
+          #endif
+        }
+      }
+    }
+    delete neigh_edges;
+  }
+  #ifdef DEBUG
+    // Check this->_total_weight_in_all_comms
+    double check_total_weight_in_all_comms = 0.0;
+    for (size_t c = 0; c < this->nb_communities(); c++)
+      check_total_weight_in_all_comms += this->total_weight_in_comm(c);
+    cerr << "Internal _total_weight_in_all_comms=" << this->_total_weight_in_all_comms
+         << ", calculated check_total_weight_in_all_comms=" << check_total_weight_in_all_comms << endl;
+  #endif
+  // Update the membership vector
+  this->_membership[v]->insert(new_comm);
+  #ifdef DEBUG
+    cerr << "exit MutableVertexCover::add_node(" << v << ", " << new_comm << ")" << endl << endl;
+  #endif
+}
+
+/****************************************************************************
+  Remove a node from a community and update the administration.
+  Parameters:
+    v        -- Node to move.
+    old_comm -- From which community to remove it.
+*****************************************************************************/
+void MutableVertexCover::remove_node(size_t v, size_t old_comm)
+{
+  #ifdef DEBUG
+    cerr << "void MutableVertexCover::remove_node(" << v << ", " << old_comm << ")" << endl;
+  #endif
+  // We should only remove node if the node is a member of the old community.
+  if (this->_membership[v]->count(old_comm) == 0)
+    return;
+
+  // Remove node and update internal administration
+
+  // Keep track of all possible edges in all communities;
+  size_t node_size = this->graph->node_size(v);
+
+  // Incidentally, this is independent of whether we take into account self-loops or not
+  // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
+  // adaptation of the community sizes, otherwise the calculations are incorrect.
+  size_t co = this->_csize[old_comm];
+  double normalise = (2.0 - this->graph->is_directed());
+  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*( -(ptrdiff_t)co + (ptrdiff_t)node_size)/normalise;
+
+  // Count the change in the possible overlapping edges
+  set<size_t>* comm_set = this->membership(v);
+  for (set<size_t>::iterator it = comm_set->begin();
+        it != comm_set->end(); it++)
+  {
+    size_t v_comm = *it;
+    #ifdef DEBUG
+      cerr << "\t" << "v_comm=" << v_comm << endl;
+    #endif
+    if (v_comm != old_comm)
+    {
+      size_t n_ad = this->csize_overlap(v_comm, old_comm);
+      this->_total_possible_overlapping_edges += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+      #ifdef DEBUG
+        cerr << "\t" << "overlap old=" << n_ad << endl;
+      #endif
+    }
+  }
+
+  // Remove from old community
+  this->community[old_comm]->erase(v);
+  this->_csize[old_comm] -= node_size;
+
+  // Switch outgoing links
+
+  // Use set for incident edges, because self loop appears twice
+  igraph_neimode_t modes[2] = {IGRAPH_OUT, IGRAPH_IN};
+  for (size_t mode_i = 0; mode_i < 2; mode_i++)
+  {
+    igraph_neimode_t mode = modes[mode_i];
+    vector< pair<size_t, size_t> >* neigh_edges
+      = this->graph->get_neighbour_edges(v, mode);
+
+    #ifdef DEBUG
+      if (mode == IGRAPH_OUT)
+        cerr << "\t" << "Looping over outgoing links." << endl;
+      else if (mode == IGRAPH_IN)
+        cerr << "\t" << "Looping over incoming links." << endl;
+      else
+        cerr << "\t" << "Looping over unknown mode." << endl;
+    #endif
+
+    for (vector< pair<size_t, size_t> >::iterator v_it = neigh_edges->begin();
+         v_it != neigh_edges->end(); v_it++)
+    {
+      size_t u = v_it->first;
+      size_t e = v_it->second;
+
+      set<size_t>* u_comms = this->_membership[u];
+      for (set<size_t>::iterator it_u=u_comms->begin();
+              it_u!=u_comms->end();
+              it_u++)
+      {
+        size_t u_comm = *it_u;
+        // Get the weight of the edge
+        double w = this->graph->edge_weight(e);
+        if (mode == IGRAPH_OUT)
+        {
+          // Remove the weight from the outgoing weights of the old community
+          this->_total_weight_from_comm[old_comm] -= w;
+          #ifdef DEBUG
+            cerr << "\t" << "Removing link (" << v << "-" << u << ") "
+                 << "outgoing weight " << w
+                 << " from " << old_comm
+                 << "." << endl;
+          #endif
+        }
+        else if (mode == IGRAPH_IN)
+        {
+          // Remove the weight from the outgoing weights of the old community
+          this->_total_weight_to_comm[old_comm] -= w;
+          #ifdef DEBUG
+            cerr << "\t" << "Removing link (" << v << "-" << u << ") "
+                 << "incoming weight " << w
+                 << " from " << old_comm
+                 << "." << endl;
+          #endif
+        }
+        else
+          throw Exception("Incorrect mode for updating the admin.");
+        // Get internal weight (if it is an internal edge)
+        double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
+        // If it is an internal edge in the old community (this includes a possible self-loop)
+        if (old_comm == u_comm)
+        {
+          // Remove the internal weight
+          this->_total_weight_in_comm[old_comm] -= int_weight;
+          this->_total_weight_in_all_comms -= int_weight;
+          #ifdef DEBUG
+            cerr << "\t" << "From link (" << v << "-" << u << ") "
+                 << "remove internal weight " << int_weight
+                 << " from " << old_comm << "." << endl;
+          #endif
+        }
+      }
+    }
+    delete neigh_edges;
+  }
+  #ifdef DEBUG
+    // Check this->_total_weight_in_all_comms
+    double check_total_weight_in_all_comms = 0.0;
+    for (size_t c = 0; c < this->nb_communities(); c++)
+      check_total_weight_in_all_comms += this->total_weight_in_comm(c);
+    cerr << "Internal _total_weight_in_all_comms=" << this->_total_weight_in_all_comms
+         << ", calculated check_total_weight_in_all_comms=" << check_total_weight_in_all_comms << endl;
+  #endif
+  // Update the membership vector
+  this->_membership[v]->erase(old_comm);
+  #ifdef DEBUG
+    cerr << "exit MutableVertexCover::remove_node(" << v << ", " << old_comm << ")" << endl << endl;
+  #endif
+}
 
 /****************************************************************************
  Read new Cover from another Cover.
