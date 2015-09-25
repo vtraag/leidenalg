@@ -13,6 +13,14 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
+bool pairCompareReverseSecond(const std::pair<size_t, size_t>& A, const std::pair<size_t, size_t>& B)
+{
+  if (A.first == B.first)
+    return A.second < B.second;
+  else
+    return A.first > B.first;
+}
+
 /****************************************************************************
   The binary Kullback-Leibler divergence.
 ****************************************************************************/

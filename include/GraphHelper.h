@@ -19,6 +19,8 @@ using std::make_pair;
 
 vector<size_t> range(size_t n);
 
+bool pairCompareReverseSecond(const std::pair<size_t, size_t>& A, const std::pair<size_t, size_t>& B);
+
 double KL(double q, double p);
 
 template <class T> T sum(vector<T> vec)
