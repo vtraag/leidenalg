@@ -6,8 +6,6 @@
 #include <vector>
 #include <exception>
 
-#define DEBUG
-
 #ifdef DEBUG
 #include <iostream>
   using std::cerr;
@@ -23,6 +21,8 @@ using std::make_pair;
 
 vector<size_t> range(size_t n);
 vector< set<size_t>* > range_cover(size_t n);
+
+bool pairCompareReverseSecond(const std::pair<size_t, size_t>& firstElem, const std::pair<size_t, size_t>& secondElem);
 
 double KL(double q, double p);
 

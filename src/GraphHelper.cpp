@@ -24,6 +24,14 @@ vector< set<size_t>* > range_cover(size_t n)
   return range_vec;
 }
 
+bool pairCompareReverseSecond(const std::pair<size_t, size_t>& A, const std::pair<size_t, size_t>& B)
+{
+  if (A.first == B.first)
+    return A.second < B.second;
+  else
+    return A.first > B.first;
+}
+
 /****************************************************************************
   The binary Kullback-Leibler divergence.
 ****************************************************************************/
@@ -324,9 +332,6 @@ void Graph::init_admin()
   // Calculate density;
   double w = this->total_weight();
   size_t n_size = this->total_size();
-
-  // For now we default to not correcting self loops.
-  this->_correct_self_loops = false;
 
   double normalise = 0.0;
   if (this->_correct_self_loops)

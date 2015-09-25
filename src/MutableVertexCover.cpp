@@ -300,7 +300,8 @@ void MutableVertexCover::init_admin()
 /****************************************************************************
  Renumber the communities so that they are numbered 0,...,q-1 where q is
  the number of communities. This also removes any empty communities, as they
- will not be given a new number.
+ will not be given a new number. We also include the community number so that
+ the sorting remains stable if we reiterate this procedure.
 *****************************************************************************/
 void MutableVertexCover::renumber_communities()
 {
@@ -312,8 +313,7 @@ void MutableVertexCover::renumber_communities()
   {
       csizes.push_back(make_pair(this->csize(i), i));
   }
-  sort(csizes.begin(), csizes.end());
-  reverse(csizes.begin(), csizes.end());
+  sort(csizes.begin(), csizes.end(), pairCompareReverseSecond);
 
   // Then use the sort order to assign new communities,
   // such that the largest community gets the lowest index.

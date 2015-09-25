@@ -184,6 +184,7 @@ void MutableVertexPartition::init_admin()
  the number of communities. This also removes any empty communities, as they
  will not be given a new number.
 *****************************************************************************/
+
 void MutableVertexPartition::renumber_communities()
 {
   size_t nb_comms = this->nb_communities();
@@ -194,8 +195,7 @@ void MutableVertexPartition::renumber_communities()
   {
       csizes.push_back(make_pair(this->csize(i), i));
   }
-  sort(csizes.begin(), csizes.end());
-  reverse(csizes.begin(), csizes.end());
+  sort(csizes.begin(), csizes.end(), pairCompareReverseSecond);
 
   // Then use the sort order to assign new communities,
   // such that the largest community gets the lowest index.
