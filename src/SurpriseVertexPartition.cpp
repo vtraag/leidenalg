@@ -138,7 +138,7 @@ double SurpriseVertexPartition::quality()
   #endif
   double S = m*KL(q,s);
   #ifdef DEBUG
-    cerr << "exit SignificanceVertexPartition::quality()" << endl;
+    cerr << "exit SurpriseVertexPartition::quality()" << endl;
     cerr << "return " << S << endl << endl;
   #endif
   return S;
