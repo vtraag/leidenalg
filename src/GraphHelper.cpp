@@ -77,6 +77,7 @@ Graph::Graph(igraph_t* graph,
 {
   this->_graph = graph;
   this->_remove_graph = false;
+  this->_correct_self_loops = false;
 
   if (edge_weights.size() != this->ecount())
     throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
@@ -118,6 +119,7 @@ Graph::Graph(igraph_t* graph,
 {
   this->_graph = graph;
   this->_remove_graph = false;
+  this->_correct_self_loops = false;
   if (edge_weights.size() != this->ecount())
     throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
   this->_edge_weights = edge_weights;
@@ -149,6 +151,7 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights)
 {
   this->_graph = graph;
   this->_remove_graph = false;
+  this->_correct_self_loops = false;
   if (edge_weights.size() != this->ecount())
     throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
   this->_edge_weights = edge_weights;
@@ -173,6 +176,7 @@ Graph::Graph(igraph_t* graph)
 {
   this->_graph = graph;
   this->_remove_graph = false;
+  this->_correct_self_loops = false;
   this->set_defaults();
   this->_is_weighted = false;
   this->init_admin();

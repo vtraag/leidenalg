@@ -53,6 +53,11 @@ MutableVertexCover* MutableVertexCover::create(Graph* graph)
   return new MutableVertexCover(graph);
 }
 
+MutableVertexCover* MutableVertexCover::create(Graph* graph, vector< set<size_t>* > membership)
+{
+  return new MutableVertexCover(graph, membership);
+}
+
 MutableVertexCover::~MutableVertexCover()
 {
   this->clean_mem();
@@ -354,6 +359,133 @@ void MutableVertexCover::renumber_communities(vector< set<size_t>* > new_members
   this->clean_mem();
   this->init_admin();
 }
+
+void MutableVertexCover::from_coarser_cover(MutableVertexCover* cover, vector<size_t>* disjoint_membership)
+{
+  // Read the coarser partition
+  for (size_t v = 0; v < this->graph->vcount(); v++)
+  {
+    // What is the community of the node
+    set<size_t>* v_comm_level1 = this->_membership[v];
+
+    // What is the id of the aggregate node
+    size_t v_level2 = (*disjoint_membership)[v];
+
+    // In the coarser partition, this node is represented by v_level2
+    set<size_t>* v_comm_level2 = cover->membership(v_level2);
+
+    // Make sure we make a new copy, rather than to point to the
+    // other cover.
+    set<size_t>* comms = this->_membership[v];
+    this->_membership[v] = new set<size_t>(*v_comm_level2);
+    delete comms;
+  }
+  this->clean_mem();
+  this->init_admin();
+}
+
+/****************************************************************************
+  We partition the cover into disjoint sets such that each set of
+  nodes doesn't overlap. This means that for all exisiting combinations of
+  communities, we create a different disjoint set. The output is a vector of
+  memberships of the disjoint sets for all nodes. If two nodes belong to the
+  same disjoint set (i.e. belong to the same set of communities), they have
+  the same mebership number.
+*****************************************************************************/
+
+/****************************************************************************
+  We use a tree to quickly create new identifiers for combinations of
+  communities. For example, if a node is a member of community 3, 7 & 9, we
+  find that in the tree
+
+  3 -
+    7 -
+      9 -> id
+
+  and we update the id's in the order of encounter. This ensures that all
+  the id's are actually used and are quickly located.
+*****************************************************************************/
+struct TreeIdNode
+{
+  size_t id;
+  int id_set = false;
+  map<size_t, TreeIdNode*> children;
+};
+
+void delete_tree(TreeIdNode* tree)
+{
+  if (tree->children.empty())
+    delete tree;
+  else
+  {
+    for (map<size_t, TreeIdNode*>::iterator child_it = tree->children.begin();
+         child_it != tree->children.end();
+         child_it++)
+    {
+      delete_tree(child_it->second);
+    }
+    delete tree;
+  }
+}
+
+size_t find_id(TreeIdNode* node, set<size_t>* search_set, size_t &max_id)
+{
+  set<size_t>::iterator search_it = search_set->begin();
+  while (search_it != search_set->end())
+  {
+    size_t s = *search_it;
+    map<size_t, TreeIdNode*>::iterator children_it = node->children.find(s);
+    if (children_it == node->children.end())
+    {
+      TreeIdNode* new_node = new TreeIdNode();
+      node->children[s] = new_node;
+      node = new_node;
+    }
+    else
+      node = children_it->second;
+    search_it++;
+  }
+
+  // Now node should contain the node that contains
+  // the searched set.
+  if (!node->id_set)
+  {
+    node->id = max_id++;
+    node->id_set = true;
+  }
+
+  return node->id;
+}
+
+vector< size_t >* MutableVertexCover::get_disjoint_membership()
+{
+  vector< size_t >* membership = new vector<size_t>(this->graph->vcount());
+
+  TreeIdNode* tree = new TreeIdNode();
+
+  size_t max_id = 0;
+
+  // For each node
+  for (size_t v = 0; v < this->graph->vcount(); v++)
+  {
+    // Determine the community set to which it belongs
+    set<size_t>* communities = this->_membership[v];
+
+    // Quickly determine the new id using trees
+    // Since the set of communities is always ordered,
+    // we can walk down a tree of the combinations of communities
+    // to retrieve a unique id of a community.
+    size_t new_id = find_id(tree, communities, max_id);
+
+    (*membership)[v] = new_id;
+  }
+
+  // Delete the whole tree, starting at deepest ones
+  delete_tree(tree);
+
+  return membership;
+}
+
 
 /****************************************************************************
   Move a node to a new community and update the administration.

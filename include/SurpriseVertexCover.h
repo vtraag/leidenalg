@@ -11,6 +11,7 @@ class SurpriseVertexCover: public MutableVertexCover
     SurpriseVertexCover(Graph* graph);
     virtual ~SurpriseVertexCover();
     virtual SurpriseVertexCover* create(Graph* graph);
+    virtual SurpriseVertexCover* create(Graph* graph, vector< set<size_t>* > membership);
 
     virtual double diff_move(size_t v, size_t old_comm, size_t new_comm);
     virtual double diff_add(size_t v, size_t new_comm);

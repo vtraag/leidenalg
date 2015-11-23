@@ -60,6 +60,113 @@ Optimiser::~Optimiser()
 }
 
 /*****************************************************************************
+  Optimize the provided cover.
+*****************************************************************************/
+double Optimiser::optimize_cover(MutableVertexCover* cover)
+{
+  #ifdef DEBUG
+    cerr << "void Optimiser::optimize_cover(MutableVertexCover* cover)" << endl;
+  #endif
+
+  #ifdef DEBUG
+    cerr << "Using cover at address " << cover << endl;
+  #endif
+
+  // Get the graph from the partition
+  Graph* graph = cover->get_graph();
+
+  #ifdef DEBUG
+    cerr << "Using graph at address " << graph << endl;
+  #endif
+
+  // Declare the collapsed_graph variable which will contain the graph
+  // collapsed by its communities. We will use this variables at each
+  // further iteration, so we don't keep a collapsed graph at each pass.
+  Graph* collapsed_graph = NULL;
+  MutableVertexCover* collapsed_cover = NULL;
+
+  // Do one iteration of optimisation
+  /* TODO: We probably would like to do multiple iterations of
+   * moving/adding/removing at the same level */
+  double improv = this->move_nodes(cover, this->consider_comms) +
+                  this->add_nodes(cover, this->consider_comms) +
+                  this->remove_nodes(cover, this->consider_comms);
+  // As long as there remains improvement iterate
+  while (improv > this->eps)
+  {
+    // First partition graph in disjoint sets (i.e. no overlapping communities)
+    vector<size_t>* disjoint_membership = cover->get_disjoint_membership();
+    MutableVertexPartition* disjoint_partition = new MutableVertexPartition(graph, *disjoint_membership);
+    collapsed_graph = graph->collapse_graph(disjoint_partition);
+
+    // Determine the overlapping membership for the collapsed graph
+    vector< set<size_t>* > overlapping_membership(collapsed_graph->vcount());
+    for (size_t v = 0; v < collapsed_graph->vcount(); v++)
+      overlapping_membership[v] = NULL;
+
+    // Every node within the disjoint membership set should have
+    // the same overlapping membership set, so we can use
+    // any node within such a set to determine the overlapping membership
+    // for the disjoint set.
+    for (size_t v = 0; v < graph->vcount(); v++)
+    {
+      if (overlapping_membership[(*disjoint_membership)[v]] == NULL)
+        overlapping_membership[(*disjoint_membership)[v]] = new set<size_t>(*(cover->membership(v)));
+    }
+
+    // Create collapsed cover. Each community here contains the collapsed
+    // nodes for the overlapping parts. The overlap is thus represented
+    // by collapsed nodes. Such a collapsed overlapping nodes joins all the nodes
+    // of that particular signature (i.e. being overlapped by the same set
+    // of nodes).
+    collapsed_cover = cover->create(collapsed_graph, overlapping_membership);
+
+    #ifdef DEBUG
+      cerr <<   "Calculate cover quality." << endl;
+      double q = cover->quality();
+      cerr <<   "Calculate collapsed cover quality." << endl;
+      double q_collapsed = collapsed_cover->quality();
+      if (fabs(q - q_collapsed) > 1e-6)
+      {
+        cerr << "ERROR: Quality of original cover and collapsed cover are not equal." << endl;
+      }
+      cerr <<   "cover->quality()=" << q
+           << ", collapsed_cover->quality()=" << q_collapsed << endl;
+      cerr <<   "graph->total_weight()=" << graph->total_weight()
+           << ", collapsed_graph->total_weight()=" << collapsed_graph->total_weight() << endl;
+      cerr <<   "graph->ecount()=" << graph->ecount()
+           << ", collapsed_graph->ecount()="  << collapsed_graph->ecount() << endl;
+      cerr <<   "graph->is_directed()=" << graph->is_directed()
+           << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
+    #endif
+    // Optimise cover for collapsed graph
+    improv = this->move_nodes(collapsed_cover, this->consider_comms) +
+             this->add_nodes(collapsed_cover, this->consider_comms) +
+             this->remove_nodes(collapsed_cover, this->consider_comms);
+
+    // Make sure improvement on coarser scale is reflected on the
+    // scale of the graph as a whole.
+    cover->from_coarser_cover(collapsed_cover, disjoint_membership);
+
+    // Clean up memory after use.
+    delete disjoint_membership;
+    // We already cleaned up previous sets of membership during
+    // renumbering, so we need to delete the current ones.
+    for (size_t idx = 0; idx < overlapping_membership.size(); idx++)
+      delete collapsed_cover->membership(idx);
+    delete collapsed_cover;
+    delete collapsed_graph;
+  }
+  // We renumber the communities to make sure we stick in the range
+  // 0,1,...,r - 1 for r communities.
+  // By default, we number the communities in decreasing order of size,
+  // so that 0 is the largest community, 1 the second largest, etc...
+  cover->renumber_communities();
+  // Return the quality of the current cover.
+  return cover->quality();
+}
+
+/*****************************************************************************
   Optimize the provided partition.
 *****************************************************************************/
 double Optimiser::optimize_partition(MutableVertexPartition* partition)
@@ -497,6 +604,7 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
           double possible_improv;
           set<size_t>* neigh_comms = NULL;
           vector<size_t>* neigh = NULL;
+          /* TODO: Implement the consider_comms for the other alternatives as well. */
           /****************************ALL NEIGH COMMS*****************************/
           #ifdef DEBUG
             cerr << "Consider all neighbour communities." << endl;
@@ -566,7 +674,7 @@ double Optimiser::move_nodes(MutableVertexCover* cover, int consider_comms)
 double Optimiser::add_nodes(MutableVertexCover* cover, int consider_comms)
 {
   #ifdef DEBUG
-    cerr << "double Optimiser::move_nodes(MutableVertexCover* cover)" << endl;
+    cerr << "double Optimiser::add_nodes(MutableVertexCover* cover)" << endl;
   #endif
   // get graph
   Graph* graph = cover->get_graph();
@@ -617,7 +725,7 @@ double Optimiser::add_nodes(MutableVertexCover* cover, int consider_comms)
       if (graph->degree(v, IGRAPH_ALL) > 0)
       {
         double max_improv = -std::numeric_limits<double>::infinity();
-        size_t max_comm = -1;
+        size_t max_comm = 0;
 
         // Keep track of the possible improvements and (neighbouring) communities.
         size_t neigh_comm;
@@ -662,22 +770,23 @@ double Optimiser::add_nodes(MutableVertexCover* cover, int consider_comms)
           cover->add_node(v, max_comm);
           // Keep track of number of moves
           nb_adds += 1;
-        }
-        #ifdef DEBUG
-          // If we are debugging, calculate quality function
-          // and report difference
-          double q2 = cover->quality();
 
-          if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
-          {
-            cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
-            //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
-          }
-          cerr << "Add node " << v
-              << " to " << max_comm
-              << " (diff_move=" << max_improv
-              << ", q2 - q1=" << q2 - q1 << ")" << endl;
-        #endif
+          #ifdef DEBUG
+            // If we are debugging, calculate quality function
+            // and report difference
+            double q2 = cover->quality();
+
+            if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
+            {
+              cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
+              //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
+            }
+            cerr << "Add node " << v
+                << " to " << max_comm
+                << " (diff_move=" << max_improv
+                << ", q2 - q1=" << q2 - q1 << ")" << endl;
+          #endif
+        }
       }
     }
     // Keep track of total improvement over multiple loops
@@ -691,7 +800,7 @@ double Optimiser::add_nodes(MutableVertexCover* cover, int consider_comms)
 double Optimiser::remove_nodes(MutableVertexCover* cover, int consider_comms)
 {
   #ifdef DEBUG
-    cerr << "double Optimiser::move_nodes(MutableVertexCover* cover)" << endl;
+    cerr << "double Optimiser::remove_nodes(MutableVertexCover* cover)" << endl;
   #endif
   // get graph
   Graph* graph = cover->get_graph();
@@ -744,7 +853,7 @@ double Optimiser::remove_nodes(MutableVertexCover* cover, int consider_comms)
         // What is the improvement per community if we move the node to one of
         // the other communities, and what is the maximum improvement?
         double max_improv = -std::numeric_limits<double>::infinity();
-        size_t max_comm = -1;
+        size_t max_comm = 0;
 
         // We need to copy the set here because the set changes while iterating
         set<size_t>* v_comms = new set<size_t>();
@@ -777,22 +886,23 @@ double Optimiser::remove_nodes(MutableVertexCover* cover, int consider_comms)
           cover->remove_node(v, max_comm);
           // Keep track of number of moves
           nb_removes += 1;
-        }
-        #ifdef DEBUG
-          // If we are debugging, calculate quality function
-          // and report difference
-          double q2 = cover->quality();
 
-          if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
-          {
-            cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
-            //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
-          }
-          cerr << "Remove node " << v
-              << " from " << max_comm
-              << " (diff_move=" << max_improv
-              << ", q2 - q1=" << q2 - q1 << ")" << endl;
-        #endif
+          #ifdef DEBUG
+            // If we are debugging, calculate quality function
+            // and report difference
+            double q2 = cover->quality();
+
+            if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
+            {
+              cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
+              //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
+            }
+            cerr << "Remove node " << v
+                << " from " << max_comm
+                << " (diff_move=" << max_improv
+                << ", q2 - q1=" << q2 - q1 << ")" << endl;
+          #endif
+        }
         delete v_comms;
       }
     }

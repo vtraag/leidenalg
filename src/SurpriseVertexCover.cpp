@@ -21,6 +21,11 @@ SurpriseVertexCover* SurpriseVertexCover::create(Graph* graph)
   return new SurpriseVertexCover(graph);
 }
 
+SurpriseVertexCover* SurpriseVertexCover::create(Graph* graph, vector< set<size_t>* > membership)
+{
+  return new SurpriseVertexCover(graph, membership);
+}
+
 SurpriseVertexCover::~SurpriseVertexCover()
 { }
 

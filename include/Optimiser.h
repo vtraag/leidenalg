@@ -7,6 +7,8 @@
 #include <set>
 #include <limits>
 
+#define DEBUG
+
 #ifdef DEBUG
 #include <iostream>
   using std::cerr;
@@ -30,7 +32,10 @@ class Optimiser
   public:
     Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms);
     Optimiser();
+
     double optimize_partition(MutableVertexPartition* partition);
+    double optimize_cover(MutableVertexCover* cover);
+
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);

@@ -49,6 +49,7 @@ class MutableVertexCover
         vector< set<size_t>* > membership);
     MutableVertexCover(Graph* graph);
     virtual MutableVertexCover* create(Graph* graph);
+    virtual MutableVertexCover* create(Graph* graph, vector< set<size_t>* > membership);
 
     virtual ~MutableVertexCover();
 
@@ -97,6 +98,8 @@ class MutableVertexCover
 
     void renumber_communities();
     void renumber_communities(vector< set<size_t>* > new_membership);
+    void from_coarser_cover(MutableVertexCover* cover, vector<size_t>* disjoint_membership);
+    vector< size_t >* get_disjoint_membership();
     void from_cover(MutableVertexCover* Cover);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };
