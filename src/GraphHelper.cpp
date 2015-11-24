@@ -353,7 +353,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
 {
   // Weight between vertex and community
   #ifdef DEBUG
-    cerr << "double Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "double Graph::weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
   #endif
   double total_w = 0.0;
   size_t degree = this->degree(v, mode);
@@ -394,7 +394,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
   igraph_vector_destroy(&incident_edges);
   igraph_vector_destroy(&neighbours);
   #ifdef DEBUG
-    cerr << "exit Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "exit Graph::weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
   #endif
   return total_w;
 }
@@ -403,7 +403,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector< set<size_t>
 {
   // Weight between vertex and community
   #ifdef DEBUG
-    cerr << "double Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "double Graph::weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
   #endif
   double total_w = 0.0;
   size_t degree = this->degree(v, mode);
@@ -442,7 +442,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector< set<size_t>
   igraph_vector_destroy(&incident_edges);
   igraph_vector_destroy(&neighbours);
   #ifdef DEBUG
-    cerr << "exit Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "exit Graph::weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
   #endif
   return total_w;
 }

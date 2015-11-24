@@ -33,6 +33,7 @@ MutableVertexCover::MutableVertexCover(Graph* graph,
       vector< set<size_t>* > membership)
 {
   this->graph = graph;
+  this->_clean_membership = false;
   if (membership.size() != graph->vcount())
   {
     throw Exception("Membership vector has incorrect size.");
@@ -45,6 +46,7 @@ MutableVertexCover::MutableVertexCover(Graph* graph)
 {
   this->graph = graph;
   this->_membership = range_cover(graph->vcount());
+  this->_clean_membership = true;
   this->init_admin();
 }
 
@@ -60,6 +62,7 @@ MutableVertexCover* MutableVertexCover::create(Graph* graph, vector< set<size_t>
 
 MutableVertexCover::~MutableVertexCover()
 {
+  this->clean_membership();
   this->clean_mem();
 }
 
@@ -69,6 +72,17 @@ void MutableVertexCover::clean_mem()
   {
     delete this->community.back();
     this->community.pop_back();
+  }
+}
+
+void MutableVertexCover::clean_membership()
+{
+  if (this->_clean_membership)
+  {
+    for (size_t i = 0; i < this->graph->vcount(); i++)
+    {
+      delete this->_membership[i];
+    }
   }
 }
 
@@ -128,9 +142,13 @@ set<size_t>* MutableVertexCover::get_overlap(vector<size_t> comms)
 size_t MutableVertexCover::csize_overlap(vector<size_t> comms)
 {
   set<size_t>* intersection = this->get_overlap(comms);
-  size_t csize = intersection->size();
+  size_t intersection_nsize = 0;
+  for (set<size_t>::iterator it = intersection->begin();
+       it != intersection->end();
+       it++)
+    intersection_nsize += this->graph->node_size(*it);
   delete intersection;
-  return csize;
+  return intersection_nsize;
 }
 
 set<size_t>* MutableVertexCover::get_overlap(size_t comm1, size_t comm2)
@@ -158,9 +176,13 @@ size_t MutableVertexCover::csize_overlap(size_t comm1, size_t comm2)
   if (comm1 != comm2)
   {
     set<size_t>* intersection = this->get_overlap(comm1, comm2);
-    size_t csize = intersection->size();
+    size_t intersection_nsize = 0;
+    for (set<size_t>::iterator it = intersection->begin();
+         it != intersection->end();
+         it++)
+      intersection_nsize += this->graph->node_size(*it);
     delete intersection;
-    return csize;
+    return intersection_nsize;
   }
   else // comm1 and comm2 are the same, which is just the csize
     return this->_csize[comm1];
@@ -180,7 +202,8 @@ void MutableVertexCover::init_admin()
   size_t nb_comms = 0;
   for (size_t i = 0; i < n; i++)
   {
-    size_t m = max(*(this->_membership[i])) + 1;
+    set<size_t>* comms = this->_membership[i];
+    size_t m = max(*comms) + 1;
     if (m > nb_comms)
       nb_comms = m;
   }
@@ -276,8 +299,8 @@ void MutableVertexCover::init_admin()
   }
 
   // Count overlapping possible edges
-  // This can be replaced by Tr(BB^T BB^T) which can be calculated
-  // fast using sparse matrix eigenvalues.
+  /* TODO: This can be replaced by Tr(BB^T BB^T) which can be calculated
+   * fast using sparse matrix eigenvalues. */
   this->_total_possible_overlapping_edges = 0;
   for (size_t c = 0; c < this->nb_communities(); c++)
   {
@@ -339,9 +362,14 @@ void MutableVertexCover::renumber_communities()
     {
       new_comms->insert(new_comm_id[*it]);
     }
-    delete comms;
     this->_membership[i] = new_comms;
+
+    if (this->_clean_membership)
+      delete comms;
   }
+
+  // We allocated memory internally, so make sure we clean up.
+  this->_clean_membership = true;
 
   this->clean_mem();
   this->init_admin();
@@ -354,7 +382,14 @@ void MutableVertexCover::renumber_communities()
 void MutableVertexCover::renumber_communities(vector< set<size_t>* > new_membership)
 {
   for (size_t i = 0; i < this->graph->vcount(); i++)
+  {
+    if (this->_clean_membership)
+      delete this->_membership[i];
+
     this->_membership[i] = new_membership[i];
+  }
+  // We received externally managed memory, so don't clean up
+  this->_clean_membership = false;
 
   this->clean_mem();
   this->init_admin();
@@ -378,8 +413,13 @@ void MutableVertexCover::from_coarser_cover(MutableVertexCover* cover, vector<si
     // other cover.
     set<size_t>* comms = this->_membership[v];
     this->_membership[v] = new set<size_t>(*v_comm_level2);
-    delete comms;
+    if (this->_clean_membership)
+      delete comms;
   }
+
+  // We allocated memory internally, so make sure we clean up.
+  this->_clean_membership = true;
+
   this->clean_mem();
   this->init_admin();
 }
@@ -408,8 +448,13 @@ void MutableVertexCover::from_coarser_cover(MutableVertexCover* cover, vector<si
 struct TreeIdNode
 {
   size_t id;
-  int id_set = false;
+  int id_set;
   map<size_t, TreeIdNode*> children;
+
+  TreeIdNode()
+  {
+    this->id_set = false;
+  }
 };
 
 void delete_tree(TreeIdNode* tree)
@@ -522,24 +567,27 @@ void MutableVertexCover::move_node(size_t v, size_t old_comm, size_t new_comm)
   {
     size_t v_comm = *it;
     #ifdef DEBUG
-      cerr << "\t" << "v_comm=" << v_comm << endl;
+      cerr << "\t" << "v_comm=" << v_comm;
     #endif
     if (v_comm != old_comm)
     {
       size_t n_ad = this->csize_overlap(v_comm, old_comm);
-      this->_total_possible_overlapping_edges += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+      this->_total_possible_overlapping_edges += - (ptrdiff_t)node_size * (2*(ptrdiff_t)n_ad - (ptrdiff_t)node_size - (1 - this->graph->correct_self_loops()) )/normalise;
       #ifdef DEBUG
-        cerr << "\t" << "overlap old=" << n_ad << endl;
+        cerr << ", overlap old=" << n_ad;
       #endif
     }
     if (v_comm != new_comm)
     {
       size_t n_bd = this->csize_overlap(v_comm, new_comm);
-      this->_total_possible_overlapping_edges += (2*(ptrdiff_t)n_bd + 1)/normalise;
+      this->_total_possible_overlapping_edges += (ptrdiff_t)node_size * (2*(ptrdiff_t)n_bd + (ptrdiff_t)node_size - (1 - this->graph->correct_self_loops()) )/normalise;
       #ifdef DEBUG
-        cerr << "\t" << "overlap new=" << n_bd << endl;
+        cerr << ", overlap new=" << n_bd;
       #endif
     }
+    #ifdef DEBUG
+      cerr << endl;
+    #endif
   }
 
   // Remove from old community
@@ -678,12 +726,9 @@ void MutableVertexCover::add_node(size_t v, size_t new_comm)
   // Keep track of all possible edges in all communities;
   size_t node_size = this->graph->node_size(v);
 
-  // Incidentally, this is independent of whether we take into account self-loops or not
-  // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
-  // adaptation of the community sizes, otherwise the calculations are incorrect.
   size_t cn = this->_csize[new_comm];
   double normalise = (2.0 - this->graph->is_directed());
-  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*(ptrdiff_t)cn/normalise;
+  this->_total_possible_edges_in_all_comms += (ptrdiff_t)node_size*(2*(ptrdiff_t)cn + (ptrdiff_t)node_size - (1 - this->graph->correct_self_loops()))/normalise;
 
   // Count the change in the possible overlapping edges
   set<size_t>* comm_set = this->membership(v);
@@ -697,7 +742,7 @@ void MutableVertexCover::add_node(size_t v, size_t new_comm)
     if (v_comm != new_comm)
     {
       size_t n_bd = this->csize_overlap(v_comm, new_comm);
-      this->_total_possible_overlapping_edges += (2*(ptrdiff_t)n_bd + 1)/normalise;
+      this->_total_possible_overlapping_edges += (ptrdiff_t)node_size * (2*(ptrdiff_t)n_bd + (ptrdiff_t)node_size - (1 - this->graph->correct_self_loops()) )/normalise;
       #ifdef DEBUG
         cerr << "\t" << "overlap new=" << n_bd << endl;
       #endif
@@ -819,28 +864,25 @@ void MutableVertexCover::remove_node(size_t v, size_t old_comm)
   // Keep track of all possible edges in all communities;
   size_t node_size = this->graph->node_size(v);
 
-  // Incidentally, this is independent of whether we take into account self-loops or not
-  // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
-  // adaptation of the community sizes, otherwise the calculations are incorrect.
   size_t co = this->_csize[old_comm];
   double normalise = (2.0 - this->graph->is_directed());
-  this->_total_possible_edges_in_all_comms += 2.0*(ptrdiff_t)node_size*( -(ptrdiff_t)co + (ptrdiff_t)node_size)/normalise;
+  this->_total_possible_edges_in_all_comms += -(ptrdiff_t)node_size*(2*(ptrdiff_t)co - (ptrdiff_t)node_size - (1 - this->graph->correct_self_loops()))/normalise;
 
   // Count the change in the possible overlapping edges
   set<size_t>* comm_set = this->membership(v);
+  #ifdef DEBUG
+    cerr << "\tChange in overlap." << endl;
+  #endif
   for (set<size_t>::iterator it = comm_set->begin();
         it != comm_set->end(); it++)
   {
     size_t v_comm = *it;
-    #ifdef DEBUG
-      cerr << "\t" << "v_comm=" << v_comm << endl;
-    #endif
     if (v_comm != old_comm)
     {
       size_t n_ad = this->csize_overlap(v_comm, old_comm);
-      this->_total_possible_overlapping_edges += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+      this->_total_possible_overlapping_edges += - (ptrdiff_t)node_size * (2*(ptrdiff_t)n_ad - (ptrdiff_t)node_size - (1 - this->graph->correct_self_loops()) )/normalise;
       #ifdef DEBUG
-        cerr << "\t" << "overlap old=" << n_ad << endl;
+        cerr << "\t\t" << "v_comm=" << v_comm << ", overlap old=" << n_ad << endl;
       #endif
     }
   }
@@ -947,7 +989,18 @@ void MutableVertexCover::from_cover(MutableVertexCover* Cover)
   // Assign the membership of every node in the supplied Cover
   // to the one in this Cover
   for (size_t v = 0; v < this->graph->vcount(); v++)
-    this->_membership[v] = Cover->membership(v);
+  {
+    if (this->_clean_membership)
+      delete this->_membership[v];
+
+    // Make sure we create a new set instead of a pointer to the other set
+    // (otherwise we cannot change around the one cover without changing the other)
+    this->_membership[v] = new set<size_t>(*(Cover->membership(v)));
+  }
+
+  // We allocated memory internally, so make sure we clean up.
+  this->_clean_membership = true;
+
   this->clean_mem();
   this->init_admin();
 }

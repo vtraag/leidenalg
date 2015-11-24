@@ -120,7 +120,7 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
       if (v_comm != old_comm)
       {
         size_t n_ad = this->csize_overlap(v_comm, old_comm);
-        delta_overlap += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+        delta_overlap += - (ptrdiff_t)nsize * (2*(ptrdiff_t)n_ad - (ptrdiff_t)nsize - (1 - this->graph->correct_self_loops()) )/normalise;
         #ifdef DEBUG
           cerr << "\t" << "overlap old=" << n_ad << endl;
         #endif
@@ -128,7 +128,7 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
       if (v_comm != new_comm)
       {
         size_t n_bd = this->csize_overlap(v_comm, new_comm);
-        delta_overlap += (2*(ptrdiff_t)n_bd + 1)/normalise;
+        delta_overlap += (ptrdiff_t)nsize * (2*(ptrdiff_t)n_bd + (ptrdiff_t)nsize - (1 - this->graph->correct_self_loops()) )/normalise;
         #ifdef DEBUG
           cerr << "\t" << "overlap new=" << n_bd << endl;
         #endif
@@ -202,7 +202,7 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
     #endif
 
     double q = mc/(double)nc2;
-    double delta_nc2 = 2*(ptrdiff_t)nsize*(ptrdiff_t)n_new/normalise;
+    double delta_nc2 = (ptrdiff_t)nsize*(2*(ptrdiff_t)n_new + (ptrdiff_t)nsize - (1 - this->graph->correct_self_loops()))/normalise;
     double nc2_new = nc2 + delta_nc2;
     double q_new = (mc + m_new)/(double)nc2_new;
     double p = m/(double)n2;
@@ -221,19 +221,22 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
     size_t M_int = nc2 - this->total_possible_overlapping_edges();
     set<size_t>* comm_set = this->membership(v);
     ptrdiff_t delta_overlap = 0;
+    #ifdef DEBUG
+      cerr << "\tCalculating delta overlap for comms." << endl;
+    #endif
     for (set<size_t>::iterator it = comm_set->begin();
           it != comm_set->end(); it++)
     {
       size_t v_comm = *it;
       #ifdef DEBUG
-        cerr << "\t" << "v_comm=" << v_comm << endl;
+        cerr << "\t\t" << "v_comm=" << v_comm << endl;
       #endif
       if (v_comm != new_comm)
       {
         size_t n_bd = this->csize_overlap(v_comm, new_comm);
-        delta_overlap += (2*(ptrdiff_t)n_bd + 1)/normalise;
+        delta_overlap += (ptrdiff_t)nsize * (2*(ptrdiff_t)n_bd + (ptrdiff_t)nsize - (1 - this->graph->correct_self_loops()) )/normalise;
         #ifdef DEBUG
-          cerr << "\t" << "overlap new=" << n_bd << endl;
+          cerr << "\t\t" << "overlap new=" << n_bd << endl;
         #endif
       }
     }
@@ -304,7 +307,8 @@ double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
     #endif
 
     double q = mc/(double)nc2;
-    double delta_nc2 = 2*(ptrdiff_t)nsize*(-(ptrdiff_t)n_old + (ptrdiff_t)nsize)/normalise;
+    double delta_nc2 = -(ptrdiff_t)nsize*(2*(ptrdiff_t)n_old - (ptrdiff_t)nsize - (1 - this->graph->correct_self_loops()))/normalise;
+
     double nc2_new = nc2 + delta_nc2;
     double q_new = (mc - m_old)/(double)nc2_new;
     double p = m/(double)n2;
@@ -322,20 +326,24 @@ double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
     // total number of internal edges, minus the overlapping edges.
     size_t M_int = nc2 - this->total_possible_overlapping_edges();
     set<size_t>* comm_set = this->membership(v);
+    /* BUG: Currently, the delta_overlap can only be an integer (as it should be the case).
+     * However, the calculation can be fractional when normalising. For example, when n_ad = 1
+     * we obtain (-2 + 1)/2 = -0.5, which is rounded to 0. We should check the math, because
+     * it shouldn't be possible to have fractional overlapping edges. */
     ptrdiff_t delta_overlap = 0;
+    #ifdef DEBUG
+      cerr << "\tCalculated delta overlap for comms."<< endl;
+    #endif
     for (set<size_t>::iterator it = comm_set->begin();
           it != comm_set->end(); it++)
     {
       size_t v_comm = *it;
-      #ifdef DEBUG
-        cerr << "\t" << "v_comm=" << v_comm << endl;
-      #endif
       if (v_comm != old_comm)
       {
         size_t n_ad = this->csize_overlap(v_comm, old_comm);
-        delta_overlap += (-2*(ptrdiff_t)n_ad + 1)/normalise;
+        delta_overlap += - (ptrdiff_t)nsize * (2*(ptrdiff_t)n_ad - (ptrdiff_t)nsize - (1 - this->graph->correct_self_loops()) )/normalise;
         #ifdef DEBUG
-          cerr << "\t" << "overlap old=" << n_ad << endl;
+          cerr << "\t\t" << "v_comm=" << v_comm << ", overlap old=" << n_ad << endl;
         #endif
       }
     }

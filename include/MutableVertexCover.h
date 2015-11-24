@@ -146,7 +146,10 @@ class MutableVertexCover
     size_t _total_possible_overlapping_edges;
 
     void clean_mem();
+    void clean_membership();
     void init_graph_admin();
+
+    int _clean_membership;
 
 };
 

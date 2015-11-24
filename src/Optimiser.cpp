@@ -86,18 +86,24 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
   MutableVertexCover* collapsed_cover = NULL;
 
   // Do one iteration of optimisation
-  /* TODO: We probably would like to do multiple iterations of
-   * moving/adding/removing at the same level */
-  double improv = this->move_nodes(cover, this->consider_comms) +
-                  this->add_nodes(cover, this->consider_comms) +
-                  this->remove_nodes(cover, this->consider_comms);
+  double total_improv = 0.0;
+  double improv = 0.0;
+  do
+  {
+    improv  = this->move_nodes(cover, this->consider_comms);
+    improv += this->add_nodes(cover, this->consider_comms);
+    improv += this->remove_nodes(cover, this->consider_comms);
+    total_improv += improv;
+  } while (improv > this->eps);
+
   // As long as there remains improvement iterate
-  while (improv > this->eps)
+  while (total_improv > this->eps)
   {
     // First partition graph in disjoint sets (i.e. no overlapping communities)
     vector<size_t>* disjoint_membership = cover->get_disjoint_membership();
     MutableVertexPartition* disjoint_partition = new MutableVertexPartition(graph, *disjoint_membership);
     collapsed_graph = graph->collapse_graph(disjoint_partition);
+    delete disjoint_partition;
 
     // Determine the overlapping membership for the collapsed graph
     vector< set<size_t>* > overlapping_membership(collapsed_graph->vcount());
@@ -132,6 +138,8 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
       }
       cerr <<   "cover->quality()=" << q
            << ", collapsed_cover->quality()=" << q_collapsed << endl;
+      cerr <<   "cover->quality()=" << q
+           << ", collapsed_cover->quality()=" << q_collapsed << endl;
       cerr <<   "graph->total_weight()=" << graph->total_weight()
            << ", collapsed_graph->total_weight()=" << collapsed_graph->total_weight() << endl;
       cerr <<   "graph->ecount()=" << graph->ecount()
@@ -140,20 +148,22 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
            << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
     #endif
     // Optimise cover for collapsed graph
-    improv = this->move_nodes(collapsed_cover, this->consider_comms) +
-             this->add_nodes(collapsed_cover, this->consider_comms) +
-             this->remove_nodes(collapsed_cover, this->consider_comms);
-
+    total_improv = 0.0;
+    do
+    {
+      improv  = this->move_nodes(collapsed_cover, this->consider_comms);
+      improv += this->add_nodes(collapsed_cover, this->consider_comms);
+      improv += this->remove_nodes(collapsed_cover, this->consider_comms);
+      total_improv += improv;
+    } while (improv > this->eps);
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     cover->from_coarser_cover(collapsed_cover, disjoint_membership);
 
     // Clean up memory after use.
     delete disjoint_membership;
-    // We already cleaned up previous sets of membership during
-    // renumbering, so we need to delete the current ones.
     for (size_t idx = 0; idx < overlapping_membership.size(); idx++)
-      delete collapsed_cover->membership(idx);
+      delete overlapping_membership[idx];
     delete collapsed_cover;
     delete collapsed_graph;
   }
@@ -778,12 +788,12 @@ double Optimiser::add_nodes(MutableVertexCover* cover, int consider_comms)
 
             if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
             {
-              cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
-              //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
+              cerr << "ERROR: Inconsistency while adding nodes, improvement as measured by quality function did not equal the improvement measured by the diff_add function." << endl;
+              //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_add function.");
             }
             cerr << "Add node " << v
                 << " to " << max_comm
-                << " (diff_move=" << max_improv
+                << " (diff_add=" << max_improv
                 << ", q2 - q1=" << q2 - q1 << ")" << endl;
           #endif
         }
@@ -855,55 +865,59 @@ double Optimiser::remove_nodes(MutableVertexCover* cover, int consider_comms)
         double max_improv = -std::numeric_limits<double>::infinity();
         size_t max_comm = 0;
 
-        // We need to copy the set here because the set changes while iterating
-        set<size_t>* v_comms = new set<size_t>();
-        std::copy(
-          cover->membership(v)->begin(), cover->membership(v)->end(),
-          std::inserter( *v_comms, v_comms->begin() ) );
-        for (set<size_t>::iterator it_comm = v_comms->begin();
-             it_comm != v_comms->end();
-             it_comm++)
+        // Only remove when not creating an empty assignment
+        if (cover->membership(v)->size() > 1)
         {
-          // What is the current community of the node
-          size_t v_comm = *it_comm;
-          double possible_improv = cover->diff_remove(v, v_comm);
-          if (possible_improv > max_improv)
+          // We need to copy the set here because the set changes while iterating
+          set<size_t>* v_comms = new set<size_t>();
+          std::copy(
+            cover->membership(v)->begin(), cover->membership(v)->end(),
+            std::inserter( *v_comms, v_comms->begin() ) );
+          for (set<size_t>::iterator it_comm = v_comms->begin();
+               it_comm != v_comms->end();
+               it_comm++)
           {
-            max_improv = possible_improv;
-            max_comm = v_comm;
+            // What is the current community of the node
+            size_t v_comm = *it_comm;
+            double possible_improv = cover->diff_remove(v, v_comm);
+            if (possible_improv > max_improv)
+            {
+              max_improv = possible_improv;
+              max_comm = v_comm;
+            }
           }
-        }
-        #ifdef DEBUG
-          // If we are debugging, calculate quality function
-          double q1 = cover->quality();
-        #endif
-        // If we actually plan to move the nove
-        if (max_improv > 0.0)
-        {
-          // Keep track of improvement
-          improv += max_improv;
-          // Actually move the node
-          cover->remove_node(v, max_comm);
-          // Keep track of number of moves
-          nb_removes += 1;
-
           #ifdef DEBUG
             // If we are debugging, calculate quality function
-            // and report difference
-            double q2 = cover->quality();
-
-            if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
-            {
-              cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl;
-              //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function.");
-            }
-            cerr << "Remove node " << v
-                << " from " << max_comm
-                << " (diff_move=" << max_improv
-                << ", q2 - q1=" << q2 - q1 << ")" << endl;
+            double q1 = cover->quality();
           #endif
+          // If we actually plan to move the nove
+          if (max_improv > 0.0)
+          {
+            // Keep track of improvement
+            improv += max_improv;
+            // Actually move the node
+            cover->remove_node(v, max_comm);
+            // Keep track of number of moves
+            nb_removes += 1;
+
+            #ifdef DEBUG
+              // If we are debugging, calculate quality function
+              // and report difference
+              double q2 = cover->quality();
+
+              if (fabs((q2 - q1) - max_improv) > 1e-6 && max_improv > 0.0)
+              {
+                cerr << "ERROR: Inconsistency while removing nodes, improvement as measured by quality function did not equal the improvement measured by the diff_remove function." << endl;
+                //throw Exception("ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_remove function.");
+              }
+              cerr << "Remove node " << v
+                  << " from " << max_comm
+                  << " (diff_remove=" << max_improv
+                  << ", q2 - q1=" << q2 - q1 << ")" << endl;
+            #endif
+          }
+          delete v_comms;
         }
-        delete v_comms;
       }
     }
     // Keep track of total improvement over multiple loops

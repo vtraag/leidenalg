@@ -38,7 +38,7 @@ template <class T> T sum(vector<T> vec)
 
 template <class T> T max(vector<T> vec)
 {
-  T m;
+  T m = T();
   typename vector<T>::iterator it = vec.begin();
   if (it != vec.end())
     m = *it;
@@ -52,7 +52,7 @@ template <class T> T max(vector<T> vec)
 
 template <class T> T max(set<T> s)
 {
-  T m;
+  T m = T();
   typename set<T>::iterator it = s.begin();
   if (it != s.end())
     m = *it;

@@ -7,7 +7,8 @@
 #include <set>
 #include <limits>
 
-#define DEBUG
+#include <iostream>
+using std::cerr;
 
 #ifdef DEBUG
 #include <iostream>
