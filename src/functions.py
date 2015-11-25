@@ -198,6 +198,95 @@ def find_partition(graph, method, initial_membership=None, weight=None,
   partition.quality = quality;
   return partition;
 
+def find_cover(graph, method, initial_membership=None, weight=None,
+    resolution_parameter=1.0, consider_comms=ALL_NEIGH_COMMS):
+  """
+  Method for detecting overlapping communities using the Louvain algorithm. This functions
+  finds the optimal partition given the specified method. For the various possible
+  methods see package documentation.
+
+  Keyword arguments:
+
+  graph
+    The graph for which to find the optimal partition.
+
+  method
+    The type of partition which will be used during optimisation.
+
+  initial_membership=None
+    If provided, the optimisation will start with this initial membership.
+    Should be a list that contains any unique identified for a community, which
+    is converted to a numeric representation. Since communities can never be
+    split, the number of communities in this initial partition provides an upper
+    bound.
+
+  weight=None
+    If provided, indicates the edge attribute to use as a weight. (N.B. note
+    that Significance is not suited for weighted graphs).
+
+  resolution_parameter=1.0
+    For those methods that use a resolution parameter, this is indicated here.
+
+  consider_comms=ALL_NEIGH_COMMS
+    This parameter determines which communities to consider when moving a node.
+
+    ALL_COMMS
+      Consider all communities always.
+
+    ALL_NEIGH_COMMS
+      Consider all communities of the neighbours
+
+    RAND_COMM
+      Consider only a single random community
+
+    ALL_NEIGH_COMMS
+      Consider only a single random community of the neighbours. Notice that
+      this is sampled from the set of all neighbours so that the communities are
+      sampled with respective frequency.
+
+    In ordinary cases it is usually not necessary to alter this parameter. The
+    default choice of considering all communities of the neighbours works
+    relatively well, and is relatively fast. However, in the case of negative
+    weights, it may be better to move a node to a community to which it is not
+    connected, so that one would need to consider all communities.
+    Alternatively, by only selecting a single random community from the
+    neighbours to consider, one can considerably speed up the algorithm, without
+    loosing too much quality.
+
+  The quality of the partition, as measured by the indicated method is
+  provided in the returned partition as partition.quality.
+
+  returns: optimized partition."""
+  pygraph_t = __get_py_capsule(graph);
+  if weight is not None:
+    if isinstance(weight, str):
+      weight = graph.es[weight];
+    else:
+      # Make sure it is a list
+      weight = list(weight);
+  if initial_membership is not None:
+    gen = _ig.UniqueIdGenerator();
+    initial_membership = [gen[m] for m in initial_membership];
+  membership, quality = _c_louvain._find_cover(pygraph_t, method, initial_membership, weight, resolution_parameter, consider_comms);
+  def cover_from_membership(G, membership):
+    # Make sure the membership is 0-r with r the maximum nb classes
+
+    new_c = _ig.UniqueIdGenerator();
+    new_membership = [[new_c[c] for c in cs] for cs in membership];
+
+    nb_comms = len(new_c);
+    # Find which node index is in what cluster
+    clusters = [[idx for idx, cs in enumerate(new_membership) if c in cs]
+      for c in range(nb_comms)]
+
+    cover = _ig.VertexCover(G, clusters);
+    cover.clusters = clusters;
+    return cover;
+
+  cover = cover_from_membership(graph, membership);
+  cover.quality = quality;
+  return cover;
+
 def quality(graph, partition, method, weight=None, resolution_parameter=1.0):
   """ Returns the quality of the partition as measured by the indicated method.
   For the various possible methods see package documentation.

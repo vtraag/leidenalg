@@ -70,6 +70,9 @@ void MutableVertexCover::clean_mem()
 {
   while (!this->community.empty())
   {
+    #ifdef DEBUG
+      cerr << "Cleaning community set " << this->community.size() << "." << endl;
+    #endif
     delete this->community.back();
     this->community.pop_back();
   }
@@ -79,8 +82,11 @@ void MutableVertexCover::clean_membership()
 {
   if (this->_clean_membership)
   {
-    for (size_t i = 0; i < this->graph->vcount(); i++)
+    for (size_t i = 0; i < this->_membership.size(); i++)
     {
+      #ifdef DEBUG
+        cerr << "Cleaning membership set " << i << "." << endl;
+      #endif
       delete this->_membership[i];
     }
   }

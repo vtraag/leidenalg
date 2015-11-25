@@ -8,12 +8,16 @@
 #include <Python.h>
 #include <igraph.h>
 #include "GraphHelper.h"
+
 #include "ModularityVertexPartition.h"
 #include "SignificanceVertexPartition.h"
 #include "SurpriseVertexPartition.h"
 #include "RBConfigurationVertexPartition.h"
 #include "RBERVertexPartition.h"
 #include "CPMVertexPartition.h"
+
+#include "SurpriseVertexCover.h"
+
 #include "Optimiser.h"
 
 #ifdef __cplusplus
@@ -27,16 +31,23 @@ extern "C"
   static MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter);
   static MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, double resolution_parameter);
 
+  static PyObject* _find_cover(PyObject *self, PyObject *args, PyObject *keywds);
+  static MutableVertexCover* create_cover(Graph* graph, char* method, vector< set<size_t>* >* initial_membership, double resolution_parameter);
+  static MutableVertexCover* create_cover_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, double resolution_parameter);
+
   static char find_partition_multiplex_docs[] =
-      "find_partition_multiplex( ): Finds an optimal partition for several graphs and methods at the same time.\n";
+      "_find_partition_multiplex( ): Finds an (near) optimal partition for several graphs and methods at the same time.\n";
   static char find_partition_docs[] =
-      "_find_partition( ): Find a the optimal partition using the louvain algorithm and the specified method for the supplied graph.\n";
+      "_find_partition( ): Find the (near) optimal partition using the louvain algorithm and the specified method for the supplied graph.\n";
+  static char find_cover_docs[] =
+      "_find_cover( ): Find the (near) optimal cover using the louvain algorithm and the specified method for the supplied graph.\n";
   static char quality_docs[] =
       "_quality( ): Calculate the quality of the supplied partition using the indicated method.\n";
 
   static PyMethodDef louvain_funcs[] = {
       {"_find_partition_multiplex", (PyCFunction)_find_partition_multiplex,  METH_VARARGS | METH_KEYWORDS, find_partition_multiplex_docs},
       {"_find_partition", (PyCFunction)_find_partition,  METH_VARARGS | METH_KEYWORDS, find_partition_docs},
+      {"_find_cover", (PyCFunction)_find_cover,  METH_VARARGS | METH_KEYWORDS, find_cover_docs},
       {"_quality", (PyCFunction)_quality,  METH_VARARGS | METH_KEYWORDS, quality_docs},
       {NULL}
   };

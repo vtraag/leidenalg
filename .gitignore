@@ -30,3 +30,4 @@ igraph-0.7.1.tar.gz
 igraphcore/
 **/*.swp
 test.graphml
+test_install.sh

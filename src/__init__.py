@@ -106,6 +106,7 @@ Please cite the references appropriately in case they are used.
 
 """
 from .functions import find_partition
+from .functions import find_cover
 from .functions import find_partition_multiplex
 from .functions import quality
 from .functions import total_internal_edges

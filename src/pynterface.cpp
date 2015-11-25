@@ -65,8 +65,9 @@ extern "C"
         // First clean up before returning error.
         for (size_t layer; layer < nb_layers; layer++)
         {
-          delete partitions[layer]->get_graph();
+          Graph* G = partitions[layer]->get_graph();
           delete partitions[layer];
+          delete G;
         }
 
         PyErr_SetString(PyExc_ValueError, "Inconsistent number of nodes.");
@@ -95,8 +96,9 @@ extern "C"
 
     for (size_t layer; layer < nb_layers; layer++)
     {
-      delete partitions[layer]->get_graph();
+      Graph* G = partitions[layer]->get_graph();
       delete partitions[layer];
+      delete G;
     }
 
     return Py_BuildValue("Od", membership, q);
@@ -158,13 +160,109 @@ extern "C"
 
     double q = partition->quality();
 
-    delete partition->get_graph();
+    Graph* G = partition->get_graph(); // Don't forget to remove the graph
     delete partition;
+    delete G;
 
     PyObject* result = Py_BuildValue("Od", membership, q);
     Py_DECREF(membership);
     return result;
   }
+
+  static PyObject* _find_cover(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
+    PyObject* py_initial_membership = NULL;
+    char* method = "Surprise";
+    PyObject* py_weights = NULL;
+    double resolution_parameter = 1.0;
+    int consider_comms = Optimiser::ALL_NEIGH_COMMS;
+
+    static char* kwlist[] = {"graph", "method", "initial_membership", "weights", "resolution_parameter", "consider_all_comms", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Os|OOdi", kwlist,
+                                     &py_obj_graph, &method, &py_initial_membership, &py_weights, &resolution_parameter, &consider_comms))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "Consider comms " << consider_comms << " ." << endl;
+    #endif
+
+    Optimiser opt;
+    opt.consider_comms = consider_comms;
+
+    MutableVertexCover* cover = create_cover_from_py(py_obj_graph, method, py_initial_membership, py_weights, resolution_parameter);
+
+    #ifdef DEBUG
+      cerr << "Using cover at address " << cover << endl;
+    #endif
+
+    if (cover == NULL)
+    {
+      if (PyErr_Occurred() == NULL)
+        PyErr_SetString(PyExc_ValueError, "Could not initialize cover. Please check parameters or contact the maintainer.");
+      return NULL;
+    }
+
+    opt.optimize_cover(cover);
+
+    #ifdef DEBUG
+      cerr << "Cover contains " << cover->nb_communities() << " communities, quality "
+           << cover->quality() << "." << endl;
+    #endif
+
+    size_t n = cover->get_graph()->vcount();
+    #ifdef DEBUG
+      cerr << "Creating membership list..." << endl;
+    #endif
+    PyObject* membership = PyList_New(n);
+    // TODO: This needs to be updated to return a proper list of lists for the membership vector.
+    for (size_t v = 0; v < n; v++)
+    {
+      set<size_t>* comms = cover->membership(v);
+      #ifdef DEBUG
+        cerr << "\tCreating membership set for node " << v << "." << endl;
+      #endif
+      PyObject* comm_set = PyList_New(0);
+      for (set<size_t>::iterator it_comm = comms->begin();
+           it_comm != comms->end();
+           it_comm++)
+      {
+        size_t comm = *it_comm;
+        #if PY_MAJOR_VERSION >= 3
+          PyObject* item = PyLong_FromLong(comm);
+        #else
+          PyObject* item = PyInt_FromLong(comm);
+        #endif
+        #ifdef DEBUG
+          cerr << "\t\tAdding community " << comm << " to set." << endl;
+        #endif
+        PyList_Append(comm_set, item);
+      }
+      #ifdef DEBUG
+        cerr << "\tAdding membership set to membership list." << endl;
+      #endif
+      PyList_SetItem(membership, v, comm_set);
+    }
+
+    double q = cover->quality();
+
+    #ifdef DEBUG
+      cerr << "Cleaning up memory." << endl;
+    #endif
+
+    Graph* G = cover->get_graph(); // Don't forget to remove the graph
+    delete cover;
+    delete G;
+
+    #ifdef DEBUG
+      cerr << "Building result object." << endl;
+    #endif
+    PyObject* result = Py_BuildValue("Od", membership, q);
+    Py_DECREF(membership);
+    return result;
+  }
+
 
   static PyObject* _quality(PyObject *self, PyObject *args, PyObject *keywds)
   {
@@ -198,8 +296,9 @@ extern "C"
     }
 
     double q = partition->quality();
-    delete partition->get_graph(); // Don't forget to remove the graph
+    Graph* G = partition->get_graph(); // Don't forget to remove the graph
     delete partition;
+    delete G;
 
     return Py_BuildValue("d", q);
   }
@@ -336,6 +435,101 @@ extern "C"
       partition = create_partition(graph, method, NULL, resolution_parameter);
 
     return partition;
+  }
+
+  static MutableVertexCover* create_cover(Graph* graph, char* method, vector< set<size_t>* >* initial_membership, double resolution_parameter)
+  {
+    MutableVertexCover* cover;
+    #ifdef DEBUG
+      cerr << "Creating cover for graph at address " << graph
+           << " for method " << method << " using resolution " << resolution_parameter
+           << " (if relevant)." << endl;
+    #endif
+    if (strcmp(method, "Surprise") == 0)
+    {
+      if (initial_membership != NULL)
+        cover = new SurpriseVertexCover(graph, *initial_membership);
+      else
+        cover = new SurpriseVertexCover(graph);
+    }
+    else
+    {
+      PyErr_SetString(PyExc_ValueError, "Non-existing method for optimization specified.");
+      delete graph;
+      return NULL;
+    }
+    #ifdef DEBUG
+      cerr << "Created cover at address " << cover << endl;
+    #endif
+    return cover;
+  }
+
+  static MutableVertexCover* create_cover_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, double resolution_parameter)
+  {
+    #if PY_MAJOR_VERSION >= 3
+      igraph_t* py_graph = (igraph_t*) PyCapsule_GetPointer(py_obj_graph, NULL);
+    #else
+      igraph_t* py_graph = (igraph_t*) PyCObject_AsVoidPtr(py_obj_graph);
+    #endif
+    #ifdef DEBUG
+      cerr << "Got igraph_t " << py_graph << endl;
+    #endif
+
+    // If necessary create a weighted graph
+    Graph* graph = NULL;
+    #ifdef DEBUG
+      cerr << "Creating graph."<< endl;
+    #endif
+    if (py_weights != NULL && py_weights != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading weights." << endl;
+      #endif
+      vector<double> weights;
+      size_t m = PyList_Size(py_weights);
+      weights.resize(m);
+      for (size_t e = 0; e < m; e++)
+        weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
+
+      graph = new Graph(py_graph, weights);
+    }
+    else
+    {
+      graph = new Graph(py_graph);
+    }
+    #ifdef DEBUG
+      cerr << "Created graph " << graph << endl;
+      cerr << "Number of nodes " << graph->vcount() << endl;
+      cerr << "Number of edges " << graph->ecount() << endl;
+      cerr << "Total weight " << graph->total_weight() << endl;
+    #endif
+
+    /* TODO: We need to properly parse the list of lists from python
+     * for working with an initial membership. For now we will ignore this.
+     */
+    /*
+    vector< set<size_t>* > initial_membership;
+    int has_initial_membership = false;
+    // If necessary create an initial partition
+    if (py_initial_membership != NULL && py_initial_membership != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading initial membership." << endl;
+      #endif
+      has_initial_membership = true;
+      size_t n = PyList_Size(py_initial_membership);
+      initial_membership.resize(n);
+      for (size_t v = 0; v < n; v++)
+        initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+    }*/
+
+    MutableVertexCover* cover;
+//    if (has_initial_membership)
+//      cover = create_cover(graph, method, &initial_membership, resolution_parameter);
+//    else
+    cover = create_cover(graph, method, NULL, resolution_parameter);
+
+    return cover;
   }
 
 #ifdef __cplusplus

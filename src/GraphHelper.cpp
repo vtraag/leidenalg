@@ -197,6 +197,9 @@ Graph::~Graph()
 {
   if (this->_remove_graph)
   {
+    #ifdef DEBUG
+      cerr << "Destroying underlying igraph object." << endl;
+    #endif
     igraph_destroy(this->_graph);
     delete this->_graph;
   }
