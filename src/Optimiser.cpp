@@ -88,7 +88,80 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
   // Do one iteration of optimisation
   double total_improv = 0.0;
   double improv = 0.0;
-  do
+
+  improv  = this->move_nodes(cover, this->consider_comms);
+  total_improv += improv;
+
+  // As long as there remains improvement iterate
+  while (total_improv > this->eps)
+  {
+    // First partition graph in disjoint sets (i.e. no overlapping communities)
+    vector<size_t>* disjoint_membership = cover->get_disjoint_membership();
+    MutableVertexPartition* disjoint_partition = new MutableVertexPartition(graph, *disjoint_membership);
+    collapsed_graph = graph->collapse_graph(disjoint_partition);
+    delete disjoint_partition;
+
+    // Determine the overlapping membership for the collapsed graph
+    vector< set<size_t>* > overlapping_membership(collapsed_graph->vcount());
+    for (size_t v = 0; v < collapsed_graph->vcount(); v++)
+      overlapping_membership[v] = NULL;
+
+    // Every node within the disjoint membership set should have
+    // the same overlapping membership set, so we can use
+    // any node within such a set to determine the overlapping membership
+    // for the disjoint set.
+    for (size_t v = 0; v < graph->vcount(); v++)
+    {
+      if (overlapping_membership[(*disjoint_membership)[v]] == NULL)
+        overlapping_membership[(*disjoint_membership)[v]] = new set<size_t>(*(cover->membership(v)));
+    }
+
+    // Create collapsed cover. Each community here contains the collapsed
+    // nodes for the overlapping parts. The overlap is thus represented
+    // by collapsed nodes. Such a collapsed overlapping nodes joins all the nodes
+    // of that particular signature (i.e. being overlapped by the same set
+    // of nodes).
+    collapsed_cover = cover->create(collapsed_graph, overlapping_membership);
+
+    #ifdef DEBUG
+      cerr <<   "Calculate cover quality." << endl;
+      double q = cover->quality();
+      cerr <<   "Calculate collapsed cover quality." << endl;
+      double q_collapsed = collapsed_cover->quality();
+      if (fabs(q - q_collapsed) > 1e-6)
+      {
+        cerr << "ERROR: Quality of original cover and collapsed cover are not equal." << endl;
+      }
+      cerr <<   "cover->quality()=" << q
+           << ", collapsed_cover->quality()=" << q_collapsed << endl;
+      cerr <<   "cover->quality()=" << q
+           << ", collapsed_cover->quality()=" << q_collapsed << endl;
+      cerr <<   "graph->total_weight()=" << graph->total_weight()
+           << ", collapsed_graph->total_weight()=" << collapsed_graph->total_weight() << endl;
+      cerr <<   "graph->ecount()=" << graph->ecount()
+           << ", collapsed_graph->ecount()="  << collapsed_graph->ecount() << endl;
+      cerr <<   "graph->is_directed()=" << graph->is_directed()
+           << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
+    #endif
+    // Optimise cover for collapsed graph
+    total_improv = 0.0;
+
+    improv  = this->move_nodes(collapsed_cover, this->consider_comms);
+    total_improv += improv;
+
+    // Make sure improvement on coarser scale is reflected on the
+    // scale of the graph as a whole.
+    cover->from_coarser_cover(collapsed_cover, disjoint_membership);
+
+    // Clean up memory after use.
+    delete disjoint_membership;
+    for (size_t idx = 0; idx < overlapping_membership.size(); idx++)
+      delete overlapping_membership[idx];
+    delete collapsed_cover;
+    delete collapsed_graph;
+  }
+
+  /*do
   {
     improv  = this->move_nodes(cover, this->consider_comms);
     improv += this->add_nodes(cover, this->consider_comms);
@@ -166,7 +239,7 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
       delete overlapping_membership[idx];
     delete collapsed_cover;
     delete collapsed_graph;
-  }
+  }*/
   // We renumber the communities to make sure we stick in the range
   // 0,1,...,r - 1 for r communities.
   // By default, we number the communities in decreasing order of size,

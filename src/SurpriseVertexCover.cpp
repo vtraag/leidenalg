@@ -247,7 +247,8 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
       cerr << "\t" << "M_int_new=" << M_int_new << "." << endl;
     #endif
 
-    diff = M_int_new*KL(q_new, p) - M_int*KL(q, p);
+    // Subtract the number of nodes for which we assign an additional community
+    diff = M_int_new*KL(q_new, p) - M_int*KL(q, p) - nsize;
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -354,7 +355,8 @@ double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
       cerr << "\t" << "M_int_new=" << M_int_new << "." << endl;
     #endif
 
-    diff = M_int_new*KL(q_new, p) - M_int*KL(q, p);
+    // Add the number of nodes for which we remove an additional community
+    diff = M_int_new*KL(q_new, p) - M_int*KL(q, p) + nsize;
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
