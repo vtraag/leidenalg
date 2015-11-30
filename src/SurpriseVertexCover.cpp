@@ -141,7 +141,7 @@ double SurpriseVertexCover::diff_move(size_t v, size_t old_comm, size_t new_comm
       cerr << "\t" << "M_int_new=" << M_int_new << "." << endl;
     #endif
 
-    diff = M_int_new*KL(q_new, p) - M_int*KL(q, p);
+    diff = KL(q_new, p) - KL(q, p);
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
