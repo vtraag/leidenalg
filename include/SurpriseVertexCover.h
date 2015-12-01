@@ -19,7 +19,7 @@ class SurpriseVertexCover: public MutableVertexCover
     virtual double quality();
   protected:
   private:
-     double max_overlap; //Maximum overlap
+     size_t max_overlap; //Maximum overlap
 };
 
 #endif // SURPRISEVERTEXCover_H

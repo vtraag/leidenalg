@@ -96,6 +96,7 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
     total_improv += improv;
   } while (improv > this->eps);
 
+  std::cerr << "Improved " << total_improv << " with " << cover->nb_communities() << " communities." << std::endl;
   // As long as there remains improvement iterate
   while (total_improv > this->eps)
   {
@@ -159,6 +160,8 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     cover->from_coarser_cover(collapsed_cover, disjoint_membership);
+
+    std::cerr << "Improved " << total_improv << " with " << cover->nb_communities() << " communities." << std::endl;
 
     // Clean up memory after use.
     delete disjoint_membership;

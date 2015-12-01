@@ -11,13 +11,13 @@ SurpriseVertexCover::SurpriseVertexCover(Graph* graph,
         MutableVertexCover(graph,
         membership)
 {
-  this->max_overlap = max(graph->_degree_all); //Maximum overlap
+  this->max_overlap = 2;//max(graph->_degree_all); //Maximum overlap
 }
 
 SurpriseVertexCover::SurpriseVertexCover(Graph* graph) :
         MutableVertexCover(graph)
 {
-  this->max_overlap = max(graph->_degree_all); //Maximum overlap
+  this->max_overlap = 2;//max(graph->_degree_all); //Maximum overlap
 }
 
 SurpriseVertexCover* SurpriseVertexCover::create(Graph* graph)
@@ -133,7 +133,7 @@ double SurpriseVertexCover::diff_add(size_t v, size_t new_comm)
   double diff = 0.0;
   // Make sure we don't move from the same comm to the new comm
   // and also that the community is not already in the membership vector.
-  if (this->_membership[v]->count(new_comm) == 0)
+  if (this->_membership[v]->count(new_comm) == 0 && this->_membership[v]->size() < this->max_overlap)
   {
     double normalise = (2.0 - this->graph->is_directed());
     double m = this->graph->total_weight();
@@ -205,8 +205,8 @@ double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
     cerr << "\t" << "nsize: " << nsize << endl;
   #endif
   double diff = 0.0;
-  // Make sure we don't remove from an existing community
-  if (this->_membership[v]->count(old_comm) > 0)
+  // Make sure we don't remove from a community of which it is not a member (and that the node is still covered)
+  if (this->_membership[v]->count(old_comm) > 0 && this->_membership[v]->size() > 1)
   {
     double normalise = (2.0 - this->graph->is_directed());
     double m = this->graph->total_weight();
@@ -262,6 +262,7 @@ double SurpriseVertexCover::diff_remove(size_t v, size_t old_comm)
     #endif
 
     diff = m*KL(q_new, p_new) - m*KL(q, p);
+    double diff2 = diff;
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
