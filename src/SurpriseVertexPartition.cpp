@@ -54,7 +54,7 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     size_t n2 = 0;
 
     if (this->graph->correct_self_loops())
-      n2 = n*n/normalise;
+      n2 = n*(n - 1)/normalise + n;
     else
       n2 = n*(n-1)/normalise;
     #ifdef DEBUG
@@ -135,7 +135,7 @@ double SurpriseVertexPartition::quality()
 
   size_t n2 = 0;
   if (this->graph->correct_self_loops())
-    n2 = n*n/normalise;
+    n2 = n*(n - 1)/normalise + n;
   else
     n2 = n*(n-1)/normalise;
 

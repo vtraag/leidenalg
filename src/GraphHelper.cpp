@@ -366,11 +366,9 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
       // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
       if (u == v && !this->is_directed())
           w /= 2.0;
-
       #ifdef DEBUG
         cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
       #endif
-
       total_w += w;
     }
     #ifdef DEBUG
@@ -584,7 +582,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   for (size_t c = 0; c < partition->nb_communities(); c++)
     csizes[c] = partition->csize(c);
 
-  Graph* G = new Graph(graph, collapsed_weights, csizes);
+  Graph* G = new Graph(graph, collapsed_weights, csizes, this->_correct_self_loops);
   G->_remove_graph = true;
   #ifdef DEBUG
     cerr << "exit Graph::collapse_graph(vector<size_t> membership)" << endl << endl;
