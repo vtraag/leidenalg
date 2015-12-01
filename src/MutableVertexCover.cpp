@@ -784,14 +784,19 @@ void MutableVertexCover::add_node(size_t v, size_t new_comm)
       size_t u = v_it->first;
       size_t e = v_it->second;
 
+      // Get the weight of the edge
+      double w = this->graph->edge_weight(e);
+
+      // Get internal weight (if it is an internal edge)
+      double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
+
       set<size_t>* u_comms = this->_membership[u];
       for (set<size_t>::iterator it_u=u_comms->begin();
               it_u!=u_comms->end();
               it_u++)
       {
         size_t u_comm = *it_u;
-        // Get the weight of the edge
-        double w = this->graph->edge_weight(e);
+
         if (mode == IGRAPH_OUT)
         {
           // Add the weight to the outgoing weights of the new community
@@ -816,11 +821,10 @@ void MutableVertexCover::add_node(size_t v, size_t new_comm)
         }
         else
           throw Exception("Incorrect mode for updating the admin.");
-        // Get internal weight (if it is an internal edge)
-        double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
+
         // If it is an internal edge in the new community
         // i.e. if u is in the new community, or if it is a self loop
-        if ((new_comm == u_comm) || (u == v))
+        if ((new_comm == u_comm) && u != v)
         {
           // Add the internal weight
           this->_total_weight_in_comm[new_comm] += int_weight;
@@ -831,6 +835,18 @@ void MutableVertexCover::add_node(size_t v, size_t new_comm)
                  << " to " << new_comm << "." << endl;
           #endif
         }
+      }
+      if (u == v)
+      {
+        // Add the internal weight
+        this->_total_weight_in_comm[new_comm] += int_weight;
+        this->_total_weight_in_all_comms += int_weight;
+        #ifdef DEBUG
+        if (u == v)
+          cerr << "\t" << "From self-loop (" << v << ") "
+               << "add internal weight " << int_weight
+               << " to " << new_comm << "." << endl;
+        #endif
       }
     }
     delete neigh_edges;
@@ -922,14 +938,18 @@ void MutableVertexCover::remove_node(size_t v, size_t old_comm)
       size_t u = v_it->first;
       size_t e = v_it->second;
 
+      // Get the weight of the edge
+      double w = this->graph->edge_weight(e);
+
+      // Get internal weight (if it is an internal edge)
+      double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
+
       set<size_t>* u_comms = this->_membership[u];
       for (set<size_t>::iterator it_u=u_comms->begin();
               it_u!=u_comms->end();
               it_u++)
       {
         size_t u_comm = *it_u;
-        // Get the weight of the edge
-        double w = this->graph->edge_weight(e);
         if (mode == IGRAPH_OUT)
         {
           // Remove the weight from the outgoing weights of the old community
@@ -954,10 +974,9 @@ void MutableVertexCover::remove_node(size_t v, size_t old_comm)
         }
         else
           throw Exception("Incorrect mode for updating the admin.");
-        // Get internal weight (if it is an internal edge)
-        double int_weight = w/(this->graph->is_directed() ? 1.0 : 2.0)/( u == v ? 2.0 : 1.0);
-        // If it is an internal edge in the old community (this includes a possible self-loop)
-        if (old_comm == u_comm)
+
+        // If it is an internal edge in the old community (excluding a possible self-loop)
+        if (old_comm == u_comm && v != u)
         {
           // Remove the internal weight
           this->_total_weight_in_comm[old_comm] -= int_weight;
@@ -968,6 +987,18 @@ void MutableVertexCover::remove_node(size_t v, size_t old_comm)
                  << " from " << old_comm << "." << endl;
           #endif
         }
+      }
+      // Remove the self loop
+      if (v == u)
+      {
+        // Remove the internal weight
+        this->_total_weight_in_comm[old_comm] -= int_weight;
+        this->_total_weight_in_all_comms -= int_weight;
+        #ifdef DEBUG
+          cerr << "\t" << "From self loop (" << v << "-" << u << ") "
+               << "remove internal weight " << int_weight
+               << " from " << old_comm << "." << endl;
+        #endif
       }
     }
     delete neigh_edges;

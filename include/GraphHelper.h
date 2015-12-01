@@ -6,6 +6,8 @@
 #include <vector>
 #include <exception>
 
+#define DEBUG
+
 #ifdef DEBUG
 #include <iostream>
   using std::cerr;
@@ -174,6 +176,11 @@ class Graph
         throw Exception("Incorrect mode specified.");
     };
 
+
+    vector<size_t> _degree_in;
+    vector<size_t> _degree_out;
+    vector<size_t> _degree_all;
+
   protected:
 
     int _remove_graph;
@@ -184,10 +191,6 @@ class Graph
     // Utility variables to easily access the strength of each node
     vector<double> _strength_in;
     vector<double> _strength_out;
-
-    vector<size_t> _degree_in;
-    vector<size_t> _degree_out;
-    vector<size_t> _degree_all;
 
     vector<double> _edge_weights; // Used for the weight of the edges.
     vector<size_t> _node_sizes; // Used for the size of the nodes.
