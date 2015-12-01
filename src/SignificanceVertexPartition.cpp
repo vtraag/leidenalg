@@ -8,17 +8,28 @@ using std::endl;
 
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
       vector<size_t> membership) :
-        MutableVertexPartition(graph,
+        LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
 
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph) :
-        MutableVertexPartition(graph)
+        LinearResolutionParameterVertexPartition(graph)
 { }
+
+SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
+      vector<size_t> membership, double resolution_parameter) :
+        LinearResolutionParameterVertexPartition(graph,
+        membership, resolution_parameter)
+{ }
+
+SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph, double resolution_parameter) :
+        LinearResolutionParameterVertexPartition(graph, resolution_parameter)
+{ }
+
 
 SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
 {
-  return new SignificanceVertexPartition(graph);
+  return new SignificanceVertexPartition(graph, this->resolution_parameter);
 }
 
 SignificanceVertexPartition::~SignificanceVertexPartition()
@@ -35,7 +46,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
   if (new_comm != old_comm)
   {
     double normalise = (2.0 - this->graph->is_directed());
-    double p = this->graph->density();
+    double p = this->resolution_parameter*this->graph->density();
+
     #ifdef DEBUG
       size_t n = this->graph->total_size();
       cerr << "\t" << "Community: " << old_comm << " => " << new_comm << "." << endl;
@@ -120,7 +132,7 @@ double SignificanceVertexPartition::quality()
     size_t n = this->graph->total_size();
   #endif
   double S = 0.0;
-  double p = this->graph->density();
+  double p = this->resolution_parameter*this->graph->density();
   #ifdef DEBUG
     cerr << "\t" << "n=" << n << ", m=" << this->graph->total_weight() << ", p=" << p << "." << endl;
   #endif

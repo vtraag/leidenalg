@@ -8,18 +8,29 @@ using std::endl;
 
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
       vector<size_t> membership) :
-        MutableVertexPartition(graph,
+        LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
 
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph) :
-        MutableVertexPartition(graph)
+        LinearResolutionParameterVertexPartition(graph)
+{ }
+
+SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
+      vector<size_t> membership, double resolution_parameter) :
+        LinearResolutionParameterVertexPartition(graph,
+        membership, resolution_parameter)
+{ }
+
+SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph, double resolution_parameter) :
+        LinearResolutionParameterVertexPartition(graph, resolution_parameter)
 { }
 
 SurpriseVertexPartition* SurpriseVertexPartition::create(Graph* graph)
 {
-  return new SurpriseVertexPartition(graph);
+  return new SurpriseVertexPartition(graph, this->resolution_parameter);
 }
+
 
 SurpriseVertexPartition::~SurpriseVertexPartition()
 { }
@@ -84,9 +95,9 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
       cerr << "\t" << "m_new: " << m_new << ", n_new: " << n_new << "." << endl;
     #endif
 
-    double q = mc/m;
+    double q = mc/(this->resolution_parameter*m);
     double s = (double)nc2/(double)n2;
-    double q_new = (mc - m_old + m_new)/m;
+    double q_new = (mc - m_old + m_new)/(this->resolution_parameter*m);
     #ifdef DEBUG
       cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
     #endif
@@ -98,7 +109,7 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
       cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
       cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
     #endif
-    diff = m*(KL(q_new, s_new) - KL(q, s));
+    diff = this->resolution_parameter*m*(KL(q_new, s_new) - KL(q, s));
 
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
@@ -131,12 +142,12 @@ double SurpriseVertexPartition::quality()
   #ifdef DEBUG
     cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;
   #endif
-  double q = mc/m;
+  double q = mc/(this->resolution_parameter*m);
   double s = (double)nc2/(double)n2;
   #ifdef DEBUG
     cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
   #endif
-  double S = m*KL(q,s);
+  double S = this->resolution_parameter*m*KL(q,s);
   #ifdef DEBUG
     cerr << "exit SurpriseVertexPartition::quality()" << endl;
     cerr << "return " << S << endl << endl;

@@ -360,15 +360,16 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     #endif
     if ((*membership)[u] == comm)
     {
-      #ifdef DEBUG
-        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
-      #endif
       size_t e = VECTOR(incident_edges)[i];
       // Get the weight of the edge
       double w = this->_edge_weights[e];
       // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
       if (u == v && !this->is_directed())
           w /= 2.0;
+
+      #ifdef DEBUG
+        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+      #endif
 
       total_w += w;
     }

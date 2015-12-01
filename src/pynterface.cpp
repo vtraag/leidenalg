@@ -229,16 +229,16 @@ extern "C"
         return NULL;
       }
       if (initial_membership != NULL)
-        partition = new SignificanceVertexPartition(graph, *initial_membership);
+        partition = new SignificanceVertexPartition(graph, *initial_membership, resolution_parameter);
       else
-        partition = new SignificanceVertexPartition(graph);
+        partition = new SignificanceVertexPartition(graph, resolution_parameter);
     }
     else if (strcmp(method, "Surprise") == 0)
     {
       if (initial_membership != NULL)
-        partition = new SurpriseVertexPartition(graph, *initial_membership);
+        partition = new SurpriseVertexPartition(graph, *initial_membership, resolution_parameter);
       else
-        partition = new SurpriseVertexPartition(graph);
+        partition = new SurpriseVertexPartition(graph, resolution_parameter);
     }
     else if (strcmp(method, "RBConfiguration") == 0)
     {
