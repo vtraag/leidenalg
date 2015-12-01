@@ -112,6 +112,8 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
            << ", collapsed_graph->ecount()="  << collapsed_graph->ecount() << endl;
       cerr <<   "graph->is_directed()=" << graph->is_directed()
            << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
+      cerr <<   "graph->correct_self_loops()=" << graph->correct_self_loops()
+           << ", collapsed_graph->correct_self_loops()="  << collapsed_graph->correct_self_loops() << endl;
     #endif
     // Optimise partition for collapsed graph
     improv = this->move_nodes(collapsed_partition, this->consider_comms);

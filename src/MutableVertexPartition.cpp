@@ -165,7 +165,7 @@ void MutableVertexPartition::init_admin()
     size_t possible_edges = 0;
 
     if (this->graph->correct_self_loops())
-      possible_edges = n_c*n_c/(2.0 - this->graph->is_directed());
+      possible_edges = n_c*(n_c - 1)/(2.0 - this->graph->is_directed()) + n_c;
     else
       possible_edges = n_c*(n_c-1)/(2.0 - this->graph->is_directed());
 
