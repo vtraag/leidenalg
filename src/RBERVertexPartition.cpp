@@ -124,12 +124,13 @@ double RBERVertexPartition::quality()
     size_t csize = this->csize(c);
     double w = this->total_weight_in_comm(c);
     size_t comm_possible_edges;
+    double normalise = (2.0 - this->graph->is_directed());
+
     if (this->graph->correct_self_loops())
-      comm_possible_edges = csize*csize;
+      comm_possible_edges = csize*(csize - 1)/normalise + csize;
     else
-      comm_possible_edges = csize*(csize - 1);
-    if (!this->graph->is_directed())
-      comm_possible_edges /= 2;
+      comm_possible_edges = csize*(csize - 1)/normalise;
+
     #ifdef DEBUG
       cerr << "\t" << "Comm: " << c << ", w_c=" << w << ", n_c=" << csize << ", comm_possible_edges=" << comm_possible_edges << ", p=" << this->graph->density() << "." << endl;
     #endif

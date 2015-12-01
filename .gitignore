@@ -28,3 +28,5 @@ igraph-0.7.1.tar.gz
 igraphcore/
 **/*.swp
 valgrind-python.supp
+test/
+test_install.sh
