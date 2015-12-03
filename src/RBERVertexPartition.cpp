@@ -77,9 +77,9 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     double possible_edge_difference_old = 0.0;
     if (this->graph->correct_self_loops())
-      possible_edge_difference_old = nsize*(2.0*csize_old - nsize);
+      possible_edge_difference_old = nsize*(ptrdiff_t)(2.0*csize_old - nsize);
     else
-      possible_edge_difference_old = nsize*(2.0*csize_old - nsize - 1.0);
+      possible_edge_difference_old = nsize*(ptrdiff_t)(2.0*csize_old - nsize - 1.0);
     #ifdef DEBUG
       cerr << "\t" << "possible_edge_difference_old: " << possible_edge_difference_old << endl;
     #endif
@@ -90,9 +90,9 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     double possible_edge_difference_new = 0.0;
     if (this->graph->correct_self_loops())
-      possible_edge_difference_new = nsize*(2.0*csize_new + nsize);
+      possible_edge_difference_new = nsize*(ptrdiff_t)(2.0*csize_new + nsize);
     else
-      possible_edge_difference_new = nsize*(2.0*csize_new + nsize - 1.0);
+      possible_edge_difference_new = nsize*(ptrdiff_t)(2.0*csize_new + nsize - 1.0);
     #ifdef DEBUG
       cerr << "\t" << "possible_edge_difference_new: " << possible_edge_difference_new << endl;
     #endif
