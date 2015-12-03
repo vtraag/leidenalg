@@ -71,6 +71,8 @@ class MutableVertexPartition
 
     inline Graph* get_graph() { return this->graph; };
 
+    int add_empty_community();
+
     void renumber_communities();
     void renumber_communities(vector<size_t> new_membership);
     void from_coarser_partition(MutableVertexPartition* partition);

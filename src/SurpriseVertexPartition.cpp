@@ -99,6 +99,16 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
       cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
     #endif
     diff = m*(KL(q_new, s_new) - KL(q, s));
+    if (m_old == 0 && diff < 0)
+    {
+      cerr << "No links to existing community, yet diff: " << diff << endl;
+      cerr << "\t" << "mc: " << mc << ", m_old: " << m_old << ", m_new:" << m_new << endl;
+      cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
+      cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
+      cerr << "\t" << "q_new - q = " << q_new - q << endl;
+      cerr << "\t" << "s_new - s = " << s_new - s << endl;
+    }
+
 
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
