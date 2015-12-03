@@ -91,6 +91,16 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
   while (improv > this->eps)
   {
     // First collapse graph (i.e. community graph)
+    // If we do smart local movement, we separate communities in slightly more
+    // fine-grained parts for which we collapse the graph.
+    if (this->smart_local_move)
+    {
+      // First partition graph in disjoint sets (i.e. no overlapping communities)
+      vector<size_t>* disjoint_membership = cover->get_disjoint_membership();
+      MutableVertexPartition* disjoint_partition = new MutableVertexPartition(graph, *disjoint_membership);
+      collapsed_graph = graph->collapse_graph(disjoint_partition);
+      delete disjoint_partition;
+    }
     collapsed_graph = graph->collapse_graph(partition);
 
     // Create collapsed partition (i.e. default partition of each node in its own community).
@@ -117,6 +127,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     #endif
     // Optimise partition for collapsed graph
     improv = this->move_nodes(collapsed_partition, this->consider_comms);
+
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     partition->from_coarser_partition(collapsed_partition);
