@@ -36,14 +36,13 @@
         RAND_NEIGH_COMM -- Consider a random community among the neighbours
                            for improvement.
 ****************************************************************************/
-Optimiser::Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms, int move_individual_nodes)
+Optimiser::Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms)
 {
   this->eps = eps;
   this->delta = delta;
   this->max_itr = max_itr;
   this->random_order = random_order;
   this->consider_comms = consider_comms;
-  this->move_individual_nodes = move_individual_nodes;
 }
 
 Optimiser::Optimiser()
@@ -53,7 +52,6 @@ Optimiser::Optimiser()
   this->max_itr = 10000;
   this->random_order = true;
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
-  this->move_individual_nodes = false;
 }
 
 Optimiser::~Optimiser()
@@ -122,8 +120,6 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     partition->from_coarser_partition(collapsed_partition);
-    if (this->move_individual_nodes)
-        improv += this->move_nodes(partition, this->consider_comms);
 
     // Clean up memory after use.
     delete collapsed_partition;
@@ -389,14 +385,6 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
             }
             delete neigh;
         }
-        // Consider also to put the node in its own new empty comm
-        neigh_comm = partition->nb_communities();
-        possible_improv = partition->diff_move(v, neigh_comm);
-        if (possible_improv > max_improv)
-        {
-          max_improv = possible_improv;
-          max_comm = neigh_comm;
-        }
         #ifdef DEBUG
           // If we are debugging, calculate quality function
           double q1 = partition->quality();
@@ -407,8 +395,6 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
           // Keep track of improvement
           improv += max_improv;
           // Actually move the node
-          if (max_comm >= partition->nb_communities())
-            partition->add_empty_community();
           partition->move_node(v, max_comm);
           // Keep track of number of moves
           nb_moves += 1;
