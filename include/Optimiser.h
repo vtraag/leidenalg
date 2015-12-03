@@ -25,7 +25,7 @@ aggregated (collapse_graph) and the method is reiterated on that graph.
 class Optimiser
 {
   public:
-    Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms);
+    Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms, int move_individual_nodes);
     Optimiser();
     double optimize_partition(MutableVertexPartition* partition);
     template <class T> T* find_partition(Graph* graph);
@@ -46,6 +46,7 @@ class Optimiser
     size_t max_itr;      // Maximum number of iterations to perform.
     int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
+    int move_individual_nodes; // Indicates whether we will move individual nodes after aggregating.
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.

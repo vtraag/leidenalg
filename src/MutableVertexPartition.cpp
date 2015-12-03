@@ -182,6 +182,12 @@ void MutableVertexPartition::init_admin()
 
 }
 
+int MutableVertexPartition::add_empty_community()
+{
+  this->community.push_back(new set<size_t>());
+  return this->community.size();
+}
+
 /****************************************************************************
  Renumber the communities so that they are numbered 0,...,q-1 where q is
  the number of communities. This also removes any empty communities, as they
