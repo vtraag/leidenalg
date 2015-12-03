@@ -64,7 +64,7 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
       cerr << "\t" << "n_old: " << n_old << ", m_old: " << m_old << ", q_old: " << q_old << "." << endl;
     #endif
     // Old comm after move
-    size_t n_oldx = n_old - nsize;
+    size_t n_oldx = n_old - nsize; // It should not be possible that this becomes negative, so no need for ptrdiff_t here.
     double sw = this->graph->node_self_weight(v);
     // Be careful to exclude the self weight here, because this is include in the weight_to_comm function.
     double wtc = this->weight_to_comm(v, old_comm) - sw;
@@ -143,12 +143,12 @@ double SignificanceVertexPartition::quality()
     double p_c = 0.0;
     if (n_c > 1)
     {
-      p_c = m_c/(double)(n_c*(n_c - 1)/(2.0 - this->graph->is_directed()));
+      p_c = m_c/(double)(n_c*(n_c - 1.0)/(2.0 - this->graph->is_directed()));
       #ifdef DEBUG
         cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c
            << ", p_c=" << p_c << ", p=" << p << ", KL=" << KL(p_c, p) << "." << endl;
       #endif
-      S += KL(p_c, p)*n_c*(n_c - 1);
+      S += KL(p_c, p)*n_c*(n_c - 1.0);
     }
     #ifdef DEBUG
     else

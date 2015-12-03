@@ -56,7 +56,7 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     if (this->graph->correct_self_loops())
       n2 = n*(n - 1)/normalise + n;
     else
-      n2 = n*(n-1)/normalise;
+      n2 = n*(n - 1)/normalise;
     #ifdef DEBUG
       cerr << "\t" << "Community: " << old_comm << " => " << new_comm << "." << endl;
       cerr << "\t" << "m: " << m << ", n2: " << n2 << "." << endl;
@@ -101,9 +101,10 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     #ifdef DEBUG
       cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
     #endif
-    double s_new = (double)(nc2 + 2*nsize*(n_new - n_old + nsize)/normalise)/(double)n2;
+    double delta_nc2 = 2.0*nsize*(ptrdiff_t)(n_new - n_old + nsize)/normalise;
+    double s_new = (double)(nc2 + delta_nc2)/(double)n2;
     #ifdef DEBUG
-      cerr << "\t" << "nc2 + 2*nsize*(n_new - n_old + nsize)/normalise=" << nc2 + 2*nsize*(n_new - n_old + nsize)/normalise << endl;
+      cerr << "\t" << "delta_nc2=" << delta_nc2 << endl;
     #endif
     #ifdef DEBUG
       cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
@@ -137,7 +138,7 @@ double SurpriseVertexPartition::quality()
   if (this->graph->correct_self_loops())
     n2 = n*(n - 1)/normalise + n;
   else
-    n2 = n*(n-1)/normalise;
+    n2 = n*(n - 1)/normalise;
 
   #ifdef DEBUG
     cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;
