@@ -121,6 +121,10 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     // scale of the graph as a whole.
     partition->from_coarser_partition(collapsed_partition);
 
+    // Try to move individual nodes again
+    if (this->move_individual)
+      improv += this->move_nodes(partition, this->consider_comms);
+
     // Clean up memory after use.
     delete collapsed_partition;
     delete collapsed_graph;
@@ -213,6 +217,7 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
     }
     // Optimise partition for all collapsed graphs
     improv = this->move_nodes(collapsed_partitions, layer_weights, this->consider_comms);
+
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graphs as a whole.
     for (size_t layer = 0; layer < nb_layers; layer++)
@@ -221,6 +226,12 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
 
       delete collapsed_partitions[layer];
       delete collapsed_graphs[layer];
+    }
+
+    // Try to move individual nodes again
+    if (this->move_individual)
+    {
+      improv += this->move_nodes(partitions, layer_weights, this->consider_comms);
     }
   }
   // Make sure the resulting communities are called 0,...,r-1
@@ -389,12 +400,25 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
           // If we are debugging, calculate quality function
           double q1 = partition->quality();
         #endif
+        // Check if we should move to an empty community
+        if (this->consider_empty_community)
+        {
+          neigh_comm = partition->nb_communities();
+          possible_improv = partition->diff_move(v, neigh_comm);
+          if (possible_improv > max_improv)
+          {
+            max_improv = possible_improv;
+            max_comm = neigh_comm;
+          }
+        }
         // If we actually plan to move the nove
         if (max_comm != v_comm)
         {
           // Keep track of improvement
           improv += max_improv;
           // Actually move the node
+          if (max_comm >= partition->nb_communities())
+            partition->add_empty_community();
           partition->move_node(v, max_comm);
           // Keep track of number of moves
           nb_moves += 1;
@@ -568,6 +592,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
       size_t max_comm = v_comm;
       double max_improv = 0.0;
+      // TODO: Not implemented yet to consider moving to an empty community for
+      // several layers of graphs.
       // Determine the maximum improvement
       for (map<size_t, double>::iterator improv_it = comm_improvs.begin();
            improv_it != comm_improvs.end(); improv_it++)

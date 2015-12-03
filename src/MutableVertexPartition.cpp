@@ -68,7 +68,10 @@ void MutableVertexPartition::clean_mem()
 
 size_t MutableVertexPartition::csize(size_t comm)
 {
-  return this->_csize[comm];
+  if (comm < this->_csize.size())
+    return this->_csize[comm];
+  else
+    return 0;
 }
 
 set<size_t>* MutableVertexPartition::get_community(size_t comm)
@@ -226,6 +229,17 @@ void MutableVertexPartition::renumber_communities(vector<size_t> new_membership)
 
   this->clean_mem();
   this->init_admin();
+}
+
+size_t MutableVertexPartition::add_empty_community()
+{
+  this->community.push_back(new set<size_t>());
+  size_t nb_comms = this->community.size();
+  this->_csize.resize(nb_comms);
+  this->_total_weight_in_comm.resize(nb_comms);
+  this->_total_weight_from_comm.resize(nb_comms);
+  this->_total_weight_to_comm.resize(nb_comms);
+  return nb_comms;
 }
 
 /****************************************************************************
