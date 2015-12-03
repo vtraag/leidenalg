@@ -45,7 +45,7 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     if (this->graph->correct_self_loops())
       n2 = n*(n - 1)/normalise + n;
     else
-      n2 = n*(n-1)/normalise;
+      n2 = n*(n - 1)/normalise;
     #ifdef DEBUG
       cerr << "\t" << "Community: " << old_comm << " => " << new_comm << "." << endl;
       cerr << "\t" << "m: " << m << ", n2: " << n2 << "." << endl;
@@ -90,15 +90,26 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     #ifdef DEBUG
       cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
     #endif
-    double s_new = (double)(nc2 + 2*nsize*(n_new - n_old + nsize)/normalise)/(double)n2;
+    double delta_nc2 = 2.0*nsize*(ptrdiff_t)(n_new - n_old + nsize)/normalise;
+    double s_new = (double)(nc2 + delta_nc2)/(double)n2;
     #ifdef DEBUG
-      cerr << "\t" << "nc2 + 2*nsize*(n_new - n_old + nsize)/normalise=" << nc2 + 2*nsize*(n_new - n_old + nsize)/normalise << endl;
+      cerr << "\t" << "delta_nc2=" << delta_nc2 << endl;
     #endif
     #ifdef DEBUG
       cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
       cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
     #endif
     diff = m*(KL(q_new, s_new) - KL(q, s));
+    if (m_old == 0 && diff < 0)
+    {
+      cerr << "No links to existing community, yet diff: " << diff << endl;
+      cerr << "\t" << "nc2: " << nc2 << ", n_new: " << n_new << ", n_old: " << n_old << ", delta_nc2: " << delta_nc2 << endl;
+      cerr << "\t" << "mc: " << mc << ", m_old: " << m_old << ", m_new:" << m_new << endl;
+      cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
+      cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
+      cerr << "\t" << "q_new - q = " << q_new - q << endl;
+      cerr << "\t" << "s_new - s = " << s_new - s << endl;
+    }
 
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
@@ -126,7 +137,7 @@ double SurpriseVertexPartition::quality()
   if (this->graph->correct_self_loops())
     n2 = n*(n - 1)/normalise + n;
   else
-    n2 = n*(n-1)/normalise;
+    n2 = n*(n - 1)/normalise;
 
   #ifdef DEBUG
     cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;
