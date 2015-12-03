@@ -26,6 +26,11 @@ RBERVertexPartition* RBERVertexPartition::create(Graph* graph)
   return new RBERVertexPartition(graph, this->resolution_parameter);
 }
 
+RBERVertexPartition* RBERVertexPartition::create(Graph* graph, vector<size_t> membership)
+{
+  return new RBERVertexPartition(graph, membership, this->resolution_parameter);
+}
+
 RBERVertexPartition::~RBERVertexPartition()
 { }
 

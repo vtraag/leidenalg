@@ -21,7 +21,12 @@ ModularityVertexPartition::~ModularityVertexPartition()
 
 ModularityVertexPartition* ModularityVertexPartition::create(Graph* graph)
 {
-  return new ModularityVertexPartition(graph);;
+  return new ModularityVertexPartition(graph);
+}
+
+ModularityVertexPartition* ModularityVertexPartition::create(Graph* graph, vector<size_t> membership)
+{
+  return new ModularityVertexPartition(graph, membership);
 }
 
 /*****************************************************************************

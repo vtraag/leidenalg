@@ -21,6 +21,11 @@ SurpriseVertexPartition* SurpriseVertexPartition::create(Graph* graph)
   return new SurpriseVertexPartition(graph);
 }
 
+ SurpriseVertexPartition*  SurpriseVertexPartition::create(Graph* graph, vector<size_t> membership)
+{
+  return new  SurpriseVertexPartition(graph, membership);
+}
+
 SurpriseVertexPartition::~SurpriseVertexPartition()
 { }
 

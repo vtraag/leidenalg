@@ -16,6 +16,7 @@ class RBERVertexPartition : public LinearResolutionParameterVertexPartition
     RBERVertexPartition(Graph* graph);
     virtual ~RBERVertexPartition();
     virtual RBERVertexPartition* create(Graph* graph);
+    virtual RBERVertexPartition* create(Graph* graph, vector<size_t> membership);
 
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();

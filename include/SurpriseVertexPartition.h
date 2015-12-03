@@ -14,6 +14,7 @@ class SurpriseVertexPartition: public MutableVertexPartition
     SurpriseVertexPartition(Graph* graph);
     virtual ~SurpriseVertexPartition();
     virtual SurpriseVertexPartition* create(Graph* graph);
+    virtual SurpriseVertexPartition* create(Graph* graph, vector<size_t> membership);
 
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();

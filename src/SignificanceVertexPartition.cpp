@@ -21,6 +21,11 @@ SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
   return new SignificanceVertexPartition(graph);
 }
 
+SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, vector<size_t> membership)
+{
+  return new SignificanceVertexPartition(graph, membership);
+}
+
 SignificanceVertexPartition::~SignificanceVertexPartition()
 { }
 

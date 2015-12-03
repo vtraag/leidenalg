@@ -49,6 +49,7 @@ class MutableVertexPartition
         vector<size_t> membership);
     MutableVertexPartition(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph);
+    virtual MutableVertexPartition* create(Graph* graph, vector<size_t> membership);
 
     virtual ~MutableVertexPartition();
 

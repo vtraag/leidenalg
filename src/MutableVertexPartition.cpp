@@ -52,6 +52,12 @@ MutableVertexPartition* MutableVertexPartition::create(Graph* graph)
   return new MutableVertexPartition(graph);
 }
 
+MutableVertexPartition* MutableVertexPartition::create(Graph* graph, vector<size_t> membership)
+{
+  return new MutableVertexPartition(graph, membership);
+}
+
+
 MutableVertexPartition::~MutableVertexPartition()
 {
   this->clean_mem();

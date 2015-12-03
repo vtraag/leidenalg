@@ -11,6 +11,7 @@ class SignificanceVertexPartition : public MutableVertexPartition
     SignificanceVertexPartition(Graph* graph);
     virtual ~SignificanceVertexPartition();
     virtual SignificanceVertexPartition* create(Graph* graph);
+    virtual SignificanceVertexPartition* create(Graph* graph, vector<size_t> membership);
 
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();

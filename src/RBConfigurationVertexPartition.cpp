@@ -29,6 +29,11 @@ RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* gr
   return new RBConfigurationVertexPartition(graph, this->resolution_parameter);
 }
 
+RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph, vector<size_t> membership)
+{
+  return new RBConfigurationVertexPartition(graph, membership, this->resolution_parameter);
+}
+
 /*****************************************************************************
   Returns the difference in modularity if we move a node to a new community
 *****************************************************************************/

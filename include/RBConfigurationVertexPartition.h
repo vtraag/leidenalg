@@ -15,6 +15,7 @@ class RBConfigurationVertexPartition : public LinearResolutionParameterVertexPar
     RBConfigurationVertexPartition(Graph* graph);
     virtual ~RBConfigurationVertexPartition();
     virtual RBConfigurationVertexPartition* create(Graph* graph);
+    virtual RBConfigurationVertexPartition* create(Graph* graph, vector<size_t> membership);
 
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();
