@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -30,6 +30,11 @@ SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph, double re
 SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
 {
   return new SignificanceVertexPartition(graph, this->resolution_parameter);
+}
+
+SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new SignificanceVertexPartition(graph, membership);
 }
 
 SignificanceVertexPartition::~SignificanceVertexPartition()

@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <set>
 
+#include <iostream>
+  using std::cerr;
+  using std::endl;
+
 #ifdef DEBUG
   using std::cerr;
   using std::endl;
@@ -38,6 +42,8 @@ class Optimiser
     // layer weights this may be necessary.
     double optimize_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+    double move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> constrained_membership);
+    int move_constrained_may_consider_comm(MutableVertexPartition* partition, size_t v, size_t comm, vector<size_t> constrained_membership, int fast_n_dirty);
 
     virtual ~Optimiser();
 
@@ -46,6 +52,7 @@ class Optimiser
     size_t max_itr;      // Maximum number of iterations to perform.
     int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
+    int smart_local_move; // Do smart local move
     int consider_empty_community; // Indicates whether we will also consider to move a node to an empty community
     int move_individual; // We consider to move individual nodes after aggregation
 

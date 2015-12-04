@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -31,6 +31,10 @@ SurpriseVertexPartition* SurpriseVertexPartition::create(Graph* graph)
   return new SurpriseVertexPartition(graph, this->resolution_parameter);
 }
 
+ SurpriseVertexPartition*  SurpriseVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new  SurpriseVertexPartition(graph, membership);
+}
 
 SurpriseVertexPartition::~SurpriseVertexPartition()
 { }

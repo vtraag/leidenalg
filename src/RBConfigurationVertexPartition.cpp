@@ -1,13 +1,13 @@
 #include "RBConfigurationVertexPartition.h"
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> membership, double resolution_parameter) :
+      vector<size_t> const& membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
         membership, resolution_parameter)
 { }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -27,6 +27,11 @@ RBConfigurationVertexPartition::~RBConfigurationVertexPartition()
 RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph)
 {
   return new RBConfigurationVertexPartition(graph, this->resolution_parameter);
+}
+
+RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new RBConfigurationVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 /*****************************************************************************
