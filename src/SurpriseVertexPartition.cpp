@@ -33,7 +33,7 @@ SurpriseVertexPartition* SurpriseVertexPartition::create(Graph* graph)
 
  SurpriseVertexPartition*  SurpriseVertexPartition::create(Graph* graph, vector<size_t> const& membership)
 {
-  return new  SurpriseVertexPartition(graph, membership);
+  return new  SurpriseVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 SurpriseVertexPartition::~SurpriseVertexPartition()

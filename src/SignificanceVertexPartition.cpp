@@ -34,7 +34,7 @@ SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
 
 SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, vector<size_t> const& membership)
 {
-  return new SignificanceVertexPartition(graph, membership);
+  return new SignificanceVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 SignificanceVertexPartition::~SignificanceVertexPartition()
