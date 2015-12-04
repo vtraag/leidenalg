@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         MutableVertexPartition(graph,
         membership)
 { }
@@ -21,7 +21,7 @@ SurpriseVertexPartition* SurpriseVertexPartition::create(Graph* graph)
   return new SurpriseVertexPartition(graph);
 }
 
- SurpriseVertexPartition*  SurpriseVertexPartition::create(Graph* graph, vector<size_t> membership)
+ SurpriseVertexPartition*  SurpriseVertexPartition::create(Graph* graph, vector<size_t> const& membership)
 {
   return new  SurpriseVertexPartition(graph, membership);
 }

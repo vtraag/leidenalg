@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         MutableVertexPartition(graph,
         membership)
 { }
@@ -21,7 +21,7 @@ SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
   return new SignificanceVertexPartition(graph);
 }
 
-SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, vector<size_t> membership)
+SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, vector<size_t> const& membership)
 {
   return new SignificanceVertexPartition(graph, membership);
 }
