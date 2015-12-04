@@ -123,6 +123,9 @@ extern "C"
 
     Optimiser opt;
     opt.consider_comms = consider_comms;
+    opt.smart_local_move = true;
+    opt.move_individual = true;
+    opt.consider_empty_community = true;
 
     MutableVertexPartition* partition = create_partition_from_py(py_obj_graph, method, py_initial_membership, py_weights, resolution_parameter);
 
