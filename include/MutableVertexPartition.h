@@ -87,6 +87,7 @@ class MutableVertexPartition
     double weight_from_comm(size_t v, size_t comm);
 
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t);
+    set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> constrained_membership);
 
   protected:
 

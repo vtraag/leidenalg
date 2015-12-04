@@ -448,3 +448,17 @@ set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t 
   delete neigh;
   return neigh_comms;
 }
+
+set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> constrained_membership)
+{
+  vector<size_t>* neigh = this->graph->get_neighbours(v, mode);
+  set<size_t>* neigh_comms = new set<size_t>();
+  for (size_t i=0; i < this->graph->degree(v, mode); i++)
+  {
+    size_t u = (*neigh)[i];
+    if (constrained_membership[v] == constrained_membership[u])
+      neigh_comms->insert( this->membership(u) );
+  }
+  delete neigh;
+  return neigh_comms;
+}

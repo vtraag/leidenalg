@@ -5,6 +5,10 @@
 #include <algorithm>
 #include <set>
 
+#include <iostream>
+  using std::cerr;
+  using std::endl;
+
 #ifdef DEBUG
   using std::cerr;
   using std::endl;

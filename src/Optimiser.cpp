@@ -95,21 +95,18 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     // fine-grained parts for which we collapse the graph.
     if (this->smart_local_move)
     {
-      // First determine membership for each community separately
-
       // First create a new partition
       MutableVertexPartition* slm_partition = partition->create(graph);
 
       // Then move around nodes but restrict movement to within original communities.
       this->move_nodes_constrained(slm_partition, partition->membership());
+      cerr << "\tAfter applying SLM found " << partition->nb_communities() << " communities." << endl;
 
       // Collapse graph based on slm partition
       collapsed_graph = graph->collapse_graph(slm_partition);
 
       // Determine the membership for the collapsed graph
       vector< size_t > collapsed_membership(collapsed_graph->vcount());
-      for (size_t v = 0; v < collapsed_graph->vcount(); v++)
-        collapsed_membership[v] = NULL;
 
       // Every node within the collapsed graph should be assigned
       // to the community of the original partition before the slm.
@@ -117,10 +114,11 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
       // and set the membership equal to the original partition (i.e.
       // even though the aggregation may be slightly different, the
       // membership of the aggregated nodes is as indicated by the original partition.)
+      cerr << "SLM\tOrig" << endl;
       for (size_t v = 0; v < graph->vcount(); v++)
       {
-        if (collapsed_membership[slm_partition->membership(v)] == NULL)
-          collapsed_membership[slm_partition->membership(v)] = partition->membership(v);
+        collapsed_membership[slm_partition->membership(v)] = partition->membership(v);
+        cerr << slm_partition->membership(v) << "\t" << partition->membership(v) << endl;
       }
 
       // Create collapsed cover. Each community here contains the collapsed
@@ -137,7 +135,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
       // Create collapsed partition (i.e. default partition of each node in its own community).
       collapsed_partition = partition->create(collapsed_graph);
     }
-    #ifdef DEBUG
+    //#ifdef DEBUG
       cerr <<   "Calculate partition quality." << endl;
       double q = partition->quality();
       cerr <<   "Calculate collapsed partition quality." << endl;
@@ -156,13 +154,17 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
            << ", collapsed_graph->is_directed()="  << collapsed_graph->is_directed() << endl;
       cerr <<   "graph->correct_self_loops()=" << graph->correct_self_loops()
            << ", collapsed_graph->correct_self_loops()="  << collapsed_graph->correct_self_loops() << endl;
-    #endif
+    //#endif
     // Optimise partition for collapsed graph
+    cerr << "Quality before moving " << collapsed_partition->quality() << endl;
     improv = this->move_nodes(collapsed_partition, this->consider_comms);
+    cerr << "Found " << partition->nb_communities() << " communities, improved " << improv << endl;
+    cerr << "Quality after moving " << collapsed_partition->quality() << endl << endl;
 
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
     partition->from_coarser_partition(collapsed_partition);
+    cerr << "Quality on finer partition " << partition->quality() << endl << endl;
 
     // Clean up memory after use.
     delete collapsed_partition;
@@ -280,46 +282,6 @@ double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions,
     q += partitions[layer]->quality()*layer_weights[layer];
   }
   return q;
-}
-
-/*****************************************************************************
-  This helper function is used to decide whether we may move node v
-  to community comm, given the constrained membership. We are only allowed to
-  move around nodes within the constrained membership, i.e. we may assign
-  to other communities as long as they are completely contained within the
-  constrained cluster of node v.
-******************************************************************************/
-int Optimiser::move_constrained_may_consider_comm(MutableVertexPartition* partition, size_t v, size_t comm, vector<size_t> constrained_membership, int fast_n_dirty)
-{
-  if (fast_n_dirty)
-  { // If we respect the constrained membership always, we only need to check for a single node
-    set<size_t>* node_set = partition->get_community(comm);
-    if (node_set->size() > 0)
-    {
-      size_t u = *(node_set->begin());
-      // If the membership is different for the different nodes, we may not consider that community
-      if (constrained_membership[v] != constrained_membership[u])
-        return false;
-      else
-        return true;
-    }
-  }
-  else
-  {
-    set<size_t>* node_set = partition->get_community(comm);
-    for (set<size_t>::iterator it = node_set->begin();
-          it != node_set->end();
-          it++)
-    {
-      size_t u = *it;
-      // As soon as we observe a violation of the constrained
-      // that the membership be equal for all nodes, we return false
-      if (constrained_membership[v] != constrained_membership[u])
-        return false;
-    }
-    // No nodes were found to violate the constraint, so we can return true
-    return true;
-  }
 }
 
 /*****************************************************************************
@@ -578,22 +540,19 @@ double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, vect
         // Keep track of the possible improvements and (neighbouring) communities.
         size_t neigh_comm;
         double possible_improv;
-        set<size_t>* neigh_comms = partition->get_neigh_comms(v, IGRAPH_ALL);
+        set<size_t>* neigh_comms = partition->get_neigh_comms(v, IGRAPH_ALL, constrained_membership);
         // Loop through the communities of the neighbours
         for(set<size_t>::iterator it_neigh_comm = neigh_comms->begin();
             it_neigh_comm != neigh_comms->end(); ++it_neigh_comm)
         {
           size_t neigh_comm = *it_neigh_comm;
-          if (this->move_constrained_may_consider_comm(partition, v, neigh_comm, constrained_membership, fast_n_dirty_constrained))
+          // Calculate the possible improvement of the moving the node to that community/
+          double possible_improv = partition->diff_move(v, neigh_comm);
+          // We're only interested in the maximum.
+          if (possible_improv > max_improv)
           {
-            // Calculate the possible improvement of the moving the node to that community/
-            double possible_improv = partition->diff_move(v, neigh_comm);
-            // We're only interested in the maximum.
-            if (possible_improv > max_improv)
-            {
-              max_improv = possible_improv;
-              max_comm = neigh_comm;
-            }
+            max_improv = possible_improv;
+            max_comm = neigh_comm;
           }
         }
         delete neigh_comms;
