@@ -53,6 +53,8 @@ class Optimiser
     int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
     int smart_local_move; // Do smart local move
+    int consider_empty_community; // Indicates whether we will also consider to move a node to an empty community
+    int move_individual; // We consider to move individual nodes after aggregation
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.
