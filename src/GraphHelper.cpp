@@ -76,7 +76,7 @@ Graph::Graph(igraph_t* graph,
     throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
   this->_node_sizes = node_sizes;
 
-  this->_correct_self_loops = false;
+  this->_correct_self_loops = this->has_self_loops();
 
   this->_node_self_weights = node_self_weights;
   this->init_admin();
@@ -118,7 +118,7 @@ Graph::Graph(igraph_t* graph,
     throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
   this->_node_sizes = node_sizes;
 
-  this->_correct_self_loops = false;
+  this->_correct_self_loops = this->has_self_loops();
 
   this->init_admin();
   this->set_self_weights();
@@ -147,7 +147,7 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights)
   this->_edge_weights = edge_weights;
   this->_is_weighted = true;
 
-  this->_correct_self_loops = false;
+  this->_correct_self_loops = this->has_self_loops();
 
   this->set_default_node_size();
   this->init_admin();
@@ -172,7 +172,7 @@ Graph::Graph(igraph_t* graph)
   this->set_defaults();
   this->_is_weighted = false;
 
-  this->_correct_self_loops = false;
+  this->_correct_self_loops = this->has_self_loops();
 
   this->init_admin();
   this->set_self_weights();
@@ -196,6 +196,26 @@ Graph::~Graph()
     igraph_destroy(this->_graph);
     delete this->_graph;
   }
+}
+
+int Graph::has_self_loops()
+{
+  size_t m = this->ecount();
+  igraph_vector_bool_t loop;
+  igraph_vector_bool_init(&loop, m);
+  igraph_is_loop(this->_graph, &loop, igraph_ess_all(IGRAPH_EDGEORDER_ID));
+
+  int has_self_loops = false;
+  for (size_t idx = 0; idx < m; idx++)
+  {
+    if (VECTOR(loop)[idx])
+    {
+      has_self_loops = true;
+      break;
+    }
+  }
+  igraph_vector_bool_destroy(&loop);
+  return has_self_loops;
 }
 
 void Graph::set_defaults()

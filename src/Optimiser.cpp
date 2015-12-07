@@ -66,8 +66,6 @@ Optimiser::~Optimiser()
 *****************************************************************************/
 double Optimiser::optimize_partition(MutableVertexPartition* partition)
 {
-
-  #define DEBUG
   #ifdef DEBUG
     cerr << "void Optimiser::optimize_partition(MutableVertexPartition* partition)" << endl;
   #endif
@@ -208,7 +206,6 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
   partition->renumber_communities();
   // Return the quality of the current partition.
   return partition->quality();
-  #undef DEBUG
 }
 
 /*****************************************************************************
