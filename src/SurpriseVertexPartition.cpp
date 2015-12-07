@@ -1,11 +1,5 @@
 #include "SurpriseVertexPartition.h"
 
-#ifdef DEBUG
-#include <iostream>
-using std::cerr;
-using std::endl;
-#endif
-
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
       vector<size_t> membership) :
         MutableVertexPartition(graph,
