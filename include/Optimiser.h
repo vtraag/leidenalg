@@ -32,6 +32,7 @@ class Optimiser
     Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms);
     Optimiser();
     double optimize_partition(MutableVertexPartition* partition);
+    double optimize_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
@@ -42,7 +43,7 @@ class Optimiser
     // layer weights this may be necessary.
     double optimize_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
-    double move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> constrained_membership);
+    double move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
 
     virtual ~Optimiser();
 

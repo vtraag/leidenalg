@@ -54,7 +54,7 @@ class MutableVertexPartition
     virtual ~MutableVertexPartition();
 
     inline size_t membership(size_t v) { return this->_membership[v]; };
-    inline vector<size_t> membership() { return this->_membership; };
+    inline vector<size_t>& membership() { return this->_membership; };
 
     size_t csize(size_t comm);
     set<size_t>* get_community(size_t comm);

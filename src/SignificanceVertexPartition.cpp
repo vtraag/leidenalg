@@ -49,15 +49,25 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 
     //Old comm
     size_t n_old = this->csize(old_comm);
+    size_t N_old;
+    if (this->graph->correct_self_loops())
+      N_old = n_old*(n_old - 1)/normalise + n_old;
+    else
+      N_old = n_old*(n_old - 1)/normalise;
     double m_old = this->total_weight_in_comm(old_comm);
     double q_old = 0.0;
-    if (n_old > 1)
-      q_old = m_old/(n_old*(n_old - 1)/normalise);
+    if (N_old > 0)
+      q_old = m_old/N_old;
     #ifdef DEBUG
       cerr << "\t" << "n_old: " << n_old << ", m_old: " << m_old << ", q_old: " << q_old << "." << endl;
     #endif
     // Old comm after move
     size_t n_oldx = n_old - nsize; // It should not be possible that this becomes negative, so no need for ptrdiff_t here.
+    size_t N_oldx;
+    if (this->graph->correct_self_loops())
+      N_oldx = n_oldx*(n_oldx - 1)/normalise + n_oldx;
+    else
+      N_oldx = n_oldx*(n_oldx - 1)/normalise;
     double sw = this->graph->node_self_weight(v);
     // Be careful to exclude the self weight here, because this is include in the weight_to_comm function.
     double wtc = this->weight_to_comm(v, old_comm) - sw;
@@ -67,24 +77,34 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     double m_oldx = m_old - wtc/normalise - wfc/normalise - sw;
     double q_oldx = 0.0;
-    if (n_oldx > 1)
-      q_oldx = m_oldx/(n_oldx*(n_oldx - 1)/normalise);
+    if (N_oldx > 0)
+      q_oldx = m_oldx/N_oldx;
     #ifdef DEBUG
       cerr << "\t" << "n_oldx: " << n_oldx << ", m_oldx: " << m_oldx << ", q_oldx: " << q_oldx << "." << endl;
     #endif
 
     // New comm
     size_t n_new = this->csize(new_comm);
+    size_t N_new;
+    if (this->graph->correct_self_loops())
+      N_new = n_new*(n_new - 1)/normalise + n_new;
+    else
+      N_new = n_new*(n_new - 1)/normalise;
     double m_new = this->total_weight_in_comm(new_comm);
     double q_new = 0.0;
-    if (n_new > 1)
-      q_new = m_new/(n_new*(n_new - 1)/normalise);
+    if (N_new > 0)
+      q_new = m_new/N_new;
     #ifdef DEBUG
       cerr << "\t" << "n_new: " << n_new << ", m_new: " << m_new << ", q_new: " << q_new << "." << endl;
     #endif
 
     // New comm after move
     size_t n_newx = n_new + nsize;
+    size_t N_newx;
+    if (this->graph->correct_self_loops())
+      N_newx = n_newx*(n_newx - 1)/normalise + n_newx;
+    else
+      N_newx = n_newx*(n_newx - 1)/normalise;
     wtc = this->weight_to_comm(v, new_comm);
     wfc = this->weight_from_comm(v, new_comm);
     sw = this->graph->node_self_weight(v);
@@ -93,17 +113,16 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     double m_newx = m_new + wtc/normalise + wfc/normalise + sw;
     double q_newx = 0.0;
-    if (n_newx > 1)
-      q_newx = m_newx/float(n_newx*(n_newx - 1)/normalise);
+    if (N_newx > 0)
+      q_newx = m_newx/N_newx;
     #ifdef DEBUG
       cerr << "\t" << "n_newx: " << n_newx << ", m_newx: " << m_newx << ", q_newx: " << q_newx << "." << endl;
     #endif
 
     // Calculate actual diff
-    diff = - (double)n_old*(n_old-1)*KL(q_old, p)
-                  + (double)n_oldx*(n_oldx-1)*KL(q_oldx, p)
-                  - (double)n_new*(n_new-1)*KL(q_new, p)
-                  + (double)n_newx*(n_newx-1)*KL(q_newx, p);
+
+    diff =   (double)N_oldx*KLL(q_oldx, p) + (double)N_newx*KLL(q_newx, p)
+           - (double)N_old *KLL(q_old,  p) - (double)N_new *KLL(q_new,  p);
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -137,11 +156,17 @@ double SignificanceVertexPartition::quality()
     if (n_c > 1)
     {
       p_c = m_c/(double)(n_c*(n_c - 1.0)/(2.0 - this->graph->is_directed()));
+      size_t N_c;
+      double normalise = (2.0 - this->graph->is_directed());
+      if (this->graph->correct_self_loops())
+        N_c = n_c*(n_c - 1)/normalise + n_c;
+      else
+        N_c = n_c*(n_c - 1)/normalise;
       #ifdef DEBUG
-        cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c
-           << ", p_c=" << p_c << ", p=" << p << ", KL=" << KL(p_c, p) << "." << endl;
+        cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
+           << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KLL(p_c, p) << "." << endl;
       #endif
-      S += KL(p_c, p)*n_c*(n_c - 1.0);
+      S += N_c*KLL(p_c, p);
     }
     #ifdef DEBUG
     else

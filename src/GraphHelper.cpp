@@ -34,6 +34,18 @@ double KL(double q, double p)
   return KL;
 }
 
+double KLL(double q, double p)
+{
+  double KL = 0.0;
+  if (q > 0.0 && p > 0.0)
+    KL += q*log(q/p);
+  if (q < 1.0 && p < 1.0)
+    KL += (1.0-q)*log((1.0-q)/(1.0-p));
+  if (q < p)
+    KL *= -1;
+  return KL;
+}
+
 Graph::Graph(igraph_t* graph,
   vector<double> edge_weights,
   vector<size_t> node_sizes,
