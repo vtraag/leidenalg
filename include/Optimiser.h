@@ -43,7 +43,6 @@ class Optimiser
     double optimize_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
     double move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> constrained_membership);
-    int move_constrained_may_consider_comm(MutableVertexPartition* partition, size_t v, size_t comm, vector<size_t> constrained_membership, int fast_n_dirty);
 
     virtual ~Optimiser();
 
