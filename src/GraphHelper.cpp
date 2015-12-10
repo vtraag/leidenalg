@@ -218,6 +218,22 @@ int Graph::has_self_loops()
   return has_self_loops;
 }
 
+size_t Graph::possible_edges()
+{
+  return this->possible_edges(this->vcount());
+}
+
+size_t Graph::possible_edges(size_t n)
+{
+  size_t possible_edges = n*(n-1);
+  if (!this->is_directed())
+    possible_edges /= 2;
+  if (this->correct_self_loops())
+    possible_edges += n;
+
+  return possible_edges;
+}
+
 void Graph::set_defaults()
 {
   this->set_default_edge_weight();

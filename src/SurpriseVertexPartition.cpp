@@ -49,12 +49,8 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     double normalise = (2.0 - this->graph->is_directed());
     double m = this->graph->total_weight();
     size_t n = this->graph->total_size();
-    size_t n2 = 0;
+    size_t n2 = this->graph->possible_edges(n);
 
-    if (this->graph->correct_self_loops())
-      n2 = n*(n - 1)/normalise + n;
-    else
-      n2 = n*(n - 1)/normalise;
     #ifdef DEBUG
       cerr << "\t" << "Community: " << old_comm << " => " << new_comm << "." << endl;
       cerr << "\t" << "m: " << m << ", n2: " << n2 << "." << endl;
@@ -132,11 +128,7 @@ double SurpriseVertexPartition::quality()
   double m = this->graph->total_weight();
   size_t n = this->graph->total_size();
 
-  size_t n2 = 0;
-  if (this->graph->correct_self_loops())
-    n2 = n*(n - 1)/normalise + n;
-  else
-    n2 = n*(n - 1)/normalise;
+  size_t n2 = this->graph->possible_edges(n);
 
   #ifdef DEBUG
     cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;

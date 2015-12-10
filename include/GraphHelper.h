@@ -76,6 +76,8 @@ class Graph
     ~Graph();
 
     int has_self_loops();
+    size_t possible_edges();
+    size_t possible_edges(size_t n);
 
     Graph* collapse_graph(MutableVertexPartition* partition);
 
