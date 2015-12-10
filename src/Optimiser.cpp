@@ -94,6 +94,15 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     // If we do smart local movement, we separate communities in slightly more
     // fine-grained parts for which we collapse the graph.
     MutableVertexPartition* slm_partition = NULL;
+
+    improv = 0.0;
+    // Try to move individual nodes again
+    // We need to move individual nodes before doing slm, because
+    // otherwise, moving individual nodes may possibly disconnected
+    // graphs again, which then needs to be corrected for by resorting to slm
+    if (this->move_individual)
+      improv += this->move_nodes(partition, this->consider_comms);
+
     if (this->smart_local_move)
     {
       // First create a new partition
@@ -101,7 +110,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
 
       // Then move around nodes but restrict movement to within original communities.
       this->move_nodes_constrained(slm_partition, partition->membership());
-      #if DEBUG
+      #ifdef DEBUG
         cerr << "\tAfter applying SLM found " << partition->nb_communities() << " communities." << endl;
       #endif
 
@@ -117,13 +126,13 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
       // and set the membership equal to the original partition (i.e.
       // even though the aggregation may be slightly different, the
       // membership of the aggregated nodes is as indicated by the original partition.)
-      #if DEBUG
+      #ifdef DEBUG
         cerr << "SLM\tOrig" << endl;
       #endif // DEBUG
       for (size_t v = 0; v < graph->vcount(); v++)
       {
         collapsed_membership[slm_partition->membership(v)] = partition->membership(v);
-        #if DEBUG
+        #ifdef DEBUG
           cerr << slm_partition->membership(v) << "\t" << partition->membership(v) << endl;
         #endif // DEBUG
       }
@@ -164,11 +173,11 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     #endif // DEBUG
 
     // Optimise partition for collapsed graph
-    #if DEBUG
+    #ifdef DEBUG
       cerr << "Quality before moving " << collapsed_partition->quality() << endl;
     #endif
-    improv = this->move_nodes(collapsed_partition, this->consider_comms);
-    #if DEBUG
+    improv += this->move_nodes(collapsed_partition, this->consider_comms);
+    #ifdef DEBUG
       cerr << "Found " << partition->nb_communities() << " communities, improved " << improv << endl;
       cerr << "Quality after moving " << collapsed_partition->quality() << endl << endl;
     #endif // DEBUG
@@ -180,13 +189,9 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     else
       partition->from_coarser_partition(collapsed_partition);
 
-    #if DEBUG
+    #ifdef DEBUG
       cerr << "Quality on finer partition " << partition->quality() << endl << endl;
     #endif // DEBUG
-
-    // Try to move individual nodes again
-    if (this->move_individual)
-      improv += this->move_nodes(partition, this->consider_comms);
 
     // Clean up memory after use.
     delete collapsed_partition;
