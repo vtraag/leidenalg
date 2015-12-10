@@ -49,11 +49,7 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 
     //Old comm
     size_t n_old = this->csize(old_comm);
-    size_t N_old;
-    if (this->graph->correct_self_loops())
-      N_old = n_old*(n_old - 1)/normalise + n_old;
-    else
-      N_old = n_old*(n_old - 1)/normalise;
+    size_t N_old = this->graph->possible_edges(n_old);
     double m_old = this->total_weight_in_comm(old_comm);
     double q_old = 0.0;
     if (N_old > 0)
@@ -63,11 +59,7 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     // Old comm after move
     size_t n_oldx = n_old - nsize; // It should not be possible that this becomes negative, so no need for ptrdiff_t here.
-    size_t N_oldx;
-    if (this->graph->correct_self_loops())
-      N_oldx = n_oldx*(n_oldx - 1)/normalise + n_oldx;
-    else
-      N_oldx = n_oldx*(n_oldx - 1)/normalise;
+    size_t N_oldx = this->graph->possible_edges(n_oldx);
     double sw = this->graph->node_self_weight(v);
     // Be careful to exclude the self weight here, because this is include in the weight_to_comm function.
     double wtc = this->weight_to_comm(v, old_comm) - sw;
@@ -85,11 +77,7 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 
     // New comm
     size_t n_new = this->csize(new_comm);
-    size_t N_new;
-    if (this->graph->correct_self_loops())
-      N_new = n_new*(n_new - 1)/normalise + n_new;
-    else
-      N_new = n_new*(n_new - 1)/normalise;
+    size_t N_new = this->graph->possible_edges(n_new);
     double m_new = this->total_weight_in_comm(new_comm);
     double q_new = 0.0;
     if (N_new > 0)
@@ -100,11 +88,7 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 
     // New comm after move
     size_t n_newx = n_new + nsize;
-    size_t N_newx;
-    if (this->graph->correct_self_loops())
-      N_newx = n_newx*(n_newx - 1)/normalise + n_newx;
-    else
-      N_newx = n_newx*(n_newx - 1)/normalise;
+    size_t N_newx = this->graph->possible_edges(n_newx);
     wtc = this->weight_to_comm(v, new_comm);
     wfc = this->weight_from_comm(v, new_comm);
     sw = this->graph->node_self_weight(v);
@@ -155,13 +139,8 @@ double SignificanceVertexPartition::quality()
     double p_c = 0.0;
     if (n_c > 1)
     {
-      p_c = m_c/(double)(n_c*(n_c - 1.0)/(2.0 - this->graph->is_directed()));
-      size_t N_c;
-      double normalise = (2.0 - this->graph->is_directed());
-      if (this->graph->correct_self_loops())
-        N_c = n_c*(n_c - 1)/normalise + n_c;
-      else
-        N_c = n_c*(n_c - 1)/normalise;
+      size_t N_c = this->graph->possible_edges(n_c);
+      p_c = m_c/N_c;
       #ifdef DEBUG
         cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
            << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KLL(p_c, p) << "." << endl;

@@ -76,6 +76,10 @@ class Graph
     Graph();
     ~Graph();
 
+    int has_self_loops();
+    size_t possible_edges();
+    size_t possible_edges(size_t n);
+
     Graph* collapse_graph(MutableVertexPartition* partition);
 
     double weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode);

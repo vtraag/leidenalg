@@ -171,12 +171,7 @@ void MutableVertexPartition::init_admin()
   for (size_t c = 0; c < nb_comms; c++)
   {
     size_t n_c = this->csize(c);
-    size_t possible_edges = 0;
-
-    if (this->graph->correct_self_loops())
-      possible_edges = n_c*(n_c - 1)/(2.0 - this->graph->is_directed()) + n_c;
-    else
-      possible_edges = n_c*(n_c - 1)/(2.0 - this->graph->is_directed());
+    size_t possible_edges = this->graph->possible_edges(n_c);
 
     #ifdef DEBUG
       cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", possible_edges=" << possible_edges << endl;
