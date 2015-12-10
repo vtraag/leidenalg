@@ -31,7 +31,7 @@ CPMVertexPartition* CPMVertexPartition::create(Graph* graph)
 
 CPMVertexPartition* CPMVertexPartition::create(Graph* graph, vector<size_t> const& membership)
 {
-  return new CPMVertexPartition(graph, membership);
+  return new CPMVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 /********************************************************************************
