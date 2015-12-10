@@ -100,6 +100,7 @@ double Optimiser::optimize_cover(MutableVertexCover* cover)
   while (total_improv > this->eps)
   {
     // First partition graph in disjoint sets (i.e. no overlapping communities)
+
     vector<size_t>* disjoint_membership = cover->get_disjoint_membership();
     MutableVertexPartition* disjoint_partition = new MutableVertexPartition(graph, *disjoint_membership);
     collapsed_graph = graph->collapse_graph(disjoint_partition);
