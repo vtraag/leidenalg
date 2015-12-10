@@ -96,6 +96,15 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     // If we do smart local movement, we separate communities in slightly more
     // fine-grained parts for which we collapse the graph.
     MutableVertexPartition* slm_partition = NULL;
+
+    improv = 0.0;
+    // Try to move individual nodes again
+    // We need to move individual nodes before doing slm, because
+    // otherwise, moving individual nodes may possibly disconnected
+    // graphs again, which then needs to be corrected for by resorting to slm
+    if (this->move_individual)
+      improv += this->move_nodes(partition, this->consider_comms);
+
     if (this->smart_local_move)
     {
       // First create a new partition
@@ -169,7 +178,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     #ifdef DEBUG
       cerr << "Quality before moving " << collapsed_partition->quality() << endl;
     #endif
-    improv = this->move_nodes(collapsed_partition, this->consider_comms);
+    improv += this->move_nodes(collapsed_partition, this->consider_comms);
     #ifdef DEBUG
       cerr << "Found " << partition->nb_communities() << " communities, improved " << improv << endl;
       cerr << "Quality after moving " << collapsed_partition->quality() << endl << endl;
@@ -190,10 +199,6 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     #ifdef DEBUG
       cerr << "Quality on finer partition " << partition->quality() << endl << endl;
     #endif // DEBUG
-
-    // Try to move individual nodes again
-    if (this->move_individual)
-      improv += this->move_nodes(partition, this->consider_comms);
 
     // Clean up memory after use.
     delete collapsed_partition;
