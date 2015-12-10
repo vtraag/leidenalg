@@ -29,6 +29,11 @@ CPMVertexPartition* CPMVertexPartition::create(Graph* graph)
   return new CPMVertexPartition(graph, this->resolution_parameter);
 }
 
+CPMVertexPartition* CPMVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new CPMVertexPartition(graph, membership);
+}
+
 /********************************************************************************
   RBER implementation of a vertex partition
   (which includes a resolution parameter).

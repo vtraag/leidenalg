@@ -15,6 +15,7 @@ class CPMVertexPartition : public LinearResolutionParameterVertexPartition
     CPMVertexPartition(Graph* graph);
     virtual ~CPMVertexPartition();
     virtual CPMVertexPartition* create(Graph* graph);
+    virtual CPMVertexPartition* create(Graph* graph, vector<size_t> const& membership);
 
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();

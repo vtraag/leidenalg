@@ -88,7 +88,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
   MutableVertexPartition* collapsed_partition = NULL;
 
   // Do one iteration of optimisation
-  double improv = this->move_nodes(partition, this->consider_comms);
+  double improv = 2*this->eps;
   // As long as there remains improvement iterate
   while (improv > this->eps)
   {
@@ -481,6 +481,9 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
         // Check if we should move to an empty community
         if (this->consider_empty_community)
         {
+          #ifdef DEBUG
+            cerr << "\t" << "w_from_old: " << w_from_old << endl;
+          #endif
           neigh_comm = partition->nb_communities();
           possible_improv = partition->diff_move(v, neigh_comm);
           if (possible_improv > max_improv)
