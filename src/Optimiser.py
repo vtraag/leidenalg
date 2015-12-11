@@ -141,6 +141,14 @@ class Optimiser:
     partition._update_internal_membership();
     return diff;
 
+  def optimize_partition_multiplex(self, partitions):
+    diff = _c_louvain._Optimiser_optimize_partition_multiplex(
+      self._optimiser,
+      [partition._partition for partition in partitions]);
+    for partition in partitions:
+      partition._update_internal_membership();
+    return diff;
+
   def move_nodes(self, partition):
     """ Move nodes to neighbouring communities such that each move improves the
     given quality function maximally (i.e. greedily).

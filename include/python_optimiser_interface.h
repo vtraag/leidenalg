@@ -34,6 +34,7 @@ extern "C"
 #endif
   PyObject* _new_Optimiser(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_optimize_partition(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_optimize_partition_multiplex(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_move_nodes(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_eps(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_delta(PyObject *self, PyObject *args, PyObject *keywds);

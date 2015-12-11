@@ -82,6 +82,58 @@ extern "C"
     return PyFloat_FromDouble(q);
   }
 
+  PyObject* _Optimiser_optimize_partition_multiplex(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    PyObject* py_partitions = NULL;
+    PyObject* py_layer_weights = NULL;
+
+    if (!PyArg_ParseTuple(args, "OO", &py_optimiser, &py_partitions, &py_layer_weights))
+        return NULL;
+
+    size_t nb_partitions = PyList_Size(py_partitions);
+    if (nb_partitions != PyList_Size(py_layer_weights))
+    {
+      PyErr_SetString(PyExc_ValueError, "Number of weights does not equal the number of partitions");
+      return NULL;
+    }
+
+    #ifdef DEBUG
+      cerr << "Parsing " << nb_partitions << " partitions." << endl;
+    #endif
+
+    // This is all done per layer.
+
+    vector<MutableVertexPartition*> partitions(nb_partitions, NULL);
+    vector<double> layer_weights(nb_partitions, 1.0);
+    MutableVertexPartition* partition;
+    for (size_t layer = 0; layer < nb_partitions; layer++)
+    {
+      PyObject* py_partition = PyList_GetItem(py_partitions, layer);
+      PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
+      MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+      partitions[layer] = partition;
+      layer_weights[layer] = PyFloat_AsDouble(layer_weight);
+    }
+
+    size_t n;
+
+    n = partitions[0]->get_graph()->vcount();
+
+    for (size_t layer = 0; layer < nb_partitions; layer++)
+    {
+      if (n != partition->get_graph()->vcount())
+      {
+        PyErr_SetString(PyExc_ValueError, "Inconsistent number of nodes.");
+        return NULL;
+      }
+    }
+
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    double q = optimiser->optimize_partition(partitions, layer_weights);
+    return PyFloat_FromDouble(q);
+  }
+
   PyObject* _Optimiser_move_nodes(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
