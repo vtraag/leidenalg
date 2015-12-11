@@ -107,7 +107,7 @@ class Optimiser:
     partition._update_internal_membership();
     return diff;
 
-  def optimize_partition_multiplex(self, partitions):
+  def optimize_partition_multiplex(self, partitions, layer_weights=None):
     """
       Method for detecting communities using the Louvain algorithm. This functions
       finds the optimal partition for all layers given the specified methods. For
@@ -127,9 +127,12 @@ class Optimiser:
       the latter layer, we try to find relatively many positive links within a
       community and relatively many negative links between communities.
       """
+    if not layer_weights:
+      layer_weights = [1]*len(partitions);
     diff = _c_louvain._Optimiser_optimize_partition_multiplex(
       self._optimiser,
-      [partition._partition for partition in partitions]);
+      [partition._partition for partition in partitions],
+      layer_weights);
     for partition in partitions:
       partition._update_internal_membership();
     return diff;

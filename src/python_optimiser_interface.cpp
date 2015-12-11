@@ -88,7 +88,7 @@ extern "C"
     PyObject* py_partitions = NULL;
     PyObject* py_layer_weights = NULL;
 
-    if (!PyArg_ParseTuple(args, "OO", &py_optimiser, &py_partitions, &py_layer_weights))
+    if (!PyArg_ParseTuple(args, "OOO", &py_optimiser, &py_partitions, &py_layer_weights))
         return NULL;
 
     size_t nb_partitions = PyList_Size(py_partitions);
@@ -110,26 +110,50 @@ extern "C"
     for (size_t layer = 0; layer < nb_partitions; layer++)
     {
       PyObject* py_partition = PyList_GetItem(py_partitions, layer);
-      PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
+      #ifdef DEBUG
+        cerr << "Capsule partition at address " << py_partition << endl;
+      #endif
       MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+      #ifdef DEBUG
+        cerr << "Using partition at address " << partition << endl;
+      #endif
+
+      PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
+      #ifdef DEBUG
+        cerr << "Layer weight " << layer_weight << endl;
+      #endif
+
       partitions[layer] = partition;
       layer_weights[layer] = PyFloat_AsDouble(layer_weight);
     }
 
     size_t n;
 
+    #ifdef DEBUG
+      cerr << "Getting node count" << endl;
+    #endif
     n = partitions[0]->get_graph()->vcount();
+    #ifdef DEBUG
+      cerr << "n=" << n << endl;
+    #endif
 
     for (size_t layer = 0; layer < nb_partitions; layer++)
     {
-      if (n != partition->get_graph()->vcount())
+      if (n != partitions[layer]->get_graph()->vcount())
       {
         PyErr_SetString(PyExc_ValueError, "Inconsistent number of nodes.");
         return NULL;
       }
     }
 
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
     Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
     double q = optimiser->optimize_partition(partitions, layer_weights);
     return PyFloat_FromDouble(q);
   }
