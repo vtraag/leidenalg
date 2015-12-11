@@ -116,10 +116,10 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
 
     // Calculate actual diff
-    diff = - (double)n_old*(n_old-1)*KL(q_old, p)
-                  + (double)n_oldx*(n_oldx-1)*KL(q_oldx, p)
-                  - (double)n_new*(n_new-1)*KL(q_new, p)
-                  + (double)n_newx*(n_newx-1)*KL(q_newx, p);
+    diff = - (double)n_old*(n_old-1)*KLL(q_old, p)
+                  + (double)n_oldx*(n_oldx-1)*KLL(q_oldx, p)
+                  - (double)n_new*(n_new-1)*KLL(q_new, p)
+                  + (double)n_newx*(n_newx-1)*KLL(q_newx, p);
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -158,7 +158,7 @@ double SignificanceVertexPartition::quality()
         cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c
            << ", p_c=" << p_c << ", p=" << p << ", KL=" << KL(p_c, p) << "." << endl;
       #endif
-      S += KL(p_c, p)*n_c*(n_c - 1.0);
+      S += KLL(p_c, p)*n_c*(n_c - 1.0);
     }
     #ifdef DEBUG
     else

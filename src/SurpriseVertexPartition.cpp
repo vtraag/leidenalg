@@ -104,7 +104,7 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
       cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
       cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
     #endif
-    diff = this->resolution_parameter*m*(KL(q_new, s_new) - KL(q, s));
+    diff = this->resolution_parameter*m*(KLL(q_new, s_new) - KLL(q, s));
 
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
@@ -138,7 +138,7 @@ double SurpriseVertexPartition::quality()
   #ifdef DEBUG
     cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
   #endif
-  double S = this->resolution_parameter*m*KL(q,s);
+  double S = this->resolution_parameter*m*KLL(q,s);
   #ifdef DEBUG
     cerr << "exit SurpriseVertexPartition::quality()" << endl;
     cerr << "return " << S << endl << endl;
