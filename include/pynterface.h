@@ -28,6 +28,7 @@ extern "C"
       {"_new_MutableVertexPartition",                               (PyCFunction)_new_MutableVertexPartition,                               METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_diff_move",                         (PyCFunction)_MutableVertexPartition_diff_move,                         METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_move_node",                         (PyCFunction)_MutableVertexPartition_move_node,                         METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_aggregate_partition",               (PyCFunction)_MutableVertexPartition_aggregate_partition,               METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_quality",                           (PyCFunction)_MutableVertexPartition_quality,                           METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_total_weight_in_comm",              (PyCFunction)_MutableVertexPartition_total_weight_in_comm,              METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_total_weight_from_comm",            (PyCFunction)_MutableVertexPartition_total_weight_from_comm,            METH_VARARGS | METH_KEYWORDS, ""},

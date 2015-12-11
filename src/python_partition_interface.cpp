@@ -284,6 +284,45 @@ extern "C"
     return PyFloat_FromDouble(q);
   }
 
+  PyObject* _MutableVertexPartition_aggregate_partition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+
+    static char* kwlist[] = {"partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_partition))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "aggregate_partition();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    // First collapse graph (i.e. community graph)
+    Graph* collapsed_graph = partition->get_graph()->collapse_graph(partition);
+
+    // Create collapsed partition (i.e. default partition of each node in its own community).
+    MutableVertexPartition* collapsed_partition = partition->create(collapsed_graph);
+    collapsed_partition->destructor_delete_graph = true;
+
+    PyObject* py_collapsed_partition = capsule_MutableVertexPartition(collapsed_partition);
+    return py_collapsed_partition;
+  }
+
   PyObject* _MutableVertexPartition_total_weight_in_comm(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;

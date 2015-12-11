@@ -40,6 +40,8 @@ extern "C"
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_move_node(PyObject *self, PyObject *args, PyObject *keywds);
 
+  PyObject* _MutableVertexPartition_aggregate_partition(PyObject *self, PyObject *args, PyObject *keywds);
+
   PyObject* _MutableVertexPartition_quality(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _MutableVertexPartition_total_weight_in_comm(PyObject *self, PyObject *args, PyObject *keywds);

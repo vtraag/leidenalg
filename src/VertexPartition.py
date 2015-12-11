@@ -88,6 +88,9 @@ class MutableVertexPartition(_ig.VertexClustering):
     Then diff == q2 - q1."""
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
 
+  def aggregate_partition(self):
+    return _c_louvain._MutableVertexPartition_aggregate_partition(self._partition);
+
   def move_node(self,v,new_comm):
     _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
     # Make sure this move is also reflected in the membership vector of the python object
