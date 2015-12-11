@@ -87,6 +87,10 @@ class MutableVertexPartition
 
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t);
 
+    // By delegating the responsibility for deleting the graph to the partition,
+    // we no longer have to worry about deleting this graph.
+    int destructor_delete_graph;
+
   protected:
 
     void init_admin();
