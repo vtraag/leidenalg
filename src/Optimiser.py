@@ -10,40 +10,6 @@ from .functions import ALL_NEIGH_COMMS
 from .functions import RAND_COMM
 from .functions import RAND_NEIGH_COMM
 
-class Layer:
-  """
-  This class makes sure that each layer is properly encoded for use in the
-  ``find_partition_multiplex`` function.
-
-  Keyword arguments:
-
-  graph
-    The graph for this layer.
-
-  method
-    The method used for this layer (see package documentation for details).
-
-  layer_weight
-    The weight used for weighing this layer in the overall quality.
-
-  initial_membership
-    The initial membership to start the optimization with.
-
-  weight
-    The edge attribute from which to use the weight for this layer.
-
-  resolution_parameter
-    The resolution parameter used for this layer.
-
-  """
-  def __init__(self, graph, method, layer_weight=1.0, initial_membership=None, weight=None, resolution_parameter=1.0):
-    self.graph = graph;
-    self.method = method;
-    self.layer_weight = layer_weight;
-    self.initial_membership = initial_membership;
-    self.weight = weight;
-    self.resolution_parameter = resolution_parameter;
-
 class Optimiser:
   """ Class for doing community detection using the Louvain algorithm.
 
@@ -142,6 +108,25 @@ class Optimiser:
     return diff;
 
   def optimize_partition_multiplex(self, partitions):
+    """
+      Method for detecting communities using the Louvain algorithm. This functions
+      finds the optimal partition for all layers given the specified methods. For
+      the various possible methods see package documentation. This considers all
+      graphs in all layers, in which each node may be differently connected, but all
+      nodes must appear in all graphs. Furthermore, they should have identical
+      indices in the graph (i.e. node i is assumed to be the same node in all
+      graphs).  The quality of this partition is simply the sum of the individual
+      qualities for the various partitions, weighted by the layer_weight. If we
+      denote by q_k the quality of layer k and the weight by w_k, the overall
+      quality is then
+      q = sum_k w_k*q_k.
+
+      Notice that this is particularly useful for graphs containing negative links.
+      When separating the graph in two graphs, the one containing only the positive
+      links, and the other only the negative link, by supplying a negative weight to
+      the latter layer, we try to find relatively many positive links within a
+      community and relatively many negative links between communities.
+      """
     diff = _c_louvain._Optimiser_optimize_partition_multiplex(
       self._optimiser,
       [partition._partition for partition in partitions]);
