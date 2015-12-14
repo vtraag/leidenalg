@@ -31,6 +31,7 @@
 MutableVertexPartition::MutableVertexPartition(Graph* graph,
       vector<size_t> membership)
 {
+  this->destructor_delete_graph = false;
   this->graph = graph;
   if (membership.size() != graph->vcount())
   {
@@ -42,6 +43,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph)
 {
+  this->destructor_delete_graph = false;
   this->graph = graph;
   this->_membership = range(graph->vcount());
   this->init_admin();
@@ -55,6 +57,8 @@ MutableVertexPartition* MutableVertexPartition::create(Graph* graph)
 MutableVertexPartition::~MutableVertexPartition()
 {
   this->clean_mem();
+  if (this->destructor_delete_graph)
+    delete this->graph;
 }
 
 void MutableVertexPartition::clean_mem()
@@ -363,6 +367,11 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
 ****************************************************************************/
 void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* partition)
 {
+  this->from_coarser_partition(partition->membership());
+}
+
+void MutableVertexPartition::from_coarser_partition(vector<size_t> const& membership)
+{
   // Read the coarser partition
   for (size_t v = 0; v < this->graph->vcount(); v++)
   {
@@ -370,7 +379,7 @@ void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* part
     size_t v_comm_level1 = this->_membership[v];
     // In the coarser partition, the node should have the community id
     // so that the community of that node gives the coarser community.
-    size_t v_comm_level2 = partition->membership(v_comm_level1);
+    size_t v_comm_level2 = membership[v_comm_level1];
     this->_membership[v] = v_comm_level2;
   }
   this->clean_mem();

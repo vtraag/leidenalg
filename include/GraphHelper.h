@@ -97,6 +97,8 @@ class Graph
       return igraph_rng_get_integer(igraph_rng_default(), from, to);
     };
 
+    inline igraph_t* get_igraph() { return this->_graph; };
+
     inline size_t vcount() { return igraph_vcount(this->_graph); };
     inline size_t ecount() { return igraph_ecount(this->_graph); };
     inline double total_weight() { return this->_total_weight; };
@@ -115,6 +117,15 @@ class Graph
       #endif
       return this->_edge_weights[e];
     };
+
+    inline vector<size_t> edge(size_t e)
+    {
+      igraph_integer_t v1, v2;
+      igraph_edge(this->_graph, e, &v1, &v2);
+      vector<size_t> edge(2);
+      edge[0] = v1; edge[1] = v2;
+      return edge;
+    }
 
     // Get size of node based on attribute (or 1.0 if there is none).
     inline size_t node_size(size_t v)

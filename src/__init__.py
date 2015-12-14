@@ -105,17 +105,19 @@ Please cite the references appropriately in case they are used.
    Surprise. Forthcoming (2015).
 
 """
-from .functions import find_partition
-from .functions import find_partition_multiplex
-from .functions import quality
-from .functions import total_internal_edges
-from .functions import total_internal_edges
-from .functions import bisect
-from .functions import Layer
 from .functions import ALL_COMMS
 from .functions import ALL_NEIGH_COMMS
 from .functions import RAND_COMM
 from .functions import RAND_NEIGH_COMM
+from .functions import find_partition
+from .functions import find_partition_multiplex
+from .functions import Layer
+from .Optimiser import Optimiser
+from .VertexPartition import ModularityVertexPartition
+from .VertexPartition import SurpriseVertexPartition
+from .VertexPartition import SignficanceVertexPartition
+from .VertexPartition import RBERVertexPartition
+from .VertexPartition import RBConfigurationVertexPartition
 
 from pkg_resources import get_distribution, DistributionNotFound
 import os.path
