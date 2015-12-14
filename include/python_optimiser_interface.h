@@ -17,7 +17,6 @@
 #include "Optimiser.h"
 #include "python_partition_interface.h"
 
-#define DEBUG
 #ifdef DEBUG
 #include <iostream>
   using std::cerr;
