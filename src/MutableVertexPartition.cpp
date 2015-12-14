@@ -372,6 +372,11 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
 ****************************************************************************/
 void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* partition)
 {
+  this->from_coarser_partition(partition->membership());
+}
+
+void MutableVertexPartition::from_coarser_partition(vector<size_t> const& membership)
+{
   // Read the coarser partition
   for (size_t v = 0; v < this->graph->vcount(); v++)
   {
@@ -379,7 +384,7 @@ void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* part
     size_t v_comm_level1 = this->_membership[v];
     // In the coarser partition, the node should have the community id
     // so that the community of that node gives the coarser community.
-    size_t v_comm_level2 = partition->membership(v_comm_level1);
+    size_t v_comm_level2 = membership[v_comm_level1];
     this->_membership[v] = v_comm_level2;
   }
   this->clean_mem();

@@ -53,7 +53,7 @@ class MutableVertexPartition
     virtual ~MutableVertexPartition();
 
     inline size_t membership(size_t v) { return this->_membership[v]; };
-    inline vector<size_t> membership() { return this->_membership; };
+    inline vector<size_t>& membership() { return this->_membership; };
 
     size_t csize(size_t comm);
     set<size_t>* get_community(size_t comm);
@@ -74,6 +74,7 @@ class MutableVertexPartition
     void renumber_communities();
     void renumber_communities(vector<size_t> new_membership);
     void from_coarser_partition(MutableVertexPartition* partition);
+    void from_coarser_partition(vector<size_t> const& membership);
     void from_partition(MutableVertexPartition* partition);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };

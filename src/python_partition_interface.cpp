@@ -241,7 +241,48 @@ extern "C"
     }
 
     return Py_BuildValue("lOOO", n, edges, weights, node_sizes);
-}
+  }
+
+  PyObject* _MutableVertexPartition_from_coarser_partition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+    PyObject* py_membership = NULL;
+
+    static char* kwlist[] = {"partition", "membership", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
+                                     &py_partition, &py_membership))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "from_coarser_partition();" << endl;
+    #endif
+
+    size_t n = PyList_Size(py_membership);
+    vector<size_t> membership;
+    membership.resize(n);
+    for (size_t v = 0; v < n; v++)
+      membership[v] = PyLong_AsLong(PyList_GetItem(py_membership, v));
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    partition->from_coarser_partition(membership);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
 
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds)
   {

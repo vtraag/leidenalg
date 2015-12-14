@@ -112,6 +112,14 @@ class MutableVertexPartition(_ig.VertexClustering):
     self._membership[v] = new_comm;
     self._modularity_dirty = True;
 
+  def from_coarser_partition(self, partition):
+    """ Read new communities from coarser partition assuming that the community
+    represents a node in the coarser partition (with the same index as the
+    community number). """
+    # Read the coarser partition
+    _c_louvain._MutableVertexPartition_from_coarser_partition(self._partition, partition.membership);
+    self._update_internal_membership();
+
   def quality(self):
     return _c_louvain._MutableVertexPartition_quality(self._partition);
 
