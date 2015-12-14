@@ -173,13 +173,22 @@ extern "C"
                                      &py_obj_graph, &method, &py_initial_membership, &py_weights, &resolution_parameter))
         return NULL;
 
-    MutableVertexPartition* partition = create_partition_from_py(py_obj_graph, method, py_initial_membership, py_weights, resolution_parameter);
+    try
+    {
+      MutableVertexPartition* partition = create_partition_from_py(py_obj_graph, method, py_initial_membership, py_weights, resolution_parameter);
 
-    PyObject* py_partition = capsule_MutableVertexPartition(partition);
-    #ifdef DEBUG
-      cerr << "Created capsule partition at address " << py_partition << endl;
-    #endif
-    return py_partition;
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception const & e )
+    {
+      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      return NULL;
+    }
   }
 
   PyObject* _MutableVertexPartition_get_py_igraph(PyObject *self, PyObject *args, PyObject *keywds)
