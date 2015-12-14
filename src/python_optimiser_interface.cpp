@@ -1,7 +1,5 @@
 #include "python_optimiser_interface.h"
 
-#define DEBUG
-
   PyObject* capsule_Optimiser(Optimiser* optimiser)
   {
     PyObject* py_optimiser = PyCapsule_New(optimiser, "louvain.Optimiser", del_Optimiser);

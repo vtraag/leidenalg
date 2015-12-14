@@ -201,10 +201,16 @@ class RBERVertexPartition(MutableVertexPartition):
       weight=None):
     super(RBERVertexPartition, self).__init__(graph, 'RBER', initial_membership, weight, resolution_parameter);
 
-
 class RBConfigurationVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   modularity. """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
     super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight, resolution_parameter);
+
+class CPMVertexPartition(MutableVertexPartition):
+  """ Implements the diff_move and quality function in order to optimise
+  modularity. """
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
+      weight=None):
+    super(CPMVertexPartition, self).__init__(graph, 'CPM', initial_membership, weight, resolution_parameter);

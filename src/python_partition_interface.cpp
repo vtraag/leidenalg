@@ -1,7 +1,5 @@
 #include "python_partition_interface.h"
 
-#define DEBUG
-
   MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter)
   {
     MutableVertexPartition* partition;
