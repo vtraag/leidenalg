@@ -19,6 +19,9 @@ def _get_py_capsule(graph):
   else:
     return graph.__graph_as_cobject();
 
+from .VertexPartition import *
+from .Optimiser import *
+
 class Layer:
   """
   This class makes sure that each layer is properly encoded for use in the
@@ -29,8 +32,8 @@ class Layer:
   graph
     The graph for this layer.
 
-  method
-    The method used for this layer (see package documentation for details).
+  partition_type
+    The type of partition used for this layer (see package documentation for details).
 
   layer_weight
     The weight used for weighing this layer in the overall quality.
@@ -45,19 +48,14 @@ class Layer:
     The resolution parameter used for this layer.
 
   """
-  def __init__(self, graph, method, layer_weight=1.0, initial_membership=None, weight=None, resolution_parameter=1.0):
+  def __init__(self, graph, partition_type, layer_weight=1.0, initial_membership=None, weight=None, resolution_parameter=1.0, **kwargs):
     self.graph = graph;
-    self.method = method;
+    self.partition_type = partition_type;
     self.layer_weight = layer_weight;
     self.initial_membership = initial_membership;
     self.weight = weight;
     self.resolution_parameter = resolution_parameter;
-
-def __get_py_capsule(graph):
-  if PY3:
-    return graph.__graph_as_capsule();
-  else:
-    return graph.__graph_as_cobject();
+    self.kwargs = kwargs;
 
 def find_partition_multiplex(layers, consider_comms=ALL_NEIGH_COMMS):
   """
@@ -116,7 +114,9 @@ def find_partition_multiplex(layers, consider_comms=ALL_NEIGH_COMMS):
   We return the membership vector instead of a partition, because the latter
   needs an underlying graph.
   """
-  args = [];
+  args = []
+  partitions = [];
+  layer_weights = [];
   for layer in layers:
     if layer.weight is not None:
       if isinstance(layer.weight, str):
@@ -124,14 +124,19 @@ def find_partition_multiplex(layers, consider_comms=ALL_NEIGH_COMMS):
       else:
         # Make sure it is a list
         layer.weight = list(layer.weight);
-    args.append((__get_py_capsule(layer.graph), layer.method,
-           layer.layer_weight, layer.initial_membership, layer.weight,
-           layer.resolution_parameter));
-  membership, quality = _c_louvain._find_partition_multiplex(args, consider_comms);
-  return membership, quality;
+    partition = layer.partition_type(layer.graph,
+                                     layer.method,
+                                     weight=layer.weight,
+                                     initial_membership=layer.initial_membership,
+                                     **layer.kwargs);
+    layer_weights.append(layer.layer_weight);
+    partitions.append(partition);
+  optimiser = Optimiser();
+  quality = optimiser.find_partition_multiplex(partitions, layer_weights);
+  return partitions[0].membership, quality;
 
-def find_partition(graph, method, initial_membership=None, weight=None,
-    resolution_parameter=1.0, consider_comms=ALL_NEIGH_COMMS):
+def find_partition(graph, partition_type,
+    initial_membership=None, weight=None, consider_comms=ALL_NEIGH_COMMS, **kwargs):
   """
   Method for detecting communities using the Louvain algorithm. This functions
   finds the optimal partition given the specified method. For the various possible
@@ -142,7 +147,7 @@ def find_partition(graph, method, initial_membership=None, weight=None,
   graph
     The graph for which to find the optimal partition.
 
-  method
+  partition_type
     The type of partition which will be used during optimisation.
 
   initial_membership=None
@@ -189,17 +194,11 @@ def find_partition(graph, method, initial_membership=None, weight=None,
   provided in the returned partition as partition.quality.
 
   returns: optimized partition."""
-  pygraph_t = __get_py_capsule(graph);
-  if weight is not None:
-    if isinstance(weight, str):
-      weight = graph.es[weight];
-    else:
-      # Make sure it is a list
-      weight = list(weight);
-  if initial_membership is not None:
-    gen = _ig.UniqueIdGenerator();
-    initial_membership = [gen[m] for m in initial_membership];
-  membership, quality = _c_louvain._find_partition(pygraph_t, method, initial_membership, weight, resolution_parameter, consider_comms);
-  partition = _ig.VertexClustering(graph, membership);
-  partition.quality = quality;
+  partition = partition_type(graph,
+                             initial_membership=initial_membership,
+                             weight=weight,
+                             **kwargs);
+  optimiser = Optimiser();
+  optimiser.consider_comms = consider_comms;
+  optimiser.optimize_partition(partition);
   return partition;
