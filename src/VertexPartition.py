@@ -30,6 +30,9 @@ class MutableVertexPartition(_ig.VertexClustering):
   Louvain method in the optimisation class can call these general functions in
   order to optimise the quality function.
   """
+  def __init__(self, graph):
+    super(MutableVertexPartition, self).__init__(graph);
+
   # Init
   def __init__(self, graph, method, initial_membership=None,
       weight=None, resolution_parameter=1.0):
@@ -58,6 +61,18 @@ class MutableVertexPartition(_ig.VertexClustering):
       gen = _ig.UniqueIdGenerator();
       initial_membership = [gen[m] for m in initial_membership];
     self._partition = _c_louvain._new_MutableVertexPartition(pygraph_t, method, initial_membership, weight, resolution_parameter);
+
+  @classmethod
+  def _FromCPartition(cls, partition):
+    n, edges, weights, node_sizes = _c_louvain._MutableVertexPartition_get_py_igraph(partition);
+    graph = _ig.Graph(n=n,
+                     edges=edges,
+                     edge_attrs={'weight': weights},
+                     vertex_attrs={'node_size': node_sizes});
+    new_partition = cls(graph);
+    new_partition._partition = partition;
+    new_partition._update_internal_membership();
+    return new_partition;
 
   def _update_internal_membership(self):
     self._membership = _c_louvain._MutableVertexPartition_membership(self._partition);
@@ -89,7 +104,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
 
   def aggregate_partition(self):
-    return _c_louvain._MutableVertexPartition_aggregate_partition(self._partition);
+    return self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
 
   def move_node(self,v,new_comm):
     _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);

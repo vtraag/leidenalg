@@ -182,6 +182,67 @@ extern "C"
     return py_partition;
   }
 
+  PyObject* _MutableVertexPartition_get_py_igraph(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+
+    static char* kwlist[] = {"partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_partition))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_py_igraph();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    Graph* graph = partition->get_graph();
+
+    size_t n = graph->vcount();
+    size_t m = graph->ecount();
+
+    PyObject* edges = PyList_New(m);
+    for (size_t e = 0; e < m; e++)
+    {
+      vector<size_t> edge = graph->edge(e);
+      PyList_SetItem(edges, e, Py_BuildValue("(KK)", edge[0], edge[1]));
+    }
+
+    PyObject* weights = PyList_New(m);
+    for (size_t e = 0; e < m; e++)
+    {
+      PyObject* item = PyFloat_FromDouble(graph->edge_weight(e));
+      PyList_SetItem(weights, e, item);
+    }
+
+    PyObject* node_sizes = PyList_New(n);
+    for (size_t v = 0; v < n; v++)
+    {
+      #if PY_MAJOR_VERSION >= 3
+        PyObject* item = PyLong_FromSize_t(graph->node_size(v));
+      #else
+        PyObject* item = PyInt_FromSize_t(graph->node_size(v));
+      #endif
+      PyList_SetItem(node_sizes, v, item);
+    }
+
+    return Py_BuildValue("lOOO", n, edges, weights, node_sizes);
+}
+
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;

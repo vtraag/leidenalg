@@ -41,6 +41,7 @@ extern "C"
   PyObject* _MutableVertexPartition_move_node(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _MutableVertexPartition_aggregate_partition(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _MutableVertexPartition_get_py_igraph(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _MutableVertexPartition_quality(PyObject *self, PyObject *args, PyObject *keywds);
 
