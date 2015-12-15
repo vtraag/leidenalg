@@ -2,25 +2,46 @@ import unittest
 import igraph as ig
 import louvain
 
+from ddt import ddt, data, unpack
+
 #%%
-
-
+  
+graphs = [
+    ig.Graph.Famous('Zachary'), 
+    ig.Graph.Erdos_Renyi(100, p=1./100)
+    ];
+    
 class BaseTest:
+  @ddt
   class MutableVertexPartitionTest(unittest.TestCase):
     
     def setUp(self):
-      self.graph = ig.Graph.Famous('Zachary');
       self.optimiser = louvain.Optimiser();
-      
-    def test_aggregate_partition(self):
-      partition = self.partition_type(self.graph);
+    
+    @data(*graphs)
+    def test_move_nodes(self, graph):
+      partition = self.partition_type(graph);
+      v = 0;
+      while (graph.degree(v) == 0):
+        v += 1;
+      u = graph.neighbors(v)[0];
+      q1 = partition.quality();
+      diff = partition.diff_move(v, partition.membership[u]);
+      partition.move_node(v, partition.membership[u]);
+      q2 = partition.quality();
+      self.assertAlmostEqual(q2 - q1, diff,
+                       "Difference in quality ({0}) not equal to calculated difference ({1})".format(q2 - q1, diff));
+
+    @data(*graphs)
+    def test_aggregate_partition(self, graph):
+      partition = self.partition_type(graph);
       self.optimiser.move_nodes(partition);
       aggregate_partition = partition.aggregate_partition();
-      self.assertEqual(partition.quality(), aggregate_partition.quality(),
+      self.assertAlmostEqual(partition.quality(), aggregate_partition.quality(),
                        'Quality not equal for aggregate partition.');
       self.optimiser.move_nodes(aggregate_partition);
       partition.from_coarser_partition(aggregate_partition);
-      self.assertEqual(partition.quality(), aggregate_partition.quality(),
+      self.assertAlmostEqual(partition.quality(), aggregate_partition.quality(),
                        'Quality not equal from coarser partition.');    
   
 class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
