@@ -132,16 +132,9 @@ double SignificanceVertexPartition::quality()
     size_t n_c = this->csize(c);
     double m_c = this->total_weight_in_comm(c);
     double p_c = 0.0;
-    if (n_c > 1)
-    {
-      size_t N_c = this->graph->possible_edges(n_c);
+    size_t N_c = this->graph->possible_edges(n_c);
+    if (N_c > 0)
       p_c = m_c/N_c;
-      #ifdef DEBUG
-        cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
-           << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KLL(p_c, p) << "." << endl;
-      #endif
-      S += N_c*KL(p_c, p);
-    }
     #ifdef DEBUG
     else
     {
