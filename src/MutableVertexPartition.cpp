@@ -247,8 +247,11 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   // Incidentally, this is independent of whether we take into account self-loops or not
   // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
   // adaptation of the community sizes, otherwise the calculations are incorrect.
-  double delta_possible_edges_in_comms = 2.0*node_size*(ptrdiff_t)(this->_csize[new_comm] - this->_csize[old_comm] + node_size)/(2.0 - this->graph->is_directed());
-  _total_possible_edges_in_all_comms += delta_possible_edges_in_comms;
+  if (new_comm != old_comm)
+  {
+    double delta_possible_edges_in_comms = 2.0*node_size*(ptrdiff_t)(this->_csize[new_comm] - this->_csize[old_comm] + node_size)/(2.0 - this->graph->is_directed());
+    _total_possible_edges_in_all_comms += delta_possible_edges_in_comms;
+  }
 
   // Remove from old community
   this->community[old_comm]->erase(v);
