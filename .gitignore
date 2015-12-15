@@ -30,3 +30,4 @@ igraphcore/
 valgrind-python.supp
 test/
 test_install.sh
+*.pyc
