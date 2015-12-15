@@ -1,6 +1,7 @@
 import unittest
 import igraph as ig
 import louvain
+import numpy as np
 
 from ddt import ddt, data, unpack
 
@@ -53,8 +54,16 @@ graphs = [
     name_object(ig.Graph.Lattice([100], nei=3, directed=False, mutual=True, circular=True),
                 'Lattice_undirected'),
     name_object(ig.Graph.Lattice([100], nei=3, directed=True, mutual=False, circular=True),
-                'Lattice_directed')    
+                'Lattice_directed')
     ];
+    
+def make_weighted(G):
+  m = G.ecount();
+  G.es['weight'] = np.random.rand(m);
+  G.__name__ += '_weighted';
+  return G;
+  
+graphs += [make_weighted(H) for H in graphs];
     
 class BaseTest:
   @ddt
@@ -65,7 +74,13 @@ class BaseTest:
     
     @data(*graphs)
     def test_move_nodes(self, graph):
-      partition = self.partition_type(graph);
+      if 'weight' in graph.es.attributes() and self.partition_type == louvain.SignficanceVertexPartition:
+        raise unittest.SkipTest('Significance doesn\'t handle weighted graphs');
+        
+      if 'weight' in graph.es.attributes():
+        partition = self.partition_type(graph, weight='weight');
+      else:
+        partition = self.partition_type(graph);
       for v in range(graph.vcount()):
         if graph.degree(v) >= 1:
           u = graph.neighbors(v)[0];
@@ -82,7 +97,10 @@ class BaseTest:
 
     @data(*graphs)
     def test_aggregate_partition(self, graph):
-      partition = self.partition_type(graph);
+      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignficanceVertexPartition:
+        partition = self.partition_type(graph, weight='weight');
+      else:
+        partition = self.partition_type(graph);
       self.optimiser.move_nodes(partition);
       aggregate_partition = partition.aggregate_partition();
       self.assertAlmostEqual(
@@ -133,4 +151,4 @@ if __name__ == '__main__':
   #%%
   #unittest.main(verbosity=3);
   suite = unittest.TestLoader().discover('.');
-  unittest.TextTestRunner(verbosity=2).run(suite);
+  unittest.TextTestRunner(verbosity=1).run(suite);
