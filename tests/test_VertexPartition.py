@@ -5,10 +5,55 @@ import louvain
 from ddt import ddt, data, unpack
 
 #%%
+
+def name_object(obj, name):
+  obj.__name__ = name;
+  return obj;
   
 graphs = [
-    ig.Graph.Famous('Zachary'), 
-    ig.Graph.Erdos_Renyi(100, p=1./100)
+    ###########################################################################    
+    # Zachary karate network
+    name_object(ig.Graph.Famous('Zachary'), 
+                'Zachary'), 
+
+    ###########################################################################
+    # ER Networks
+    # Undirected no loop
+    name_object(ig.Graph.Erdos_Renyi(100, p=1./100, directed=False, loops=False),
+                'ER_k1_undirected_no_loops'),
+    name_object(ig.Graph.Erdos_Renyi(100, p=5./100, directed=False, loops=False),
+                'ER_k5_undirected_no_loops'),
+    # Directed no loop
+    name_object(ig.Graph.Erdos_Renyi(100, p=1./100, directed=True, loops=False),
+                'ER_k1_directed_no_loops'),
+    name_object(ig.Graph.Erdos_Renyi(100, p=5./100, directed=True, loops=False),
+                'ER_k5_directed_no_loops'),
+    # Undirected loops
+    name_object(ig.Graph.Erdos_Renyi(100, p=1./100, directed=False, loops=True),
+                'ER_k1_undirected_loops'),
+    name_object(ig.Graph.Erdos_Renyi(100, p=5./100, directed=False, loops=True),
+                'ER_k5_undirected_loops'),
+    # Directed loops            
+    name_object(ig.Graph.Erdos_Renyi(100, p=1./100, directed=True, loops=True),
+                'ER_k1_directed_loops'),
+    name_object(ig.Graph.Erdos_Renyi(100, p=5./100, directed=True, loops=True),
+                'ER_k5_directed_loops'),
+
+    ###########################################################################    
+    # Tree
+    name_object(ig.Graph.Tree(100, 3, type=ig.TREE_UNDIRECTED),
+                'Tree_undirected'),
+    name_object(ig.Graph.Tree(100, 3, type=ig.TREE_OUT),
+                'Tree_directed_out'),
+    name_object(ig.Graph.Tree(100, 3, type=ig.TREE_IN),
+                'Tree_directed_in'),
+                
+    ###########################################################################    
+    # Lattice
+    name_object(ig.Graph.Lattice([100], nei=3, directed=False, mutual=True, circular=True),
+                'Lattice_undirected'),
+    name_object(ig.Graph.Lattice([100], nei=3, directed=True, mutual=False, circular=True),
+                'Lattice_directed')    
     ];
     
 class BaseTest:
@@ -21,28 +66,37 @@ class BaseTest:
     @data(*graphs)
     def test_move_nodes(self, graph):
       partition = self.partition_type(graph);
-      v = 0;
-      while (graph.degree(v) == 0):
-        v += 1;
-      u = graph.neighbors(v)[0];
-      q1 = partition.quality();
-      diff = partition.diff_move(v, partition.membership[u]);
-      partition.move_node(v, partition.membership[u]);
-      q2 = partition.quality();
-      self.assertAlmostEqual(q2 - q1, diff,
-                       "Difference in quality ({0}) not equal to calculated difference ({1})".format(q2 - q1, diff));
+      for v in range(graph.vcount()):
+        if graph.degree(v) >= 1:
+          u = graph.neighbors(v)[0];
+          diff = partition.diff_move(v, partition.membership[u]);
+          q1 = partition.quality();          
+          partition.move_node(v, partition.membership[u]);
+          q2 = partition.quality();
+          self.assertAlmostEqual(
+              q2 - q1, 
+              diff,
+              places=5,
+              msg="Difference in quality ({0}) not equal to calculated difference ({1})".format(
+              q2 - q1, diff));
 
     @data(*graphs)
     def test_aggregate_partition(self, graph):
       partition = self.partition_type(graph);
       self.optimiser.move_nodes(partition);
       aggregate_partition = partition.aggregate_partition();
-      self.assertAlmostEqual(partition.quality(), aggregate_partition.quality(),
-                       'Quality not equal for aggregate partition.');
+      self.assertAlmostEqual(
+          partition.quality(), 
+          aggregate_partition.quality(),
+          places=5,
+          msg='Quality not equal for aggregate partition.');
       self.optimiser.move_nodes(aggregate_partition);
       partition.from_coarser_partition(aggregate_partition);
-      self.assertAlmostEqual(partition.quality(), aggregate_partition.quality(),
-                       'Quality not equal from coarser partition.');    
+      self.assertAlmostEqual(
+          partition.quality(), 
+          aggregate_partition.quality(),
+          places=5,
+          msg='Quality not equal from coarser partition.');    
   
 class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
