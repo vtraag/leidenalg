@@ -45,6 +45,7 @@ Optimiser::Optimiser(double eps, double delta, size_t max_itr, int random_order,
   this->consider_comms = consider_comms;
   this->move_individual = false;
   this->consider_empty_community = false;
+  this->smart_local_move = false;
 }
 
 Optimiser::Optimiser()

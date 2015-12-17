@@ -151,20 +151,6 @@ class ModularityVertexPartition(MutableVertexPartition):
       weight=None):
     super(ModularityVertexPartition, self).__init__(graph, 'Modularity', initial_membership, weight);
 
-class SurpriseVertexPartition(MutableVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  modularity. """
-  def __init__(self, graph, initial_membership=None,
-      weight=None):
-    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, weight);
-
-class SignficanceVertexPartition(MutableVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  modularity. """
-  def __init__(self, graph, initial_membership=None,
-      weight=None):
-    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, weight);
-
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """ Some quality functions have a linear resolution parameter, for which the
   basis is implemented here.
@@ -208,3 +194,17 @@ class RBConfigurationVertexPartition(MutableVertexPartition):
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
     super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight, resolution_parameter);
+
+class SurpriseVertexPartition(MutableVertexPartition):
+  """ Implements the diff_move and quality function in order to optimise
+  modularity. """
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
+      weight=None):
+    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, weight);
+
+class SignficanceVertexPartition(MutableVertexPartition):
+  """ Implements the diff_move and quality function in order to optimise
+  modularity. """
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
+      weight=None):
+    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, weight);
