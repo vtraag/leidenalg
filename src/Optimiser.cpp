@@ -55,6 +55,9 @@ Optimiser::Optimiser()
   this->max_itr = 10000;
   this->random_order = true;
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
+  this->move_individual = false;
+  this->consider_empty_community = false;
+  this->smart_local_move = false;
 }
 
 Optimiser::~Optimiser()
