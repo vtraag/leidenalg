@@ -31,6 +31,7 @@
 MutableVertexPartition::MutableVertexPartition(Graph* graph,
       vector<size_t> const& membership)
 {
+  this->destructor_delete_graph = false;
   this->graph = graph;
   if (membership.size() != graph->vcount())
   {
@@ -42,6 +43,7 @@ MutableVertexPartition::MutableVertexPartition(Graph* graph,
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph)
 {
+  this->destructor_delete_graph = false;
   this->graph = graph;
   this->_membership = range(graph->vcount());
   this->init_admin();
@@ -61,6 +63,8 @@ MutableVertexPartition* MutableVertexPartition::create(Graph* graph, vector<size
 MutableVertexPartition::~MutableVertexPartition()
 {
   this->clean_mem();
+  if (this->destructor_delete_graph)
+    delete this->graph;
 }
 
 void MutableVertexPartition::clean_mem()

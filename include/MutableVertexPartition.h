@@ -54,7 +54,7 @@ class MutableVertexPartition
     virtual ~MutableVertexPartition();
 
     inline size_t membership(size_t v) { return this->_membership[v]; };
-    inline vector<size_t> membership() { return this->_membership; };
+    inline vector<size_t>& membership() { return this->_membership; };
 
     size_t csize(size_t comm);
     set<size_t>* get_community(size_t comm);
@@ -90,6 +90,10 @@ class MutableVertexPartition
 
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t);
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
+
+    // By delegating the responsibility for deleting the graph to the partition,
+    // we no longer have to worry about deleting this graph.
+    int destructor_delete_graph;
 
   protected:
 
