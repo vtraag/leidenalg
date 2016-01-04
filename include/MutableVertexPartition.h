@@ -75,8 +75,11 @@ class MutableVertexPartition
     void renumber_communities();
     void renumber_communities(vector<size_t> const& new_membership);
     size_t add_empty_community();
+    void from_coarser_partition(vector<size_t> const& coarser_partition_membership);
     void from_coarser_partition(MutableVertexPartition* partition);
     void from_coarser_partition(MutableVertexPartition* partition, vector<size_t> const& coarser_membership);
+    void from_coarser_partition(vector<size_t> const& coarser_partition_membership, vector<size_t> const& coarser_node);
+
     void from_partition(MutableVertexPartition* partition);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };

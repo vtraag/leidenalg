@@ -287,7 +287,7 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
-    partition->from_coarser_partition(partition, membership);
+    partition->from_coarser_partition(membership);
 
     Py_INCREF(Py_None);
     return Py_None;
