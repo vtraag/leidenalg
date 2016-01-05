@@ -153,14 +153,14 @@ class ModularityVertexPartition(MutableVertexPartition):
 
 class SurpriseVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
-  modularity. """
+  Surprise. """
   def __init__(self, graph, initial_membership=None,
       weight=None):
     super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, weight);
 
 class SignficanceVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
-  modularity. """
+  Significance. """
   def __init__(self, graph, initial_membership=None,
       weight=None):
     super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, weight);
@@ -196,21 +196,21 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
 
 class RBERVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
-  modularity. """
+  RBER, which uses a Erdos-Renyi graph as a null model. """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
     super(RBERVertexPartition, self).__init__(graph, 'RBER', initial_membership, weight, resolution_parameter);
 
 class RBConfigurationVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
-  modularity. """
+  RB Configuration model (i.e. modularity with a resolution parameter). """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
     super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight, resolution_parameter);
 
 class CPMVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
-  modularity. """
+  CPM. """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
     super(CPMVertexPartition, self).__init__(graph, 'CPM', initial_membership, weight, resolution_parameter);
