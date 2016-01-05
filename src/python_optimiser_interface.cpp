@@ -337,7 +337,7 @@ extern "C"
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Od", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
                                      &py_optimiser, &consider_comms))
         return NULL;
 
@@ -359,6 +359,133 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_set_move_individual(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int move_individual = false;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &move_individual))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_move_individual(" << move_individual << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->move_individual = move_individual;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int consider_empty_community = false;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &consider_empty_community))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_consider_empty_community(" << consider_empty_community << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->consider_empty_community = consider_empty_community;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_set_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int smart_local_move = false;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &smart_local_move))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_smart_local_move(" << smart_local_move << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->smart_local_move = smart_local_move;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_set_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int aggregate_smart_local_move = false;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &aggregate_smart_local_move))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_aggregate_smart_local_move(" << aggregate_smart_local_move << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->aggregate_smart_local_move = aggregate_smart_local_move;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
 #ifdef __cplusplus
 }
 #endif

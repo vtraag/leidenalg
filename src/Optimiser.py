@@ -96,6 +96,50 @@ class Optimiser:
     self._consider_comms = value;
     _c_louvain._Optimiser_set_consider_comms(self._optimiser, self._consider_comms);
 
+  #########################################################3
+  # move_individual
+  @property
+  def move_individual(self):
+    return self._move_individual;
+
+  @consider_comms.setter
+  def move_individual(self, value):
+    self._move_individual = value;
+    _c_louvain._Optimiser_set_move_individual(self._optimiser, self._move_individual);
+
+  #########################################################3
+  # consider_empty_community
+  @property
+  def consider_empty_community(self):
+    return self._consider_empty_community;
+
+  @consider_comms.setter
+  def consider_empty_community(self, value):
+    self._consider_empty_community = value;
+    _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, self._consider_empty_community);
+
+  #########################################################3
+  # smart_local_move
+  @property
+  def smart_local_move(self):
+    return self._smart_local_move;
+
+  @smart_local_move.setter
+  def smart_local_move(self, value):
+    self._smart_local_move = value;
+    _c_louvain._Optimiser_set_smart_local_move(self._optimiser, self._smart_local_move);
+
+  #########################################################3
+  # aggregate_smart_local_move
+  @property
+  def aggregate_smart_local_move(self):
+    return self._aggregate_smart_local_move;
+
+  @consider_comms.setter
+  def aggregate_smart_local_move(self, value):
+    self._aggregate_smart_local_move = value;
+    _c_louvain._Optimiser_set_aggregate_smart_local_move(self._optimiser, self._aggregate_smart_local_move);
+
   def optimize_partition(self, partition):
     """ Find optimal partition given the specific type of partition_class that
     is provided.

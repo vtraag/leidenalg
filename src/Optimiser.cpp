@@ -43,6 +43,10 @@ Optimiser::Optimiser(double eps, double delta, size_t max_itr, int random_order,
   this->max_itr = max_itr;
   this->random_order = random_order;
   this->consider_comms = consider_comms;
+  this->smart_local_move = false;
+  this->aggregate_smart_local_move = false;
+  this->move_individual = false;
+  this->consider_empty_community = false;
 }
 
 Optimiser::Optimiser()
@@ -52,6 +56,10 @@ Optimiser::Optimiser()
   this->max_itr = 10000;
   this->random_order = true;
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
+  this->smart_local_move = false;
+  this->aggregate_smart_local_move = false;
+  this->move_individual = false;
+  this->consider_empty_community = false;
 }
 
 Optimiser::~Optimiser()
@@ -103,13 +111,16 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
     if (this->move_individual)
       improv += this->move_nodes(partition, this->consider_comms);
 
-    if (this->smart_local_move)
+    if (this->smart_local_move || this->aggregate_smart_local_move)
     {
       // First create a new partition
       slm_partition = partition->create(graph);
 
       // Then move around nodes but restrict movement to within original communities.
-      this->optimize_partition_constrained(slm_partition, partition->membership());
+      if (this->aggregate_smart_local_move)
+        this->move_nodes_constrained(slm_partition, partition->membership());
+      else
+        this->optimize_partition_constrained(slm_partition, partition->membership());
       #ifdef DEBUG
         cerr << "\tAfter applying SLM found " << partition->nb_communities() << " communities." << endl;
       #endif
