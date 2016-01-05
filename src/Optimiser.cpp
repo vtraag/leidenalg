@@ -462,7 +462,6 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
               max_improv = possible_improv;
               max_comm = neigh_comm;
             }
-            delete neigh;
           /****************************RAND WEIGH COMM*****************************/
           case RAND_WEIGHT_NEIGH_COMM:
             // Select a random community from the neighbours.
@@ -477,7 +476,6 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
               max_improv = possible_improv;
               max_comm = neigh_comm;
             }
-            delete neigh;
         }
         #ifdef DEBUG
           // If we are debugging, calculate quality function
