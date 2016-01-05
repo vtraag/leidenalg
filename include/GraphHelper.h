@@ -4,6 +4,8 @@
 #include <igraph.h>
 #include <vector>
 #include <exception>
+#include <gsl_rng.h>
+#include <gsl_randist.h>
 
 #ifdef DEBUG
 #include <iostream>
@@ -88,6 +90,8 @@ class Graph
     vector< size_t >*
       get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
+    size_t get_weighted_random_neighbour(size_t v, igraph_neimode_t mode);
+
     inline size_t get_random_node()
     {
       return this->get_random_int(0, this->vcount() - 1);
@@ -184,7 +188,12 @@ class Graph
     int _correct_self_loops;
     double _density;
 
+    int _initialized_weighted_neigh_selection;
+    gsl_rng* _rng;
+    vector<gsl_ran_discrete_t*> _weighted_neigh_prob_preproc; // Used for sampling a random neighbour when using a weighted graph.
+
     void init_admin();
+    void init_weighted_neigh_selection();
     void set_defaults();
     void set_default_edge_weight();
     void set_default_node_size();
