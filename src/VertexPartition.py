@@ -107,10 +107,11 @@ class MutableVertexPartition(_ig.VertexClustering):
     return self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
 
   def move_node(self,v,new_comm):
-    _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
+    diff = _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
     # Make sure this move is also reflected in the membership vector of the python object
     self._membership[v] = new_comm;
     self._modularity_dirty = True;
+    return diff;
 
   def from_coarser_partition(self, partition):
     """ Read new communities from coarser partition assuming that the community

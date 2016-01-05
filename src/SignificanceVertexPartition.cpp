@@ -55,7 +55,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     if (N_old > 0)
       q_old = m_old/N_old;
     #ifdef DEBUG
-      cerr << "\t" << "n_old: " << n_old << ", m_old: " << m_old << ", q_old: " << q_old << "." << endl;
+      cerr << "\t" << "n_old: " << n_old << ", N_old: " << N_old << ", m_old: " << m_old << ", q_old: " << q_old
+           << ", KL: " << KL(q_old, p)  << "." << endl;
     #endif
     // Old comm after move
     size_t n_oldx = n_old - nsize; // It should not be possible that this becomes negative, so no need for ptrdiff_t here.
@@ -72,7 +73,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     if (N_oldx > 0)
       q_oldx = m_oldx/N_oldx;
     #ifdef DEBUG
-      cerr << "\t" << "n_oldx: " << n_oldx << ", m_oldx: " << m_oldx << ", q_oldx: " << q_oldx << "." << endl;
+      cerr << "\t" << "n_oldx: " << n_oldx << ", N_oldx: " << N_oldx << ", m_oldx: " << m_oldx << ", q_oldx: " << q_oldx
+           << ", KL: " << KL(q_oldx, p)  << "." << endl;
     #endif
 
     // New comm
@@ -83,7 +85,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     if (N_new > 0)
       q_new = m_new/N_new;
     #ifdef DEBUG
-      cerr << "\t" << "n_new: " << n_new << ", m_new: " << m_new << ", q_new: " << q_new << "." << endl;
+      cerr << "\t" << "n_new: " << n_new << ", N_new: " << N_new << ", m_new: " << m_new << ", q_new: " << q_new
+           << ", KL: " << KL(q_new, p)  << "." << endl;
     #endif
 
     // New comm after move
@@ -100,7 +103,9 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     if (N_newx > 0)
       q_newx = m_newx/N_newx;
     #ifdef DEBUG
-      cerr << "\t" << "n_newx: " << n_newx << ", m_newx: " << m_newx << ", q_newx: " << q_newx << "." << endl;
+      cerr << "\t" << "n_newx: " << n_newx << ", N_newx: " << N_newx << ", m_newx: " << m_newx
+           << ", q_newx: " << q_newx
+           << ", KL: " << KL(q_newx, p) << "." << endl;
     #endif
 
     // Calculate actual diff
@@ -137,28 +142,14 @@ double SignificanceVertexPartition::quality()
     size_t n_c = this->csize(c);
     double m_c = this->total_weight_in_comm(c);
     double p_c = 0.0;
-<<<<<<< HEAD
     size_t N_c = this->graph->possible_edges(n_c);
     if (N_c > 0)
       p_c = m_c/N_c;
-=======
-    if (n_c > 1)
-    {
-      size_t N_c = this->graph->possible_edges(n_c);
-      p_c = m_c/N_c;
-      #ifdef DEBUG
-        cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
-           << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KLL(p_c, p) << "." << endl;
-      #endif
-      S += N_c*KLL(p_c, p);
-    }
->>>>>>> feature_slm_empty_individual_aggregate
     #ifdef DEBUG
-    else
-    {
-      cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", p_c=0.0." << endl;
-    }
+      cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
+         << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KL(p_c, p) << "." << endl;
     #endif
+    S += N_c*KL(p_c, p);
   }
   #ifdef DEBUG
     cerr << "exit SignificanceVertexPartition::quality()" << endl;

@@ -587,6 +587,8 @@ options =  dict(
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
+  
+  test_suite = 'tests',
 
   provides = ['louvain'],
   package_dir = {'louvain': 'src'},
