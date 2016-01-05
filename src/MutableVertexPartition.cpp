@@ -29,7 +29,7 @@
 *****************************************************************************/
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph,
-      vector<size_t> membership)
+      vector<size_t> const& membership)
 {
   this->destructor_delete_graph = false;
   this->graph = graph;
@@ -54,6 +54,12 @@ MutableVertexPartition* MutableVertexPartition::create(Graph* graph)
   return new MutableVertexPartition(graph);
 }
 
+MutableVertexPartition* MutableVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new MutableVertexPartition(graph, membership);
+}
+
+
 MutableVertexPartition::~MutableVertexPartition()
 {
   this->clean_mem();
@@ -72,7 +78,10 @@ void MutableVertexPartition::clean_mem()
 
 size_t MutableVertexPartition::csize(size_t comm)
 {
-  return this->_csize[comm];
+  if (comm < this->_csize.size())
+    return this->_csize[comm];
+  else
+    return 0;
 }
 
 set<size_t>* MutableVertexPartition::get_community(size_t comm)
@@ -218,13 +227,24 @@ void MutableVertexPartition::renumber_communities()
  Renumber the communities using the provided membership vector. Notice that this
  doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexPartition::renumber_communities(vector<size_t> new_membership)
+void MutableVertexPartition::renumber_communities(vector<size_t> const& new_membership)
 {
   for (size_t i = 0; i < this->graph->vcount(); i++)
     this->_membership[i] = new_membership[i];
 
   this->clean_mem();
   this->init_admin();
+}
+
+size_t MutableVertexPartition::add_empty_community()
+{
+  this->community.push_back(new set<size_t>());
+  size_t nb_comms = this->community.size();
+  this->_csize.resize(nb_comms);
+  this->_total_weight_in_comm.resize(nb_comms);
+  this->_total_weight_from_comm.resize(nb_comms);
+  this->_total_weight_to_comm.resize(nb_comms);
+  return nb_comms;
 }
 
 /****************************************************************************
@@ -370,24 +390,32 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
 ****************************************************************************/
 void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* partition)
 {
-  this->from_coarser_partition(partition->membership());
+  this->from_coarser_partition(partition, this->_membership);
 }
 
-void MutableVertexPartition::from_coarser_partition(vector<size_t> const& membership)
+void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* partition, vector<size_t> const& coarser_membership)
 {
   // Read the coarser partition
   for (size_t v = 0; v < this->graph->vcount(); v++)
   {
     // What is the community of the node
     size_t v_comm_level1 = this->_membership[v];
+
     // In the coarser partition, the node should have the community id
-    // so that the community of that node gives the coarser community.
-    size_t v_comm_level2 = membership[v_comm_level1];
+    // as represented by the coarser_membership vector
+    size_t v_level2 = coarser_membership[v];
+
+    // In the coarser partition, this node is represented by v_level2
+    size_t v_comm_level2 = partition->membership(v_level2);
+
+    // Set local membership to community found for node at second level
     this->_membership[v] = v_comm_level2;
   }
+
   this->clean_mem();
   this->init_admin();
 }
+
 
 /****************************************************************************
  Read new partition from another partition.
@@ -435,7 +463,7 @@ double MutableVertexPartition::weight_from_comm(size_t v, size_t comm)
 *****************************************************************************/
 double MutableVertexPartition::weight_vertex_tofrom_comm(size_t v, size_t comm, igraph_neimode_t mode)
 {
-  return this->graph->weight_tofrom_community(v, comm, &this->_membership, mode);
+  return this->graph->weight_tofrom_community(v, comm, &(this->_membership), mode);
 }
 
 set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
@@ -445,6 +473,20 @@ set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t 
   for (size_t i=0; i < this->graph->degree(v, mode); i++)
   {
     neigh_comms->insert( this->membership((*neigh)[i]) );
+  }
+  delete neigh;
+  return neigh_comms;
+}
+
+set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
+{
+  vector<size_t>* neigh = this->graph->get_neighbours(v, mode);
+  set<size_t>* neigh_comms = new set<size_t>();
+  for (size_t i=0; i < this->graph->degree(v, mode); i++)
+  {
+    size_t u = (*neigh)[i];
+    if (constrained_membership[v] == constrained_membership[u])
+      neigh_comms->insert( this->membership(u) );
   }
   delete neigh;
   return neigh_comms;

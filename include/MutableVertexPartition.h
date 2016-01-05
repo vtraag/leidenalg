@@ -46,9 +46,10 @@ class MutableVertexPartition
 {
   public:
     MutableVertexPartition(Graph* graph,
-        vector<size_t> membership);
+        vector<size_t> const& membership);
     MutableVertexPartition(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph);
+    virtual MutableVertexPartition* create(Graph* graph, vector<size_t> const& membership);
 
     virtual ~MutableVertexPartition();
 
@@ -72,9 +73,10 @@ class MutableVertexPartition
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    void renumber_communities(vector<size_t> new_membership);
+    void renumber_communities(vector<size_t> const& new_membership);
+    size_t add_empty_community();
     void from_coarser_partition(MutableVertexPartition* partition);
-    void from_coarser_partition(vector<size_t> const& membership);
+    void from_coarser_partition(MutableVertexPartition* partition, vector<size_t> const& coarser_membership);
     void from_partition(MutableVertexPartition* partition);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };
@@ -87,6 +89,7 @@ class MutableVertexPartition
     double weight_from_comm(size_t v, size_t comm);
 
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t);
+    set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
 
     // By delegating the responsibility for deleting the graph to the partition,
     // we no longer have to worry about deleting this graph.

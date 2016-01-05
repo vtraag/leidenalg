@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         MutableVertexPartition(graph,
         membership)
 { }
@@ -19,6 +19,11 @@ SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph) :
 SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
 {
   return new SignificanceVertexPartition(graph);
+}
+
+SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new SignificanceVertexPartition(graph, membership);
 }
 
 SignificanceVertexPartition::~SignificanceVertexPartition()
@@ -100,8 +105,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 
     // Calculate actual diff
 
-    diff =   (double)N_oldx*KL(q_oldx, p) + (double)N_newx*KL(q_newx, p)
-           - (double)N_old *KL(q_old,  p) - (double)N_new *KL(q_new,  p);
+    diff =   (double)N_oldx*KLL(q_oldx, p) + (double)N_newx*KLL(q_newx, p)
+           - (double)N_old *KLL(q_old,  p) - (double)N_new *KLL(q_new,  p);
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -132,9 +137,22 @@ double SignificanceVertexPartition::quality()
     size_t n_c = this->csize(c);
     double m_c = this->total_weight_in_comm(c);
     double p_c = 0.0;
+<<<<<<< HEAD
     size_t N_c = this->graph->possible_edges(n_c);
     if (N_c > 0)
       p_c = m_c/N_c;
+=======
+    if (n_c > 1)
+    {
+      size_t N_c = this->graph->possible_edges(n_c);
+      p_c = m_c/N_c;
+      #ifdef DEBUG
+        cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
+           << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KLL(p_c, p) << "." << endl;
+      #endif
+      S += N_c*KLL(p_c, p);
+    }
+>>>>>>> feature_slm_empty_individual_aggregate
     #ifdef DEBUG
     else
     {

@@ -1,13 +1,13 @@
 #include "RBERVertexPartition.h"
 
 RBERVertexPartition::RBERVertexPartition(Graph* graph,
-      vector<size_t> membership, double resolution_parameter) :
+      vector<size_t> const& membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
         membership, resolution_parameter)
 { }
 
 RBERVertexPartition::RBERVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -24,6 +24,11 @@ RBERVertexPartition::RBERVertexPartition(Graph* graph) :
 RBERVertexPartition* RBERVertexPartition::create(Graph* graph)
 {
   return new RBERVertexPartition(graph, this->resolution_parameter);
+}
+
+RBERVertexPartition* RBERVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new RBERVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 RBERVertexPartition::~RBERVertexPartition()
