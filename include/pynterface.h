@@ -43,8 +43,8 @@ extern "C"
       {"_MutableVertexPartition_membership",                        (PyCFunction)_MutableVertexPartition_membership,                        METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_new_Optimiser",                            (PyCFunction)_new_Optimiser,                            METH_NOARGS,                  ""},
-      {"_Optimiser_optimize_partition",             (PyCFunction)_Optimiser_optimize_partition,             METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_optimize_partition_multiplex",   (PyCFunction)_Optimiser_optimize_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_optimise_partition",             (PyCFunction)_Optimiser_optimise_partition,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_optimise_partition_multiplex",   (PyCFunction)_Optimiser_optimise_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_move_nodes",                     (PyCFunction)_Optimiser_move_nodes,                     METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_Optimiser_set_eps",                        (PyCFunction)_Optimiser_set_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
