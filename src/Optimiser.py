@@ -18,126 +18,98 @@ class Optimiser:
   this diff_move. If no further improvement is possible, the graph is
   aggregated (collapse_graph) and the method is reiterated on that graph."""
 
-  def __init__(self, eps=1e-5, delta=1e-2, max_itr=10000,
-               random_order=True, consider_comms=ALL_NEIGH_COMMS):
-    """ Create a new Optimiser object
-
-    Parameters:
-      eps=1e-5     -- If the improvement falls below this threshold,
-                      stop iterating.
-      delta=1e-2   -- If the number of nodes that moves falls below
-                      this threshold, stop iterating.
-      max_itr=1000 -- Maximum number of iterations to perform.
-      random_order=True
-                   -- If True the nodes will be traversed in a random order
-                      when optimising a quality function.
-      consider_comms=ALL_NEIGH_COMMS
-                   -- This setting changes the way the communities are
-                      considered for moving a node."""
-    self._eps = eps;
-    self._delta = delta;
-    self._max_itr = max_itr;
-    self._random_order = random_order;
-    self._consider_comms = consider_comms;
-    self._optimiser = _c_louvain._new_Optimiser(eps, delta, max_itr, random_order, consider_comms);
+  def __init__(self):
+    """ Create a new Optimiser object """
+    self._optimiser = _c_louvain._new_Optimiser();
 
   #########################################################3
   # eps
   @property
   def eps(self):
-    return self._eps;
+    return _c_louvain._Optimiser_get_eps(self._optimiser);
 
   @eps.setter
   def eps(self, value):
-    self._eps = value;
     _c_louvain._Optimiser_set_eps(self._optimiser, self._eps);
 
   #########################################################3
   # delta
   @property
   def delta(self):
-    return self._delta;
+    return _c_louvain._Optimiser_get_delta(self._optimiser);
 
   @delta.setter
   def delta(self, value):
-    self._delta = value;
     _c_louvain._Optimiser_set_delta(self._optimiser, self._delta);
 
   #########################################################
   # max_itr
   @property
   def max_itr(self):
-    return self._max_itr;
+    return _c_louvain._Optimiser_get_max_itr(self._optimiser);
 
   @max_itr.setter
   def max_itr(self, value):
-    self._max_itr = value;
     _c_louvain._Optimiser_set_max_itr(self._optimiser, self._max_itr);
 
   #########################################################3
   # random_order
   @property
   def random_order(self):
-    return self._random_order;
+    return _c_louvain._Optimiser_get_random_order(self._optimiser);
 
   @random_order.setter
   def random_order(self, value):
-    self._random_order = value;
     _c_louvain._Optimiser_set_random_order(self._optimiser, self._random_order);
 
   #########################################################3
   # consider_comms
   @property
   def consider_comms(self):
-    return self._consider_comms;
+    return _c_louvain._Optimiser_get_consider_comms(self._optimiser);
 
   @consider_comms.setter
   def consider_comms(self, value):
-    self._consider_comms = value;
     _c_louvain._Optimiser_set_consider_comms(self._optimiser, self._consider_comms);
 
   #########################################################3
   # move_individual
   @property
   def move_individual(self):
-    return self._move_individual;
+    return _c_louvain._Optimiser_get_move_individual(self._optimiser);
 
-  @consider_comms.setter
+  @move_individual.setter
   def move_individual(self, value):
-    self._move_individual = value;
     _c_louvain._Optimiser_set_move_individual(self._optimiser, self._move_individual);
 
   #########################################################3
   # consider_empty_community
   @property
   def consider_empty_community(self):
-    return self._consider_empty_community;
+    return _c_louvain._Optimiser_get_consider_empty_community(self._optimiser);
 
-  @consider_comms.setter
+  @consider_empty_community.setter
   def consider_empty_community(self, value):
-    self._consider_empty_community = value;
     _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, self._consider_empty_community);
 
   #########################################################3
   # smart_local_move
   @property
   def smart_local_move(self):
-    return self._smart_local_move;
+    return _c_louvain._Optimiser_get_smart_local_move(self._optimiser);
 
   @smart_local_move.setter
   def smart_local_move(self, value):
-    self._smart_local_move = value;
     _c_louvain._Optimiser_set_smart_local_move(self._optimiser, self._smart_local_move);
 
   #########################################################3
   # aggregate_smart_local_move
   @property
   def aggregate_smart_local_move(self):
-    return self._aggregate_smart_local_move;
+    return _c_louvain._Optimiser_get_aggregate_smart_local_move(self._optimiser);
 
-  @consider_comms.setter
+  @aggregate_smart_local_move.setter
   def aggregate_smart_local_move(self, value):
-    self._aggregate_smart_local_move = value;
     _c_louvain._Optimiser_set_aggregate_smart_local_move(self._optimiser, self._aggregate_smart_local_move);
 
   def optimize_partition(self, partition):

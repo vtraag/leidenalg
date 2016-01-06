@@ -36,19 +36,6 @@
         RAND_NEIGH_COMM -- Consider a random community among the neighbours
                            for improvement.
 ****************************************************************************/
-Optimiser::Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms)
-{
-  this->eps = eps;
-  this->delta = delta;
-  this->max_itr = max_itr;
-  this->random_order = random_order;
-  this->consider_comms = consider_comms;
-  this->smart_local_move = false;
-  this->aggregate_smart_local_move = false;
-  this->move_individual = false;
-  this->consider_empty_community = false;
-}
-
 Optimiser::Optimiser()
 {
   this->eps = 1e-5;
@@ -363,9 +350,8 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
 
   // As long as we keep on improving and we don't exceed the
   // maximum number of iterations and number of moves.
-  while (improv > this->eps &&
-         nb_moves > n*this->delta &&
-         itr < this->max_itr)
+  while ( (improv > this->eps || nb_moves > n*this->delta) &&
+           itr < this->max_itr)
   {
     // Increase number of iterations
     itr += 1;

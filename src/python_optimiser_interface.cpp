@@ -22,21 +22,15 @@ extern "C"
 {
 #endif
 
-  PyObject* _new_Optimiser(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _new_Optimiser(PyObject *self, PyObject *args)
   {
-    double eps = 1e-5;
-    double delta = 1e-2;
-    size_t max_itr = 10000;
-    int random_order = true;
-    int consider_comms = Optimiser::ALL_NEIGH_COMMS;
+    if (args != NULL)
+    {
+      PyErr_BadArgument();
+      return NULL;
+    }
 
-    static char* kwlist[] = {"eps", "delta", "max_itr", "random_order", "consider_comms", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ddKii", kwlist,
-                                     &eps, &delta, &max_itr, &random_order, &consider_comms))
-        return NULL;
-
-    Optimiser* optimiser = new Optimiser(eps, delta, max_itr, random_order, consider_comms);
+    Optimiser* optimiser = new Optimiser();
     PyObject* py_optimiser = capsule_Optimiser(optimiser);
     return py_optimiser;
   }
@@ -203,7 +197,7 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     double eps = 1e-5;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "eps", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -231,11 +225,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_eps(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_eps();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyFloat_FromDouble(optimiser->eps);
+  }
+
   PyObject* _Optimiser_set_delta(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     double delta = 1e-2;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "delta", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -263,11 +285,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_delta(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_delta();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyFloat_FromDouble(optimiser->delta);
+  }
+
   PyObject* _Optimiser_set_max_itr(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     size_t max_itr = 10000;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "max_itr", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -295,11 +345,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_max_itr(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_max_itr();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyInt_FromSize_t(optimiser->max_itr);
+  }
+
   PyObject* _Optimiser_set_random_order(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     int random_order = true;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "random_order", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -327,11 +405,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_random_order(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_random_order(" << random_order << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyBool_FromLong(optimiser->random_order);
+  }
+
   PyObject* _Optimiser_set_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     int consider_comms = Optimiser::ALL_NEIGH_COMMS;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -359,11 +465,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_consider_comms();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyInt_FromLong(optimiser->consider_comms);
+  }
+
   PyObject* _Optimiser_set_move_individual(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     int move_individual = false;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "move_individual", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -391,11 +525,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_move_individual(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_move_individual(" << move_individual << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyBool_FromLong(optimiser->move_individual);
+  }
+
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     int consider_empty_community = false;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "consider_empty_community", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -423,11 +585,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_consider_empty_community(" << consider_empty_community << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyBool_FromLong(optimiser->consider_empty_community);
+  }
+
   PyObject* _Optimiser_set_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     int smart_local_move = false;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "smart_local_move", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -455,11 +645,39 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _Optimiser_get_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_smart_local_move(" << smart_local_move << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyBool_FromLong(optimiser->smart_local_move);
+  }
+
   PyObject* _Optimiser_set_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     int aggregate_smart_local_move = false;
-    static char* kwlist[] = {"optimiser", NULL};
+    static char* kwlist[] = {"optimiser", "aggregate_smart_local_move", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -485,6 +703,34 @@ extern "C"
 
     Py_INCREF(Py_None);
     return Py_None;
+  }
+
+  PyObject* _Optimiser_get_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_aggregate_smart_local_move(" << aggregate_smart_local_move << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyBool_FromLong(optimiser->aggregate_smart_local_move);
   }
 #ifdef __cplusplus
 }

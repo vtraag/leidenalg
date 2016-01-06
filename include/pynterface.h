@@ -30,7 +30,7 @@ extern "C"
       {"_MutableVertexPartition_move_node",                         (PyCFunction)_MutableVertexPartition_move_node,                         METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_get_py_igraph",                     (PyCFunction)_MutableVertexPartition_get_py_igraph,                     METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_aggregate_partition",               (PyCFunction)_MutableVertexPartition_aggregate_partition,               METH_VARARGS | METH_KEYWORDS, ""},
-      {"_MutableVertexPartition_from_coarser_partition",            (PyCFunction)_MutableVertexPartition_from_coarser_partition,         METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_from_coarser_partition",            (PyCFunction)_MutableVertexPartition_from_coarser_partition,            METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_MutableVertexPartition_quality",                           (PyCFunction)_MutableVertexPartition_quality,                           METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_total_weight_in_comm",              (PyCFunction)_MutableVertexPartition_total_weight_in_comm,              METH_VARARGS | METH_KEYWORDS, ""},
@@ -42,15 +42,30 @@ extern "C"
       {"_MutableVertexPartition_weight_from_comm",                  (PyCFunction)_MutableVertexPartition_weight_from_comm,                  METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_membership",                        (PyCFunction)_MutableVertexPartition_membership,                        METH_VARARGS | METH_KEYWORDS, ""},
 
-      {"_new_Optimiser",                          (PyCFunction)_new_Optimiser,                          METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_optimize_partition",           (PyCFunction)_Optimiser_optimize_partition,           METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_optimize_partition_multiplex", (PyCFunction)_Optimiser_optimize_partition_multiplex, METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_move_nodes",                   (PyCFunction)_Optimiser_move_nodes,                   METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_eps",                      (PyCFunction)_Optimiser_set_eps,                      METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_delta",                    (PyCFunction)_Optimiser_set_delta,                    METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_max_itr",                  (PyCFunction)_Optimiser_set_max_itr,                  METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_random_order",             (PyCFunction)_Optimiser_set_random_order,             METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_consider_comms",           (PyCFunction)_Optimiser_set_consider_comms,           METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_Optimiser",                            (PyCFunction)_new_Optimiser,                            METH_NOARGS,                  ""},
+      {"_Optimiser_optimize_partition",             (PyCFunction)_Optimiser_optimize_partition,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_optimize_partition_multiplex",   (PyCFunction)_Optimiser_optimize_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_move_nodes",                     (PyCFunction)_Optimiser_move_nodes,                     METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_Optimiser_set_eps",                        (PyCFunction)_Optimiser_set_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_delta",                      (PyCFunction)_Optimiser_set_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_max_itr",                    (PyCFunction)_Optimiser_set_max_itr,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_random_order",               (PyCFunction)_Optimiser_set_random_order,               METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_consider_comms",             (PyCFunction)_Optimiser_set_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_move_individual",            (PyCFunction)_Optimiser_set_move_individual,            METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_consider_empty_community",   (PyCFunction)_Optimiser_set_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_smart_local_move",           (PyCFunction)_Optimiser_set_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_aggregate_smart_local_move", (PyCFunction)_Optimiser_set_aggregate_smart_local_move, METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_Optimiser_get_eps",                        (PyCFunction)_Optimiser_get_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_delta",                      (PyCFunction)_Optimiser_get_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_max_itr",                    (PyCFunction)_Optimiser_get_max_itr,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_random_order",               (PyCFunction)_Optimiser_get_random_order,               METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_consider_comms",             (PyCFunction)_Optimiser_get_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_move_individual",            (PyCFunction)_Optimiser_get_move_individual,            METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_consider_empty_community",   (PyCFunction)_Optimiser_get_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_smart_local_move",           (PyCFunction)_Optimiser_get_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_aggregate_smart_local_move", (PyCFunction)_Optimiser_get_aggregate_smart_local_move, METH_VARARGS | METH_KEYWORDS, ""},
 
       {NULL}
   };

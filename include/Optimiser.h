@@ -29,7 +29,6 @@ aggregated (collapse_graph) and the method is reiterated on that graph.
 class Optimiser
 {
   public:
-    Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms);
     Optimiser();
     double optimize_partition(MutableVertexPartition* partition);
     double optimize_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
