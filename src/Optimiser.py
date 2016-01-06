@@ -10,7 +10,7 @@ from .functions import ALL_NEIGH_COMMS
 from .functions import RAND_COMM
 from .functions import RAND_NEIGH_COMM
 
-class Optimiser:
+class Optimiser(object):
   """ Class for doing community detection using the Louvain algorithm.
 
   Given a certain partition type is calls diff_move for trying to move a node
@@ -30,7 +30,7 @@ class Optimiser:
 
   @eps.setter
   def eps(self, value):
-    _c_louvain._Optimiser_set_eps(self._optimiser, self._eps);
+    _c_louvain._Optimiser_set_eps(self._optimiser, value);
 
   #########################################################3
   # delta
@@ -40,7 +40,7 @@ class Optimiser:
 
   @delta.setter
   def delta(self, value):
-    _c_louvain._Optimiser_set_delta(self._optimiser, self._delta);
+    _c_louvain._Optimiser_set_delta(self._optimiser, value);
 
   #########################################################
   # max_itr
@@ -50,7 +50,7 @@ class Optimiser:
 
   @max_itr.setter
   def max_itr(self, value):
-    _c_louvain._Optimiser_set_max_itr(self._optimiser, self._max_itr);
+    _c_louvain._Optimiser_set_max_itr(self._optimiser, value);
 
   #########################################################3
   # random_order
@@ -60,7 +60,7 @@ class Optimiser:
 
   @random_order.setter
   def random_order(self, value):
-    _c_louvain._Optimiser_set_random_order(self._optimiser, self._random_order);
+    _c_louvain._Optimiser_set_random_order(self._optimiser, value);
 
   #########################################################3
   # consider_comms
@@ -70,7 +70,7 @@ class Optimiser:
 
   @consider_comms.setter
   def consider_comms(self, value):
-    _c_louvain._Optimiser_set_consider_comms(self._optimiser, self._consider_comms);
+    _c_louvain._Optimiser_set_consider_comms(self._optimiser, value);
 
   #########################################################3
   # move_individual
@@ -80,7 +80,7 @@ class Optimiser:
 
   @move_individual.setter
   def move_individual(self, value):
-    _c_louvain._Optimiser_set_move_individual(self._optimiser, self._move_individual);
+    _c_louvain._Optimiser_set_move_individual(self._optimiser, value);
 
   #########################################################3
   # consider_empty_community
@@ -90,7 +90,7 @@ class Optimiser:
 
   @consider_empty_community.setter
   def consider_empty_community(self, value):
-    _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, self._consider_empty_community);
+    _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, value);
 
   #########################################################3
   # smart_local_move
@@ -100,7 +100,7 @@ class Optimiser:
 
   @smart_local_move.setter
   def smart_local_move(self, value):
-    _c_louvain._Optimiser_set_smart_local_move(self._optimiser, self._smart_local_move);
+    _c_louvain._Optimiser_set_smart_local_move(self._optimiser, value);
 
   #########################################################3
   # aggregate_smart_local_move
@@ -110,7 +110,7 @@ class Optimiser:
 
   @aggregate_smart_local_move.setter
   def aggregate_smart_local_move(self, value):
-    _c_louvain._Optimiser_set_aggregate_smart_local_move(self._optimiser, self._aggregate_smart_local_move);
+    _c_louvain._Optimiser_set_aggregate_smart_local_move(self._optimiser, value);
 
   def optimise_partition(self, partition):
     """ Find optimal partition given the specific type of partition_class that

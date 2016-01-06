@@ -54,6 +54,19 @@ Optimiser::~Optimiser()
   //dtor
 }
 
+void Optimiser::print_settings()
+{
+  cerr << "Epsilon:\t" << this->eps << endl;
+  cerr << "Delta:\t" << this->delta << endl;
+  cerr << "Maximum # iterators:\t" << this->max_itr << endl;
+  cerr << "Random node order:\t" << this->random_order << endl;
+  cerr << "Consider communities method:\t" << this->consider_comms << endl;
+  cerr << "Smart local move:\t" << this->smart_local_move << endl;
+  cerr << "Aggregate smart local move:\t" << this->aggregate_smart_local_move << endl;
+  cerr << "Move individual:\t" << this->move_individual << endl;
+  cerr << "Consider empty community:\t" << this->consider_empty_community << endl;
+}
+
 /*****************************************************************************
   optimise the provided partition.
 *****************************************************************************/

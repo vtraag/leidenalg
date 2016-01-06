@@ -6,14 +6,8 @@
 #include <set>
 
 #include <iostream>
-  using std::cerr;
-  using std::endl;
-
-#ifdef DEBUG
-  using std::cerr;
-  using std::endl;
-#endif
-
+using std::cerr;
+using std::endl;
 using std::set;
 using std::random_shuffle;
 
@@ -65,6 +59,7 @@ class Optimiser
   protected:
 
   private:
+    void print_settings();
 };
 
 template <class T> T* Optimiser::find_partition(Graph* graph)
