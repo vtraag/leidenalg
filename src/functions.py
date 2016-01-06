@@ -195,12 +195,12 @@ def find_partition(graph, partition_type,
   The quality of the partition, as measured by the indicated method is
   provided in the returned partition as partition.quality.
 
-  returns: optimized partition."""
+  returns: optimised partition."""
   partition = partition_type(graph,
                              initial_membership=initial_membership,
                              weight=weight,
                              **kwargs);
   optimiser = Optimiser();
   optimiser.consider_comms = consider_comms;
-  optimiser.optimize_partition(partition);
+  optimiser.optimise_partition(partition);
   return partition;

@@ -35,7 +35,7 @@ extern "C"
     return py_optimiser;
   }
 
-  PyObject* _Optimiser_optimize_partition(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _Optimiser_optimise_partition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
@@ -51,7 +51,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "optimize_partition(" << py_partition << ");" << endl;
+      cerr << "optimise_partition(" << py_partition << ");" << endl;
     #endif
 
     #ifdef DEBUG
@@ -70,11 +70,11 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
-    double q = optimiser->optimize_partition(partition);
+    double q = optimiser->optimise_partition(partition);
     return PyFloat_FromDouble(q);
   }
 
-  PyObject* _Optimiser_optimize_partition_multiplex(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _Optimiser_optimise_partition_multiplex(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partitions = NULL;
@@ -146,7 +146,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    double q = optimiser->optimize_partition(partitions, layer_weights);
+    double q = optimiser->optimise_partition(partitions, layer_weights);
     return PyFloat_FromDouble(q);
   }
 
@@ -167,7 +167,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "optimize_partition(" << py_partition << ");" << endl;
+      cerr << "optimise_partition(" << py_partition << ");" << endl;
     #endif
 
     #ifdef DEBUG

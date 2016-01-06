@@ -112,18 +112,18 @@ class Optimiser:
   def aggregate_smart_local_move(self, value):
     _c_louvain._Optimiser_set_aggregate_smart_local_move(self._optimiser, self._aggregate_smart_local_move);
 
-  def optimize_partition(self, partition):
+  def optimise_partition(self, partition):
     """ Find optimal partition given the specific type of partition_class that
     is provided.
 
     Parameters:
-      partition       -- The partition to optimize"""
+      partition       -- The partition to optimise"""
     # Perhaps we
-    diff = _c_louvain._Optimiser_optimize_partition(self._optimiser, partition._partition);
+    diff = _c_louvain._Optimiser_optimise_partition(self._optimiser, partition._partition);
     partition._update_internal_membership();
     return diff;
 
-  def optimize_partition_multiplex(self, partitions, layer_weights=None):
+  def optimise_partition_multiplex(self, partitions, layer_weights=None):
     """
       Method for detecting communities using the Louvain algorithm. This functions
       finds the optimal partition for all layers given the specified methods. For
@@ -145,7 +145,7 @@ class Optimiser:
       """
     if not layer_weights:
       layer_weights = [1]*len(partitions);
-    diff = _c_louvain._Optimiser_optimize_partition_multiplex(
+    diff = _c_louvain._Optimiser_optimise_partition_multiplex(
       self._optimiser,
       [partition._partition for partition in partitions],
       layer_weights);

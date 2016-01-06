@@ -30,17 +30,17 @@ class Optimiser
 {
   public:
     Optimiser();
-    double optimize_partition(MutableVertexPartition* partition);
-    double optimize_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
+    double optimise_partition(MutableVertexPartition* partition);
+    double optimise_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
 
-    // The multiplex functions that simultaneously optimize multiple graphs and partitions (i.e. methods)
+    // The multiplex functions that simultaneously optimise multiple graphs and partitions (i.e. methods)
     // Each node will be in the same community in all graphs, and the graphs are expected to have identical nodes
     // Optionally we can loop over all possible communities instead of only the neighbours. In the case of negative
     // layer weights this may be necessary.
-    double optimize_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
+    double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
     double move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
 
@@ -73,7 +73,7 @@ template <class T> T* Optimiser::find_partition(Graph* graph)
   #ifdef DEBUG
     cerr << "Use default partition (all nodes in own community)" << endl;
   #endif
-  this->optimize_partition(partition);
+  this->optimise_partition(partition);
   return partition;
 }
 
@@ -83,7 +83,7 @@ template <class T> T* Optimiser::find_partition(Graph* graph, double resolution_
   #ifdef DEBUG
     cerr << "Use default partition (all nodes in own community)" << endl;
   #endif
-  this->optimize_partition(partition);
+  this->optimise_partition(partition);
   return partition;
 }
 

@@ -55,12 +55,12 @@ Optimiser::~Optimiser()
 }
 
 /*****************************************************************************
-  Optimize the provided partition.
+  optimise the provided partition.
 *****************************************************************************/
-double Optimiser::optimize_partition(MutableVertexPartition* partition)
+double Optimiser::optimise_partition(MutableVertexPartition* partition)
 {
   #ifdef DEBUG
-    cerr << "void Optimiser::optimize_partition(MutableVertexPartition* partition)" << endl;
+    cerr << "void Optimiser::optimise_partition(MutableVertexPartition* partition)" << endl;
   #endif
 
   #ifdef DEBUG
@@ -107,7 +107,7 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
       if (this->aggregate_smart_local_move)
         this->move_nodes_constrained(slm_partition, partition->membership());
       else
-        this->optimize_partition_constrained(slm_partition, partition->membership());
+        this->optimise_partition_constrained(slm_partition, partition->membership());
       #ifdef DEBUG
         cerr << "\tAfter applying SLM found " << partition->nb_communities() << " communities." << endl;
       #endif
@@ -205,11 +205,11 @@ double Optimiser::optimize_partition(MutableVertexPartition* partition)
 }
 
 /*****************************************************************************
-  Optimize the providede partitions simultaneously. We here use the sum
+  optimise the providede partitions simultaneously. We here use the sum
   of the difference of the moves as the overall quality function, each partition
   weighted by the layer weight.
 *****************************************************************************/
-double Optimiser::optimize_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
+double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
 {
   #ifdef DEBUG
     cerr << "vector<MutableVertexPartition*> Optimiser::find_partition(vector<MutableVertexPartition*> partitions)" << endl;
@@ -528,12 +528,12 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
 }
 
 /*****************************************************************************
-  Optimize the provided partition.
+  optimise the provided partition.
 *****************************************************************************/
-double Optimiser::optimize_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership)
+double Optimiser::optimise_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership)
 {
   #ifdef DEBUG
-    cerr << "void Optimiser::optimize_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership)" << endl;
+    cerr << "void Optimiser::optimise_partition_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership)" << endl;
   #endif
 
   #ifdef DEBUG
