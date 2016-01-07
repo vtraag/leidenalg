@@ -104,32 +104,26 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
     MutableVertexPartition* slm_partition = NULL;
 
     improv = 0.0;
-    // Try to move individual nodes again
-    // We need to move individual nodes before doing slm, because
-    // otherwise, moving individual nodes may possibly disconnected
-    // graphs again, which then needs to be corrected for by resorting to slm
-    if (this->move_individual)
-      improv += this->move_nodes(partition, this->consider_comms);
 
-    if (this->smart_local_move || this->aggregate_smart_local_move)
+    if (this->smart_local_move)
     {
       // First create a new partition
-      slm_partition = partition->create(graph);
+      slm_partition = collapsed_partition->create(graph);
 
       // Then move around nodes but restrict movement to within original communities.
       if (this->aggregate_smart_local_move)
-        this->move_nodes_constrained(slm_partition, partition->membership());
+        this->move_nodes_constrained(slm_partition, collapsed_partition->membership());
       else
-        this->optimise_partition_constrained(slm_partition, partition->membership());
+        this->optimise_partition_constrained(slm_partition, collapsed_partition->membership());
       #ifdef DEBUG
-        cerr << "\tAfter applying SLM found " << partition->nb_communities() << " communities." << endl;
+        cerr << "\tAfter applying SLM found " << slm_partition->nb_communities() << " communities." << endl;
       #endif
 
       // Collapse graph based on slm partition
-      collapsed_graph = graph->collapse_graph(slm_partition);
+      Graph* new_collapsed_graph = collapse_graph->collapse_graph(slm_partition);
 
       // Determine the membership for the collapsed graph
-      vector< size_t > collapsed_membership(collapsed_graph->vcount());
+      vector< size_t > new_collapsed_membership(new_collapsed_graph->vcount());
 
       // Every node within the collapsed graph should be assigned
       // to the community of the original partition before the slm.
@@ -140,27 +134,40 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
       #ifdef DEBUG
         cerr << "SLM\tOrig" << endl;
       #endif // DEBUG
-      for (size_t v = 0; v < graph->vcount(); v++)
+      for (size_t v = 0; v < collapsed_graph->vcount(); v++)
       {
-        collapsed_membership[slm_partition->membership(v)] = partition->membership(v);
+        size_t new_aggregate_node = slm_partition->membership(v);
+        new_collapsed_membership[new_aggregate_node] = collapsed_partition->membership(v);
         #ifdef DEBUG
-          cerr << slm_partition->membership(v) << "\t" << partition->membership(v) << endl;
+          cerr << slm_partition->membership(v) << "\t" << slm_partition->membership(v) << endl;
         #endif // DEBUG
       }
 
-      // Create collapsed cover. Each community here contains the collapsed
-      // nodes for the overlapping parts. The overlap is thus represented
-      // by collapsed nodes. Such a collapsed overlapping nodes joins all the nodes
-      // of that particular signature (i.e. being overlapped by the same set
-      // of nodes).
-      collapsed_partition = partition->create(collapsed_graph, collapsed_membership);
+      // Create collapsed partition. The
+      MutableVertexPartition* new_collapsed_partition = collapsed_partition->create(new_collapsed_graph, new_collapsed_membership);
+
+      // Delete the previsou collapsed partition and graph
+      delete collapsed_partition;
+      delete collapsed_graph;
+
+      // and set them to the new one.
+      collapsed_partition = new_collapsed_partition;
+      collapsed_graph = new_collapsed_graph;
     }
     else
     {
-      collapsed_graph = graph->collapse_graph(partition);
+      Graph* new_collapsed_graph = collapsed_graph->collapse_graph(collapsed_partition);
 
       // Create collapsed partition (i.e. default partition of each node in its own community).
-      collapsed_partition = partition->create(collapsed_graph);
+      MutableVertexPartition* new_collapsed_partition = collapsed_partition->create(collapsed_graph);
+
+      // Delete the previsou collapsed partition and graph
+      delete collapsed_partition;
+      delete collapsed_graph;
+
+      // and set them to the new one.
+      collapsed_partition = new_collapsed_partition;
+      collapsed_graph = new_collapsed_graph;
     }
     #ifdef DEBUG
       cerr <<   "Calculate partition quality." << endl;
