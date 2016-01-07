@@ -72,6 +72,7 @@ void Optimiser::print_settings()
 *****************************************************************************/
 double Optimiser::optimise_partition(MutableVertexPartition* partition)
 {
+  #define DEBUG
   #ifdef DEBUG
     cerr << "void Optimiser::optimise_partition(MutableVertexPartition* partition)" << endl;
   #endif
@@ -87,40 +88,62 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
     cerr << "Using graph at address " << graph << endl;
   #endif
 
+  // Do one iteration of optimisation
+  double improv = this->move_nodes(partition, this->consider_comms);
+
   // Declare the collapsed_graph variable which will contain the graph
   // collapsed by its communities. We will use this variables at each
   // further iteration, so we don't keep a collapsed graph at each pass.
-  Graph* collapsed_graph = NULL;
-  MutableVertexPartition* collapsed_partition = NULL;
+  Graph* collapsed_graph = graph;
+  MutableVertexPartition* collapsed_partition = partition;
 
-  // Do one iteration of optimisation
-  double improv = 2*this->eps;
+  // This reflects the aggregate node, which to start with is simply equal to the graph.
+  vector<size_t> aggregate_node_per_individual_node = range(graph->vcount());
+
   // As long as there remains improvement iterate
   while (improv > this->eps)
   {
     // First collapse graph (i.e. community graph)
     // If we do smart local movement, we separate communities in slightly more
     // fine-grained parts for which we collapse the graph.
-    MutableVertexPartition* slm_partition = NULL;
+    MutableVertexPartition* sub_collapsed_partition = NULL;
+
+    Graph* new_collapsed_graph = NULL;
+    MutableVertexPartition* new_collapsed_partition = NULL;
 
     improv = 0.0;
 
-    if (this->smart_local_move)
+    if (this->smart_local_move || this->aggregate_smart_local_move)
     {
-      // First create a new partition
-      slm_partition = collapsed_partition->create(graph);
+      // First create a new partition, which should be a sub partition
+      // of the collapsed partition, i.e. such that all clusters of
+      // the partition are strictly partitioned in the subpartition.
+      #ifdef DEBUG
+        cerr << "\tBefore SLM " << collapsed_partition->nb_communities() << " communities." << endl;
+      #endif
+      sub_collapsed_partition = collapsed_partition->create(collapsed_graph);
 
       // Then move around nodes but restrict movement to within original communities.
-      if (this->aggregate_smart_local_move)
-        this->move_nodes_constrained(slm_partition, collapsed_partition->membership());
-      else
-        this->optimise_partition_constrained(slm_partition, collapsed_partition->membership());
       #ifdef DEBUG
-        cerr << "\tAfter applying SLM found " << slm_partition->nb_communities() << " communities." << endl;
+        cerr << "\tStarting SLM with " << sub_collapsed_partition->nb_communities() << " communities." << endl;
+      #endif
+      if (this->aggregate_smart_local_move)
+        this->optimise_partition_constrained(sub_collapsed_partition, collapsed_partition->membership());
+      else
+        this->move_nodes_constrained(sub_collapsed_partition, collapsed_partition->membership());
+      #ifdef DEBUG
+        cerr << "\tAfter applying SLM found " << sub_collapsed_partition->nb_communities() << " communities." << endl;
       #endif
 
-      // Collapse graph based on slm partition
-      Graph* new_collapsed_graph = collapse_graph->collapse_graph(slm_partition);
+      // Determine new aggregate node per individual node
+      for (size_t v = 0; v < graph->vcount(); v++)
+      {
+        size_t aggregate_node = aggregate_node_per_individual_node[v];
+        aggregate_node_per_individual_node[v] = sub_collapsed_partition->membership(aggregate_node);
+      }
+
+      // Collapse graph based on sub collapsed partition
+      new_collapsed_graph = collapsed_graph->collapse_graph(sub_collapsed_partition);
 
       // Determine the membership for the collapsed graph
       vector< size_t > new_collapsed_membership(new_collapsed_graph->vcount());
@@ -136,19 +159,45 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
       #endif // DEBUG
       for (size_t v = 0; v < collapsed_graph->vcount(); v++)
       {
-        size_t new_aggregate_node = slm_partition->membership(v);
+        size_t new_aggregate_node = sub_collapsed_partition->membership(v);
         new_collapsed_membership[new_aggregate_node] = collapsed_partition->membership(v);
         #ifdef DEBUG
-          cerr << slm_partition->membership(v) << "\t" << slm_partition->membership(v) << endl;
+          cerr << sub_collapsed_partition->membership(v) << "\t" << sub_collapsed_partition->membership(v) << endl;
         #endif // DEBUG
       }
 
       // Create collapsed partition. The
-      MutableVertexPartition* new_collapsed_partition = collapsed_partition->create(new_collapsed_graph, new_collapsed_membership);
+      new_collapsed_partition = collapsed_partition->create(new_collapsed_graph, new_collapsed_membership);
 
-      // Delete the previsou collapsed partition and graph
-      delete collapsed_partition;
-      delete collapsed_graph;
+      // Delete the previous collapsed partition and graph
+      if (collapsed_partition != partition)
+        delete collapsed_partition;
+      if (collapsed_graph != graph)
+        delete collapsed_graph;
+
+      // and set them to the new one.
+      collapsed_partition = new_collapsed_partition;
+      collapsed_graph = new_collapsed_graph;
+    }
+    else if (this->move_individual)
+    {
+      #ifdef DEBUG
+        cerr << "Quality before moving individual nodes " << partition->quality() << endl;
+      #endif
+      improv += this->move_nodes(partition, this->consider_comms);
+      #ifdef DEBUG
+        cerr << "Found " << partition->nb_communities() << " communities, improved " << improv << endl;
+        cerr << "Quality after moving individual nodes " << partition->quality() << endl;
+      #endif
+
+      new_collapsed_graph = graph->collapse_graph(partition);
+      new_collapsed_partition = partition->create(new_collapsed_graph);
+
+      // Delete the previous collapsed partition and graph
+      if (collapsed_partition != partition)
+        delete collapsed_partition;
+      if (collapsed_graph != graph)
+        delete collapsed_graph;
 
       // and set them to the new one.
       collapsed_partition = new_collapsed_partition;
@@ -156,14 +205,16 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
     }
     else
     {
-      Graph* new_collapsed_graph = collapsed_graph->collapse_graph(collapsed_partition);
+      new_collapsed_graph = collapsed_graph->collapse_graph(collapsed_partition);
 
       // Create collapsed partition (i.e. default partition of each node in its own community).
-      MutableVertexPartition* new_collapsed_partition = collapsed_partition->create(collapsed_graph);
+      new_collapsed_partition = collapsed_partition->create(new_collapsed_graph);
 
-      // Delete the previsou collapsed partition and graph
-      delete collapsed_partition;
-      delete collapsed_graph;
+      // Delete the previous collapsed partition and graph
+      if (collapsed_partition != partition)
+        delete collapsed_partition;
+      if (collapsed_graph != graph)
+        delete collapsed_graph;
 
       // and set them to the new one.
       collapsed_partition = new_collapsed_partition;
@@ -196,25 +247,26 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
     #endif
     improv += this->move_nodes(collapsed_partition, this->consider_comms);
     #ifdef DEBUG
-      cerr << "Found " << partition->nb_communities() << " communities, improved " << improv << endl;
+      cerr << "Found " << collapsed_partition->nb_communities() << " communities, improved " << improv << endl;
       cerr << "Quality after moving " << collapsed_partition->quality() << endl << endl;
     #endif // DEBUG
 
     // Make sure improvement on coarser scale is reflected on the
     // scale of the graph as a whole.
-    if (this->smart_local_move)
-      partition->from_coarser_partition(collapsed_partition, slm_partition->membership());
+    if (this->smart_local_move || this->aggregate_smart_local_move)
+      partition->from_coarser_partition(collapsed_partition, aggregate_node_per_individual_node);
     else
       partition->from_coarser_partition(collapsed_partition);
 
     #ifdef DEBUG
       cerr << "Quality on finer partition " << partition->quality() << endl << endl;
     #endif // DEBUG
-
-    // Clean up memory after use.
-    delete collapsed_partition;
-    delete collapsed_graph;
   }
+
+  // Clean up memory after use.
+  delete collapsed_partition;
+  delete collapsed_graph;
+
   // We renumber the communities to make sure we stick in the range
   // 0,1,...,r - 1 for r communities.
   // By default, we number the communities in decreasing order of size,
@@ -222,6 +274,7 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
   partition->renumber_communities();
   // Return the quality of the current partition.
   return partition->quality();
+  #undef DEBUG
 }
 
 /*****************************************************************************

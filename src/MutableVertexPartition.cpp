@@ -414,9 +414,6 @@ void MutableVertexPartition::from_coarser_partition(vector<size_t> const& coarse
   // Read the coarser partition
   for (size_t v = 0; v < this->graph->vcount(); v++)
   {
-    // What is the community of the node
-    size_t v_comm_level1 = this->_membership[v];
-
     // In the coarser partition, the node should have the community id
     // as represented by the coarser_membership vector
     size_t v_level2 = coarser_node[v];
