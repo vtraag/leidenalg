@@ -162,7 +162,7 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
         size_t new_aggregate_node = sub_collapsed_partition->membership(v);
         new_collapsed_membership[new_aggregate_node] = collapsed_partition->membership(v);
         #ifdef DEBUG
-          cerr << sub_collapsed_partition->membership(v) << "\t" << sub_collapsed_partition->membership(v) << endl;
+          //cerr << sub_collapsed_partition->membership(v) << "\t" << sub_collapsed_partition->membership(v) << endl;
         #endif // DEBUG
       }
 
