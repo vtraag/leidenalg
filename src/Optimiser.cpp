@@ -1,7 +1,5 @@
 #include "Optimiser.h"
 
-#define DEBUG
-
 /****************************************************************************
   Create a new Optimiser object
 
