@@ -207,6 +207,8 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
     // Clean up memory after use.
     delete collapsed_partition;
     delete collapsed_graph;
+    if (slm_partition != NULL)
+      delete slm_partition;
   }
   // We renumber the communities to make sure we stick in the range
   // 0,1,...,r - 1 for r communities.
