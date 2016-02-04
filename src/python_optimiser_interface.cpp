@@ -112,7 +112,7 @@ extern "C"
 
       PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
       #ifdef DEBUG
-        cerr << "Layer weight " << layer_weight << endl;
+        cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
       #endif
 
       partitions[layer] = partition;
@@ -419,7 +419,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_random_order(" << random_order << ");" << endl;
+      cerr << "get_random_order();" << endl;
     #endif
 
     #ifdef DEBUG
@@ -539,7 +539,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_move_individual(" << move_individual << ");" << endl;
+      cerr << "get_move_individual();" << endl;
     #endif
 
     #ifdef DEBUG
@@ -599,7 +599,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_consider_empty_community(" << consider_empty_community << ");" << endl;
+      cerr << "get_consider_empty_community();" << endl;
     #endif
 
     #ifdef DEBUG
@@ -659,7 +659,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_smart_local_move(" << smart_local_move << ");" << endl;
+      cerr << "get_smart_local_move();" << endl;
     #endif
 
     #ifdef DEBUG
@@ -719,7 +719,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_aggregate_smart_local_move(" << aggregate_smart_local_move << ");" << endl;
+      cerr << "get_aggregate_smart_local_move();" << endl;
     #endif
 
     #ifdef DEBUG
