@@ -35,7 +35,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   # Init
   def __init__(self, graph, method, initial_membership=None,
-      weight=None, resolution_parameter=1.0):
+      weight=None, node_sizes=None, resolution_parameter=1.0):
     """ Create a new vertex partition.
 
     Parameters:
@@ -46,8 +46,6 @@ class MutableVertexPartition(_ig.VertexClustering):
                           initialised with each node in its own community.
       weight_attr=None -- What edge attribute should be used as a weight for the
                           edges? If None, the weight defaults to 1."""
-    if not initial_membership:
-      initial_membership = range(graph.vcount());
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
     self._method = method;
     pygraph_t = _get_py_capsule(graph);
@@ -60,7 +58,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     if initial_membership is not None:
       gen = _ig.UniqueIdGenerator();
       initial_membership = [gen[m] for m in initial_membership];
-    self._partition = _c_louvain._new_MutableVertexPartition(pygraph_t, method, initial_membership, weight, resolution_parameter);
+    self._partition = _c_louvain._new_MutableVertexPartition(pygraph_t, method, initial_membership, weight, node_sizes, resolution_parameter);
 
   @classmethod
   def _FromCPartition(cls, partition):
@@ -150,21 +148,21 @@ class ModularityVertexPartition(MutableVertexPartition):
   modularity. """
   def __init__(self, graph, initial_membership=None,
       weight=None):
-    super(ModularityVertexPartition, self).__init__(graph, 'Modularity', initial_membership, weight);
+    super(ModularityVertexPartition, self).__init__(graph, 'Modularity', initial_membership, weight=weight);
 
 class SurpriseVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   Surprise. """
-  def __init__(self, graph, initial_membership=None,
+  def __init__(self, graph, initial_membership=None, node_sizes=None,
       weight=None):
-    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, weight);
+    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, node_sizes, weight);
 
 class SignficanceVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   Significance. """
-  def __init__(self, graph, initial_membership=None,
+  def __init__(self, graph, initial_membership=None, node_sizes=None,
       weight=None):
-    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, weight);
+    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, node_sizes, weight);
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """ Some quality functions have a linear resolution parameter, for which the
@@ -198,20 +196,20 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
 class RBERVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RBER, which uses a Erdos-Renyi graph as a null model. """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
       weight=None):
-    super(RBERVertexPartition, self).__init__(graph, 'RBER', initial_membership, weight, resolution_parameter);
+    super(RBERVertexPartition, self).__init__(graph, 'RBER', initial_membership, weight, node_sizes, resolution_parameter);
 
 class RBConfigurationVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RB Configuration model (i.e. modularity with a resolution parameter). """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
-    super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight, resolution_parameter);
+    super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight=weight, resolution_parameter=resolution_parameter);
 
 class CPMVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   CPM. """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
       weight=None):
-    super(CPMVertexPartition, self).__init__(graph, 'CPM', initial_membership, weight, resolution_parameter);
+    super(CPMVertexPartition, self).__init__(graph, 'CPM', initial_membership, weight, node_sizes, resolution_parameter);
