@@ -166,6 +166,40 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights)
   this->set_self_weights();
 }
 
+Graph::Graph(igraph_t* graph, vector<size_t> node_sizes, int correct_self_loops)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->_correct_self_loops = correct_self_loops;
+
+  if (node_sizes.size() != this->vcount())
+    throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
+  this->_node_sizes = node_sizes;
+
+  this->set_default_edge_weight();
+  this->_is_weighted = false;
+  this->init_admin();
+  this->set_self_weights();
+}
+
+Graph::Graph(igraph_t* graph, vector<size_t> node_sizes)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->set_defaults();
+  this->_is_weighted = false;
+
+  if (node_sizes.size() != this->vcount())
+    throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
+
+  this->_node_sizes = node_sizes;
+
+  this->_correct_self_loops = this->has_self_loops();
+
+  this->init_admin();
+  this->set_self_weights();
+}
+
 Graph::Graph(igraph_t* graph, int correct_self_loops)
 {
   this->_graph = graph;

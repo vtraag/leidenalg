@@ -73,6 +73,8 @@ class Graph
       vector<size_t> node_sizes);
     Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loops);
     Graph(igraph_t* graph, vector<double> edge_weights);
+    Graph(igraph_t* graph, vector<size_t> node_sizes, int correct_self_loops);
+    Graph(igraph_t* graph, vector<size_t> node_sizes);
     Graph(igraph_t* graph, int correct_self_loops);
     Graph(igraph_t* graph);
     Graph();

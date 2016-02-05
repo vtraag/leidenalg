@@ -1,5 +1,7 @@
 #include "python_partition_interface.h"
 
+#define DEBUG
+
 MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter)
 {
   MutableVertexPartition* partition;
@@ -71,7 +73,7 @@ MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size
 }
 
 // The graph is also created, don't forget to remove it!
-MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, double resolution_parameter)
+MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter)
 {
   #if PY_MAJOR_VERSION >= 3
     igraph_t* py_graph = (igraph_t*) PyCapsule_GetPointer(py_obj_graph, NULL);
@@ -87,23 +89,50 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
   #ifdef DEBUG
     cerr << "Creating graph."<< endl;
   #endif
+
+  size_t n = igraph_vcount(py_graph);
+  size_t m = igraph_ecount(py_graph);
+
+  vector<size_t> node_sizes;
+  vector<double> weights;
+  if (py_node_sizes != NULL && py_node_sizes != Py_None)
+  {
+    #ifdef DEBUG
+      cerr << "Reading node_sizes." << endl;
+    #endif
+
+    size_t nb_node_size = PyList_Size(py_node_sizes);
+    node_sizes.resize(n);
+    for (size_t v = 0; v < nb_node_size; v++)
+      node_sizes[v] = PyLong_AsLong(PyList_GetItem(py_node_sizes, v));
+  }
+
   if (py_weights != NULL && py_weights != Py_None)
   {
     #ifdef DEBUG
       cerr << "Reading weights." << endl;
     #endif
-    vector<double> weights;
-    size_t m = PyList_Size(py_weights);
+    size_t nb_weights = PyList_Size(py_weights);
     weights.resize(m);
-    for (size_t e = 0; e < m; e++)
+    for (size_t e = 0; e < nb_weights; e++)
       weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
+  }
 
-    graph = new Graph(py_graph, weights);
+  if (node_sizes.size() == n)
+  {
+    if (weights.size() == m)
+      graph = new Graph(py_graph, weights, node_sizes);
+    else
+      graph = new Graph(py_graph, node_sizes);
   }
   else
   {
-    graph = new Graph(py_graph);
+    if (weights.size() == m)
+      graph = new Graph(py_graph, weights);
+    else
+      graph = new Graph(py_graph);
   }
+
   #ifdef DEBUG
     cerr << "Created graph " << graph << endl;
     cerr << "Number of nodes " << graph->vcount() << endl;
@@ -160,20 +189,21 @@ extern "C"
   PyObject* _new_MutableVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_obj_graph = NULL;
-    PyObject* py_initial_membership = NULL;
     char* method = "Modularity";
+    PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
+    PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "method", "initial_membership", "weights", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "method", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Os|OOd", kwlist,
-                                     &py_obj_graph, &method, &py_initial_membership, &py_weights, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Os|OOOd", kwlist,
+                                     &py_obj_graph, &method, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
     try
     {
-      MutableVertexPartition* partition = create_partition_from_py(py_obj_graph, method, py_initial_membership, py_weights, resolution_parameter);
+      MutableVertexPartition* partition = create_partition_from_py(py_obj_graph, method, py_initial_membership, py_weights, py_node_sizes, resolution_parameter);
 
       PyObject* py_partition = capsule_MutableVertexPartition(partition);
       #ifdef DEBUG
