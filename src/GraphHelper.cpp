@@ -417,6 +417,10 @@ void Graph::init_admin()
     this->_degree_all[v] = VECTOR(res)[v];
   igraph_vector_destroy(&res);
 
+  this->_weight_from_community.resize(n);
+  this->_weight_to_community.resize(n);
+  _current_node_cache_weight_tofrom_community = n + 1;
+
   // Calculate density;
   double w = this->total_weight();
   size_t n_size = this->total_size();
@@ -478,12 +482,31 @@ void Graph::init_weighted_neigh_selection()
   this->_initialized_weighted_neigh_selection = true;
 }
 
-
 double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode)
+{
+  if (_current_node_cache_weight_tofrom_community != v)
+  {
+    cache_weight_tofrom_community(v, membership, IGRAPH_IN);
+    cache_weight_tofrom_community(v, membership, IGRAPH_OUT);
+    _current_node_cache_weight_tofrom_community = v;
+  }
+
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      return _weight_from_community[comm];
+    case IGRAPH_OUT:
+      return _weight_to_community[comm];
+    default:
+      throw Exception("Unknown direction mode.");
+  }
+}
+
+void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, igraph_neimode_t mode)
 {
   // Weight between vertex and community
   #ifdef DEBUG
-    cerr << "double Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "double Graph::cache_weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
   #endif
   double total_w = 0.0;
   size_t degree = this->degree(v, mode);
@@ -492,6 +515,23 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
   igraph_vector_init(&neighbours, degree);
   igraph_incident(this->_graph, &incident_edges, v, mode);
   igraph_neighbors(this->_graph, &neighbours, v, mode);
+
+  vector<double>* _weight_tofrom_community;
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      _weight_tofrom_community = &(this->_weight_from_community);
+      break;
+    case IGRAPH_OUT:
+      _weight_tofrom_community = &(this->_weight_to_community);
+      break;
+  }
+
+  // Reset cache
+  size_t n = this->vcount();
+  for (size_t c = 0; c < n; c++)
+    (*_weight_tofrom_community)[c] = 0.0;
+
   for (size_t i = 0; i < degree; i++)
   {
     size_t u = VECTOR(neighbours)[i];
@@ -500,19 +540,17 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     #ifdef DEBUG
       size_t u_comm = (*membership)[u];
     #endif
-    if ((*membership)[u] == comm)
-    {
-      size_t e = VECTOR(incident_edges)[i];
-      // Get the weight of the edge
-      double w = this->_edge_weights[e];
-      // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
-      if (u == v && !this->is_directed())
-          w /= 2.0;
-      #ifdef DEBUG
-        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
-      #endif
-      total_w += w;
-    }
+    size_t comm = (*membership)[u];
+    size_t e = VECTOR(incident_edges)[i];
+    // Get the weight of the edge
+    double w = this->_edge_weights[e];
+    // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
+    if (u == v && !this->is_directed())
+        w /= 2.0;
+    #ifdef DEBUG
+      cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+    #endif
+    (*_weight_tofrom_community)[comm] += w;
     #ifdef DEBUG
     else
     {
@@ -523,9 +561,8 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
   igraph_vector_destroy(&incident_edges);
   igraph_vector_destroy(&neighbours);
   #ifdef DEBUG
-    cerr << "exit Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "exit Graph::cache_weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
   #endif
-  return total_w;
 }
 
 vector< pair<size_t, size_t> >*
