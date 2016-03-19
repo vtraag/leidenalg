@@ -84,9 +84,9 @@ size_t MutableVertexPartition::csize(size_t comm)
     return 0;
 }
 
-set<size_t>* MutableVertexPartition::get_community(size_t comm)
+set<size_t> const& MutableVertexPartition::get_community(size_t comm)
 {
-  return this->community[comm];
+  return *(this->community[comm]);
 }
 
 size_t MutableVertexPartition::nb_communities()
@@ -507,7 +507,7 @@ double MutableVertexPartition::weight_from_comm(size_t v, size_t comm)
 *****************************************************************************/
 double MutableVertexPartition::weight_vertex_tofrom_comm(size_t v, size_t comm, igraph_neimode_t mode)
 {
-  return this->graph->weight_tofrom_community(v, comm, &(this->_membership), mode);
+  return this->graph->weight_tofrom_community(v, comm, this->_membership, mode);
 }
 
 set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
