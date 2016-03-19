@@ -57,7 +57,7 @@ class MutableVertexPartition
     inline vector<size_t> const& membership() const { return this->_membership; };
 
     size_t csize(size_t comm);
-    set<size_t>* get_community(size_t comm);
+    set<size_t> const& get_community(size_t comm);
     size_t nb_communities();
 
     void move_node(size_t v,size_t new_comm);

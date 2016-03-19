@@ -60,23 +60,23 @@ class Graph
 {
   public:
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes,
-      vector<double> node_self_weights, int correct_self_loops);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes,
+      vector<double> const& node_self_weights, int correct_self_loops);
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes,
-      vector<double> node_self_weights);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes,
+      vector<double> const& node_self_weights);
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes, int correct_self_loops);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes, int correct_self_loops);
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes);
-    Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loops);
-    Graph(igraph_t* graph, vector<double> edge_weights);
-    Graph(igraph_t* graph, vector<size_t> node_sizes, int correct_self_loops);
-    Graph(igraph_t* graph, vector<size_t> node_sizes);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes);
+    Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops);
+    Graph(igraph_t* graph, vector<double> const& edge_weights);
+    Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops);
+    Graph(igraph_t* graph, vector<size_t> const& node_sizes);
     Graph(igraph_t* graph, int correct_self_loops);
     Graph(igraph_t* graph);
     Graph();
@@ -88,8 +88,8 @@ class Graph
 
     Graph* collapse_graph(MutableVertexPartition* partition);
 
-    double weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode);
-    void cache_weight_tofrom_community(size_t v, vector<size_t>* membership, igraph_neimode_t mode);
+    double weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode);
+    void cache_weight_tofrom_community(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
     vector< pair<size_t, size_t> >*
       get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector< size_t >*

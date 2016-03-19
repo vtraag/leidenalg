@@ -47,9 +47,9 @@ double KLL(double q, double p)
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes,
-  vector<double> node_self_weights, int correct_self_loops)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes,
+  vector<double> const& node_self_weights, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -72,9 +72,9 @@ Graph::Graph(igraph_t* graph,
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes,
-  vector<double> node_self_weights)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes,
+  vector<double> const& node_self_weights)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -95,8 +95,8 @@ Graph::Graph(igraph_t* graph,
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes, int correct_self_loops)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -116,8 +116,8 @@ Graph::Graph(igraph_t* graph,
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -136,7 +136,7 @@ Graph::Graph(igraph_t* graph,
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loops)
+Graph::Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -150,7 +150,7 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loop
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<double> edge_weights)
+Graph::Graph(igraph_t* graph, vector<double> const& edge_weights)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -166,7 +166,7 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights)
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<size_t> node_sizes, int correct_self_loops)
+Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -182,7 +182,7 @@ Graph::Graph(igraph_t* graph, vector<size_t> node_sizes, int correct_self_loops)
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<size_t> node_sizes)
+Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -482,7 +482,7 @@ void Graph::init_weighted_neigh_selection()
   this->_initialized_weighted_neigh_selection = true;
 }
 
-double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode)
+double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode)
 {
   if (_current_node_cache_weight_tofrom_community != v)
   {
@@ -511,7 +511,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     return 0.0;
 }
 
-void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, igraph_neimode_t mode)
+void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& membership, igraph_neimode_t mode)
 {
   // Weight between vertex and community
   #ifdef DEBUG
@@ -548,7 +548,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
     #ifdef DEBUG
       size_t u_comm = (*membership)[u];
     #endif
-    size_t comm = (*membership)[u];
+    size_t comm = membership[u];
     size_t e = VECTOR(incident_edges)[i];
     // Get the weight of the edge
     double w = this->_edge_weights[e];
