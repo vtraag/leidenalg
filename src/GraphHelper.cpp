@@ -426,7 +426,7 @@ void Graph::init_admin()
   size_t n_size = this->total_size();
 
   // For now we default to not correcting self loops.
-  // this->_correct_self_loops = false; (remove this as this is set in the constructor)
+  // this->_correct_self_loops = false; (remove this as this is unordered_set in the constructor)
 
   double normalise = 0.0;
   if (this->_correct_self_loops)
@@ -492,7 +492,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
   }
 
   vector<double>* _cached_weight_tofrom_community;
-  set<size_t>* _cached_neighs;
+  unordered_set<size_t>* _cached_neighs;
   switch (mode)
   {
     case IGRAPH_IN:
@@ -526,7 +526,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
   igraph_neighbors(this->_graph, &neighbours, v, mode);
 
   vector<double>* _cached_weight_tofrom_community;
-  set<size_t>* _cached_neighs;
+  unordered_set<size_t>* _cached_neighs;
   switch (mode)
   {
     case IGRAPH_IN:
