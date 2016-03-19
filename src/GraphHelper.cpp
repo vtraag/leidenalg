@@ -417,8 +417,6 @@ void Graph::init_admin()
     this->_degree_all[v] = VECTOR(res)[v];
   igraph_vector_destroy(&res);
 
-  this->_weight_from_community.resize(n);
-  this->_weight_to_community.resize(n);
   _current_node_cache_weight_tofrom_community = n + 1;
 
   // Calculate density;
@@ -491,15 +489,22 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     _current_node_cache_weight_tofrom_community = v;
   }
 
+  map<size_t, double>* _weight_tofrom_community;
   switch (mode)
   {
     case IGRAPH_IN:
-      return _weight_from_community[comm];
+      _weight_tofrom_community = &(this->_weight_from_community);
+      break;
     case IGRAPH_OUT:
-      return _weight_to_community[comm];
-    default:
-      throw Exception("Unknown direction mode.");
+      _weight_tofrom_community = &(this->_weight_to_community);
+      break;
   }
+
+  map<size_t, double>::iterator it_comm = _weight_tofrom_community->find(comm);
+  if (it_comm == _weight_tofrom_community->end())
+    return 0;
+  else
+    return it_comm->second;
 }
 
 void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, igraph_neimode_t mode)
@@ -516,7 +521,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
   igraph_incident(this->_graph, &incident_edges, v, mode);
   igraph_neighbors(this->_graph, &neighbours, v, mode);
 
-  vector<double>* _weight_tofrom_community;
+  map<size_t, double>* _weight_tofrom_community;
   switch (mode)
   {
     case IGRAPH_IN:
@@ -528,9 +533,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
   }
 
   // Reset cache
-  size_t n = this->vcount();
-  for (size_t c = 0; c < n; c++)
-    (*_weight_tofrom_community)[c] = 0.0;
+  _weight_tofrom_community->clear();
 
   for (size_t i = 0; i < degree; i++)
   {
@@ -550,7 +553,11 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
     #ifdef DEBUG
       cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
     #endif
-    (*_weight_tofrom_community)[comm] += w;
+    map<size_t, double>::iterator it_comm = _weight_tofrom_community->find(comm);
+    if (it_comm == _weight_tofrom_community->end())
+      _weight_tofrom_community->insert(make_pair(comm, w));
+    else
+      it_comm->second += w;
     #ifdef DEBUG
     else
     {

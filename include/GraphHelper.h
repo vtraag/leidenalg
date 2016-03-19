@@ -3,6 +3,7 @@
 
 #include <igraph.h>
 #include <vector>
+#include <map>
 #include <exception>
 #include <gsl_rng.h>
 #include <gsl_randist.h>
@@ -18,6 +19,7 @@ class MutableVertexPartition;
 using std::vector;
 using std::pair;
 using std::make_pair;
+using std::map;
 
 vector<size_t> range(size_t n);
 
@@ -184,8 +186,8 @@ class Graph
     vector<size_t> _node_sizes; // Used for the size of the nodes.
     vector<double> _node_self_weights; // Used for the self weight of the nodes.
 
-    vector<double> _weight_from_community;
-    vector<double> _weight_to_community;
+    map<size_t, double> _weight_from_community;
+    map<size_t, double> _weight_to_community;
     size_t _current_node_cache_weight_tofrom_community;
 
     double _total_weight;
