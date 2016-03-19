@@ -417,6 +417,8 @@ void Graph::init_admin()
     this->_degree_all[v] = VECTOR(res)[v];
   igraph_vector_destroy(&res);
 
+  this->_cached_weight_from_community.resize(n);
+  this->_cached_weight_to_community.resize(n);
   _current_node_cache_weight_tofrom_community = n + 1;
 
   // Calculate density;
@@ -489,22 +491,24 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     _current_node_cache_weight_tofrom_community = v;
   }
 
-  map<size_t, double>* _weight_tofrom_community;
+  vector<double>* _cached_weight_tofrom_community;
+  set<size_t>* _cached_neighs;
   switch (mode)
   {
     case IGRAPH_IN:
-      _weight_tofrom_community = &(this->_weight_from_community);
+      _cached_weight_tofrom_community = &(this->_cached_weight_from_community);
+      _cached_neighs = &(this->_cached_neighs_from);
       break;
     case IGRAPH_OUT:
-      _weight_tofrom_community = &(this->_weight_to_community);
+      _cached_weight_tofrom_community = &(this->_cached_weight_to_community);
+      _cached_neighs = &(this->_cached_neighs_to);
       break;
   }
 
-  map<size_t, double>::iterator it_comm = _weight_tofrom_community->find(comm);
-  if (it_comm == _weight_tofrom_community->end())
-    return 0;
+  if (_cached_neighs->count(comm) > 0)
+    return (*_cached_weight_tofrom_community)[comm];
   else
-    return it_comm->second;
+    return 0.0;
 }
 
 void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, igraph_neimode_t mode)
@@ -521,20 +525,21 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
   igraph_incident(this->_graph, &incident_edges, v, mode);
   igraph_neighbors(this->_graph, &neighbours, v, mode);
 
-  map<size_t, double>* _weight_tofrom_community;
+  vector<double>* _cached_weight_tofrom_community;
+  set<size_t>* _cached_neighs;
   switch (mode)
   {
     case IGRAPH_IN:
-      _weight_tofrom_community = &(this->_weight_from_community);
+      _cached_weight_tofrom_community = &(this->_cached_weight_from_community);
+      _cached_neighs = &(this->_cached_neighs_from);
       break;
     case IGRAPH_OUT:
-      _weight_tofrom_community = &(this->_weight_to_community);
+      _cached_weight_tofrom_community = &(this->_cached_weight_to_community);
+      _cached_neighs = &(this->_cached_neighs_to);
       break;
   }
 
-  // Reset cache
-  _weight_tofrom_community->clear();
-
+  _cached_neighs->clear();
   for (size_t i = 0; i < degree; i++)
   {
     size_t u = VECTOR(neighbours)[i];
@@ -553,11 +558,15 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t>* membership, 
     #ifdef DEBUG
       cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
     #endif
-    map<size_t, double>::iterator it_comm = _weight_tofrom_community->find(comm);
-    if (it_comm == _weight_tofrom_community->end())
-      _weight_tofrom_community->insert(make_pair(comm, w));
+    if (_cached_neighs->count(comm) > 0)
+    {
+      (*_cached_weight_tofrom_community)[comm] += w;
+    }
     else
-      it_comm->second += w;
+    {
+      _cached_neighs->insert(comm);
+      (*_cached_weight_tofrom_community)[comm] = w;
+    }
     #ifdef DEBUG
     else
     {
