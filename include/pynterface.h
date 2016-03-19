@@ -55,7 +55,6 @@ extern "C"
       {"_Optimiser_set_move_individual",            (PyCFunction)_Optimiser_set_move_individual,            METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_consider_empty_community",   (PyCFunction)_Optimiser_set_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_smart_local_move",           (PyCFunction)_Optimiser_set_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_aggregate_smart_local_move", (PyCFunction)_Optimiser_set_aggregate_smart_local_move, METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_Optimiser_get_eps",                        (PyCFunction)_Optimiser_get_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_delta",                      (PyCFunction)_Optimiser_get_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
@@ -65,7 +64,6 @@ extern "C"
       {"_Optimiser_get_move_individual",            (PyCFunction)_Optimiser_get_move_individual,            METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_consider_empty_community",   (PyCFunction)_Optimiser_get_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_smart_local_move",           (PyCFunction)_Optimiser_get_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_get_aggregate_smart_local_move", (PyCFunction)_Optimiser_get_aggregate_smart_local_move, METH_VARARGS | METH_KEYWORDS, ""},
 
       {NULL}
   };

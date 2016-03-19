@@ -44,7 +44,6 @@ extern "C"
   PyObject* _Optimiser_set_move_individual(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_set_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _Optimiser_get_eps(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_delta(PyObject *self, PyObject *args, PyObject *keywds);
@@ -54,7 +53,6 @@ extern "C"
   PyObject* _Optimiser_get_move_individual(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_get_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
 
 #ifdef __cplusplus
 }

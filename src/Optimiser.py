@@ -102,16 +102,6 @@ class Optimiser(object):
   def smart_local_move(self, value):
     _c_louvain._Optimiser_set_smart_local_move(self._optimiser, value);
 
-  #########################################################3
-  # aggregate_smart_local_move
-  @property
-  def aggregate_smart_local_move(self):
-    return _c_louvain._Optimiser_get_aggregate_smart_local_move(self._optimiser);
-
-  @aggregate_smart_local_move.setter
-  def aggregate_smart_local_move(self, value):
-    _c_louvain._Optimiser_set_aggregate_smart_local_move(self._optimiser, value);
-
   def optimise_partition(self, partition):
     """ Find optimal partition given the specific type of partition_class that
     is provided.

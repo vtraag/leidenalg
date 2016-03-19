@@ -37,6 +37,7 @@ class Optimiser
     double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
     double move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> const & constrained_membership);
+    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> const & constrained_membership);
 
     virtual ~Optimiser();
 
@@ -46,7 +47,6 @@ class Optimiser
     int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
     int smart_local_move; // Do smart local move
-    int aggregate_smart_local_move; // Do aggregate smart local move (implies smart local move)
     int consider_empty_community; // Indicates whether we will also consider to move a node to an empty community
     int move_individual; // We consider to move individual nodes after aggregation
 

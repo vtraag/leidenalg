@@ -672,66 +672,6 @@ extern "C"
 
     return PyBool_FromLong(optimiser->smart_local_move);
   }
-
-  PyObject* _Optimiser_set_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_optimiser = NULL;
-    int aggregate_smart_local_move = false;
-    static char* kwlist[] = {"optimiser", "aggregate_smart_local_move", NULL};
-
-    #ifdef DEBUG
-      cerr << "Parsing arguments..." << endl;
-    #endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
-                                     &py_optimiser, &aggregate_smart_local_move))
-        return NULL;
-
-    #ifdef DEBUG
-      cerr << "set_aggregate_smart_local_move(" << aggregate_smart_local_move << ");" << endl;
-    #endif
-
-    #ifdef DEBUG
-      cerr << "Capsule optimiser at address " << py_optimiser << endl;
-    #endif
-    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
-    #ifdef DEBUG
-      cerr << "Using optimiser at address " << optimiser << endl;
-    #endif
-
-    optimiser->aggregate_smart_local_move = aggregate_smart_local_move;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-  }
-
-  PyObject* _Optimiser_get_aggregate_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_optimiser = NULL;
-    static char* kwlist[] = {"optimiser", NULL};
-
-    #ifdef DEBUG
-      cerr << "Parsing arguments..." << endl;
-    #endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
-                                     &py_optimiser))
-        return NULL;
-
-    #ifdef DEBUG
-      cerr << "get_aggregate_smart_local_move();" << endl;
-    #endif
-
-    #ifdef DEBUG
-      cerr << "Capsule optimiser at address " << py_optimiser << endl;
-    #endif
-    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
-    #ifdef DEBUG
-      cerr << "Using optimiser at address " << optimiser << endl;
-    #endif
-
-    return PyBool_FromLong(optimiser->aggregate_smart_local_move);
-  }
 #ifdef __cplusplus
 }
 #endif
