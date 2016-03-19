@@ -1058,6 +1058,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->renumber_communities(membership);
+    #ifdef DEBUG
+      cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->nb_communities() << " communities." << endl;
+    #endif DEBUG
   }
   return total_improv;
 }
