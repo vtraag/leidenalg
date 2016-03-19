@@ -74,7 +74,7 @@ class MutableVertexPartition
 
     void renumber_communities();
     void renumber_communities(vector<size_t> const& new_membership);
-    size_t add_empty_community();
+    size_t get_empty_community();
     void from_coarser_partition(vector<size_t> const& coarser_partition_membership);
     void from_coarser_partition(MutableVertexPartition* partition);
     void from_coarser_partition(MutableVertexPartition* partition, vector<size_t> const& coarser_membership);
@@ -126,6 +126,8 @@ class MutableVertexPartition
     // Keep track of the total internal weight
     double _total_weight_in_all_comms;
     size_t _total_possible_edges_in_all_comms;
+
+    vector<size_t> _empty_communities;
 
     void clean_mem();
     void init_graph_admin();
