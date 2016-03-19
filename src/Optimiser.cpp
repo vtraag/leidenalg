@@ -204,7 +204,10 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
       // Create new collapsed partition
       for (size_t layer = 0; layer < nb_layers; layer++)
+      {
+        delete sub_collapsed_partitions[layer];
         new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer], new_collapsed_membership);
+      }
     }
     else if (this->move_individual)
     {
@@ -329,7 +332,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
-  for (size_t layer = 0; layer < nb_layers; layer++)
+  for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->renumber_communities(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
