@@ -242,17 +242,25 @@ size_t MutableVertexPartition::get_empty_community()
   {
     // If there was no empty community yet,
     // we will create a new one.
-    this->community.push_back(new set<size_t>());
-    size_t nb_comms = this->community.size();
-    size_t new_comm = nb_comms - 1;
-    this->_csize.resize(nb_comms);                  this->_csize[new_comm] = 0;
-    this->_total_weight_in_comm.resize(nb_comms);   this->_total_weight_in_comm[new_comm] = 0;
-    this->_total_weight_from_comm.resize(nb_comms); this->_total_weight_from_comm[new_comm] = 0;
-    this->_total_weight_to_comm.resize(nb_comms);   this->_total_weight_to_comm[new_comm] = 0;
-    this->_empty_communities.push_back(new_comm);
+    add_empty_community();
   }
 
   return this->_empty_communities.back();
+}
+
+size_t MutableVertexPartition::add_empty_community()
+{
+  this->community.push_back(new set<size_t>());
+  size_t nb_comms = this->community.size();
+  if (nb_comms > this->graph->vcount())
+    throw Exception("There cannot be more communities than nodes, so there must already be an empty community.");
+  size_t new_comm = nb_comms - 1;
+  this->_csize.resize(nb_comms);                  this->_csize[new_comm] = 0;
+  this->_total_weight_in_comm.resize(nb_comms);   this->_total_weight_in_comm[new_comm] = 0;
+  this->_total_weight_from_comm.resize(nb_comms); this->_total_weight_from_comm[new_comm] = 0;
+  this->_total_weight_to_comm.resize(nb_comms);   this->_total_weight_to_comm[new_comm] = 0;
+  this->_empty_communities.push_back(new_comm);
+  return new_comm;
 }
 
 /****************************************************************************

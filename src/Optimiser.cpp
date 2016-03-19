@@ -512,9 +512,16 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         }
       }
       // Check if we should move to an empty community
-      if (this->consider_empty_community && partition->csize(v_comm) > graph->node_size(v))
+      if (this->consider_empty_community && partitions[0]->csize(v_comm) > graphs[0]->node_size(v))
       {
-        neigh_comm = partition->get_empty_community();
+        neigh_comm = partitions[0]->get_empty_community();
+        if (neigh_comm == partitions[0]->nb_communities())
+        {
+          // If the empty community has just been added, we need to make sure
+          // that is has also been added to the other layers
+          for (size_t layer = 0; layer < nb_layers; layer++)
+            partitions[layer]->add_empty_community();
+        }
 
         double possible_improv = 0.0;
         for (size_t layer = 0; layer < nb_layers; layer++)
