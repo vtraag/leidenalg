@@ -560,10 +560,9 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
           double q1 = partition->quality();
         #endif
         // Check if we should move to an empty community
-        if (this->consider_empty_community && partition->csize(v_comm) > 1)
+        if (this->consider_empty_community && partition->csize(v_comm) > graph->node_size(v))
         {
-          double w = partition->weight_to_comm(v, v_comm) + partition->weight_from_comm(v, v_comm);
-          neigh_comm = partition->nb_communities();
+          neigh_comm = partition->get_empty_community();
           possible_improv = partition->diff_move(v, neigh_comm);
           if (possible_improv > max_improv)
           {
@@ -577,8 +576,6 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
           // Keep track of improvement
           improv += max_improv;
           // Actually move the node
-          if (max_comm >= partition->nb_communities())
-            partition->add_empty_community();
           partition->move_node(v, max_comm);
           // Keep track of number of moves
           nb_moves += 1;

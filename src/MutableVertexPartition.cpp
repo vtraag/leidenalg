@@ -236,15 +236,23 @@ void MutableVertexPartition::renumber_communities(vector<size_t> const& new_memb
   this->init_admin();
 }
 
-size_t MutableVertexPartition::add_empty_community()
+size_t MutableVertexPartition::get_empty_community()
 {
-  this->community.push_back(new set<size_t>());
-  size_t nb_comms = this->community.size();
-  this->_csize.resize(nb_comms);
-  this->_total_weight_in_comm.resize(nb_comms);
-  this->_total_weight_from_comm.resize(nb_comms);
-  this->_total_weight_to_comm.resize(nb_comms);
-  return nb_comms;
+  if (this->_empty_communities.empty())
+  {
+    // If there was no empty community yet,
+    // we will create a new one.
+    this->community.push_back(new set<size_t>());
+    size_t nb_comms = this->community.size();
+    size_t new_comm = nb_comms - 1;
+    this->_csize.resize(nb_comms);                  this->_csize[new_comm] = 0;
+    this->_total_weight_in_comm.resize(nb_comms);   this->_total_weight_in_comm[new_comm] = 0;
+    this->_total_weight_from_comm.resize(nb_comms); this->_total_weight_from_comm[new_comm] = 0;
+    this->_total_weight_to_comm.resize(nb_comms);   this->_total_weight_to_comm[new_comm] = 0;
+    this->_empty_communities.push_back(new_comm);
+  }
+
+  return this->_empty_communities.back();
 }
 
 /****************************************************************************
@@ -276,6 +284,21 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   // Remove from old community
   this->community[old_comm]->erase(v);
   this->_csize[old_comm] -= node_size;
+
+  if (this->_csize[old_comm] == 0)
+  {
+    this->_empty_communities.push_back(old_comm);
+  }
+
+  if (this->_csize[new_comm] == 0)
+  {
+    vector<size_t>::iterator it_comm = this->_empty_communities.end();
+    while (*it_comm != new_comm && it_comm != this->_empty_communities.begin())
+    {
+      it_comm--;
+    }
+    this->_empty_communities.erase(it_comm);
+  }
 
   // Add to new community
   this->community[new_comm]->insert(v);
