@@ -544,16 +544,9 @@ double MutableVertexPartition::weight_vertex_tofrom_comm(size_t v, size_t comm, 
   return this->graph->weight_tofrom_community(v, comm, this->_membership, mode);
 }
 
-set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
+vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
 {
-  vector<size_t>* neigh = this->graph->get_neighbours(v, mode);
-  set<size_t>* neigh_comms = new set<size_t>();
-  for (size_t i=0; i < this->graph->degree(v, mode); i++)
-  {
-    neigh_comms->insert( this->membership((*neigh)[i]) );
-  }
-  delete neigh;
-  return neigh_comms;
+  return this->graph->get_neigh_comms(v, this->_membership, mode);
 }
 
 set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)

@@ -92,7 +92,7 @@ class MutableVertexPartition
     double weight_to_comm(size_t v, size_t comm);
     double weight_from_comm(size_t v, size_t comm);
 
-    set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t);
+    vector<size_t> const& get_neigh_comms(size_t v, igraph_neimode_t);
     set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
 
     // By delegating the responsibility for deleting the graph to the partition,

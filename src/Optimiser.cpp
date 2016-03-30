@@ -458,9 +458,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           neigh_comms = new set<size_t>();
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
-            neigh_comms->insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
-            delete neigh_comm_layer;
+            vector<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
+            neigh_comms->insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
           }
           for (set<size_t>::iterator neigh_comm_it = neigh_comms->begin();
                neigh_comm_it != neigh_comms->end(); ++neigh_comm_it)

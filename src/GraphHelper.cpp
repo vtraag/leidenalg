@@ -482,16 +482,34 @@ void Graph::init_weighted_neigh_selection()
   this->_initialized_weighted_neigh_selection = true;
 }
 
+vector<size_t> const& Graph::get_neigh_comms(size_t v, vector<size_t> const& membership, igraph_neimode_t mode)
+{
+  if (_current_node_cache_weight_tofrom_community != v)
+  {
+    this->cache_neigh_communities(v, membership, IGRAPH_IN);
+    this->cache_neigh_communities(v, membership, IGRAPH_OUT);
+    _current_node_cache_weight_tofrom_community = v;
+  }
+
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      return this->_cached_neighs_from;
+    case IGRAPH_OUT:
+      return this->_cached_neighs_to;
+  }
+}
+
 double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode)
 {
   if (_current_node_cache_weight_tofrom_community != v)
   {
-    cache_weight_tofrom_community(v, membership, IGRAPH_IN);
-    cache_weight_tofrom_community(v, membership, IGRAPH_OUT);
+    this->cache_neigh_communities(v, membership, IGRAPH_IN);
+    this->cache_neigh_communities(v, membership, IGRAPH_OUT);
     _current_node_cache_weight_tofrom_community = v;
   }
 
-  vector<double>* _cached_weight_tofrom_community;
+  vector<double>* _cached_weight_tofrom_community = NULL;
   switch (mode)
   {
     case IGRAPH_IN:
@@ -505,7 +523,7 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t> cons
   return (*_cached_weight_tofrom_community)[comm];
 }
 
-void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& membership, igraph_neimode_t mode)
+void Graph::cache_neigh_communities(size_t v, vector<size_t> const& membership, igraph_neimode_t mode)
 {
   // Weight between vertex and community
   #ifdef DEBUG
