@@ -515,7 +515,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& member
 {
   // Weight between vertex and community
   #ifdef DEBUG
-    cerr << "double Graph::cache_weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "double Graph::cache_weight_tofrom_community(" << v << ", " << &membership << ", " << mode << ")." << endl;
   #endif
   double total_w = 0.0;
   size_t degree = this->degree(v, mode);
@@ -546,7 +546,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& member
 
     // If it is an edge to the requested community
     #ifdef DEBUG
-      size_t u_comm = (*membership)[u];
+      size_t u_comm = membership[u];
     #endif
     size_t comm = membership[u];
     size_t e = VECTOR(incident_edges)[i];
@@ -556,7 +556,7 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& member
     if (u == v && !this->is_directed())
         w /= 2.0;
     #ifdef DEBUG
-      cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+      cerr << "\t" << "Edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
     #endif
     if (_cached_neighs->count(comm) > 0)
     {
@@ -567,17 +567,11 @@ void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& member
       _cached_neighs->insert(comm);
       (*_cached_weight_tofrom_community)[comm] = w;
     }
-    #ifdef DEBUG
-    else
-    {
-      cerr << "\t" << "Ignore edge (" << v << "-" << u << "), Comm (" << comm << ") weight: " << this->_edge_weights[VECTOR(incident_edges)[i]] << "." << endl;
-    }
-    #endif
   }
   igraph_vector_destroy(&incident_edges);
   igraph_vector_destroy(&neighbours);
   #ifdef DEBUG
-    cerr << "exit Graph::cache_weight_tofrom_community(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "exit Graph::cache_weight_tofrom_community(" << v << ", " << &membership << ", " << mode << ")." << endl;
   #endif
 }
 
@@ -715,7 +709,7 @@ size_t Graph::get_weighted_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t rand_idx = gsl_ran_discrete(this->_rng, this->_weighted_neigh_prob_preproc[v]);
 
     #ifdef DEBUG
-      cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
+      cerr << "Degree: " << this->degree(v, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
     #endif
     size_t rand_neigh = NULL;
     // From among in or out neighbours?

@@ -86,7 +86,6 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
 *****************************************************************************/
 double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
 {
-  #define DEBUG
   #ifdef DEBUG
     cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)" << endl;
   #endif
@@ -338,7 +337,6 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     q += partitions[layer]->quality()*layer_weights[layer];
   }
   return q;
-  #undef DEBUG
 }
 
 /*****************************************************************************

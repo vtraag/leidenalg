@@ -576,7 +576,8 @@ def read(fname):
 louvain_ext = Extension('louvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     libraries = ['gsl', 'gslcblas'],
-                    include_dirs=['include', '/usr/include/gsl']);
+                    include_dirs=['include', '/usr/include/gsl'],
+                    extra_compile_args = ['-std=c++11']);
 
 options =  dict(
   name = 'louvain',
@@ -588,7 +589,6 @@ options =  dict(
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
-  
   test_suite = 'tests',
 
   provides = ['louvain'],

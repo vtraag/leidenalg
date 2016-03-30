@@ -8,11 +8,11 @@
 #include <gsl_rng.h>
 #include <gsl_randist.h>
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #include <iostream>
   using std::cerr;
   using std::endl;
-#endif
+//#endif
 
 class MutableVertexPartition;
 

@@ -279,7 +279,9 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   // Keep track of all possible edges in all communities;
   size_t node_size = this->graph->node_size(v);
   size_t old_comm = this->_membership[v];
-
+  #ifdef DEBUG
+    cerr << "Node size: " << node_size << ", old comm: " << old_comm << ", new comm: " << new_comm << endl;
+  #endif
   // Incidentally, this is independent of whether we take into account self-loops or not
   // (i.e. whether we count as n_c^2 or as n_c(n_c - 1). Be careful to do this before the
   // adaptation of the community sizes, otherwise the calculations are incorrect.
@@ -287,32 +289,64 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   {
     double delta_possible_edges_in_comms = 2.0*node_size*(ptrdiff_t)(this->_csize[new_comm] - this->_csize[old_comm] + node_size)/(2.0 - this->graph->is_directed());
     _total_possible_edges_in_all_comms += delta_possible_edges_in_comms;
+    #ifdef DEBUG
+      cerr << "Change in possible edges in all comms: " << delta_possible_edges_in_comms << endl;
+    #endif
   }
 
   // Remove from old community
+  #ifdef DEBUG
+    cerr << "Removing from old community " << old_comm << ", community size: " << this->_csize[old_comm] << endl;
+  #endif
   this->community[old_comm]->erase(v);
   this->_csize[old_comm] -= node_size;
+  #ifdef DEBUG
+    cerr << "Removed from old community." << endl;
+  #endif
 
   if (this->_csize[old_comm] == 0)
   {
+    #ifdef DEBUG
+      cerr << "Adding community " << old_comm << " to empty communities." << endl;
+    #endif
     this->_empty_communities.push_back(old_comm);
+    #ifdef DEBUG
+      cerr << "Added community " << old_comm << " to empty communities." << endl;
+    #endif
   }
 
   if (this->_csize[new_comm] == 0)
   {
-    vector<size_t>::iterator it_comm = this->_empty_communities.end();
-    while (*it_comm != new_comm && it_comm != this->_empty_communities.begin())
+    #ifdef DEBUG
+      cerr << "Removing from empty communities (number of empty communities is " << this->_empty_communities.size() << ")." << endl;
+    #endif
+    vector<size_t>::reverse_iterator it_comm = this->_empty_communities.rbegin();
+    while (it_comm != this->_empty_communities.rend() && *it_comm != new_comm)
     {
-      it_comm--;
+      #ifdef DEBUG
+        cerr << "Empty community " << *it_comm << " != new community " << new_comm << endl;
+      #endif
+      it_comm++;
     }
-    this->_empty_communities.erase(it_comm);
+    #ifdef DEBUG
+      cerr << "Erasing empty community " << *it_comm << endl;
+      if (it_comm == this->_empty_communities.rend())
+        cerr << "ERROR, empty community does not exist." << endl;
+    #endif
+    this->_empty_communities.erase( std::next(it_comm).base() );
   }
 
+  #ifdef DEBUG
+    cerr << "Adding to new community " << new_comm << ", community size: " << this->_csize[new_comm] << endl;
+  #endif
   // Add to new community
   this->community[new_comm]->insert(v);
   this->_csize[new_comm] += this->graph->node_size(v);
 
   // Switch outgoing links
+  #ifdef DEBUG
+    cerr << "Added to new community." << endl;
+  #endif
 
   // Use set for incident edges, because self loop appears twice
   igraph_neimode_t modes[2] = {IGRAPH_OUT, IGRAPH_IN};

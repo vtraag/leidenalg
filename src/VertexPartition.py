@@ -155,14 +155,14 @@ class SurpriseVertexPartition(MutableVertexPartition):
   Surprise. """
   def __init__(self, graph, initial_membership=None, node_sizes=None,
       weight=None):
-    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, node_sizes, weight);
+    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, weight, node_sizes);
 
 class SignficanceVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   Significance. """
   def __init__(self, graph, initial_membership=None, node_sizes=None,
       weight=None):
-    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, node_sizes, weight);
+    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, weight, node_sizes);
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """ Some quality functions have a linear resolution parameter, for which the

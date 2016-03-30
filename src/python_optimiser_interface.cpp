@@ -675,4 +675,3 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-#undef DEBUG
