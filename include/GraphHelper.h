@@ -188,8 +188,8 @@ class Graph
 
     vector<double> _cached_weight_from_community;
     vector<double> _cached_weight_to_community;
-    unordered_set<size_t> _cached_neighs_from;
-    unordered_set<size_t> _cached_neighs_to;
+    vector<size_t> _cached_neighs_from;
+    vector<size_t> _cached_neighs_to;
     size_t _current_node_cache_weight_tofrom_community;
 
     double _total_weight;
