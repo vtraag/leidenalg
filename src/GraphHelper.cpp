@@ -514,7 +514,7 @@ void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
   }
 
   _cached_neigh_edges->clear();
-  _cached_neigh_edges->resize(degree);
+  _cached_neigh_edges->reserve(degree);
   _cached_neigh_edges->insert(_cached_neigh_edges->end(),
                               igraph_vector_e_ptr(&incident_edges, 0),
                               igraph_vector_e_ptr(&incident_edges, degree));
@@ -724,6 +724,7 @@ size_t Graph::get_weighted_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
 
     size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
+    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
     size_t rand_idx = gsl_ran_discrete(this->_rng, this->_weighted_neigh_prob_preproc[v]);
 
