@@ -84,7 +84,7 @@ size_t MutableVertexPartition::csize(size_t comm)
     return 0;
 }
 
-set<size_t> const& MutableVertexPartition::get_community(size_t comm)
+unordered_set<size_t> const& MutableVertexPartition::get_community(size_t comm)
 {
   return *(this->community[comm]);
 }
@@ -115,7 +115,7 @@ void MutableVertexPartition::init_admin()
   // Reset administration
   this->community.clear();
   for (size_t i = 0; i < nb_comms; i++)
-    this->community.push_back(new set<size_t>());
+    this->community.push_back(new unordered_set<size_t>());
   this->_total_weight_in_comm.clear();
   this->_total_weight_in_comm.resize(nb_comms);
   this->_total_weight_from_comm.clear();
@@ -124,6 +124,11 @@ void MutableVertexPartition::init_admin()
   this->_total_weight_to_comm.resize(nb_comms);
   this->_csize.clear();
   this->_csize.resize(nb_comms);
+
+  this->_cached_weight_from_community.resize(n, 0);
+  this->_cached_weight_to_community.resize(n, 0);
+  this->_cached_weight_all_community.resize(n, 0);
+  this->_current_node_cache_weight_tofrom_community = n + 1;
 
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
@@ -135,14 +140,14 @@ void MutableVertexPartition::init_admin()
     this->_csize[v_comm] += this->graph->node_size(v);
 
     // Loop over all incident edges
-    vector< pair<size_t, size_t> >* neigh_edges
-      = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
+    vector<size_t> neighbours = this->graph->get_neighbours(v, IGRAPH_OUT);
+    vector<size_t> neighbour_edges = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
 
-    for (vector< pair<size_t, size_t> >::iterator v_it = neigh_edges->begin();
-         v_it != neigh_edges->end(); v_it++)
+    size_t degree = neighbours.size();
+    for (size_t idx = 0; idx < degree; idx++)
     {
-      size_t u = v_it->first;
-      size_t e = v_it->second;
+      size_t u = neighbours[idx];
+      size_t e = neighbour_edges[idx];
       size_t u_comm = this->_membership[u];
       // Get the weight of the edge
       double w = this->graph->edge_weight(e);
@@ -168,7 +173,6 @@ void MutableVertexPartition::init_admin()
         #endif
       }
     }
-    delete neigh_edges;
   }
 
   this->_total_possible_edges_in_all_comms = 0;
@@ -250,7 +254,7 @@ size_t MutableVertexPartition::get_empty_community()
 
 size_t MutableVertexPartition::add_empty_community()
 {
-  this->community.push_back(new set<size_t>());
+  this->community.push_back(new unordered_set<size_t>());
   size_t nb_comms = this->community.size();
   if (nb_comms > this->graph->vcount())
     throw Exception("There cannot be more communities than nodes, so there must already be an empty community.");
@@ -353,8 +357,12 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   for (size_t mode_i = 0; mode_i < 2; mode_i++)
   {
     igraph_neimode_t mode = modes[mode_i];
-    vector< pair<size_t, size_t> >* neigh_edges
-      = this->graph->get_neighbour_edges(v, mode);
+
+    // Loop over all incident edges
+    vector<size_t> neighbours = this->graph->get_neighbours(v, mode);
+    vector<size_t> neighbour_edges = this->graph->get_neighbour_edges(v, mode);
+
+    size_t degree = neighbours.size();
 
     #ifdef DEBUG
       if (mode == IGRAPH_OUT)
@@ -365,11 +373,10 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
         cerr << "\t" << "Looping over unknown mode." << endl;
     #endif
 
-    for (vector< pair<size_t, size_t> >::iterator v_it = neigh_edges->begin();
-         v_it != neigh_edges->end(); v_it++)
+    for (size_t idx = 0; idx < degree; idx++)
     {
-      size_t u = v_it->first;
-      size_t e = v_it->second;
+      size_t u = neighbours[idx];
+      size_t e = neighbour_edges[idx];
 
       size_t u_comm = this->_membership[u];
       // Get the weight of the edge
@@ -430,7 +437,6 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
         #endif
       }
     }
-    delete neigh_edges;
   }
   #ifdef DEBUG
     // Check this->_total_weight_in_all_comms
@@ -517,7 +523,14 @@ void MutableVertexPartition::from_partition(MutableVertexPartition* partition)
 *****************************************************************************/
 double MutableVertexPartition::weight_to_comm(size_t v, size_t comm)
 {
-  return this->weight_vertex_tofrom_comm(v, comm, IGRAPH_OUT);
+  if (this->_current_node_cache_weight_tofrom_community != v)
+  {
+    this->cache_neigh_communities(v, IGRAPH_IN);
+    this->cache_neigh_communities(v, IGRAPH_OUT);
+    this->_current_node_cache_weight_tofrom_community = v;
+  }
+
+  return this->_cached_weight_to_community[comm];
 }
 
 /****************************************************************************
@@ -529,36 +542,128 @@ double MutableVertexPartition::weight_to_comm(size_t v, size_t comm)
 *****************************************************************************/
 double MutableVertexPartition::weight_from_comm(size_t v, size_t comm)
 {
-  return this->weight_vertex_tofrom_comm(v, comm, IGRAPH_IN);
+  if (this->_current_node_cache_weight_tofrom_community != v)
+  {
+    this->cache_neigh_communities(v, IGRAPH_IN);
+    this->cache_neigh_communities(v, IGRAPH_OUT);
+    this->cache_neigh_communities(v, IGRAPH_ALL);
+    this->_current_node_cache_weight_tofrom_community = v;
+  }
+
+  return this->_cached_weight_from_community[comm];
 }
 
-/****************************************************************************
- Calculate what is the total weight going from/to a node to a community.
-
-    Parameters:
-      v      -- The node which to check.
-      comm   -- The community which to check.
-*****************************************************************************/
-double MutableVertexPartition::weight_vertex_tofrom_comm(size_t v, size_t comm, igraph_neimode_t mode)
+void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t mode)
 {
-  return this->graph->weight_tofrom_community(v, comm, this->_membership, mode);
+  // TODO: We can probably calculate at once the IN, OUT and ALL
+  // rather than this being called multiple times.
+
+  // Weight between vertex and community
+  #ifdef DEBUG
+    cerr << "double MutableVertexPartition::cache_neigh_communities(" << v << ", " << mode << ")." << endl;
+  #endif
+  double total_w = 0.0;
+
+  vector<double>* _cached_weight_tofrom_community;
+  vector<size_t>* _cached_neighs;
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      _cached_weight_tofrom_community = &(this->_cached_weight_from_community);
+      _cached_neighs = &(this->_cached_neigh_comms_from);
+      break;
+    case IGRAPH_OUT:
+      _cached_weight_tofrom_community = &(this->_cached_weight_to_community);
+      _cached_neighs = &(this->_cached_neigh_comms_to);
+      break;
+    case IGRAPH_ALL:
+      _cached_weight_tofrom_community = &(this->_cached_weight_all_community);
+      _cached_neighs = &(this->_cached_neigh_comms_all);
+      break;
+  }
+
+  // Reset cached communities
+  for (vector<size_t>::iterator it = _cached_neighs->begin();
+       it != _cached_neighs->end();
+       it++)
+       (*_cached_weight_tofrom_community)[*it] = 0;
+
+  // Loop over all incident edges
+  vector<size_t> neighbours = this->graph->get_neighbours(v, mode);
+  vector<size_t> neighbour_edges = this->graph->get_neighbour_edges(v, mode);
+
+  size_t degree = neighbours.size();
+
+  // Reset cached neighbours
+  _cached_neighs->clear();
+  _cached_neighs->reserve(degree);
+  for (size_t idx = 0; idx < degree; idx++)
+  {
+    size_t u = neighbours[idx];
+    size_t e = neighbour_edges[idx];
+
+    // If it is an edge to the requested community
+    #ifdef DEBUG
+      size_t u_comm = this->_membership[u];
+    #endif
+    size_t comm = this->_membership[u];
+    // Get the weight of the edge
+    double w = this->graph->edge_weight(e);
+    // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
+    if (u == v && !this->graph->is_directed())
+        w /= 2.0;
+    #ifdef DEBUG
+      cerr << "\t" << "Edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+    #endif
+    (*_cached_weight_tofrom_community)[comm] += w;
+    // REMARK: Notice in the rare case of negative weights, being exactly equal
+    // for a certain community, that this community may then potentially be added multiple
+    // times to the _cached_neighs. However, I don' believe this causes any further issue,
+    // so that's why I leave this here as is.
+    if ((*_cached_weight_tofrom_community)[comm] != 0)
+      _cached_neighs->push_back(comm);
+  }
+  #ifdef DEBUG
+    cerr << "exit Graph::cache_neigh_communities(" << v << ", " << mode << ")." << endl;
+  #endif
 }
 
 vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
 {
-  return this->graph->get_neigh_comms(v, this->_membership, mode);
+  if (this->_current_node_cache_weight_tofrom_community != v)
+  {
+    this->cache_neigh_communities(v, IGRAPH_IN);
+    this->cache_neigh_communities(v, IGRAPH_OUT);
+    this->cache_neigh_communities(v, IGRAPH_ALL);
+    this->_current_node_cache_weight_tofrom_community = v;
+  }
+
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      return this->_cached_neigh_comms_from;
+      break;
+    case IGRAPH_OUT:
+      return this->_cached_neigh_comms_to;
+      break;
+    case IGRAPH_ALL:
+      return this->_cached_neigh_comms_all;
+      break;
+  }
+  throw Exception("Problem obtaining neighbour communities, invalid mode.");
 }
 
-set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
+unordered_set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
 {
-  vector<size_t>* neigh = this->graph->get_neighbours(v, mode);
-  set<size_t>* neigh_comms = new set<size_t>();
-  for (size_t i=0; i < this->graph->degree(v, mode); i++)
+  size_t degree = this->graph->degree(v, mode);
+  vector<size_t> neigh = this->graph->get_neighbours(v, mode);
+  unordered_set<size_t>* neigh_comms = new unordered_set<size_t>();
+  neigh_comms->reserve(degree);
+  for (size_t i=0; i < degree; i++)
   {
-    size_t u = (*neigh)[i];
+    size_t u = neigh[i];
     if (constrained_membership[v] == constrained_membership[u])
       neigh_comms->insert( this->membership(u) );
   }
-  delete neigh;
   return neigh_comms;
 }
