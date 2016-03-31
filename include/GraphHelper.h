@@ -8,8 +8,6 @@
 #include <gsl_rng.h>
 #include <gsl_randist.h>
 
-#define DEBUG
-
 //#ifdef DEBUG
 #include <iostream>
   using std::cerr;
