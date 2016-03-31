@@ -458,7 +458,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           neigh_comms = new unordered_set<size_t>();
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            vector<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
+            vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
             neigh_comms->insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
           }
           for (unordered_set<size_t>::iterator neigh_comm_it = neigh_comms->begin();
@@ -588,7 +588,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   }
 
   partitions[0]->renumber_communities();
-  vector<size_t> membership = partitions[0]->membership();
+  vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->renumber_communities(membership);
@@ -756,7 +756,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     total_improv += improv;
   }
   partitions[0]->renumber_communities();
-  vector<size_t> membership = partitions[0]->membership();
+  vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->renumber_communities(membership);

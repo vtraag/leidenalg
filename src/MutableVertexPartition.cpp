@@ -125,10 +125,9 @@ void MutableVertexPartition::init_admin()
   this->_csize.clear();
   this->_csize.resize(nb_comms);
 
-  this->_cached_weight_from_community.resize(n, 0);
-  this->_cached_weight_to_community.resize(n, 0);
-  this->_cached_weight_all_community.resize(n, 0);
-  this->_current_node_cache_weight_tofrom_community = n + 1;
+  this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(n, 0);
+  this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(n, 0);
+  this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(n, 0);
 
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
@@ -140,8 +139,8 @@ void MutableVertexPartition::init_admin()
     this->_csize[v_comm] += this->graph->node_size(v);
 
     // Loop over all incident edges
-    vector<size_t> neighbours = this->graph->get_neighbours(v, IGRAPH_OUT);
-    vector<size_t> neighbour_edges = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
+    vector<size_t> const& neighbours = this->graph->get_neighbours(v, IGRAPH_OUT);
+    vector<size_t> const& neighbour_edges = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
 
     size_t degree = neighbours.size();
     for (size_t idx = 0; idx < degree; idx++)
@@ -359,8 +358,8 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
     igraph_neimode_t mode = modes[mode_i];
 
     // Loop over all incident edges
-    vector<size_t> neighbours = this->graph->get_neighbours(v, mode);
-    vector<size_t> neighbour_edges = this->graph->get_neighbour_edges(v, mode);
+    vector<size_t> const& neighbours = this->graph->get_neighbours(v, mode);
+    vector<size_t> const& neighbour_edges = this->graph->get_neighbour_edges(v, mode);
 
     size_t degree = neighbours.size();
 
@@ -523,11 +522,10 @@ void MutableVertexPartition::from_partition(MutableVertexPartition* partition)
 *****************************************************************************/
 double MutableVertexPartition::weight_to_comm(size_t v, size_t comm)
 {
-  if (this->_current_node_cache_weight_tofrom_community != v)
+  if (this->_current_node_cache_community_to != v)
   {
-    this->cache_neigh_communities(v, IGRAPH_IN);
     this->cache_neigh_communities(v, IGRAPH_OUT);
-    this->_current_node_cache_weight_tofrom_community = v;
+    this->_current_node_cache_community_to = v;
   }
 
   return this->_cached_weight_to_community[comm];
@@ -542,12 +540,10 @@ double MutableVertexPartition::weight_to_comm(size_t v, size_t comm)
 *****************************************************************************/
 double MutableVertexPartition::weight_from_comm(size_t v, size_t comm)
 {
-  if (this->_current_node_cache_weight_tofrom_community != v)
+  if (this->_current_node_cache_community_from != v)
   {
     this->cache_neigh_communities(v, IGRAPH_IN);
-    this->cache_neigh_communities(v, IGRAPH_OUT);
-    this->cache_neigh_communities(v, IGRAPH_ALL);
-    this->_current_node_cache_weight_tofrom_community = v;
+    this->_current_node_cache_community_from = v;
   }
 
   return this->_cached_weight_from_community[comm];
@@ -562,8 +558,6 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
   #ifdef DEBUG
     cerr << "double MutableVertexPartition::cache_neigh_communities(" << v << ", " << mode << ")." << endl;
   #endif
-  double total_w = 0.0;
-
   vector<double>* _cached_weight_tofrom_community;
   vector<size_t>* _cached_neighs;
   switch (mode)
@@ -589,8 +583,8 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
        (*_cached_weight_tofrom_community)[*it] = 0;
 
   // Loop over all incident edges
-  vector<size_t> neighbours = this->graph->get_neighbours(v, mode);
-  vector<size_t> neighbour_edges = this->graph->get_neighbour_edges(v, mode);
+  vector<size_t> const& neighbours = this->graph->get_neighbours(v, mode);
+  vector<size_t> const& neighbour_edges = this->graph->get_neighbour_edges(v, mode);
 
   size_t degree = neighbours.size();
 
@@ -630,25 +624,29 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
 
 vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
 {
-  if (this->_current_node_cache_weight_tofrom_community != v)
-  {
-    this->cache_neigh_communities(v, IGRAPH_IN);
-    this->cache_neigh_communities(v, IGRAPH_OUT);
-    this->cache_neigh_communities(v, IGRAPH_ALL);
-    this->_current_node_cache_weight_tofrom_community = v;
-  }
-
   switch (mode)
   {
     case IGRAPH_IN:
+      if (this->_current_node_cache_community_from != v)
+      {
+        cache_neigh_communities(v, mode);
+        this->_current_node_cache_community_from = v;
+      }
       return this->_cached_neigh_comms_from;
-      break;
     case IGRAPH_OUT:
+      if (this->_current_node_cache_community_to != v)
+      {
+        cache_neigh_communities(v, mode);
+        this->_current_node_cache_community_to = v;
+      }
       return this->_cached_neigh_comms_to;
-      break;
     case IGRAPH_ALL:
+      if (this->_current_node_cache_community_all != v)
+      {
+        cache_neigh_communities(v, mode);
+        this->_current_node_cache_community_all = v;
+      }
       return this->_cached_neigh_comms_all;
-      break;
   }
   throw Exception("Problem obtaining neighbour communities, invalid mode.");
 }
@@ -656,7 +654,7 @@ vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_n
 unordered_set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
 {
   size_t degree = this->graph->degree(v, mode);
-  vector<size_t> neigh = this->graph->get_neighbours(v, mode);
+  vector<size_t> const& neigh = this->graph->get_neighbours(v, mode);
   unordered_set<size_t>* neigh_comms = new unordered_set<size_t>();
   neigh_comms->reserve(degree);
   for (size_t i=0; i < degree; i++)

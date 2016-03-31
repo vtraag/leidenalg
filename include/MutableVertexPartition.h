@@ -132,10 +132,9 @@ class MutableVertexPartition
 
     void cache_neigh_communities(size_t v, igraph_neimode_t mode);
 
-    size_t _current_node_cache_weight_tofrom_community;
-    vector<double> _cached_weight_from_community; vector<size_t> _cached_neigh_comms_from;
-    vector<double> _cached_weight_to_community;   vector<size_t> _cached_neigh_comms_to;
-    vector<double> _cached_weight_all_community;  vector<size_t> _cached_neigh_comms_all;
+    size_t _current_node_cache_community_from; vector<double> _cached_weight_from_community; vector<size_t> _cached_neigh_comms_from;
+    size_t _current_node_cache_community_to;   vector<double> _cached_weight_to_community;   vector<size_t> _cached_neigh_comms_to;
+    size_t _current_node_cache_community_all;  vector<double> _cached_weight_all_community;  vector<size_t> _cached_neigh_comms_all;
 
     void clean_mem();
     void init_graph_admin();

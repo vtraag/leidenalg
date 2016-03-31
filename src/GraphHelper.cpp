@@ -535,15 +535,24 @@ vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode
   {
     case IGRAPH_IN:
       if (this->_current_node_cache_neigh_edges_from != v)
+      {
         cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_from = v;
+      }
       return this->_cached_neigh_edges_from;
     case IGRAPH_OUT:
       if (this->_current_node_cache_neigh_edges_to != v)
+      {
         cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_to = v;
+      }
       return this->_cached_neigh_edges_to;
     case IGRAPH_ALL:
       if (this->_current_node_cache_neigh_edges_all != v)
+      {
         cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_all = v;
+      }
       return this->_cached_neigh_edges_all;
   }
 }
@@ -600,17 +609,27 @@ vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
   {
     case IGRAPH_IN:
       if (this->_current_node_cache_neigh_from != v)
+      {
         cache_neighbours(v, mode);
+        this -> _current_node_cache_neigh_from = v;
+      }
       return this->_cached_neighs_from;
     case IGRAPH_OUT:
       if (this->_current_node_cache_neigh_to != v)
+      {
         cache_neighbours(v, mode);
+        this -> _current_node_cache_neigh_to = v;
+      }
       return this->_cached_neighs_to;
     case IGRAPH_ALL:
       if (this->_current_node_cache_neigh_all != v)
+      {
         cache_neighbours(v, mode);
+        this->_current_node_cache_neigh_all = v;
+      }
       return this->_cached_neighs_all;
   }
+  throw Exception("Invalid mode for getting neighbours.");
 }
 
 /********************************************************************************
