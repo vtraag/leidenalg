@@ -143,6 +143,9 @@ void MutableVertexPartition::init_admin()
     vector<size_t> const& neighbour_edges = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
 
     size_t degree = neighbours.size();
+    #ifdef DEBUG
+      cerr << "\tDegree: " << degree << endl;
+    #endif
     for (size_t idx = 0; idx < degree; idx++)
     {
       size_t u = neighbours[idx];

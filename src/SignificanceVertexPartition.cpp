@@ -149,7 +149,7 @@ double SignificanceVertexPartition::quality()
       cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", m_c=" << m_c << ", N_c=" << N_c
          << ", p_c=" << p_c << ", p=" << p << ", KLL=" << KL(p_c, p) << "." << endl;
     #endif
-    S += N_c*KL(p_c, p);
+    S += N_c*KLL(p_c, p);
   }
   #ifdef DEBUG
     cerr << "exit SignificanceVertexPartition::quality()" << endl;

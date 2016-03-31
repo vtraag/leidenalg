@@ -440,6 +440,10 @@ void Graph::init_admin()
   this->_current_node_cache_neigh_edges_from = n + 1;
   this->_current_node_cache_neigh_edges_to = n + 1;
   this->_current_node_cache_neigh_edges_all = n + 1;
+
+  this->_current_node_cache_neigh_from = n + 1;
+  this->_current_node_cache_neigh_to = n + 1;
+  this->_current_node_cache_neigh_all = n + 1;
 }
 
 void Graph::init_weighted_neigh_selection()
@@ -614,6 +618,9 @@ vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
         cache_neighbours(v, mode);
         this -> _current_node_cache_neigh_from = v;
       }
+      #ifdef DEBUG
+        cerr << "Returning " << this->_cached_neighs_from.size() << " incoming neighbours" << endl;
+      #endif
       return this->_cached_neighs_from;
     case IGRAPH_OUT:
       if (this->_current_node_cache_neigh_to != v)
@@ -621,6 +628,9 @@ vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
         cache_neighbours(v, mode);
         this -> _current_node_cache_neigh_to = v;
       }
+      #ifdef DEBUG
+        cerr << "Returning " << this->_cached_neighs_to.size() << " incoming neighbours" << endl;
+      #endif
       return this->_cached_neighs_to;
     case IGRAPH_ALL:
       if (this->_current_node_cache_neigh_all != v)
@@ -628,6 +638,9 @@ vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
         cache_neighbours(v, mode);
         this->_current_node_cache_neigh_all = v;
       }
+      #ifdef DEBUG
+        cerr << "Returning " << this->_cached_neighs_all.size() << " incoming neighbours" << endl;
+      #endif
       return this->_cached_neighs_all;
   }
   throw Exception("Invalid mode for getting neighbours.");
