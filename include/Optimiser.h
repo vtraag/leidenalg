@@ -4,12 +4,14 @@
 #include "MutableVertexPartition.h"
 #include <algorithm>
 #include <set>
+#include <unordered_map>
 
 #include <iostream>
 using std::cerr;
 using std::endl;
 using std::set;
 using std::random_shuffle;
+using std::unordered_map;
 
 /****************************************************************************
 Class for doing community detection using the Louvain algorithm.

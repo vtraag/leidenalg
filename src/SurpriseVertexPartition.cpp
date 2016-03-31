@@ -112,7 +112,7 @@ double SurpriseVertexPartition::quality()
   #ifdef DEBUG
     cerr << "double SurpriseVertexPartition::quality()" << endl;
   #endif
-  double normalise = (2.0 - this->graph->is_directed());
+
   double mc = this->total_weight_in_all_comms();
   size_t nc2 = this->total_possible_edges_in_all_comms();
   double m = this->graph->total_weight();

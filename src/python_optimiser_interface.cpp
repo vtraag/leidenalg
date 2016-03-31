@@ -98,7 +98,7 @@ extern "C"
 
     vector<MutableVertexPartition*> partitions(nb_partitions, NULL);
     vector<double> layer_weights(nb_partitions, 1.0);
-    MutableVertexPartition* partition;
+
     for (size_t layer = 0; layer < nb_partitions; layer++)
     {
       PyObject* py_partition = PyList_GetItem(py_partitions, layer);

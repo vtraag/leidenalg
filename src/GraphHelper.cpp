@@ -496,7 +496,7 @@ void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
   igraph_vector_init(&incident_edges, degree);
   igraph_incident(this->_graph, &incident_edges, v, mode);
 
-  vector<size_t>* _cached_neigh_edges;
+  vector<size_t>* _cached_neigh_edges = NULL;
   switch (mode)
   {
     case IGRAPH_IN:
@@ -555,6 +555,7 @@ vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode
       }
       return this->_cached_neigh_edges_all;
   }
+  throw Exception("Incorrect model for gettin neighbour edges.");
 }
 
 void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
@@ -571,7 +572,7 @@ void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
   igraph_vector_init(&neighbours, degree);
   igraph_neighbors(this->_graph, &neighbours, v, mode);
 
-  vector<size_t>* _cached_neighs;
+  vector<size_t>* _cached_neighs = NULL;
   switch (mode)
   {
     case IGRAPH_IN:
@@ -723,14 +724,13 @@ size_t Graph::get_weighted_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
 
     size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
-    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
     size_t rand_idx = gsl_ran_discrete(this->_rng, this->_weighted_neigh_prob_preproc[v]);
 
     #ifdef DEBUG
       cerr << "Degree: " << this->degree(v, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
     #endif
-    size_t rand_neigh = NULL;
+    size_t rand_neigh;
     // From among in or out neighbours?
     if (rand_idx < total_outdegree)
     { // From among outgoing neighbours
@@ -765,7 +765,6 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   #ifdef DEBUG
     cerr << "Graph* Graph::collapse_graph(vector<size_t> membership)" << endl;
   #endif
-  size_t n = this->vcount();
   size_t m = this->ecount();
 
   vector< map<size_t, double> > collapsed_edge_weights(partition->nb_communities());

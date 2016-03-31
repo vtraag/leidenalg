@@ -558,8 +558,8 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
   #ifdef DEBUG
     cerr << "double MutableVertexPartition::cache_neigh_communities(" << v << ", " << mode << ")." << endl;
   #endif
-  vector<double>* _cached_weight_tofrom_community;
-  vector<size_t>* _cached_neighs;
+  vector<double>* _cached_weight_tofrom_community = NULL;
+  vector<size_t>* _cached_neighs = NULL;
   switch (mode)
   {
     case IGRAPH_IN:

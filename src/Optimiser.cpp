@@ -427,7 +427,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         it_vertex != vertex_order.end(); ++it_vertex)
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
-      map<size_t, double> comm_improvs;
+      unordered_map<size_t, double> comm_improvs;
       size_t neigh_comm;
       unordered_set<size_t>* neigh_comms = NULL;
       Graph* graph = NULL;
@@ -500,7 +500,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       size_t max_comm = v_comm;
       double max_improv = 0.0;
       // Determine the maximum improvement
-      for (map<size_t, double>::iterator improv_it = comm_improvs.begin();
+      for (unordered_map<size_t, double>::iterator improv_it = comm_improvs.begin();
            improv_it != comm_improvs.end(); improv_it++)
       {
         size_t comm = improv_it->first;
@@ -659,7 +659,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         it_vertex != vertex_order.end(); ++it_vertex)
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
-      map<size_t, double> comm_improvs;
+      unordered_map<size_t, double> comm_improvs;
       size_t neigh_comm;
       unordered_set<size_t>* neigh_comms = NULL;
       Graph* graph = NULL;
@@ -694,7 +694,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       // TODO: Not implemented yet to consider moving to an empty community for
       // several layers of graphs.
       // Determine the maximum improvement
-      for (map<size_t, double>::iterator improv_it = comm_improvs.begin();
+      for (unordered_map<size_t, double>::iterator improv_it = comm_improvs.begin();
            improv_it != comm_improvs.end(); improv_it++)
       {
         size_t comm = improv_it->first;
