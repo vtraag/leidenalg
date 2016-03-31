@@ -89,11 +89,11 @@ class Graph
     Graph* collapse_graph(MutableVertexPartition* partition);
 
     double weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode);
-    void cache_weight_tofrom_community(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
-    vector< pair<size_t, size_t> >*
-      get_neighbour_edges(size_t v, igraph_neimode_t mode);
-    vector< size_t >*
-      get_neighbours(size_t v, igraph_neimode_t mode);
+    void cache_neigh_communities(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
+    vector<size_t> const& get_neigh_comms(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
+
+    vector<size_t> const& get_neighbour_edges(size_t v, igraph_neimode_t mode);
+    vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
     size_t get_weighted_random_neighbour(size_t v, igraph_neimode_t mode);
 
@@ -186,11 +186,15 @@ class Graph
     vector<size_t> _node_sizes; // Used for the size of the nodes.
     vector<double> _node_self_weights; // Used for the self weight of the nodes.
 
-    vector<double> _cached_weight_from_community;
-    vector<double> _cached_weight_to_community;
-    vector<size_t> _cached_neighs_from;
-    vector<size_t> _cached_neighs_to;
-    size_t _current_node_cache_weight_tofrom_community;
+    void cache_neighbours(size_t v, igraph_neimode_t mode);
+    vector<size_t> _cached_neighs_from; size_t _current_node_cache_neigh_from;
+    vector<size_t> _cached_neighs_to;   size_t _current_node_cache_neigh_to;
+    vector<size_t> _cached_neighs_all;  size_t _current_node_cache_neigh_all;
+
+    void cache_neighbour_edges(size_t v, igraph_neimode_t mode);
+    vector<size_t> _cached_neigh_edges_from; size_t _current_node_cache_neigh_edges_from;
+    vector<size_t> _cached_neigh_edges_to;   size_t _current_node_cache_neigh_edges_to;
+    vector<size_t> _cached_neigh_edges_all;  size_t _current_node_cache_neigh_edges_all;
 
     double _total_weight;
     size_t _total_size;

@@ -417,10 +417,6 @@ void Graph::init_admin()
     this->_degree_all[v] = VECTOR(res)[v];
   igraph_vector_destroy(&res);
 
-  this->_cached_weight_from_community.resize(n, 0);
-  this->_cached_weight_to_community.resize(n, 0);
-  _current_node_cache_weight_tofrom_community = n + 1;
-
   // Calculate density;
   double w = this->total_weight();
   size_t n_size = this->total_size();
@@ -440,6 +436,10 @@ void Graph::init_admin()
     this->_density = 2*w/normalise;
 
   this->_initialized_weighted_neigh_selection = false;
+
+  this->_current_node_cache_neigh_edges_from = n + 1;
+  this->_current_node_cache_neigh_edges_to = n + 1;
+  this->_current_node_cache_neigh_edges_all = n + 1;
 }
 
 void Graph::init_weighted_neigh_selection()
@@ -482,131 +482,154 @@ void Graph::init_weighted_neigh_selection()
   this->_initialized_weighted_neigh_selection = true;
 }
 
-double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode)
+void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
 {
-  if (_current_node_cache_weight_tofrom_community != v)
-  {
-    cache_weight_tofrom_community(v, membership, IGRAPH_IN);
-    cache_weight_tofrom_community(v, membership, IGRAPH_OUT);
-    _current_node_cache_weight_tofrom_community = v;
-  }
+  #ifdef DEBUG
+    cerr << "void Graph::cache_neighbour_edges(" << v << ", " << mode << ");" << endl;
+  #endif
+  size_t degree = this->degree(v, mode);
+  #ifdef DEBUG
+    cerr << "Degree: " << degree << endl;
+  #endif
 
-  vector<double>* _cached_weight_tofrom_community;
+  igraph_vector_t incident_edges;
+  igraph_vector_init(&incident_edges, degree);
+  igraph_incident(this->_graph, &incident_edges, v, mode);
+
+  vector<size_t>* _cached_neigh_edges;
   switch (mode)
   {
     case IGRAPH_IN:
-      _cached_weight_tofrom_community = &(this->_cached_weight_from_community);
+      this->_current_node_cache_neigh_edges_from = v;
+      _cached_neigh_edges = &(this->_cached_neigh_edges_from);
       break;
     case IGRAPH_OUT:
-      _cached_weight_tofrom_community = &(this->_cached_weight_to_community);
+      this->_current_node_cache_neigh_edges_to = v;
+      _cached_neigh_edges = &(this->_cached_neigh_edges_to);
+      break;
+    case IGRAPH_ALL:
+      this->_current_node_cache_neigh_edges_all = v;
+      _cached_neigh_edges = &(this->_cached_neigh_edges_all);
       break;
   }
 
-  return (*_cached_weight_tofrom_community)[comm];
+  _cached_neigh_edges->clear();
+  _cached_neigh_edges->resize(degree);
+  _cached_neigh_edges->insert(_cached_neigh_edges->end(),
+                              igraph_vector_e_ptr(&incident_edges, 0),
+                              igraph_vector_e_ptr(&incident_edges, degree));
+  #ifdef DEBUG
+    cerr << "Number of edges: " << _cached_neigh_edges->size() << endl;
+  #endif
+
+
+  igraph_vector_destroy(&incident_edges);
+  #ifdef DEBUG
+    cerr << "exit void Graph::cache_neighbour_edges(" << v << ", " << mode << ");" << endl;
+  #endif
 }
 
-void Graph::cache_weight_tofrom_community(size_t v, vector<size_t> const& membership, igraph_neimode_t mode)
+vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode)
 {
-  // Weight between vertex and community
-  #ifdef DEBUG
-    cerr << "double Graph::cache_weight_tofrom_community(" << v << ", " << &membership << ", " << mode << ")." << endl;
-  #endif
-  double total_w = 0.0;
-  size_t degree = this->degree(v, mode);
-  igraph_vector_t incident_edges, neighbours;
-  igraph_vector_init(&incident_edges, degree);
-  igraph_vector_init(&neighbours, degree);
-  igraph_incident(this->_graph, &incident_edges, v, mode);
-  igraph_neighbors(this->_graph, &neighbours, v, mode);
-
-  vector<double>* _cached_weight_tofrom_community;
-  vector<size_t>* _cached_neighs;
   switch (mode)
   {
     case IGRAPH_IN:
-      _cached_weight_tofrom_community = &(this->_cached_weight_from_community);
-      _cached_neighs = &(this->_cached_neighs_from);
-      break;
+      if (this->_current_node_cache_neigh_edges_from != v)
+      {
+        cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_from = v;
+      }
+      return this->_cached_neigh_edges_from;
     case IGRAPH_OUT:
-      _cached_weight_tofrom_community = &(this->_cached_weight_to_community);
-      _cached_neighs = &(this->_cached_neighs_to);
-      break;
+      if (this->_current_node_cache_neigh_edges_to != v)
+      {
+        cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_to = v;
+      }
+      return this->_cached_neigh_edges_to;
+    case IGRAPH_ALL:
+      if (this->_current_node_cache_neigh_edges_all != v)
+      {
+        cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_all = v;
+      }
+      return this->_cached_neigh_edges_all;
   }
+}
 
-  // Reset cached communities
-  for (vector<size_t>::iterator it = _cached_neighs->begin();
-       it != _cached_neighs->end();
-       it++)
-       (*_cached_weight_tofrom_community)[*it] = 0;
-
-  // Reset cached neighbours
-  _cached_neighs->clear();
-  _cached_neighs->reserve(degree);
-  for (size_t i = 0; i < degree; i++)
-  {
-    size_t u = VECTOR(neighbours)[i];
-
-    // If it is an edge to the requested community
-    #ifdef DEBUG
-      size_t u_comm = membership[u];
-    #endif
-    size_t comm = membership[u];
-    size_t e = VECTOR(incident_edges)[i];
-    // Get the weight of the edge
-    double w = this->_edge_weights[e];
-    // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
-    if (u == v && !this->is_directed())
-        w /= 2.0;
-    #ifdef DEBUG
-      cerr << "\t" << "Edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
-    #endif
-    (*_cached_weight_tofrom_community)[comm] += w;
-    if ((*_cached_weight_tofrom_community)[comm] != 0)
-      _cached_neighs->push_back(comm);
-  }
-  igraph_vector_destroy(&incident_edges);
-  igraph_vector_destroy(&neighbours);
+void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
+{
   #ifdef DEBUG
-    cerr << "exit Graph::cache_weight_tofrom_community(" << v << ", " << &membership << ", " << mode << ")." << endl;
+    cerr << "void Graph::cache_neighbours(" << v << ", " << mode << ");" << endl;
   #endif
-}
-
-vector< pair<size_t, size_t> >*
-Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode)
-{
   size_t degree = this->degree(v, mode);
-  vector< pair<size_t, size_t> >* neigh_edges
-    = new vector< pair<size_t, size_t> >(degree);
-
-  igraph_vector_t incident_edges, neighbours;
-  igraph_vector_init(&incident_edges, degree);
-  igraph_vector_init(&neighbours, degree);
-  igraph_incident(this->_graph, &incident_edges, v, mode);
-  igraph_neighbors(this->_graph, &neighbours, v, mode);
-  for (size_t i = 0; i < degree; i++)
-  {
-    size_t e = VECTOR(incident_edges)[i];
-    size_t u = VECTOR(neighbours)[i];
-    (*neigh_edges)[i] = make_pair(u, e);
-  }
-  igraph_vector_destroy(&incident_edges);
-  igraph_vector_destroy(&neighbours);
-  return neigh_edges;
-}
-
-vector< size_t >*
-Graph::get_neighbours(size_t v, igraph_neimode_t mode)
-{
-  size_t degree = this->degree(v, mode);
+  #ifdef DEBUG
+    cerr << "Degree: " << degree << endl;
+  #endif
 
   igraph_vector_t neighbours;
   igraph_vector_init(&neighbours, degree);
   igraph_neighbors(this->_graph, &neighbours, v, mode);
-  vector< size_t >* neighs = new vector< size_t >(
-    igraph_vector_e_ptr(&neighbours, 0),
-    igraph_vector_e_ptr(&neighbours, degree));
+
+  vector<size_t>* _cached_neighs;
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      this->_current_node_cache_neigh_from = v;
+      _cached_neighs = &(this->_cached_neighs_from);
+      break;
+    case IGRAPH_OUT:
+      this->_current_node_cache_neigh_to = v;
+      _cached_neighs = &(this->_cached_neighs_to);
+      break;
+    case IGRAPH_ALL:
+      this->_current_node_cache_neigh_all = v;
+      _cached_neighs = &(this->_cached_neighs_all);
+      break;
+  }
+  _cached_neighs->clear();
+  _cached_neighs->reserve(degree);
+  _cached_neighs->insert(_cached_neighs->end(),
+                         igraph_vector_e_ptr(&neighbours, 0),
+                         igraph_vector_e_ptr(&neighbours, degree));
   igraph_vector_destroy(&neighbours);
-  return neighs;
+
+  #ifdef DEBUG
+    cerr << "Number of edges: " << _cached_neighs->size() << endl;
+  #endif
+
+  #ifdef DEBUG
+    cerr << "exit void Graph::cache_neighbours(" << v << ", " << mode << ");" << endl;
+  #endif
+}
+
+vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
+{
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      if (this->_current_node_cache_neigh_from != v)
+      {
+        cache_neighbours(v, mode);
+        this -> _current_node_cache_neigh_from = v;
+      }
+      return this->_cached_neighs_from;
+    case IGRAPH_OUT:
+      if (this->_current_node_cache_neigh_to != v)
+      {
+        cache_neighbours(v, mode);
+        this -> _current_node_cache_neigh_to = v;
+      }
+      return this->_cached_neighs_to;
+    case IGRAPH_ALL:
+      if (this->_current_node_cache_neigh_all != v)
+      {
+        cache_neighbours(v, mode);
+        this->_current_node_cache_neigh_all = v;
+      }
+      return this->_cached_neighs_all;
+  }
+  throw Exception("Invalid mode for getting neighbours.");
 }
 
 /********************************************************************************
