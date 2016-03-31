@@ -133,7 +133,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   vector<size_t> aggregate_node_per_individual_node = range(n);
 
   // As long as there remains improvement iterate
-  while (improv > this->eps)
+  do
   {
     // First collapse graph (i.e. community graph)
     // If we do smart local movement, we separate communities in slightly more
@@ -314,13 +314,19 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Quality on finer partition " << q << endl << endl;
     #endif // DEBUG
 
-  }
+    #ifdef DEBUG
+        cerr << "Number of communities: " << partitions[0]->nb_communities() << endl;
+    #endif
+  } while (improv > this->eps);
 
   // Clean up memory after use.
   for (size_t layer = 0; layer < nb_layers; layer++)
   {
-    delete collapsed_partitions[layer];
-    delete collapsed_graphs[layer];
+    if (collapsed_partitions[layer] != partitions[layer])
+      delete collapsed_partitions[layer];
+
+    if (collapsed_graphs[layer] != graphs[layer])
+      delete collapsed_graphs[layer];
   }
 
   // Make sure the resulting communities are called 0,...,r-1
