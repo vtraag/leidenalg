@@ -43,6 +43,7 @@ Optimiser::Optimiser()
   this->max_itr = 10000;
   this->random_order = true;
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
+  this->slm_consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->smart_local_move = false;
   this->move_individual = false;
   this->consider_empty_community = false;
@@ -666,34 +667,81 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
       unordered_map<size_t, double> comm_improvs;
-      size_t neigh_comm;
-      unordered_set<size_t>* neigh_comms = NULL;
+      unordered_set<size_t> comms;
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
       // What is the current community of the node (this should be the same for all layers)
       size_t v_comm = partitions[0]->membership(v);
 
-      neigh_comms = new unordered_set<size_t>();
-      for (size_t layer = 0; layer < nb_layers; layer++)
+      if (this->slm_consider_comms == ALL_COMMS)
       {
-        unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
-        neigh_comms->insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
-        delete neigh_comm_layer;
+          // Add all communities to the set comms that are within the constrained community.
+          size_t v_constrained_comm = constrained_partition->membership(v);
+          unordered_set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
+          for (unordered_set<size_t>::const_iterator u_constrained_comm_it = constrained_comm.begin();
+               u_constrained_comm_it != constrained_comm.end();
+               u_constrained_comm_it++)
+          {
+            size_t u = *u_constrained_comm_it;
+            size_t u_comm = partitions[0]->membership(u);
+            comms.insert(u_comm);
+          }
       }
-      for (unordered_set<size_t>::iterator neigh_comm_it = neigh_comms->begin();
-           neigh_comm_it != neigh_comms->end(); ++neigh_comm_it)
+      else if (this->slm_consider_comms == ALL_NEIGH_COMMS)
       {
-        // Consider the improvement of moving to a community for all layers
-        neigh_comm = *neigh_comm_it;
-        for (size_t layer = 0; layer < nb_layers; layer++)
+          /****************************ALL NEIGH COMMS*****************************/
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            comms.insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
+          }
+      }
+      else if (this->slm_consider_comms == RAND_COMM)
+      {
+        /****************************RAND COMM***********************************/
+          size_t v_constrained_comm = constrained_partition->membership(v);
+          unordered_set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
+          vector<size_t> constrained_comm_list(constrained_comm.begin(), constrained_comm.end());
+          size_t random_idx = graphs[0]->get_random_int(0 ,constrained_comm_list.size() - 1);
+          comms.insert(constrained_comm_list[random_idx]);
+      }
+      else if (this->slm_consider_comms == RAND_NEIGH_COMM)
+      {
+        /****************************RAND NEIGH COMM*****************************/
+          // Draw a random community among the neighbours, proportional to the
+          // frequency of the communities among the neighbours. Notice this is no
+          // longer
+          vector<size_t> all_neigh_comms_incl_dupes;
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
+          }
+          size_t random_idx = graphs[0]->get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
+          comms.insert(all_neigh_comms_incl_dupes[random_idx]);
+      }
+
+      #ifdef DEBUG
+        cerr << "Consider " << comms.size() << " communities for moving." << endl;
+      #endif
+
+      for (unordered_set<size_t>::iterator comm_it = comms.begin();
+           comm_it!= comms.end();
+           comm_it++)
+      {
+        size_t comm = *comm_it;
+        if (partitions[0]->csize(comm) > 0)
         {
-          graph = graphs[layer];
-          partition = partitions[layer];
-          // Make sure to multiply it by the weight per layer
-          comm_improvs[neigh_comm] += layer_weights[layer]*partition->diff_move(v, neigh_comm);
+          // Consider the improvement of moving to a community for all layers
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            graph = graphs[layer];
+            partition = partitions[layer];
+            // Make sure to multiply it by the weight per layer
+            comm_improvs[comm] += layer_weights[layer]*partition->diff_move(v, comm);
+          }
         }
       }
-      delete neigh_comms;
 
       size_t max_comm = v_comm;
       double max_improv = 0.0;
