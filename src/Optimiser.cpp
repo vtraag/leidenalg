@@ -434,95 +434,77 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         it_vertex != vertex_order.end(); ++it_vertex)
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
-      unordered_map<size_t, double> comm_improvs;
-      size_t neigh_comm;
-      unordered_set<size_t>* neigh_comms = NULL;
+      unordered_set<size_t> comms;
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
       // What is the current community of the node (this should be the same for all layers)
       size_t v_comm = partitions[0]->membership(v);
-      switch (consider_comms)
+
+      if (this->slm_consider_comms == ALL_COMMS)
       {
-        /****************************ALL COMMS**********************************/
-        case ALL_COMMS:
-          for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
-          {
-            if (partitions[0]->csize(comm) > 0)
-            {
-              // Consider the improvement of moving to a community for all layers
-              for (size_t layer = 0; layer < nb_layers; layer++)
-              {
-                graph = graphs[layer];
-                partition = partitions[layer];
-                // Make sure to multiply it by the weight per layer
-                comm_improvs[comm] += layer_weights[layer]*partition->diff_move(v, comm);
-              }
-            }
-          }
-          break;
-        /****************************ALL NEIGH COMMS*****************************/
-        case ALL_NEIGH_COMMS:
-          neigh_comms = new unordered_set<size_t>();
-          for (size_t layer = 0; layer < nb_layers; layer++)
-          {
-            vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
-            neigh_comms->insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
-          }
-          for (unordered_set<size_t>::iterator neigh_comm_it = neigh_comms->begin();
-               neigh_comm_it != neigh_comms->end(); ++neigh_comm_it)
-          {
-            // Consider the improvement of moving to a community for all layers
-            neigh_comm = *neigh_comm_it;
-            for (size_t layer = 0; layer < nb_layers; layer++)
-            {
-              graph = graphs[layer];
-              partition = partitions[layer];
-              // Make sure to multiply it by the weight per layer
-              comm_improvs[neigh_comm] += layer_weights[layer]*partition->diff_move(v, neigh_comm);
-            }
-          }
-          delete neigh_comms;
-          break;
-        /****************************RAND COMM***********************************/
-        case RAND_COMM:
-          neigh_comm = partitions[0]->membership(graphs[0]->get_random_node());
-          for (size_t layer = 0; layer < nb_layers; layer++)
-          {
-            comm_improvs[neigh_comm] += layer_weights[layer]*partitions[layer]->diff_move(v, neigh_comm);
-          }
-          break;
-        /****************************RAND NEIGH COMM*****************************/
-        case RAND_NEIGH_COMM:
-          // Community membership should be consistent across layers
-          // anyway, so just read it once.
-          // First select a random layer
-          size_t rand_layer = graphs[0]->get_random_int(0, nb_layers - 1);
-          neigh_comm = partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL));
-          for (size_t layer = 0; layer < nb_layers; layer++)
-          {
-            comm_improvs[neigh_comm] += layer_weights[layer]*partitions[layer]->diff_move(v, neigh_comm);
-          }
-          break;
-      }
-      size_t max_comm = v_comm;
-      double max_improv = 0.0;
-      // Determine the maximum improvement
-      for (unordered_map<size_t, double>::iterator improv_it = comm_improvs.begin();
-           improv_it != comm_improvs.end(); improv_it++)
-      {
-        size_t comm = improv_it->first;
-        double local_improv = improv_it->second;
-        if (local_improv > max_improv)
+        for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
         {
-          max_comm = comm;
-          max_improv = local_improv;
+          if (partitions[0]->csize(comm) > 0)
+            comms.insert(comm);
         }
       }
+      else if (this->slm_consider_comms == ALL_NEIGH_COMMS)
+      {
+        /****************************ALL NEIGH COMMS*****************************/
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
+          comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+        }
+      }
+      else if (this->slm_consider_comms == RAND_COMM)
+      {
+        /****************************RAND COMM***********************************/
+        comms.insert( partitions[0]->membership(graphs[0]->get_random_node()) );
+      }
+      else if (this->slm_consider_comms == RAND_NEIGH_COMM)
+      {
+        /****************************RAND NEIGH COMM*****************************/
+        size_t rand_layer = graphs[0]->get_random_int(0, nb_layers - 1);
+        if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
+          comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL)) );
+      }
+
+      #ifdef DEBUG
+        cerr << "Consider " << comms.size() << " communities for moving." << endl;
+      #endif
+
+      size_t max_comm = v_comm;
+      double max_improv = 0.0;
+      for (unordered_set<size_t>::iterator comm_it = comms.begin();
+           comm_it!= comms.end();
+           comm_it++)
+      {
+        size_t comm = *comm_it;
+        double possible_improv = 0.0;
+        if (partitions[0]->csize(comm) > 0)
+        {
+          // Consider the improvement of moving to a community for all layers
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            graph = graphs[layer];
+            partition = partitions[layer];
+            // Make sure to multiply it by the weight per layer
+            possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+          }
+        }
+        if (possible_improv > max_improv)
+        {
+          max_comm = comm;
+          max_improv = possible_improv;
+        }
+      }
+
       // Check if we should move to an empty community
       if (this->consider_empty_community && partitions[0]->csize(v_comm) > graphs[0]->node_size(v))
       {
-        neigh_comm = partitions[0]->get_empty_community();
-        if (neigh_comm == partitions[0]->nb_communities())
+        size_t comm = partitions[0]->get_empty_community();
+        if (comm == partitions[0]->nb_communities())
         {
           // If the empty community has just been added, we need to make sure
           // that is has also been added to the other layers
@@ -533,13 +515,13 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         double possible_improv = 0.0;
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, neigh_comm);
+          possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
 
         if (possible_improv > max_improv)
         {
           max_improv = possible_improv;
-          max_comm = neigh_comm;
+          max_comm = comm;
         }
       }
 
@@ -666,7 +648,6 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         it_vertex != vertex_order.end(); ++it_vertex)
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
-      unordered_map<size_t, double> comm_improvs;
       unordered_set<size_t> comms;
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
@@ -717,19 +698,27 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
             unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
             all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
           }
-          size_t random_idx = graphs[0]->get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
-          comms.insert(all_neigh_comms_incl_dupes[random_idx]);
+          if (all_neigh_comms_incl_dupes.size() > 0)
+          {
+            size_t random_idx = graphs[0]->get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
+            comms.insert(all_neigh_comms_incl_dupes[random_idx]);
+          }
       }
 
       #ifdef DEBUG
         cerr << "Consider " << comms.size() << " communities for moving." << endl;
       #endif
 
+      size_t max_comm = v_comm;
+      double max_improv = 0.0;
+
       for (unordered_set<size_t>::iterator comm_it = comms.begin();
            comm_it!= comms.end();
            comm_it++)
       {
         size_t comm = *comm_it;
+        double possible_improv = 0.0;
+
         if (partitions[0]->csize(comm) > 0)
         {
           // Consider the improvement of moving to a community for all layers
@@ -738,25 +727,15 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
             graph = graphs[layer];
             partition = partitions[layer];
             // Make sure to multiply it by the weight per layer
-            comm_improvs[comm] += layer_weights[layer]*partition->diff_move(v, comm);
+            possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
           }
         }
-      }
 
-      size_t max_comm = v_comm;
-      double max_improv = 0.0;
-      // TODO: Not implemented yet to consider moving to an empty community for
-      // several layers of graphs.
-      // Determine the maximum improvement
-      for (unordered_map<size_t, double>::iterator improv_it = comm_improvs.begin();
-           improv_it != comm_improvs.end(); improv_it++)
-      {
-        size_t comm = improv_it->first;
-        double local_improv = improv_it->second;
-        if (local_improv > max_improv)
+        // Check if improvement is best
+        if (possible_improv > max_improv)
         {
           max_comm = comm;
-          max_improv = local_improv;
+          max_improv = possible_improv;
         }
       }
 
