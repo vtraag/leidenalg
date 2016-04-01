@@ -162,7 +162,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       #ifdef DEBUG
         cerr << "\tStarting SLM with " << sub_collapsed_partitions[0]->nb_communities() << " communities." << endl;
       #endif
-      this->move_nodes_constrained(sub_collapsed_partitions, layer_weights, collapsed_partitions[0]->membership());
+      this->move_nodes_constrained(sub_collapsed_partitions, layer_weights, collapsed_partitions[0]);
       #ifdef DEBUG
         cerr << "\tAfter applying SLM found " << sub_collapsed_partitions[0]->nb_communities() << " communities." << endl;
       #endif
@@ -360,12 +360,12 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
   return this->move_nodes(partitions, layer_weights, consider_comms);
 }
 
-double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, vector<size_t> const& constrained_membership)
+double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
 {
   vector<MutableVertexPartition*> partitions(1, NULL);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->move_nodes_constrained(partitions, layer_weights, constrained_membership);
+  return this->move_nodes_constrained(partitions, layer_weights, constrained_partition);
 }
 
 /*****************************************************************************
@@ -605,7 +605,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return total_improv;
 }
 
-double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> const& constrained_membership)
+double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> const& constrained_membership)" << endl;
@@ -676,7 +676,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       neigh_comms = new unordered_set<size_t>();
       for (size_t layer = 0; layer < nb_layers; layer++)
       {
-        unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_membership);
+        unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
         neigh_comms->insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
         delete neigh_comm_layer;
       }
