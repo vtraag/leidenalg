@@ -318,7 +318,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     #ifdef DEBUG
         cerr << "Number of communities: " << partitions[0]->nb_communities() << endl;
     #endif
-  } while (improv > this->eps);
+  } while (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->nb_communities());
 
   // Clean up memory after use.
   for (size_t layer = 0; layer < nb_layers; layer++)
