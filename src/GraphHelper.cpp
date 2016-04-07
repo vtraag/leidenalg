@@ -422,7 +422,7 @@ void Graph::init_admin()
   size_t n_size = this->total_size();
 
   // For now we default to not correcting self loops.
-  // this->_correct_self_loops = false; (remove this as this is unordered_set in the constructor)
+  // this->_correct_self_loops = false; (remove this as this is set in the constructor)
 
   double normalise = 0.0;
   if (this->_correct_self_loops)

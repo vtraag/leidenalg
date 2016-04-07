@@ -3,7 +3,7 @@
 
 #include <igraph.h>
 #include <vector>
-#include <unordered_set>
+#include <set>
 #include <exception>
 #include <gsl_rng.h>
 #include <gsl_randist.h>
@@ -18,7 +18,7 @@ class MutableVertexPartition;
 
 using std::vector;
 using std::pair;
-using std::unordered_set;
+using std::set;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
@@ -141,7 +141,7 @@ class Graph
     inline size_t node_size(size_t v)
     { return this->_node_sizes[v]; };
 
-    // Get self weight of node based on attribute (or unordered_set to 0.0 if there is none)
+    // Get self weight of node based on attribute (or set to 0.0 if there is none)
     inline double node_self_weight(size_t v)
     { return this->_node_self_weights[v]; };
 

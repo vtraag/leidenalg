@@ -434,7 +434,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         it_vertex != vertex_order.end(); ++it_vertex)
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
-      unordered_set<size_t> comms;
+      set<size_t> comms;
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
       // What is the current community of the node (this should be the same for all layers)
@@ -476,7 +476,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
       size_t max_comm = v_comm;
       double max_improv = 0.0;
-      for (unordered_set<size_t>::iterator comm_it = comms.begin();
+      for (set<size_t>::iterator comm_it = comms.begin();
            comm_it!= comms.end();
            comm_it++)
       {
@@ -648,7 +648,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         it_vertex != vertex_order.end(); ++it_vertex)
     {
       size_t v = *it_vertex; // The actual vertex we will now consider
-      unordered_set<size_t> comms;
+      set<size_t> comms;
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
       // What is the current community of the node (this should be the same for all layers)
@@ -658,8 +658,8 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       {
           // Add all communities to the set comms that are within the constrained community.
           size_t v_constrained_comm = constrained_partition->membership(v);
-          unordered_set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
-          for (unordered_set<size_t>::const_iterator u_constrained_comm_it = constrained_comm.begin();
+          set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
+          for (set<size_t>::const_iterator u_constrained_comm_it = constrained_comm.begin();
                u_constrained_comm_it != constrained_comm.end();
                u_constrained_comm_it++)
           {
@@ -673,7 +673,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           /****************************ALL NEIGH COMMS*****************************/
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
             comms.insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
           }
       }
@@ -681,7 +681,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       {
         /****************************RAND COMM***********************************/
           size_t v_constrained_comm = constrained_partition->membership(v);
-          unordered_set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
+          set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
           vector<size_t> constrained_comm_list(constrained_comm.begin(), constrained_comm.end());
           size_t random_idx = graphs[0]->get_random_int(0 ,constrained_comm_list.size() - 1);
           comms.insert(constrained_comm_list[random_idx]);
@@ -695,7 +695,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           vector<size_t> all_neigh_comms_incl_dupes;
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            unordered_set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
             all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
           }
           if (all_neigh_comms_incl_dupes.size() > 0)
@@ -712,7 +712,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       size_t max_comm = v_comm;
       double max_improv = 0.0;
 
-      for (unordered_set<size_t>::iterator comm_it = comms.begin();
+      for (set<size_t>::iterator comm_it = comms.begin();
            comm_it!= comms.end();
            comm_it++)
       {
