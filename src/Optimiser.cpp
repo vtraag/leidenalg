@@ -675,6 +675,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           {
             set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
             comms.insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
+            delete neigh_comm_layer;
           }
       }
       else if (this->slm_consider_comms == RAND_COMM)
@@ -697,6 +698,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           {
             set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
             all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
+            delete neigh_comm_layer;
           }
           if (all_neigh_comms_incl_dupes.size() > 0)
           {
