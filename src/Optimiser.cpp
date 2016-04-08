@@ -428,7 +428,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     // Establish vertex order
     vector<size_t> vertex_order = range(n);
     if (this->random_order)
-      random_shuffle( vertex_order.begin(), vertex_order.end() );
+      shuffle( vertex_order );
     // For each node
     for(vector<size_t>::iterator it_vertex = vertex_order.begin();
         it_vertex != vertex_order.end(); ++it_vertex)
@@ -465,7 +465,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       else if (this->slm_consider_comms == RAND_NEIGH_COMM)
       {
         /****************************RAND NEIGH COMM*****************************/
-        size_t rand_layer = graphs[0]->get_random_int(0, nb_layers - 1);
+        size_t rand_layer = get_random_int(0, nb_layers - 1);
         if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
           comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL)) );
       }
@@ -641,7 +641,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     vector<size_t> vertex_order = range(n);
     // But if we use a random order, we shuffle this order.
     if (this->random_order)
-      random_shuffle( vertex_order.begin(), vertex_order.end() );
+      shuffle( vertex_order );
 
     // For each node
     for(vector<size_t>::iterator it_vertex = vertex_order.begin();
@@ -683,7 +683,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           size_t v_constrained_comm = constrained_partition->membership(v);
           set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
           vector<size_t> constrained_comm_list(constrained_comm.begin(), constrained_comm.end());
-          size_t random_idx = graphs[0]->get_random_int(0 ,constrained_comm_list.size() - 1);
+          size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1);
           comms.insert(constrained_comm_list[random_idx]);
       }
       else if (this->slm_consider_comms == RAND_NEIGH_COMM)
@@ -700,7 +700,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           }
           if (all_neigh_comms_incl_dupes.size() > 0)
           {
-            size_t random_idx = graphs[0]->get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
+            size_t random_idx = get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
             comms.insert(all_neigh_comms_incl_dupes[random_idx]);
           }
       }

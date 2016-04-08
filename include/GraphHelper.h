@@ -5,8 +5,6 @@
 #include <vector>
 #include <set>
 #include <exception>
-#include <gsl_rng.h>
-#include <gsl_randist.h>
 
 //#ifdef DEBUG
 #include <iostream>
@@ -56,6 +54,27 @@ class Exception : std::exception
 
 };
 
+inline igraph_rng_t* init_rng()
+{
+  igraph_rng_t* rng = new igraph_rng_t();
+  igraph_rng_init(rng, &igraph_rngtype_mt19937);
+  return rng;
+}
+
+static igraph_rng_t* default_rng = init_rng();
+
+inline size_t set_rng_seed(size_t seed)
+{
+  igraph_rng_seed(default_rng, seed);
+};
+
+inline size_t get_random_int(size_t from, size_t to)
+{
+  return igraph_rng_get_integer(default_rng, from, to);
+};
+
+void shuffle(vector<size_t>& v);
+
 class Graph
 {
   public:
@@ -95,16 +114,10 @@ class Graph
     vector<size_t> const& get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
-    size_t get_weighted_random_neighbour(size_t v, igraph_neimode_t mode);
 
     inline size_t get_random_node()
     {
-      return this->get_random_int(0, this->vcount() - 1);
-    };
-
-    inline size_t get_random_int(size_t from, size_t to)
-    {
-      return igraph_rng_get_integer(igraph_rng_default(), from, to);
+      return get_random_int(0, this->vcount() - 1);
     };
 
     inline igraph_t* get_igraph() { return this->_graph; };
@@ -202,10 +215,6 @@ class Graph
 
     int _correct_self_loops;
     double _density;
-
-    int _initialized_weighted_neigh_selection;
-    gsl_rng* _rng;
-    vector<gsl_ran_discrete_t*> _weighted_neigh_prob_preproc; // Used for sampling a random neighbour when using a weighted graph.
 
     void init_admin();
     void init_weighted_neigh_selection();

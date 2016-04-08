@@ -21,6 +21,18 @@ bool pairCompareReverseSecond(const std::pair<size_t, size_t>& A, const std::pai
     return A.first > B.first;
 }
 
+void shuffle(vector<size_t>& v)
+{
+  size_t n = v.size();
+  for (size_t idx = n - 1; idx > 0; idx--)
+  {
+    size_t rand_idx = get_random_int(0, idx);
+    size_t tmp = v[idx];
+    v[idx] = v[rand_idx];
+    v[rand_idx] = tmp;
+  }
+}
+
 /****************************************************************************
   The binary Kullback-Leibler divergence.
 ****************************************************************************/
@@ -237,12 +249,6 @@ Graph::Graph()
 
 Graph::~Graph()
 {
-  if (this->_initialized_weighted_neigh_selection)
-  {
-    for (size_t v = 0; v < this->vcount(); v++)
-      gsl_ran_discrete_free(this->_weighted_neigh_prob_preproc[v]);
-    gsl_rng_free(this->_rng);
-  }
   if (this->_remove_graph)
   {
     igraph_destroy(this->_graph);
@@ -435,8 +441,6 @@ void Graph::init_admin()
   else
     this->_density = 2*w/normalise;
 
-  this->_initialized_weighted_neigh_selection = false;
-
   this->_current_node_cache_neigh_edges_from = n + 1;
   this->_current_node_cache_neigh_edges_to = n + 1;
   this->_current_node_cache_neigh_edges_all = n + 1;
@@ -444,46 +448,6 @@ void Graph::init_admin()
   this->_current_node_cache_neigh_from = n + 1;
   this->_current_node_cache_neigh_to = n + 1;
   this->_current_node_cache_neigh_all = n + 1;
-}
-
-void Graph::init_weighted_neigh_selection()
-{
-  size_t n = this->vcount();
-  // Init weighted sampling
-  this->_weighted_neigh_prob_preproc.clear();
-  this->_weighted_neigh_prob_preproc.resize(n);
-  for (size_t v = 0; v < n; v++)
-  {
-    size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
-    size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
-
-    size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
-    size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
-
-    size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
-    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
-
-    size_t k = total_outdegree + total_indegree;
-    if (k > 0)
-    {
-      double* weights = new double[k];
-      size_t idx = 0;
-      for (size_t i = 0; i < total_outdegree; i++)
-      {
-        size_t neigh_idx = cum_outdegree_this_node + i;
-        weights[idx++] = this->edge_weight( VECTOR(this->_graph->oi)[neigh_idx] );
-      }
-      for (size_t i = 0; i < total_indegree; i++)
-      {
-        size_t neigh_idx = cum_indegree_this_node + i;
-        weights[idx++] = this->edge_weight( VECTOR(this->_graph->ii)[neigh_idx] );
-      }
-      this->_weighted_neigh_prob_preproc[v] = gsl_ran_discrete_preproc (k, weights);
-      delete[] weights;
-    }
-  }
-  this->_rng = gsl_rng_alloc(gsl_rng_taus);
-  this->_initialized_weighted_neigh_selection = true;
 }
 
 void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
@@ -665,7 +629,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->os)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->os)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = this->get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
       // Return the neighbour at that index
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
@@ -678,7 +642,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->is)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->is)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = this->get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
       #endif
@@ -698,7 +662,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
     size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
-    size_t rand_idx = this->get_random_int(0, total_outdegree + total_indegree - 1);
+    size_t rand_idx = get_random_int(0, total_outdegree + total_indegree - 1);
 
     #ifdef DEBUG
       cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
@@ -717,51 +681,6 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
   }
 
   return rand_neigh;
-}
-
-size_t Graph::get_weighted_random_neighbour(size_t v, igraph_neimode_t mode)
-{
-  if (this->_is_weighted)
-  {
-    if (!this->_initialized_weighted_neigh_selection)
-      this->init_weighted_neigh_selection();
-
-    // TODO: Currently only implemented random selection for all nodes, not for only
-    // incoming / outgoing nodes. Question is: do we really need that as well?
-
-    // both in- and out- neighbors in a directed graph.
-    size_t cum_outdegree_this_node = (size_t)VECTOR(this->_graph->os)[v];
-    size_t cum_indegree_this_node  = (size_t)VECTOR(this->_graph->is)[v];
-
-    size_t cum_outdegree_next_node = (size_t)VECTOR(this->_graph->os)[v+1];
-    size_t cum_indegree_next_node  = (size_t)VECTOR(this->_graph->is)[v+1];
-
-    size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
-    size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
-
-    size_t rand_idx = gsl_ran_discrete(this->_rng, this->_weighted_neigh_prob_preproc[v]);
-
-    #ifdef DEBUG
-      cerr << "Degree: " << this->degree(v, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
-    #endif
-    size_t rand_neigh;
-    // From among in or out neighbours?
-    if (rand_idx < total_outdegree)
-    { // From among outgoing neighbours
-      size_t rand_neigh_idx = cum_outdegree_this_node + rand_idx;
-      rand_neigh = VECTOR(this->_graph->to)[ (size_t)VECTOR(this->_graph->oi)[rand_neigh_idx] ];
-    }
-    else
-    { // From among incoming neighbours
-      size_t rand_neigh_idx = cum_indegree_this_node + rand_idx - total_outdegree;
-      rand_neigh = VECTOR(this->_graph->from)[ (size_t)VECTOR(this->_graph->ii)[rand_neigh_idx] ];
-    }
-    return rand_neigh;
-  }
-  else
-  {
-    return this->get_random_neighbour(v, mode);
-  }
 }
 
 /****************************************************************************
