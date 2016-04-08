@@ -21,6 +21,18 @@ bool pairCompareReverseSecond(const std::pair<size_t, size_t>& A, const std::pai
     return A.first > B.first;
 }
 
+void shuffle(vector<size_t>& v)
+{
+  size_t n = v.size();
+  for (size_t idx = n - 1; idx > 0; idx--)
+  {
+    size_t rand_idx = get_random_int(0, idx);
+    size_t tmp = v[idx];
+    v[idx] = v[rand_idx];
+    v[rand_idx] = tmp;
+  }
+}
+
 /****************************************************************************
   The binary Kullback-Leibler divergence.
 ****************************************************************************/
@@ -617,7 +629,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->os)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->os)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = this->get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
       // Return the neighbour at that index
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
@@ -630,7 +642,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->is)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->is)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = this->get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
       #endif
@@ -650,7 +662,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
     size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
-    size_t rand_idx = this->get_random_int(0, total_outdegree + total_indegree - 1);
+    size_t rand_idx = get_random_int(0, total_outdegree + total_indegree - 1);
 
     #ifdef DEBUG
       cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;

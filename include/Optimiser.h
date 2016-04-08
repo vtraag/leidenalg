@@ -2,7 +2,6 @@
 #define OPTIMISER_H
 #include "GraphHelper.h"
 #include "MutableVertexPartition.h"
-#include <algorithm>
 #include <set>
 #include <map>
 
@@ -10,7 +9,6 @@
 using std::cerr;
 using std::endl;
 using std::set;
-using std::random_shuffle;
 using std::map;
 
 /****************************************************************************
