@@ -59,6 +59,7 @@ class MutableVertexPartition(_ig.VertexClustering):
       gen = _ig.UniqueIdGenerator();
       initial_membership = [gen[m] for m in initial_membership];
     self._partition = _c_louvain._new_MutableVertexPartition(pygraph_t, method, initial_membership, weight, node_sizes, resolution_parameter);
+    self._update_internal_membership();
 
   @classmethod
   def _FromCPartition(cls, partition):
