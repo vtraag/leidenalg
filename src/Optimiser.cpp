@@ -191,7 +191,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       // even though the aggregation may be slightly different, the
       // membership of the aggregated nodes is as indicated by the original partition.)
       #ifdef DEBUG
-        cerr << "SLM\tOrig" << endl;
+        //cerr << "SLM\tOrig" << endl;
       #endif // DEBUG
       for (size_t v = 0; v < collapsed_graphs[0]->vcount(); v++)
       {
@@ -273,6 +273,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
              << ", collapsed_partition->quality()=" << q_collapsed << endl;
         cerr <<   "graph->total_weight()=" << graphs[layer]->total_weight()
              << ", collapsed_graph->total_weight()=" << collapsed_graphs[layer]->total_weight() << endl;
+        cerr <<   "graph->vcount()=" << graphs[layer]->vcount()
+             << ", collapsed_graph->vcount()="  << collapsed_graphs[layer]->vcount() << endl;
         cerr <<   "graph->ecount()=" << graphs[layer]->ecount()
              << ", collapsed_graph->ecount()="  << collapsed_graphs[layer]->ecount() << endl;
         cerr <<   "graph->is_directed()=" << graphs[layer]->is_directed()
@@ -501,7 +503,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
 
       // Check if we should move to an empty community
-      if (this->consider_empty_community && partitions[0]->csize(v_comm) > graphs[0]->node_size(v))
+      // We should not do smart local move without considering empty communities
+      if ((this->consider_empty_community || this->smart_local_move) && partitions[0]->csize(v_comm) > graphs[0]->node_size(v))
       {
         size_t comm = partitions[0]->get_empty_community();
         if (comm == partitions[0]->nb_communities())
