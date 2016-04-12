@@ -506,6 +506,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       // We should not do smart local move without considering empty communities
       if ((this->consider_empty_community || this->smart_local_move) && partitions[0]->csize(v_comm) > graphs[0]->node_size(v))
       {
+        //TODO: The empty community is not always the same across different layers!
+        // To take that into account fully correctly, we would need to take the intersection
+        // of empty communities.
         size_t comm = partitions[0]->get_empty_community();
         if (comm == partitions[0]->nb_communities())
         {

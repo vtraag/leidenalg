@@ -49,12 +49,21 @@ class MutableVertexPartition(_ig.VertexClustering):
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
     self._method = method;
     pygraph_t = _get_py_capsule(graph);
+
     if weight is not None:
       if isinstance(weight, str):
         weight = graph.es[weight];
       else:
         # Make sure it is a list
         weight = list(weight);
+
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes];
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes);
+
     if initial_membership is not None:
       gen = _ig.UniqueIdGenerator();
       initial_membership = [gen[m] for m in initial_membership];

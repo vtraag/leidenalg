@@ -188,6 +188,12 @@ void MutableVertexPartition::init_admin()
     #endif
 
     this->_total_possible_edges_in_all_comms += possible_edges;
+
+    // It is possible that some community have a zero size because
+    // node sizes may be zero. We add those communities to the empty
+    // communities vector for consistency.
+    if (n_c == 0)
+      this->_empty_communities.push_back(c);
   }
 
   #ifdef DEBUG
