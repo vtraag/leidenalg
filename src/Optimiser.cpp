@@ -1,5 +1,7 @@
 #include "Optimiser.h"
 
+#define DEBUG
+
 /****************************************************************************
   Create a new Optimiser object
 
@@ -132,7 +134,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
   // This reflects the aggregate node, which to start with is simply equal to the graph.
   vector<size_t> aggregate_node_per_individual_node = range(n);
-
+  int aggregated_further = true;
   // As long as there remains improvement iterate
   do
   {
@@ -243,6 +245,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       }
     }
 
+    aggregated_further = (new_collapsed_graphs[0]->vcount() < collapsed_graphs[0]->vcount());
 
     // Delete the previous collapsed partition and graph
     for (size_t layer = 0; layer < nb_layers; layer++)
@@ -320,7 +323,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     #ifdef DEBUG
         cerr << "Number of communities: " << partitions[0]->nb_communities() << endl;
     #endif
-  } while (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->nb_communities());
+  } while (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->nb_communities() && aggregated_further);
 
   // Clean up memory after use.
   for (size_t layer = 0; layer < nb_layers; layer++)
@@ -510,31 +513,40 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
 
       // Check if we should move to an empty community
-      // We should not do smart local move without considering empty communities
-      if (this->consider_empty_community || this->smart_local_move)
+      if (this->consider_empty_community || this->smart_local_move) // We should not do smart local move without considering empty communities
       {
-        //TODO: The empty community is not always the same across different layers!
-        // To take that into account fully correctly, we would need to take the intersection
-        // of empty communities.
-        size_t comm = partitions[0]->get_empty_community();
-        if (comm == partitions[0]->nb_communities())
-        {
-          // If the empty community has just been added, we need to make sure
-          // that is has also been added to the other layers
-          for (size_t layer = 0; layer < nb_layers; layer++)
-            partitions[layer]->add_empty_community();
-        }
-
-        double possible_improv = 0.0;
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
-        }
+          graph = graphs[layer];
+          partition = partitions[layer];
+          if ( partition->csize(v_comm) > graph->node_size(v) )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+          {
+            size_t comm = partition->get_empty_community();
+            #ifdef DEBUG
+              cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
+            #endif
+            if (comm == partition->nb_communities())
+            {
+              // If the empty community has just been added, we need to make sure
+              // that is has also been added to the other layers
+              for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+                partitions[layer_2]->add_empty_community();
+            }
 
-        if (possible_improv > max_improv)
-        {
-          max_improv = possible_improv;
-          max_comm = comm;
+            double possible_improv = 0.0;
+            for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+            {
+              possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
+            }
+            #ifdef DEBUG
+              cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
+            #endif
+            if (possible_improv > max_improv)
+            {
+              max_improv = possible_improv;
+              max_comm = comm;
+            }
+          }
         }
       }
 

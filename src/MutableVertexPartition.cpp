@@ -289,6 +289,18 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
       cerr << "ERROR: New community (" << new_comm << ") larger than total number of communities (" << this->nb_communities() << ")." << endl;
   #endif
   // Move node and update internal administration
+  if (new_comm >= this->nb_communities())
+  {
+    if (new_comm < this->graph->vcount())
+    {
+      while (new_comm >= this->nb_communities())
+        this->add_empty_community();
+    }
+    else
+    {
+      throw Exception("Cannot add new communities beyond the number of nodes.");
+    }
+  }
 
   // Keep track of all possible edges in all communities;
   size_t node_size = this->graph->node_size(v);

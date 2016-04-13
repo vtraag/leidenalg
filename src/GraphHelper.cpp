@@ -523,7 +523,7 @@ vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode
       }
       return this->_cached_neigh_edges_all;
   }
-  throw Exception("Incorrect model for gettin neighbour edges.");
+  throw Exception("Incorrect model for getting neighbour edges.");
 }
 
 void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
