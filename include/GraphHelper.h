@@ -6,8 +6,6 @@
 #include <set>
 #include <exception>
 
-#define DEBUG
-
 //#ifdef DEBUG
 #include <iostream>
   using std::cerr;

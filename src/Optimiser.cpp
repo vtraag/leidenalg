@@ -446,8 +446,16 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       {
         for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
         {
-          if (partitions[0]->csize(comm) > 0)
-            comms.insert(comm);
+
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            if (partitions[layer]->csize(comm) > 0)
+            {
+              comms.insert(comm);
+              break; // Break from for loop in layer
+            }
+          }
+
         }
       }
       else if (this->slm_consider_comms == ALL_NEIGH_COMMS)
@@ -484,17 +492,16 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       {
         size_t comm = *comm_it;
         double possible_improv = 0.0;
-        if (partitions[0]->csize(comm) > 0)
+
+        // Consider the improvement of moving to a community for all layers
+        for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          // Consider the improvement of moving to a community for all layers
-          for (size_t layer = 0; layer < nb_layers; layer++)
-          {
-            graph = graphs[layer];
-            partition = partitions[layer];
-            // Make sure to multiply it by the weight per layer
-            possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
-          }
+          graph = graphs[layer];
+          partition = partitions[layer];
+          // Make sure to multiply it by the weight per layer
+          possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
         }
+
         if (possible_improv > max_improv)
         {
           max_comm = comm;
@@ -504,7 +511,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
       // Check if we should move to an empty community
       // We should not do smart local move without considering empty communities
-      if ((this->consider_empty_community || this->smart_local_move) && partitions[0]->csize(v_comm) > graphs[0]->node_size(v))
+      if (this->consider_empty_community || this->smart_local_move)
       {
         //TODO: The empty community is not always the same across different layers!
         // To take that into account fully correctly, we would need to take the intersection
@@ -727,16 +734,13 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         size_t comm = *comm_it;
         double possible_improv = 0.0;
 
-        if (partitions[0]->csize(comm) > 0)
+        // Consider the improvement of moving to a community for all layers
+        for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          // Consider the improvement of moving to a community for all layers
-          for (size_t layer = 0; layer < nb_layers; layer++)
-          {
-            graph = graphs[layer];
-            partition = partitions[layer];
-            // Make sure to multiply it by the weight per layer
-            possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
-          }
+          graph = graphs[layer];
+          partition = partitions[layer];
+          // Make sure to multiply it by the weight per layer
+          possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
         }
 
         // Check if improvement is best

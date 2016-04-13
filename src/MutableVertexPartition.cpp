@@ -285,6 +285,8 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
 {
   #ifdef DEBUG
     cerr << "void MutableVertexPartition::move_node(" << v << ", " << new_comm << ")" << endl;
+    if (new_comm >= this->nb_communities())
+      cerr << "ERROR: New community (" << new_comm << ") larger than total number of communities (" << this->nb_communities() << ")." << endl;
   #endif
   // Move node and update internal administration
 
@@ -343,9 +345,10 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
     #ifdef DEBUG
       cerr << "Erasing empty community " << *it_comm << endl;
       if (it_comm == this->_empty_communities.rend())
-        cerr << "ERROR, empty community does not exist." << endl;
+        cerr << "ERROR: empty community does not exist." << endl;
     #endif
-    this->_empty_communities.erase( (++it_comm).base() );
+    if (it_comm != this->_empty_communities.rend())
+      this->_empty_communities.erase( (++it_comm).base() );
   }
 
   #ifdef DEBUG
