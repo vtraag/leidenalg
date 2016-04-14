@@ -443,7 +443,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       // What is the current community of the node (this should be the same for all layers)
       size_t v_comm = partitions[0]->membership(v);
 
-      if (this->slm_consider_comms == ALL_COMMS)
+      if (this->consider_comms == ALL_COMMS)
       {
         for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
         {
@@ -458,7 +458,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
         }
       }
-      else if (this->slm_consider_comms == ALL_NEIGH_COMMS)
+      else if (this->consider_comms == ALL_NEIGH_COMMS)
       {
         /****************************ALL NEIGH COMMS*****************************/
         for (size_t layer = 0; layer < nb_layers; layer++)
@@ -467,12 +467,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
       }
-      else if (this->slm_consider_comms == RAND_COMM)
+      else if (this->consider_comms == RAND_COMM)
       {
         /****************************RAND COMM***********************************/
         comms.insert( partitions[0]->membership(graphs[0]->get_random_node()) );
       }
-      else if (this->slm_consider_comms == RAND_NEIGH_COMM)
+      else if (this->consider_comms == RAND_NEIGH_COMM)
       {
         /****************************RAND NEIGH COMM*****************************/
         size_t rand_layer = get_random_int(0, nb_layers - 1);
