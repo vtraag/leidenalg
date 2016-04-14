@@ -189,10 +189,10 @@ void MutableVertexPartition::init_admin()
 
     this->_total_possible_edges_in_all_comms += possible_edges;
 
-    // It is possible that some community have a zero size because
-    // node sizes may be zero. We add those communities to the empty
+    // It is possible that some community have a zero size (if the order
+    // is for example not consecutive. We add those communities to the empty
     // communities vector for consistency.
-    if (n_c == 0)
+    if (this->community[c]->size() == 0)
       this->_empty_communities.push_back(c);
   }
 
@@ -330,7 +330,10 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
     cerr << "Removed from old community." << endl;
   #endif
 
-  if (this->_csize[old_comm] == 0)
+  // We have to use the size of the set of nodes rather than the csize
+  // to account for nodes that have a zero size (i.e. community may not be empty, but
+  // may have zero size).
+  if (this->community[old_comm]->size() == 0)
   {
     #ifdef DEBUG
       cerr << "Adding community " << old_comm << " to empty communities." << endl;
@@ -341,7 +344,7 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
     #endif
   }
 
-  if (this->_csize[new_comm] == 0)
+  if (this->community[new_comm]->size() == 0)
   {
     #ifdef DEBUG
       cerr << "Removing from empty communities (number of empty communities is " << this->_empty_communities.size() << ")." << endl;
