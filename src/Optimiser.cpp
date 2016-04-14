@@ -447,10 +447,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       {
         for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
         {
-
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            if (partitions[layer]->csize(comm) > 0)
+            if (partitions[layer]->get_community(comm).size() > 0)
             {
               comms.insert(comm);
               break; // Break from for loop in layer
@@ -517,7 +516,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         {
           graph = graphs[layer];
           partition = partitions[layer];
-          if ( partition->csize(v_comm) > graph->node_size(v) )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+          if ( partition->get_community(v_comm).size() > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
           {
             size_t comm = partition->get_empty_community();
             #ifdef DEBUG
