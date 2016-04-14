@@ -805,6 +805,9 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         // Keep track of number of moves
         nb_moves += 1;
       }
+      #ifdef DEBUG
+        cerr << "Moved " << nb_moves << " nodes." << endl;
+      #endif
     }
     // Keep track of total improvement over multiple loops
     total_improv += improv;
