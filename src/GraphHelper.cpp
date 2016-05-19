@@ -13,13 +13,20 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
-bool pairCompareReverseSecond(const std::pair<size_t, size_t>& A, const std::pair<size_t, size_t>& B)
+bool orderCSize(const size_t* A, const size_t* B)
 {
-  if (A.first == B.first)
-    return A.second < B.second;
+
+  if (A[1] == B[1])
+  {
+    if (A[2] == B[2])
+      return A[0] < B[0];
+    else
+      return A[2] > B[2];
+  }
   else
-    return A.first > B.first;
+    return A[1] > B[1];
 }
+
 
 void shuffle(vector<size_t>& v)
 {

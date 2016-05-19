@@ -74,7 +74,8 @@ class MutableVertexPartition
 
     void renumber_communities();
     void renumber_communities(vector<size_t> const& new_membership);
-      size_t get_empty_community();
+    vector<size_t> static renumber_communities(vector<MutableVertexPartition*> partitions);
+    size_t get_empty_community();
     size_t add_empty_community();
     void from_coarser_partition(vector<size_t> const& coarser_partition_membership);
     void from_coarser_partition(MutableVertexPartition* partition);

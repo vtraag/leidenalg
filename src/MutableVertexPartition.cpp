@@ -209,31 +209,62 @@ void MutableVertexPartition::init_admin()
 *****************************************************************************/
 void MutableVertexPartition::renumber_communities()
 {
-  size_t nb_comms = this->nb_communities();
+  vector<MutableVertexPartition*> partitions(1, NULL);
+  partitions[0] = this;
+  this->renumber_communities(MutableVertexPartition::renumber_communities(partitions));
+}
 
+vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertexPartition*> partitions)
+{
+  size_t nb_layers = partitions.size();
+  size_t nb_comms = partitions[0]->nb_communities();
+  size_t n = partitions[0]->graph->vcount();
+
+  #ifdef DEBUG
+    for (size_t layer; layer < nb_layers; layer++)
+    {
+      for (size_t v; v < n; v++)
+        if (partitions[0]->membership[v] != partitions[layer]->membership[v])
+          cerr << "Membership of all partitions are not equal".
+    }
+  #endif
   // First sort the communities by size
-  vector<pair<size_t,size_t> > csizes;
+  // Csizes
+  // first - community
+  // second - csize
+  // third - number of nodes (may be aggregate nodes), to account for communities with zero weight.
+  vector<size_t*> csizes;
   for (size_t i = 0; i < nb_comms; i++)
   {
-      csizes.push_back(make_pair(this->csize(i) + this->community[i]->size(), i));
+      size_t csize = 0;
+      for (size_t layer = 0; layer < nb_layers; layer++)
+        csize += partitions[layer]->csize(i);
+
+      size_t* row = new size_t[3];
+      row[0] = i;
+      row[1] = csize;
+      row[2] = partitions[0]->community[i]->size();
+      csizes.push_back(row);
   }
-  sort(csizes.begin(), csizes.end(), pairCompareReverseSecond);
+  sort(csizes.begin(), csizes.end(), orderCSize);
 
   // Then use the sort order to assign new communities,
   // such that the largest community gets the lowest index.
   vector<size_t> new_comm_id(nb_comms, 0);
   for (size_t i = 0; i < nb_comms; i++)
   {
-    size_t comm = csizes[i].second;
+    size_t comm = csizes[i][0];
     new_comm_id[comm] = i;
+    delete[] csizes[i];
   }
 
-  for (size_t i = 0; i < this->graph->vcount(); i++)
-    this->_membership[i] = new_comm_id[this->_membership[i]];
+  vector<size_t> membership(n, 0);
+  for (size_t i = 0; i < n; i++)
+    membership[i] = new_comm_id[partitions[0]->_membership[i]];
 
-  this->clean_mem();
-  this->init_admin();
+  return membership;
 }
+
 
 /****************************************************************************
  Renumber the communities using the provided membership vector. Notice that this

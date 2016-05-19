@@ -322,13 +322,11 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // Make sure the resulting communities are called 0,...,r-1
   // where r is the number of communities.
   q = 0.0;
-  partitions[0]->renumber_communities();
-  q += partitions[0]->quality()*layer_weights[0];
-  vector<size_t> membership = partitions[0]->membership();
+  vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
-  for (size_t layer = 1; layer < nb_layers; layer++)
+  for (size_t layer = 0; layer < nb_layers; layer++)
   {
     partitions[layer]->renumber_communities(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
