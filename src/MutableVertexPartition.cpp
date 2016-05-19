@@ -215,7 +215,7 @@ void MutableVertexPartition::renumber_communities()
   vector<pair<size_t,size_t> > csizes;
   for (size_t i = 0; i < nb_comms; i++)
   {
-      csizes.push_back(make_pair(this->csize(i), i));
+      csizes.push_back(make_pair(this->csize(i) + this->community[i]->size(), i));
   }
   sort(csizes.begin(), csizes.end(), pairCompareReverseSecond);
 
