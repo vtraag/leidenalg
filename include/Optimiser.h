@@ -48,7 +48,6 @@ class Optimiser
     int smart_local_move; // Do smart local move
     int slm_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
     int consider_empty_community; // Indicates whether we will also consider to move a node to an empty community
-    int move_individual; // We consider to move individual nodes after aggregation
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.

@@ -73,16 +73,6 @@ class Optimiser(object):
     _c_louvain._Optimiser_set_consider_comms(self._optimiser, value);
 
   #########################################################3
-  # move_individual
-  @property
-  def move_individual(self):
-    return _c_louvain._Optimiser_get_move_individual(self._optimiser);
-
-  @move_individual.setter
-  def move_individual(self, value):
-    _c_louvain._Optimiser_set_move_individual(self._optimiser, value);
-
-  #########################################################3
   # consider_empty_community
   @property
   def consider_empty_community(self):
