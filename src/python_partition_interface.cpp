@@ -120,19 +120,21 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
       weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
   }
 
+  // TODO: Pass correct_for_self_loops as parameter
+  int correct_self_loops = false;
   if (node_sizes.size() == n)
   {
     if (weights.size() == m)
-      graph = new Graph(py_graph, weights, node_sizes);
+      graph = new Graph(py_graph, weights, node_sizes, correct_self_loops);
     else
-      graph = new Graph(py_graph, node_sizes);
+      graph = new Graph(py_graph, node_sizes, correct_self_loops);
   }
   else
   {
     if (weights.size() == m)
-      graph = new Graph(py_graph, weights);
+      graph = new Graph(py_graph, weights, correct_self_loops);
     else
-      graph = new Graph(py_graph);
+      graph = new Graph(py_graph, correct_self_loops);
   }
 
   #ifdef DEBUG

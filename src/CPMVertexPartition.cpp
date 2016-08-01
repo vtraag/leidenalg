@@ -38,6 +38,7 @@ CPMVertexPartition* CPMVertexPartition::create(Graph* graph, vector<size_t> cons
   RBER implementation of a vertex partition
   (which includes a resolution parameter).
  ********************************************************************************/
+#define DEBUG
 double CPMVertexPartition::diff_move(size_t v, size_t new_comm)
 {
   #ifdef DEBUG
@@ -142,3 +143,5 @@ double CPMVertexPartition::quality()
   #endif
   return (2.0 - this->graph->is_directed())*mod;
 }
+#undef DEBUG
+
