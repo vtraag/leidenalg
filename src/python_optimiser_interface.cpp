@@ -193,6 +193,55 @@ extern "C"
     return PyFloat_FromDouble(q);
   }
 
+  PyObject* _Optimiser_move_nodes_constrained(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    PyObject* py_partition = NULL;
+    PyObject* py_constrained_partition = NULL;
+    int consider_comms = -1;
+
+    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO", kwlist,
+                                     &py_optimiser, &py_partition, &py_constrained_partition))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "optimise_partition(" << py_partition << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule constrained partition at address " << py_partition << endl;
+    #endif
+    MutableVertexPartition* constrained_partition = decapsule_MutableVertexPartition(py_constrained_partition);
+    #ifdef DEBUG
+      cerr << "Using constrained partition at address " << partition << endl;
+    #endif
+
+    double q = optimiser->move_nodes_constrained(partition, constrained_partition);
+    return PyFloat_FromDouble(q);
+  }
+
   PyObject* _Optimiser_set_eps(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;

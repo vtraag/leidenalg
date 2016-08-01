@@ -46,6 +46,7 @@ extern "C"
       {"_Optimiser_optimise_partition",             (PyCFunction)_Optimiser_optimise_partition,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_optimise_partition_multiplex",   (PyCFunction)_Optimiser_optimise_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_move_nodes",                     (PyCFunction)_Optimiser_move_nodes,                     METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_move_nodes_constrained",         (PyCFunction)_Optimiser_move_nodes_constrained,         METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_Optimiser_set_eps",                        (PyCFunction)_Optimiser_set_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_delta",                      (PyCFunction)_Optimiser_set_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
