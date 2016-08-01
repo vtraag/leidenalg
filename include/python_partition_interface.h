@@ -54,7 +54,8 @@ extern "C"
   PyObject* _MutableVertexPartition_weight_to_comm(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_weight_from_comm(PyObject *self, PyObject *args, PyObject *keywds);
 
-  PyObject* _MutableVertexPartition_membership(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _MutableVertexPartition_get_membership(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _MutableVertexPartition_set_membership(PyObject *self, PyObject *args, PyObject *keywds);
 
 #ifdef __cplusplus
 }

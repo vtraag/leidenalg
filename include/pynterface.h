@@ -40,7 +40,8 @@ extern "C"
       {"_MutableVertexPartition_total_possible_edges_in_all_comms", (PyCFunction)_MutableVertexPartition_total_possible_edges_in_all_comms, METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_weight_to_comm",                    (PyCFunction)_MutableVertexPartition_weight_to_comm,                    METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_weight_from_comm",                  (PyCFunction)_MutableVertexPartition_weight_from_comm,                  METH_VARARGS | METH_KEYWORDS, ""},
-      {"_MutableVertexPartition_membership",                        (PyCFunction)_MutableVertexPartition_membership,                        METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_get_membership",                    (PyCFunction)_MutableVertexPartition_get_membership,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_set_membership",                    (PyCFunction)_MutableVertexPartition_set_membership,                    METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_new_Optimiser",                            (PyCFunction)_new_Optimiser,                            METH_NOARGS,                  ""},
       {"_Optimiser_optimise_partition",             (PyCFunction)_Optimiser_optimise_partition,             METH_VARARGS | METH_KEYWORDS, ""},

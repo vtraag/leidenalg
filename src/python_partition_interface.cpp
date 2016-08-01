@@ -695,7 +695,8 @@ extern "C"
     return PyFloat_FromDouble(diff);
   }
 
-  PyObject* _MutableVertexPartition_membership(PyObject *self, PyObject *args, PyObject *keywds)
+  #define DEBUG
+  PyObject* _MutableVertexPartition_get_membership(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
     static char* kwlist[] = {"partition", NULL};
@@ -709,7 +710,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "membership();" << endl;
+      cerr << "get_membership();" << endl;
     #endif
 
     #ifdef DEBUG
@@ -735,6 +736,54 @@ extern "C"
     }
     return py_membership;
   }
+  #undef DEBUG
+
+  #define DEBUG
+  PyObject* _MutableVertexPartition_set_membership(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+    PyObject* py_membership = NULL;
+
+    static char* kwlist[] = {"partition", "membership", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
+                                     &py_partition, &py_membership))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_membership();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    size_t n = PyList_Size(py_membership);
+    vector<size_t> membership;
+    membership.resize(n);
+    for (size_t v = 0; v < n; v++)
+      membership[v] = PyLong_AsLong(PyList_GetItem(py_membership, v));
+
+    partition->set_membership(membership);
+
+    #ifdef DEBUG
+      cerr << "Exiting set_membership();" << endl;
+    #endif
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  #undef DEBUG
 
 #ifdef __cplusplus
 }

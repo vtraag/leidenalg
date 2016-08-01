@@ -74,6 +74,7 @@ class MutableVertexPartition
 
     void renumber_communities();
     void renumber_communities(vector<size_t> const& new_membership);
+    void set_membership(vector<size_t> const& new_membership);
     vector<size_t> static renumber_communities(vector<MutableVertexPartition*> partitions);
     size_t get_empty_community();
     size_t add_empty_community();

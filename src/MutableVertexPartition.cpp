@@ -97,6 +97,7 @@ size_t MutableVertexPartition::nb_communities()
 /****************************************************************************
   Initialise all the administration based on the membership vector.
 *****************************************************************************/
+#define DEBUG
 void MutableVertexPartition::init_admin()
 {
   #ifdef DEBUG
@@ -201,6 +202,7 @@ void MutableVertexPartition::init_admin()
   #endif
 
 }
+#undef DEBUG
 
 /****************************************************************************
  Renumber the communities so that they are numbered 0,...,q-1 where q is
@@ -270,13 +272,9 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
  Renumber the communities using the provided membership vector. Notice that this
  doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexPartition::renumber_communities(vector<size_t> const& new_membership)
+void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)
 {
-  for (size_t i = 0; i < this->graph->vcount(); i++)
-    this->_membership[i] = new_membership[i];
-
-  this->clean_mem();
-  this->init_admin();
+  this->set_membership(membership);
 }
 
 size_t MutableVertexPartition::get_empty_community()
@@ -290,6 +288,28 @@ size_t MutableVertexPartition::get_empty_community()
 
   return this->_empty_communities.back();
 }
+
+#define DEBUG
+void MutableVertexPartition::set_membership(vector<size_t> const& membership)
+{
+  #ifdef DEBUG
+    cerr << "void MutableVertexPartition::set_membership(" << &membership << ")" << endl;
+  #endif
+  for (size_t i = 0; i < this->graph->vcount(); i++)
+  {
+    this->_membership[i] = membership[i];
+    #ifdef DEBUG
+      cerr << "Setting membership[" << i << "] = " << membership[i] << "." << endl;
+    #endif
+  }
+
+  this->clean_mem();
+  this->init_admin();
+  #ifdef DEBUG
+    cerr << "exit MutableVertexPartition::set_membership(" << &membership << ")" << endl;
+  #endif
+}
+#undef DEBUG
 
 size_t MutableVertexPartition::add_empty_community()
 {

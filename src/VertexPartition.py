@@ -83,12 +83,16 @@ class MutableVertexPartition(_ig.VertexClustering):
     return new_partition;
 
   def _update_internal_membership(self):
-    self._membership = _c_louvain._MutableVertexPartition_membership(self._partition);
+    self._membership = _c_louvain._MutableVertexPartition_get_membership(self._partition);
     # Reset the length of the object, i.e. the number of communities
     if len(self._membership)>0:
         self._len = max(m for m in self._membership if m is not None)+1
     else:
         self._len = 0
+
+  def set_membership(self, membership):
+    _c_louvain._MutableVertexPartition_set_membership(self._partition, list(membership));
+    self._update_internal_membership();
 
   # Calculate improvement *if* we move this node
   def diff_move(self,v,new_comm):
