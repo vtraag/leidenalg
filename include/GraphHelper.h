@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <exception>
+#include <queue>
 
 //#ifdef DEBUG
 #include <iostream>
@@ -17,9 +18,11 @@ class MutableVertexPartition;
 using std::vector;
 using std::pair;
 using std::set;
+using std::queue;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
+queue<size_t> queue_range(size_t n);
 
 bool orderCSize(const size_t* A, const size_t* B);
 

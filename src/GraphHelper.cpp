@@ -13,6 +13,14 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
+queue<size_t> queue_range(size_t n)
+{
+  queue<size_t> range_vec;
+  for(size_t i = 0; i<n; i++)
+    range_vec.push(i);
+  return range_vec;
+}
+
 bool orderCSize(const size_t* A, const size_t* B)
 {
 
