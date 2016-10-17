@@ -133,6 +133,10 @@ class MutableVertexPartition(_ig.VertexClustering):
     _c_louvain._MutableVertexPartition_from_coarser_partition(self._partition, partition.membership);
     self._update_internal_membership();
 
+  def renumber_communities(self):
+    _c_louvain._MutableVertexPartition_renumber_communities(self._partition);
+    self._update_internal_membership();
+
   def quality(self):
     return _c_louvain._MutableVertexPartition_quality(self._partition);
 

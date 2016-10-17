@@ -42,6 +42,7 @@ extern "C"
   PyObject* _MutableVertexPartition_aggregate_partition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_get_py_igraph(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _MutableVertexPartition_from_coarser_partition(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _MutableVertexPartition_renumber_communities(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _MutableVertexPartition_quality(PyObject *self, PyObject *args, PyObject *keywds);
 

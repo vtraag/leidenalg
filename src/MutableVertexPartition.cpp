@@ -97,7 +97,7 @@ size_t MutableVertexPartition::nb_communities()
 /****************************************************************************
   Initialise all the administration based on the membership vector.
 *****************************************************************************/
-#define DEBUG
+
 void MutableVertexPartition::init_admin()
 {
   #ifdef DEBUG
@@ -202,7 +202,6 @@ void MutableVertexPartition::init_admin()
   #endif
 
 }
-#undef DEBUG
 
 /****************************************************************************
  Renumber the communities so that they are numbered 0,...,q-1 where q is
@@ -289,7 +288,6 @@ size_t MutableVertexPartition::get_empty_community()
   return this->_empty_communities.back();
 }
 
-#define DEBUG
 void MutableVertexPartition::set_membership(vector<size_t> const& membership)
 {
   #ifdef DEBUG
@@ -309,7 +307,6 @@ void MutableVertexPartition::set_membership(vector<size_t> const& membership)
     cerr << "exit MutableVertexPartition::set_membership(" << &membership << ")" << endl;
   #endif
 }
-#undef DEBUG
 
 size_t MutableVertexPartition::add_empty_community()
 {

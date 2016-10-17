@@ -325,6 +325,40 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _MutableVertexPartition_renumber_communities(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+
+    static char* kwlist[] = {"partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_partition))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "renumber_communities();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    partition->renumber_communities();
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
@@ -697,7 +731,6 @@ extern "C"
     return PyFloat_FromDouble(diff);
   }
 
-  #define DEBUG
   PyObject* _MutableVertexPartition_get_membership(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
@@ -738,9 +771,6 @@ extern "C"
     }
     return py_membership;
   }
-  #undef DEBUG
-
-  #define DEBUG
   PyObject* _MutableVertexPartition_set_membership(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
@@ -785,9 +815,7 @@ extern "C"
     Py_INCREF(Py_None);
     return Py_None;
   }
-  #undef DEBUG
 
 #ifdef __cplusplus
 }
 #endif
-#undef DEBUG
