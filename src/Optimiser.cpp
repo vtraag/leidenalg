@@ -200,11 +200,15 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       {
         sub_collapsed_partitions[layer] = collapsed_partitions[layer]->create(collapsed_graphs[layer]);
       }
+
       // Then move around nodes but restrict movement to within original communities.
       #ifdef DEBUG
         cerr << "\tStarting SLM with " << sub_collapsed_partitions[0]->nb_communities() << " communities." << endl;
       #endif
-      this->move_nodes_constrained(sub_collapsed_partitions, layer_weights, collapsed_partitions[0]);
+      if (this->refine_routine == Optimiser::MOVE_NODES)
+        this->move_nodes_constrained(sub_collapsed_partitions, layer_weights, refine_consider_comms, collapsed_partitions[0]);
+      else if (this->refine_routine == Optimiser::MERGE_NODES)
+        this->merge_nodes_constrained(sub_collapsed_partitions, layer_weights, refine_consider_comms, collapsed_partitions[0]);
       #ifdef DEBUG
         cerr << "\tAfter applying SLM found " << sub_collapsed_partitions[0]->nb_communities() << " communities." << endl;
       #endif
@@ -346,12 +350,22 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     Parameters:
       partition -- The partition to optimise.
 ******************************************************************************/
+double Optimiser::move_nodes(MutableVertexPartition* partition)
+{
+  return this->move_nodes(partition, this->consider_comms);
+}
+
 double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_comms)
 {
   vector<MutableVertexPartition*> partitions(1, NULL);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
   return this->move_nodes(partitions, layer_weights, consider_comms);
+}
+
+double Optimiser::merge_nodes(MutableVertexPartition* partition)
+{
+  return this->merge_nodes(partition, this->consider_comms);
 }
 
 double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_comms)
@@ -364,10 +378,28 @@ double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_co
 
 double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
 {
+  this->move_nodes_constrained(partition, this->refine_consider_comms, constrained_partition);
+}
+
+double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition)
+{
   vector<MutableVertexPartition*> partitions(1, NULL);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->move_nodes_constrained(partitions, layer_weights, constrained_partition);
+  return this->move_nodes_constrained(partitions, layer_weights, consider_comms, constrained_partition);
+}
+
+double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
+{
+  this->merge_nodes_constrained(partition, this->refine_consider_comms, constrained_partition);
+}
+
+double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition)
+{
+  vector<MutableVertexPartition*> partitions(1, NULL);
+  partitions[0] = partition;
+  vector<double> layer_weights(1, 1.0);
+  return this->merge_nodes_constrained(partitions, layer_weights, consider_comms, constrained_partition);
 }
 
 /*****************************************************************************
@@ -383,6 +415,11 @@ double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, Muta
     partitions -- The partitions to optimise.
     layer_weights -- The weights used for the different layers.
 ******************************************************************************/
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
+{
+  this->move_nodes(partitions, layer_weights, this->consider_comms);
+}
+
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
 {
   #ifdef DEBUG
@@ -448,7 +485,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     // What is the current community of the node (this should be the same for all layers)
     size_t v_comm = partitions[0]->membership(v);
 
-    if (this->consider_comms == ALL_COMMS)
+    if (consider_comms == ALL_COMMS)
     {
       for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
       {
@@ -463,7 +500,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
       }
     }
-    else if (this->consider_comms == ALL_NEIGH_COMMS)
+    else if (consider_comms == ALL_NEIGH_COMMS)
     {
       /****************************ALL NEIGH COMMS*****************************/
       for (size_t layer = 0; layer < nb_layers; layer++)
@@ -472,12 +509,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
       }
     }
-    else if (this->consider_comms == RAND_COMM)
+    else if (consider_comms == RAND_COMM)
     {
       /****************************RAND COMM***********************************/
       comms.insert( partitions[0]->membership(graphs[0]->get_random_node()) );
     }
-    else if (this->consider_comms == RAND_NEIGH_COMM)
+    else if (consider_comms == RAND_NEIGH_COMM)
     {
       /****************************RAND NEIGH COMM*****************************/
       size_t rand_layer = get_random_int(0, nb_layers - 1);
@@ -628,6 +665,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return total_improv;
 }
 
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
+{
+  this->merge_nodes(partitions, layer_weights, this->consider_comms);
+}
+
 double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
 {
   #ifdef DEBUG
@@ -677,7 +719,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
 
-      if (this->consider_comms == ALL_COMMS)
+      if (consider_comms == ALL_COMMS)
       {
         for(size_t comm = 0; comm < partitions[0]->nb_communities(); comm++)
         {
@@ -692,7 +734,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
         }
       }
-      else if (this->consider_comms == ALL_NEIGH_COMMS)
+      else if (consider_comms == ALL_NEIGH_COMMS)
       {
         /****************************ALL NEIGH COMMS*****************************/
         for (size_t layer = 0; layer < nb_layers; layer++)
@@ -701,12 +743,12 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
           comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
       }
-      else if (this->consider_comms == RAND_COMM)
+      else if (consider_comms == RAND_COMM)
       {
         /****************************RAND COMM***********************************/
         comms.insert( partitions[0]->membership(graphs[0]->get_random_node()) );
       }
-      else if (this->consider_comms == RAND_NEIGH_COMM)
+      else if (consider_comms == RAND_NEIGH_COMM)
       {
         /****************************RAND NEIGH COMM*****************************/
         size_t rand_layer = get_random_int(0, nb_layers - 1);
@@ -808,6 +850,11 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
 double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition)
 {
+  this->move_nodes_constrained(partitions, layer_weights, this->refine_consider_comms, constrained_partition);
+}
+
+double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition)
+{
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> const& constrained_membership)" << endl;
   #endif
@@ -870,7 +917,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     // What is the current community of the node (this should be the same for all layers)
     size_t v_comm = partitions[0]->membership(v);
 
-    if (this->refine_consider_comms == ALL_COMMS)
+    if (consider_comms == ALL_COMMS)
     {
         // Add all communities to the set comms that are within the constrained community.
         size_t v_constrained_comm = constrained_partition->membership(v);
@@ -884,7 +931,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           comms.insert(u_comm);
         }
     }
-    else if (this->refine_consider_comms == ALL_NEIGH_COMMS)
+    else if (consider_comms == ALL_NEIGH_COMMS)
     {
         /****************************ALL NEIGH COMMS*****************************/
         for (size_t layer = 0; layer < nb_layers; layer++)
@@ -894,7 +941,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
           delete neigh_comm_layer;
         }
     }
-    else if (this->refine_consider_comms == RAND_COMM)
+    else if (consider_comms == RAND_COMM)
     {
       /****************************RAND COMM***********************************/
         size_t v_constrained_comm = constrained_partition->membership(v);
@@ -903,7 +950,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1);
         comms.insert(constrained_comm_list[random_idx]);
     }
-    else if (this->refine_consider_comms == RAND_NEIGH_COMM)
+    else if (consider_comms == RAND_NEIGH_COMM)
     {
       /****************************RAND NEIGH COMM*****************************/
         // Draw a random community among the neighbours, proportional to the
@@ -1021,6 +1068,200 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       cerr << "Moved " << nb_moves << " nodes." << endl;
     #endif
   }
+  partitions[0]->renumber_communities();
+  vector<size_t> const& membership = partitions[0]->membership();
+  for (size_t layer = 1; layer < nb_layers; layer++)
+  {
+    partitions[layer]->renumber_communities(membership);
+    #ifdef DEBUG
+      cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->nb_communities() << " communities." << endl;
+    #endif DEBUG
+  }
+  return total_improv;
+}
+
+double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition)
+{
+  this->merge_nodes_constrained(partitions, layer_weights, this->refine_consider_comms, constrained_partition);
+}
+
+double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition)
+{
+  #ifdef DEBUG
+    cerr << "double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
+  #endif
+
+  // Number of multiplex layers
+  size_t nb_layers = partitions.size();
+  if (nb_layers == 0)
+    return -1.0;
+
+  // Get graphs
+  vector<Graph*> graphs(nb_layers, NULL);
+  for (size_t layer = 0; layer < nb_layers; layer++)
+    graphs[layer] = partitions[layer]->get_graph();
+  // Number of nodes in the graph
+  size_t n = graphs[0]->vcount();
+
+  // Total improvement while merging nodes
+  double total_improv = 0.0;
+
+  for (size_t layer = 0; layer < nb_layers; layer++)
+    if (graphs[layer]->vcount() != n)
+      throw Exception("Number of nodes are not equal for all graphs.");
+
+  // Establish vertex order
+  // We normally initialize the normal vertex order
+  // of considering node 0,1,...
+  vector<size_t> vertex_order = range(n);
+
+  // But if we use a random order, we shuffle this order.
+  if (this->random_order)
+    random_shuffle( vertex_order.begin(), vertex_order.end() );
+
+  // As long as the queue is not empty
+  for (vector<size_t>::iterator it = vertex_order.begin();
+       it != vertex_order.end(); it++)
+  {
+    size_t v = *it;
+
+    // What is the current community of the node (this should be the same for all layers)
+    size_t v_comm = partitions[0]->membership(v);
+
+    if (partitions[0]->get_community(v_comm).size() == 1)
+    {
+      set<size_t> comms;
+      Graph* graph = NULL;
+      MutableVertexPartition* partition = NULL;
+
+      if (consider_comms == ALL_COMMS)
+      {
+          // Add all communities to the set comms that are within the constrained community.
+          size_t v_constrained_comm = constrained_partition->membership(v);
+          set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
+          for (set<size_t>::const_iterator u_constrained_comm_it = constrained_comm.begin();
+               u_constrained_comm_it != constrained_comm.end();
+               u_constrained_comm_it++)
+          {
+            size_t u = *u_constrained_comm_it;
+            size_t u_comm = partitions[0]->membership(u);
+            comms.insert(u_comm);
+          }
+      }
+      else if (consider_comms == ALL_NEIGH_COMMS)
+      {
+          /****************************ALL NEIGH COMMS*****************************/
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            comms.insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
+            delete neigh_comm_layer;
+          }
+      }
+      else if (consider_comms == RAND_COMM)
+      {
+        /****************************RAND COMM***********************************/
+          size_t v_constrained_comm = constrained_partition->membership(v);
+          set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
+          vector<size_t> constrained_comm_list(constrained_comm.begin(), constrained_comm.end());
+          size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1);
+          comms.insert(constrained_comm_list[random_idx]);
+      }
+      else if (consider_comms == RAND_NEIGH_COMM)
+      {
+        /****************************RAND NEIGH COMM*****************************/
+          // Draw a random community among the neighbours, proportional to the
+          // frequency of the communities among the neighbours. Notice this is no
+          // longer
+          vector<size_t> all_neigh_comms_incl_dupes;
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
+            delete neigh_comm_layer;
+          }
+          if (all_neigh_comms_incl_dupes.size() > 0)
+          {
+            size_t random_idx = get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
+            comms.insert(all_neigh_comms_incl_dupes[random_idx]);
+          }
+      }
+
+      #ifdef DEBUG
+        cerr << "Consider " << comms.size() << " communities for moving." << endl;
+      #endif
+
+      size_t max_comm = v_comm;
+      double max_improv = 0.0;
+      for (set<size_t>::iterator comm_it = comms.begin();
+           comm_it!= comms.end();
+           comm_it++)
+      {
+        size_t comm = *comm_it;
+        double possible_improv = 0.0;
+
+        // Consider the improvement of moving to a community for all layers
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          graph = graphs[layer];
+          partition = partitions[layer];
+          // Make sure to multiply it by the weight per layer
+          possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+        }
+
+        if (possible_improv > max_improv)
+        {
+          max_comm = comm;
+          max_improv = possible_improv;
+        }
+      }
+
+      // If we actually plan to move the node
+      if (max_comm != v_comm)
+      {
+          // Keep track of improvement
+          total_improv += max_improv;
+
+          #ifdef DEBUG
+            // If we are debugging, calculate quality function
+            double q_improv = 0;
+          #endif
+
+          for (size_t layer = 0; layer < nb_layers; layer++)
+          {
+            MutableVertexPartition* partition = partitions[layer];
+
+            #ifdef DEBUG
+              // If we are debugging, calculate quality function
+              double q1 = partition->quality();
+            #endif
+
+            // Actually move the node
+            partition->move_node(v, max_comm);
+            #ifdef DEBUG
+              // If we are debugging, calculate quality function
+              // and report difference
+              double q2 = partition->quality();
+              double q_delta = layer_weights[layer]*(q2 - q1);
+              q_improv += q_delta;
+              cerr << "Move node " << v
+              << " from " << v_comm << " to " << max_comm << " for layer " << layer
+              << " (diff_move=" << max_improv
+              << ", q2 - q1=" << q_delta << ")" << endl;
+            #endif
+          }
+          #ifdef DEBUG
+            if (fabs(q_improv - max_improv) > 1e-6)
+            {
+              cerr << "ERROR: Inconsistency while moving nodes, improvement as measured by quality function did not equal the improvement measured by the diff_move function." << endl
+                   << " (diff_move=" << max_improv
+                   << ", q2 - q1=" << q_improv << ")" << endl;
+            }
+          #endif
+        }
+      }
+  }
+
   partitions[0]->renumber_communities();
   vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)

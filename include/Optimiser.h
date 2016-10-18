@@ -34,14 +34,25 @@ class Optimiser
     // layer weights this may be necessary.
     double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
 
+    double move_nodes(MutableVertexPartition* partition);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
 
+    double merge_nodes(MutableVertexPartition* partition);
     double merge_nodes(MutableVertexPartition* partition, int consider_comms);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
 
     double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
+
+    double merge_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
 
     virtual ~Optimiser();
 
