@@ -23,36 +23,6 @@ class Optimiser(object):
     self._optimiser = _c_louvain._new_Optimiser();
 
   #########################################################3
-  # eps
-  @property
-  def eps(self):
-    return _c_louvain._Optimiser_get_eps(self._optimiser);
-
-  @eps.setter
-  def eps(self, value):
-    _c_louvain._Optimiser_set_eps(self._optimiser, value);
-
-  #########################################################3
-  # delta
-  @property
-  def delta(self):
-    return _c_louvain._Optimiser_get_delta(self._optimiser);
-
-  @delta.setter
-  def delta(self, value):
-    _c_louvain._Optimiser_set_delta(self._optimiser, value);
-
-  #########################################################
-  # max_itr
-  @property
-  def max_itr(self):
-    return _c_louvain._Optimiser_get_max_itr(self._optimiser);
-
-  @max_itr.setter
-  def max_itr(self, value):
-    _c_louvain._Optimiser_set_max_itr(self._optimiser, value);
-
-  #########################################################3
   # random_order
   @property
   def random_order(self):

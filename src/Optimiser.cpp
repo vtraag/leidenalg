@@ -11,22 +11,9 @@
   will not be dealt with correctly.
 
   Parameters:
-    eps          -- If the improvement falls below this threshold,
-                    stop iterating.
-    delta        -- If the number of nodes that moves falls below
-                    this threshold, stop iterating.
-    max_itr      -- Maximum number of iterations to perform.
     random_order
                  -- If True the nodes will be traversed in a random order
                     when optimising a quality function.
-    min_diff_resolution
-                 -- If the difference in resolution falls below this
-                    threshold when bisectioning on a resolution parameter,
-                    we won't bisection further.
-    min_diff_bisect_value
-                 -- If the difference in the bisection value falls below
-                    this threshold when bisectioning on a resolution
-                    parameter, we won't bisection further.
     consider_comms
                  -- Consider communities in a specific manner:
         ALL_COMMS       -- Consider all communities for improvement.
@@ -38,9 +25,6 @@
 ****************************************************************************/
 Optimiser::Optimiser()
 {
-  this->eps = 1e-5;
-  this->delta = 1e-2;
-  this->max_itr = 10000;
   this->random_order = true;
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->optimise_routine = Optimiser::MOVE_NODES;
@@ -57,12 +41,9 @@ Optimiser::~Optimiser()
 
 void Optimiser::print_settings()
 {
-  cerr << "Epsilon:\t" << this->eps << endl;
-  cerr << "Delta:\t" << this->delta << endl;
-  cerr << "Maximum # iterators:\t" << this->max_itr << endl;
   cerr << "Random node order:\t" << this->random_order << endl;
   cerr << "Consider communities method:\t" << this->consider_comms << endl;
-  cerr << "Smart local move:\t" << this->refine_partition << endl;
+  cerr << "Refine partition:\t" << this->refine_partition << endl;
   cerr << "Consider empty community:\t" << this->consider_empty_community << endl;
 }
 
@@ -180,7 +161,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     #endif
 
     // Collapse graph (i.e. community graph)
-    // If we do smart local movement, we separate communities in slightly more
+    // If we do refine the partition, we separate communities in slightly more
     // fine-grained parts for which we collapse the graph.
     vector<MutableVertexPartition*> sub_collapsed_partitions(nb_layers, NULL);
 
@@ -552,7 +533,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     }
 
     // Check if we should move to an empty community
-    if (this->consider_empty_community || this->refine_partition) // We should not do smart local move without considering empty communities
+    if (this->consider_empty_community || this->refine_partition) // We should not refine the partition without considering empty communities
     {
       for (size_t layer = 0; layer < nb_layers; layer++)
       {

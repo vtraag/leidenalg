@@ -4,7 +4,9 @@ from ._c_louvain import ALL_COMMS
 from ._c_louvain import ALL_NEIGH_COMMS
 from ._c_louvain import RAND_COMM
 from ._c_louvain import RAND_NEIGH_COMM
-from ._c_louvain import RAND_WEIGHT_NEIGH_COMM
+
+from ._c_louvain import MOVE_NODES
+from ._c_louvain import MERGE_NODES
 
 from collections import namedtuple
 from collections import OrderedDict

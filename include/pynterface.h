@@ -52,9 +52,6 @@ extern "C"
       {"_Optimiser_merge_nodes",                     (PyCFunction)_Optimiser_merge_nodes,                   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_merge_nodes_constrained",         (PyCFunction)_Optimiser_merge_nodes_constrained,       METH_VARARGS | METH_KEYWORDS, ""},
 
-      {"_Optimiser_set_eps",                        (PyCFunction)_Optimiser_set_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_delta",                      (PyCFunction)_Optimiser_set_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_set_max_itr",                    (PyCFunction)_Optimiser_set_max_itr,                    METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_random_order",               (PyCFunction)_Optimiser_set_random_order,               METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_consider_comms",             (PyCFunction)_Optimiser_set_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_refine_consider_comms",      (PyCFunction)_Optimiser_set_refine_consider_comms,      METH_VARARGS | METH_KEYWORDS, ""},
@@ -63,9 +60,6 @@ extern "C"
       {"_Optimiser_set_consider_empty_community",   (PyCFunction)_Optimiser_set_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_smart_local_move",           (PyCFunction)_Optimiser_set_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
 
-      {"_Optimiser_get_eps",                        (PyCFunction)_Optimiser_get_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_get_delta",                      (PyCFunction)_Optimiser_get_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_get_max_itr",                    (PyCFunction)_Optimiser_get_max_itr,                    METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_random_order",               (PyCFunction)_Optimiser_get_random_order,               METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_consider_comms",             (PyCFunction)_Optimiser_get_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_refine_consider_comms",      (PyCFunction)_Optimiser_get_refine_consider_comms,      METH_VARARGS | METH_KEYWORDS, ""},
@@ -134,6 +128,9 @@ extern "C"
       PyModule_AddIntConstant(module, "ALL_NEIGH_COMMS", Optimiser::ALL_NEIGH_COMMS);
       PyModule_AddIntConstant(module, "RAND_COMM", Optimiser::RAND_COMM);
       PyModule_AddIntConstant(module, "RAND_NEIGH_COMM", Optimiser::RAND_NEIGH_COMM);
+
+      PyModule_AddIntConstant(module, "MOVE_NODES", Optimiser::MOVE_NODES);
+      PyModule_AddIntConstant(module, "MERGE_NODES", Optimiser::MERGE_NODES);
 
       if (module == NULL)
           INITERROR;

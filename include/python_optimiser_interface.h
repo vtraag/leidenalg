@@ -39,9 +39,6 @@ extern "C"
   PyObject* _Optimiser_merge_nodes(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_merge_nodes_constrained(PyObject *self, PyObject *args, PyObject *keywds);
 
-  PyObject* _Optimiser_set_eps(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_set_delta(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_set_max_itr(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_random_order(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
@@ -50,9 +47,6 @@ extern "C"
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
 
-  PyObject* _Optimiser_get_eps(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_get_delta(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_get_max_itr(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_random_order(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);

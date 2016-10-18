@@ -56,9 +56,6 @@ class Optimiser
 
     virtual ~Optimiser();
 
-    double eps;          // If the improvement falls below this threshold, stop iterating.
-    double delta;        // If the number of nodes that moves falls below this threshold, stop iterating.
-    size_t max_itr;      // Maximum number of iterations to perform.
     int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
     int refine_partition; // Do smart local move
@@ -72,8 +69,8 @@ class Optimiser
     static const int RAND_COMM = 3;       // Consider a random commmunity for improvement.
     static const int RAND_NEIGH_COMM = 4; // Consider a random community among the neighbours for improvement.
 
-    static const int MOVE_NODES = 1;  // Use move node routine
-    static const int MERGE_NODES = 2; // Use merge node routine
+    static const int MOVE_NODES = 10;  // Use move node routine
+    static const int MERGE_NODES = 11; // Use merge node routine
 
   protected:
 

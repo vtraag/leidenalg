@@ -109,7 +109,6 @@ from .functions import ALL_COMMS
 from .functions import ALL_NEIGH_COMMS
 from .functions import RAND_COMM
 from .functions import RAND_NEIGH_COMM
-from .functions import RAND_WEIGHT_NEIGH_COMM
 
 from .functions import find_partition
 from .functions import find_partition_multiplex
