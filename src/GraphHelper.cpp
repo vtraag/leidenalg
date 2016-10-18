@@ -495,11 +495,7 @@ void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
       _cached_neigh_edges = &(this->_cached_neigh_edges_all);
       break;
   }
-
-  _cached_neigh_edges->clear();
-  _cached_neigh_edges->reserve(degree);
-  _cached_neigh_edges->insert(_cached_neigh_edges->end(),
-                              igraph_vector_e_ptr(&incident_edges, 0),
+  _cached_neigh_edges->assign(igraph_vector_e_ptr(&incident_edges, 0),
                               igraph_vector_e_ptr(&incident_edges, degree));
   #ifdef DEBUG
     cerr << "Number of edges: " << _cached_neigh_edges->size() << endl;
@@ -571,11 +567,7 @@ void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
       _cached_neighs = &(this->_cached_neighs_all);
       break;
   }
-  _cached_neighs->clear();
-  _cached_neighs->reserve(degree);
-  _cached_neighs->insert(_cached_neighs->end(),
-                         igraph_vector_e_ptr(&neighbours, 0),
-                         igraph_vector_e_ptr(&neighbours, degree));
+  _cached_neighs->assign(igraph_vector_e_ptr(&neighbours, 0),igraph_vector_e_ptr(&neighbours, degree));
   igraph_vector_destroy(&neighbours);
 
   #ifdef DEBUG
