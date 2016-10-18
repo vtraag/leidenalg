@@ -27,16 +27,32 @@ class Optimiser
     double optimise_partition(MutableVertexPartition* partition);
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
-    double move_nodes(MutableVertexPartition* partition, int consider_comms);
 
     // The multiplex functions that simultaneously optimise multiple graphs and partitions (i.e. methods)
     // Each node will be in the same community in all graphs, and the graphs are expected to have identical nodes
     // Optionally we can loop over all possible communities instead of only the neighbours. In the case of negative
     // layer weights this may be necessary.
     double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
+
+    double move_nodes(MutableVertexPartition* partition);
+    double move_nodes(MutableVertexPartition* partition, int consider_comms);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+
+    double merge_nodes(MutableVertexPartition* partition);
+    double merge_nodes(MutableVertexPartition* partition, int consider_comms);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+
     double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
+
+    double merge_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
 
     virtual ~Optimiser();
 
@@ -45,15 +61,19 @@ class Optimiser
     size_t max_itr;      // Maximum number of iterations to perform.
     int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
-    int smart_local_move; // Do smart local move
-    int slm_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
+    int refine_partition; // Do smart local move
+    int refine_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
     int consider_empty_community; // Indicates whether we will also consider to move a node to an empty community
+    int optimise_routine; // What routine to use for optimisation
+    int refine_routine; // What routine to use for optimisation
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.
     static const int RAND_COMM = 3;       // Consider a random commmunity for improvement.
     static const int RAND_NEIGH_COMM = 4; // Consider a random community among the neighbours for improvement.
-    static const int RAND_WEIGHT_NEIGH_COMM = 5; // Consider a random community among the neighbours for improvement using the weight.
+
+    static const int MOVE_NODES = 1;  // Use move node routine
+    static const int MERGE_NODES = 2; // Use merge node routine
 
   protected:
 
