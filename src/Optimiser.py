@@ -73,6 +73,36 @@ class Optimiser(object):
     _c_louvain._Optimiser_set_consider_comms(self._optimiser, value);
 
   #########################################################3
+  # refine consider_comms
+  @property
+  def refine_consider_comms(self):
+    return _c_louvain._Optimiser_get_refine_consider_comms(self._optimiser);
+
+  @refine_consider_comms.setter
+  def refine_consider_comms(self, value):
+    _c_louvain._Optimiser_set_refine_consider_comms(self._optimiser, value);
+
+  #########################################################3
+  # optimise routine
+  @property
+  def optimise_routine(self):
+    return _c_louvain._Optimiser_get_optimise_routine(self._optimiser);
+
+  @optimise_routine.setter
+  def optimise_routine(self, value):
+    _c_louvain._Optimiser_set_optimise_routine(self._optimiser, value);
+
+  #########################################################3
+  # optimise routine
+  @property
+  def refine_routine(self):
+    return _c_louvain._Optimiser_get_refine_routine(self._optimiser);
+
+  @refine_routine.setter
+  def refine_routine(self, value):
+    _c_louvain._Optimiser_set_refine_routine(self._optimiser, value)
+
+  #########################################################3
   # consider_empty_community
   @property
   def consider_empty_community(self):
@@ -153,6 +183,29 @@ class Optimiser(object):
       constrained_partition -- The partition to which to constrained the optimisation.
     """
     diff =  _c_louvain._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition);
+    partition._update_internal_membership();
+    return diff;
+
+  def merge_nodes(self, partition):
+    """ Move nodes to neighbouring communities such that each move improves the
+    given quality function maximally (i.e. greedily).
+
+    Parameters:
+      partition -- The partition to optimise.
+    """
+    diff =  _c_louvain._Optimiser_merge_nodes(self._optimiser, partition._partition);
+    partition._update_internal_membership();
+    return diff;
+
+  def merge_nodes_constrained(self, partition, constrained_partition):
+    """ Move nodes to neighbouring communities such that each move improves the
+    given quality function maximally (i.e. greedily).
+
+    Parameters:
+      partition             -- The partition to optimise.
+      constrained_partition -- The partition to which to constrained the optimisation.
+    """
+    diff =  _c_louvain._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition);
     partition._update_internal_membership();
     return diff;
 

@@ -49,12 +49,17 @@ extern "C"
       {"_Optimiser_optimise_partition_multiplex",   (PyCFunction)_Optimiser_optimise_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_move_nodes",                     (PyCFunction)_Optimiser_move_nodes,                     METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_move_nodes_constrained",         (PyCFunction)_Optimiser_move_nodes_constrained,         METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_merge_nodes",                     (PyCFunction)_Optimiser_merge_nodes,                   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_merge_nodes_constrained",         (PyCFunction)_Optimiser_merge_nodes_constrained,       METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_Optimiser_set_eps",                        (PyCFunction)_Optimiser_set_eps,                        METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_delta",                      (PyCFunction)_Optimiser_set_delta,                      METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_max_itr",                    (PyCFunction)_Optimiser_set_max_itr,                    METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_random_order",               (PyCFunction)_Optimiser_set_random_order,               METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_consider_comms",             (PyCFunction)_Optimiser_set_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_refine_consider_comms",      (PyCFunction)_Optimiser_set_refine_consider_comms,      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_optimise_routine",           (PyCFunction)_Optimiser_set_optimise_routine,           METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_refine_routine",             (PyCFunction)_Optimiser_set_refine_routine,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_consider_empty_community",   (PyCFunction)_Optimiser_set_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_smart_local_move",           (PyCFunction)_Optimiser_set_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
 
@@ -63,6 +68,9 @@ extern "C"
       {"_Optimiser_get_max_itr",                    (PyCFunction)_Optimiser_get_max_itr,                    METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_random_order",               (PyCFunction)_Optimiser_get_random_order,               METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_consider_comms",             (PyCFunction)_Optimiser_get_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_refine_consider_comms",      (PyCFunction)_Optimiser_get_refine_consider_comms,      METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_optimise_routine",           (PyCFunction)_Optimiser_get_optimise_routine,           METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_refine_routine",             (PyCFunction)_Optimiser_get_refine_routine,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_consider_empty_community",   (PyCFunction)_Optimiser_get_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_smart_local_move",           (PyCFunction)_Optimiser_get_smart_local_move,           METH_VARARGS | METH_KEYWORDS, ""},
 

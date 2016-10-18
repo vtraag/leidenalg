@@ -45,9 +45,9 @@ Optimiser::Optimiser()
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->optimise_routine = Optimiser::MOVE_NODES;
   this->refine_consider_comms = Optimiser::ALL_NEIGH_COMMS;
-  this->refine_routine = Optimiser::MOVE_NODES;
-  this->refine_partition = false;
-  this->consider_empty_community = false;
+  this->refine_routine = Optimiser::MERGE_NODES;
+  this->refine_partition = true;
+  this->consider_empty_community = true;
 }
 
 Optimiser::~Optimiser()

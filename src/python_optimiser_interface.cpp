@@ -193,6 +193,49 @@ extern "C"
     return PyFloat_FromDouble(q);
   }
 
+  PyObject* _Optimiser_merge_nodes(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    PyObject* py_partition = NULL;
+    int consider_comms = -1;
+
+    static char* kwlist[] = {"optimiser", "partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist,
+                                     &py_optimiser, &py_partition, &consider_comms))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "optimise_partition(" << py_partition << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    if (consider_comms < 0)
+      consider_comms = optimiser->consider_comms;
+
+    double q = optimiser->merge_nodes(partition, consider_comms);
+    return PyFloat_FromDouble(q);
+  }
+
   PyObject* _Optimiser_move_nodes_constrained(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
@@ -206,8 +249,8 @@ extern "C"
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO", kwlist,
-                                     &py_optimiser, &py_partition, &py_constrained_partition))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|i", kwlist,
+                                     &py_optimiser, &py_partition, &py_constrained_partition, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -238,7 +281,62 @@ extern "C"
       cerr << "Using constrained partition at address " << partition << endl;
     #endif
 
-    double q = optimiser->move_nodes_constrained(partition, constrained_partition);
+    if (consider_comms < 0)
+      consider_comms = optimiser->refine_consider_comms;
+
+    double q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition);
+    return PyFloat_FromDouble(q);
+  }
+
+  PyObject* _Optimiser_merge_nodes_constrained(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    PyObject* py_partition = NULL;
+    PyObject* py_constrained_partition = NULL;
+    int consider_comms = -1;
+
+    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|i", kwlist,
+                                     &py_optimiser, &py_partition, &py_constrained_partition, &consider_comms))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "optimise_partition(" << py_partition << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+    MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule constrained partition at address " << py_partition << endl;
+    #endif
+    MutableVertexPartition* constrained_partition = decapsule_MutableVertexPartition(py_constrained_partition);
+    #ifdef DEBUG
+      cerr << "Using constrained partition at address " << partition << endl;
+    #endif
+
+    if (consider_comms < 0)
+      consider_comms = optimiser->refine_consider_comms;
+
+    double q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition);
     return PyFloat_FromDouble(q);
   }
 
@@ -540,6 +638,186 @@ extern "C"
     #endif
 
     return PyInt_FromLong(optimiser->consider_comms);
+  }
+
+  PyObject* _Optimiser_set_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int refine_consider_comms = Optimiser::ALL_NEIGH_COMMS;
+    static char* kwlist[] = {"optimiser", "refine_consider_comms", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &refine_consider_comms))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_refine_consider_comms(" << refine_consider_comms << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->refine_consider_comms = refine_consider_comms;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_get_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_refine_consider_comms();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyInt_FromLong(optimiser->refine_consider_comms);
+  }
+
+  PyObject* _Optimiser_set_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int optimise_routine = Optimiser::ALL_NEIGH_COMMS;
+    static char* kwlist[] = {"optimiser", "optimise_routine", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &optimise_routine))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_optimise_routine(" << optimise_routine << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->optimise_routine = optimise_routine;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_get_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_optimise_routine();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyInt_FromLong(optimiser->optimise_routine);
+  }
+
+  PyObject* _Optimiser_set_refine_routine(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int refine_routine = Optimiser::ALL_NEIGH_COMMS;
+    static char* kwlist[] = {"optimiser", "refine_routine", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &refine_routine))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_refine_routine(" << refine_routine << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->refine_routine = refine_routine;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_get_refine_routine(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_refine_routine();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyInt_FromLong(optimiser->refine_routine);
   }
 
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
