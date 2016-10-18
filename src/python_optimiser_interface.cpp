@@ -628,7 +628,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    optimiser->smart_local_move = smart_local_move;
+    optimiser->refine_partition = smart_local_move;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -659,7 +659,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    return PyBool_FromLong(optimiser->smart_local_move);
+    return PyBool_FromLong(optimiser->refine_partition);
   }
 #ifdef __cplusplus
 }
