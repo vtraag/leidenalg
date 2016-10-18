@@ -118,6 +118,8 @@ class Graph
     vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
 
+    pair<size_t, size_t> get_endpoints(size_t e);
+
     inline size_t get_random_node()
     {
       return get_random_int(0, this->vcount() - 1);

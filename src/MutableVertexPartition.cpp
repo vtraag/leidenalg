@@ -138,43 +138,40 @@ void MutableVertexPartition::init_admin()
     this->community[v_comm]->insert(v);
     // Update the community size
     this->_csize[v_comm] += this->graph->node_size(v);
+  }
 
-    // Loop over all incident edges
-    vector<size_t> const& neighbours = this->graph->get_neighbours(v, IGRAPH_OUT);
-    vector<size_t> const& neighbour_edges = this->graph->get_neighbour_edges(v, IGRAPH_OUT);
+  size_t m = graph->ecount();
+  for (size_t e = 0; e < m; e++)
+  {
+    pair<size_t, size_t> endpoints = this->graph->get_endpoints(e);
+    size_t v = endpoints.first;
+    size_t u = endpoints.second;
 
-    size_t degree = neighbours.size();
+    size_t v_comm = this->_membership[v];
+    size_t u_comm = this->_membership[u];
+
+    // Get the weight of the edge
+    double w = this->graph->edge_weight(e);
+    // Add weight to the outgoing weight of community of v
+    this->_total_weight_from_comm[v_comm] += w;
     #ifdef DEBUG
-      cerr << "\tDegree: " << degree << endl;
+      cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to from_comm " << v_comm <<  "." << endl;
     #endif
-    for (size_t idx = 0; idx < degree; idx++)
+    // Add weight to the incoming weight of community of u
+    this->_total_weight_to_comm[u_comm] += w;
+    #ifdef DEBUG
+      cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to to_comm " << u_comm << "." << endl;
+    #endif
+    // If it is an edge within a community
+    if (v_comm == u_comm)
     {
-      size_t u = neighbours[idx];
-      size_t e = neighbour_edges[idx];
-      size_t u_comm = this->_membership[u];
-      // Get the weight of the edge
-      double w = this->graph->edge_weight(e);
-      // Add weight to the outgoing weight of community of v
-      this->_total_weight_from_comm[v_comm] += w;
+      if (!this->graph->is_directed())
+        w /= 2.0;
+      this->_total_weight_in_comm[v_comm] += w;
+      this->_total_weight_in_all_comms += w;
       #ifdef DEBUG
-        cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to from_comm " << v_comm <<  "." << endl;
+        cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to in_comm " << v_comm << "." << endl;
       #endif
-      // Add weight to the incoming weight of community of u
-      this->_total_weight_to_comm[u_comm] += w;
-      #ifdef DEBUG
-        cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to to_comm " << u_comm << "." << endl;
-      #endif
-      // If it is an edge within a community
-      if (v_comm == u_comm)
-      {
-        if (!this->graph->is_directed())
-          w /= 2.0;
-        this->_total_weight_in_comm[v_comm] += w;
-        this->_total_weight_in_all_comms += w;
-        #ifdef DEBUG
-          cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to in_comm " << v_comm << "." << endl;
-        #endif
-      }
     }
   }
 

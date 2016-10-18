@@ -537,6 +537,13 @@ vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode
   throw Exception("Incorrect model for getting neighbour edges.");
 }
 
+pair<size_t, size_t> Graph::get_endpoints(size_t e)
+{
+  igraph_integer_t from, to;
+  igraph_edge(this->_graph, e,&from, &to);
+  return make_pair<size_t, size_t>(from, to);
+}
+
 void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
 {
   #ifdef DEBUG
