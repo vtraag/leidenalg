@@ -133,18 +133,20 @@ class Optimiser(object):
       partition._update_internal_membership();
     return diff;
 
-  def move_nodes(self, partition):
+  def move_nodes(self, partition, consider_comms=None):
     """ Move nodes to neighbouring communities such that each move improves the
     given quality function maximally (i.e. greedily).
 
     Parameters:
       partition -- The partition to optimise.
     """
-    diff =  _c_louvain._Optimiser_move_nodes(self._optimiser, partition._partition);
+    if (consider_comms is None)
+      consider_comms = self.consider_comms;
+    diff =  _c_louvain._Optimiser_move_nodes(self._optimiser, partition._partition, consider_comms);
     partition._update_internal_membership();
     return diff;
 
-  def move_nodes_constrained(self, partition, constrained_partition):
+  def move_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
     """ Move nodes to neighbouring communities such that each move improves the
     given quality function maximally (i.e. greedily).
 
@@ -152,22 +154,26 @@ class Optimiser(object):
       partition             -- The partition to optimise.
       constrained_partition -- The partition to which to constrained the optimisation.
     """
-    diff =  _c_louvain._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition);
+    if (consider_comms is None)
+      consider_comms = self.refine_consider_comms;
+    diff =  _c_louvain._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
     partition._update_internal_membership();
     return diff;
 
-  def merge_nodes(self, partition):
+  def merge_nodes(self, partition, consider_comms=None):
     """ Move nodes to neighbouring communities such that each move improves the
     given quality function maximally (i.e. greedily).
 
     Parameters:
       partition -- The partition to optimise.
     """
-    diff =  _c_louvain._Optimiser_merge_nodes(self._optimiser, partition._partition);
+    if (consider_comms is None)
+      consider_comms = self.consider_comms;
+    diff =  _c_louvain._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms);
     partition._update_internal_membership();
     return diff;
 
-  def merge_nodes_constrained(self, partition, constrained_partition):
+  def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
     """ Move nodes to neighbouring communities such that each move improves the
     given quality function maximally (i.e. greedily).
 
@@ -175,7 +181,9 @@ class Optimiser(object):
       partition             -- The partition to optimise.
       constrained_partition -- The partition to which to constrained the optimisation.
     """
-    diff =  _c_louvain._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition);
+    if (consider_comms is None)
+      consider_comms = self.refine_consider_comms;
+    diff =  _c_louvain._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
     partition._update_internal_membership();
     return diff;
 
