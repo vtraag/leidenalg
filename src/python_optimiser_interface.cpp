@@ -700,22 +700,22 @@ extern "C"
     return PyBool_FromLong(optimiser->consider_empty_community);
   }
 
-  PyObject* _Optimiser_set_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _Optimiser_set_refine_partition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
-    int smart_local_move = false;
-    static char* kwlist[] = {"optimiser", "smart_local_move", NULL};
+    int refine_partition = false;
+    static char* kwlist[] = {"optimiser", "refine_partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
-                                     &py_optimiser, &smart_local_move))
+                                     &py_optimiser, &refine_partition))
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_smart_local_move(" << smart_local_move << ");" << endl;
+      cerr << "set_refine_partition(" << refine_partition << ");" << endl;
     #endif
 
     #ifdef DEBUG
@@ -726,13 +726,13 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    optimiser->refine_partition = smart_local_move;
+    optimiser->refine_partition = refine_partition;
 
     Py_INCREF(Py_None);
     return Py_None;
   }
 
-  PyObject* _Optimiser_get_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _Optimiser_get_refine_partition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
     static char* kwlist[] = {"optimiser", NULL};
@@ -746,7 +746,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "get_smart_local_move();" << endl;
+      cerr << "get_refine_partition();" << endl;
     #endif
 
     #ifdef DEBUG

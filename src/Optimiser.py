@@ -83,14 +83,14 @@ class Optimiser(object):
     _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, value);
 
   #########################################################3
-  # smart_local_move
+  # refine_partition
   @property
-  def smart_local_move(self):
-    return _c_louvain._Optimiser_get_smart_local_move(self._optimiser);
+  def refine_partition(self):
+    return _c_louvain._Optimiser_get_refine_partition(self._optimiser);
 
-  @smart_local_move.setter
-  def smart_local_move(self, value):
-    _c_louvain._Optimiser_set_smart_local_move(self._optimiser, value);
+  @refine_partition.setter
+  def refine_partition(self, value):
+    _c_louvain._Optimiser_set_refine_partition(self._optimiser, value);
 
   def optimise_partition(self, partition):
     """ Find optimal partition given the specific type of partition_class that

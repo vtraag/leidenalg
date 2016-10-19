@@ -45,7 +45,7 @@ extern "C"
   PyObject* _Optimiser_set_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_refine_routine(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_set_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_set_refine_partition(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _Optimiser_get_random_order(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
@@ -53,7 +53,7 @@ extern "C"
   PyObject* _Optimiser_get_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_refine_routine(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _Optimiser_get_smart_local_move(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_get_refine_partition(PyObject *self, PyObject *args, PyObject *keywds);
 
 #ifdef __cplusplus
 }
