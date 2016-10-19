@@ -2,23 +2,41 @@ import unittest
 import igraph as ig
 import louvain
 
-class BaseTest:
-  @ddt
-  class OptimiserTest(unittest.TestCase):
+class OptimiserTest(unittest.TestCase):
 
-    def setUp(self):
-      self.optimiser = louvain.Optimiser();
+  def setUp(self):
+    self.optimiser = louvain.Optimiser();
 
-    def test_move_nodes():
-      G = ig.Graph.Full(100);
-      partition = louvain.CPMVertexPartition(G, resolution_parameter=0.5);
-      opt = louvain.Optimiser();
-      opt.move_nodes(partition);
-      self.assertAlmostEqual(
-          partition.quality(), 0,
-          places=5,
-          msg="Quality of CPMPartition(resolution_parameter=0.5) of complete graph after move nodes is not equal to 0.0.".format(
-          q2 - q1, diff));
+  def test_move_nodes(self):
+    G = ig.Graph.Full(100);
+    partition = louvain.CPMVertexPartition(G, resolution_parameter=0.5);
+    self.optimiser.move_nodes(partition, consider_comms=louvain.ALL_NEIGH_COMMS);
+    self.assertListEqual(
+        partition.sizes(), [100],
+        places=5,
+        msg="Quality of CPMPartition(resolution_parameter=0.5) of complete graph after move nodes is not equal to 0.0.");
+
+  def test_merge_nodes(self):
+    G = ig.Graph.Full(100);
+    partition = louvain.CPMVertexPartition(G, resolution_parameter=0.5);
+    self.optimiser.merge_nodes(partition, consider_comms=louvain.ALL_NEIGH_COMMS);
+    self.assertListEqual(
+        partition.sizes(), [100],
+        places=5,
+        msg="Quality of CPMPartition(resolution_parameter=0.5) of complete graph after move nodes is not equal to 0.0.");
+
+  def test_diff_move_node_optimality(self):
+    G = ig.Graph.Erdos_Renyi(100, p=5./100, directed=False, loops=False);
+    partition = louvain.CPMVertexPartition(G, resolution_parameter=0.1);
+    while 0 < self.optimiser.move_nodes(partition, consider_comms=louvain.ALL_NEIGH_COMMS):
+      pass;
+    for v in G.vs:
+      neigh_comms = set(partition.membership[u.index] for u in v.neighbors());
+      for c in neigh_comms:
+        self.assertLessEqual(
+          partition.diff_move(v.index, c), 0,
+          msg="Was able to move a node to a better community, violating node optimality.");
+
 
 #%%
 if __name__ == '__main__':

@@ -156,7 +156,7 @@ extern "C"
     PyObject* py_partition = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -199,7 +199,7 @@ extern "C"
     PyObject* py_partition = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -243,7 +243,7 @@ extern "C"
     PyObject* py_constrained_partition = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -295,7 +295,7 @@ extern "C"
     PyObject* py_constrained_partition = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;

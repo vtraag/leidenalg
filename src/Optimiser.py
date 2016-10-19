@@ -140,7 +140,7 @@ class Optimiser(object):
     Parameters:
       partition -- The partition to optimise.
     """
-    if (consider_comms is None)
+    if (consider_comms is None):
       consider_comms = self.consider_comms;
     diff =  _c_louvain._Optimiser_move_nodes(self._optimiser, partition._partition, consider_comms);
     partition._update_internal_membership();
@@ -154,7 +154,7 @@ class Optimiser(object):
       partition             -- The partition to optimise.
       constrained_partition -- The partition to which to constrained the optimisation.
     """
-    if (consider_comms is None)
+    if (consider_comms is None):
       consider_comms = self.refine_consider_comms;
     diff =  _c_louvain._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
     partition._update_internal_membership();
@@ -167,7 +167,7 @@ class Optimiser(object):
     Parameters:
       partition -- The partition to optimise.
     """
-    if (consider_comms is None)
+    if (consider_comms is None):
       consider_comms = self.consider_comms;
     diff =  _c_louvain._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms);
     partition._update_internal_membership();
@@ -181,7 +181,7 @@ class Optimiser(object):
       partition             -- The partition to optimise.
       constrained_partition -- The partition to which to constrained the optimisation.
     """
-    if (consider_comms is None)
+    if (consider_comms is None):
       consider_comms = self.refine_consider_comms;
     diff =  _c_louvain._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
     partition._update_internal_membership();
