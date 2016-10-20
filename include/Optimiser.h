@@ -56,11 +56,9 @@ class Optimiser
 
     virtual ~Optimiser();
 
-    int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
     int refine_partition; // Do smart local move
     int refine_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
-    int consider_empty_community; // Indicates whether we will also consider to move a node to an empty community
     int optimise_routine; // What routine to use for optimisation
     int refine_routine; // What routine to use for optimisation
 

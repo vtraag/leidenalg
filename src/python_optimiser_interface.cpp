@@ -385,66 +385,6 @@ extern "C"
     return PyFloat_FromDouble(q);
   }
 
-  PyObject* _Optimiser_set_random_order(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_optimiser = NULL;
-    int random_order = true;
-    static char* kwlist[] = {"optimiser", "random_order", NULL};
-
-    #ifdef DEBUG
-      cerr << "Parsing arguments..." << endl;
-    #endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
-                                     &py_optimiser, &random_order))
-        return NULL;
-
-    #ifdef DEBUG
-      cerr << "set_random_order(" << random_order << ");" << endl;
-    #endif
-
-    #ifdef DEBUG
-      cerr << "Capsule optimiser at address " << py_optimiser << endl;
-    #endif
-    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
-    #ifdef DEBUG
-      cerr << "Using optimiser at address " << optimiser << endl;
-    #endif
-
-    optimiser->random_order = random_order;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-  }
-
-  PyObject* _Optimiser_get_random_order(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_optimiser = NULL;
-    static char* kwlist[] = {"optimiser", NULL};
-
-    #ifdef DEBUG
-      cerr << "Parsing arguments..." << endl;
-    #endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
-                                     &py_optimiser))
-        return NULL;
-
-    #ifdef DEBUG
-      cerr << "get_random_order();" << endl;
-    #endif
-
-    #ifdef DEBUG
-      cerr << "Capsule optimiser at address " << py_optimiser << endl;
-    #endif
-    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
-    #ifdef DEBUG
-      cerr << "Using optimiser at address " << optimiser << endl;
-    #endif
-
-    return PyBool_FromLong(optimiser->random_order);
-  }
-
   PyObject* _Optimiser_set_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
@@ -683,66 +623,6 @@ extern "C"
     #endif
 
     return PyInt_FromLong(optimiser->refine_routine);
-  }
-
-  PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_optimiser = NULL;
-    int consider_empty_community = false;
-    static char* kwlist[] = {"optimiser", "consider_empty_community", NULL};
-
-    #ifdef DEBUG
-      cerr << "Parsing arguments..." << endl;
-    #endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
-                                     &py_optimiser, &consider_empty_community))
-        return NULL;
-
-    #ifdef DEBUG
-      cerr << "set_consider_empty_community(" << consider_empty_community << ");" << endl;
-    #endif
-
-    #ifdef DEBUG
-      cerr << "Capsule optimiser at address " << py_optimiser << endl;
-    #endif
-    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
-    #ifdef DEBUG
-      cerr << "Using optimiser at address " << optimiser << endl;
-    #endif
-
-    optimiser->consider_empty_community = consider_empty_community;
-
-    Py_INCREF(Py_None);
-    return Py_None;
-  }
-
-  PyObject* _Optimiser_get_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
-  {
-    PyObject* py_optimiser = NULL;
-    static char* kwlist[] = {"optimiser", NULL};
-
-    #ifdef DEBUG
-      cerr << "Parsing arguments..." << endl;
-    #endif
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
-                                     &py_optimiser))
-        return NULL;
-
-    #ifdef DEBUG
-      cerr << "get_consider_empty_community();" << endl;
-    #endif
-
-    #ifdef DEBUG
-      cerr << "Capsule optimiser at address " << py_optimiser << endl;
-    #endif
-    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
-    #ifdef DEBUG
-      cerr << "Using optimiser at address " << optimiser << endl;
-    #endif
-
-    return PyBool_FromLong(optimiser->consider_empty_community);
   }
 
   PyObject* _Optimiser_set_refine_partition(PyObject *self, PyObject *args, PyObject *keywds)

@@ -23,16 +23,6 @@ class Optimiser(object):
     self._optimiser = _c_louvain._new_Optimiser();
 
   #########################################################3
-  # random_order
-  @property
-  def random_order(self):
-    return _c_louvain._Optimiser_get_random_order(self._optimiser);
-
-  @random_order.setter
-  def random_order(self, value):
-    _c_louvain._Optimiser_set_random_order(self._optimiser, value);
-
-  #########################################################3
   # consider_comms
   @property
   def consider_comms(self):
@@ -71,16 +61,6 @@ class Optimiser(object):
   @refine_routine.setter
   def refine_routine(self, value):
     _c_louvain._Optimiser_set_refine_routine(self._optimiser, value)
-
-  #########################################################3
-  # consider_empty_community
-  @property
-  def consider_empty_community(self):
-    return _c_louvain._Optimiser_get_consider_empty_community(self._optimiser);
-
-  @consider_empty_community.setter
-  def consider_empty_community(self, value):
-    _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, value);
 
   #########################################################3
   # refine_partition

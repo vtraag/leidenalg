@@ -11,9 +11,6 @@
   will not be dealt with correctly.
 
   Parameters:
-    random_order
-                 -- If True the nodes will be traversed in a random order
-                    when optimising a quality function.
     consider_comms
                  -- Consider communities in a specific manner:
         ALL_COMMS       -- Consider all communities for improvement.
@@ -25,13 +22,11 @@
 ****************************************************************************/
 Optimiser::Optimiser()
 {
-  this->random_order = true;
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->optimise_routine = Optimiser::MOVE_NODES;
   this->refine_consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->refine_routine = Optimiser::MERGE_NODES;
   this->refine_partition = true;
-  this->consider_empty_community = true;
 }
 
 Optimiser::~Optimiser()
@@ -41,10 +36,8 @@ Optimiser::~Optimiser()
 
 void Optimiser::print_settings()
 {
-  cerr << "Random node order:\t" << this->random_order << endl;
   cerr << "Consider communities method:\t" << this->consider_comms << endl;
   cerr << "Refine partition:\t" << this->refine_partition << endl;
-  cerr << "Consider empty community:\t" << this->consider_empty_community << endl;
 }
 
 /*****************************************************************************
@@ -432,20 +425,14 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   queue<size_t> vertex_order;
   vector<int> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
-  if (this->random_order)
+  vector<size_t> nodes = range(n);
+  random_shuffle( nodes.begin(), nodes.end() );
+  for (vector<size_t>::iterator it_node = nodes.begin();
+       it_node != nodes.end();
+       it_node++)
   {
-    vector<size_t> nodes = range(n);
-    random_shuffle( nodes.begin(), nodes.end() );
-    for (vector<size_t>::iterator it_node = nodes.begin();
-         it_node != nodes.end();
-         it_node++)
-    {
-      vertex_order.push(*it_node);
-    }
+    vertex_order.push(*it_node);
   }
-  else
-    vertex_order = queue_range(n);
-
 
   // Initialize the degree vector
   // If we want to debug the function, we will calculate some additional values.
@@ -533,46 +520,43 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     }
 
     // Check if we should move to an empty community
-    if (this->consider_empty_community || this->refine_partition) // We should not refine the partition without considering empty communities
+    for (size_t layer = 0; layer < nb_layers; layer++)
     {
-      for (size_t layer = 0; layer < nb_layers; layer++)
+      graph = graphs[layer];
+      partition = partitions[layer];
+      if ( partition->get_community(v_comm).size() > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
       {
-        graph = graphs[layer];
-        partition = partitions[layer];
-        if ( partition->get_community(v_comm).size() > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+        size_t comm = partition->get_empty_community();
+        #ifdef DEBUG
+          cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
+        #endif
+        if (comm == partition->nb_communities())
         {
-          size_t comm = partition->get_empty_community();
-          #ifdef DEBUG
-            cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
-          #endif
-          if (comm == partition->nb_communities())
-          {
-            // If the empty community has just been added, we need to make sure
-            // that is has also been added to the other layers
-            for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
-              partitions[layer_2]->add_empty_community();
-          }
-
-          double possible_improv = 0.0;
+          // If the empty community has just been added, we need to make sure
+          // that is has also been added to the other layers
           for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
-          {
-            possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
-          }
-          #ifdef DEBUG
-            cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
-          #endif
-          if (possible_improv > max_improv)
-          {
-            max_improv = possible_improv;
-            max_comm = comm;
-          }
+            partitions[layer_2]->add_empty_community();
+        }
+
+        double possible_improv = 0.0;
+        for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+        {
+          possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
+        }
+        #ifdef DEBUG
+          cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
+        #endif
+        if (possible_improv > max_improv)
+        {
+          max_improv = possible_improv;
+          max_comm = comm;
         }
       }
     }
 
     is_node_stable[v] = true;
 
-    // If we actually plan to move the nove
+    // If we actually plan to move the node
     if (max_comm != v_comm)
     {
         // Keep track of improvement
@@ -682,10 +666,9 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   vector<size_t> vertex_order = range(n);
 
   // But if we use a random order, we shuffle this order.
-  if (this->random_order)
-    random_shuffle( vertex_order.begin(), vertex_order.end() );
+  random_shuffle( vertex_order.begin(), vertex_order.end() );
 
-  // As long as the queue is not empty
+  // Iterate over all nodes
   for (vector<size_t>::iterator it = vertex_order.begin();
        it != vertex_order.end(); it++)
   {
@@ -865,19 +848,14 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
   queue<size_t> vertex_order;
   vector<int> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
-  if (this->random_order)
+  vector<size_t> nodes = range(n);
+  random_shuffle( nodes.begin(), nodes.end() );
+  for (vector<size_t>::iterator it_node = nodes.begin();
+       it_node != nodes.end();
+       it_node++)
   {
-    vector<size_t> nodes = range(n);
-    random_shuffle( nodes.begin(), nodes.end() );
-    for (vector<size_t>::iterator it_node = nodes.begin();
-         it_node != nodes.end();
-         it_node++)
-    {
-      vertex_order.push(*it_node);
-    }
+    vertex_order.push(*it_node);
   }
-  else
-    vertex_order = queue_range(n);
 
   // Initialize the degree vector
   // If we want to debug the function, we will calculate some additional values.
@@ -1097,10 +1075,9 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
   vector<size_t> vertex_order = range(n);
 
   // But if we use a random order, we shuffle this order.
-  if (this->random_order)
-    random_shuffle( vertex_order.begin(), vertex_order.end() );
+  random_shuffle( vertex_order.begin(), vertex_order.end() );
 
-  // As long as the queue is not empty
+  // For each node
   for (vector<size_t>::iterator it = vertex_order.begin();
        it != vertex_order.end(); it++)
   {

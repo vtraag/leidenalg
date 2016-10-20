@@ -39,7 +39,6 @@ extern "C"
   PyObject* _Optimiser_merge_nodes(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_merge_nodes_constrained(PyObject *self, PyObject *args, PyObject *keywds);
 
-  PyObject* _Optimiser_set_random_order(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds);
@@ -47,7 +46,6 @@ extern "C"
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_refine_partition(PyObject *self, PyObject *args, PyObject *keywds);
 
-  PyObject* _Optimiser_get_random_order(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds);
