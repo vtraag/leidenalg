@@ -70,7 +70,16 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
-    double q = optimiser->optimise_partition(partition);
+    double q = 0.0;
+    try
+    {
+      q = optimiser->optimise_partition(partition)
+    }
+    catch (Exception e)
+    {
+      PyErr_SetString(PyExc_ValueError, e.what());
+      return NULL;
+    }
     return PyFloat_FromDouble(q);
   }
 
@@ -129,15 +138,6 @@ extern "C"
       cerr << "n=" << n << endl;
     #endif
 
-    /*for (size_t layer = 0; layer < nb_partitions; layer++)
-    {
-      if (n != partitions[layer]->get_graph()->vcount())
-      {
-        PyErr_SetString(PyExc_ValueError, "Inconsistent number of nodes.");
-        return NULL;
-      }
-    }*/
-
     #ifdef DEBUG
       cerr << "Capsule optimiser at address " << py_optimiser << endl;
     #endif
@@ -153,8 +153,8 @@ extern "C"
     }
     catch (Exception e)
     {
-        PyErr_SetString(PyExc_ValueError, e.what());
-        return NULL;
+      PyErr_SetString(PyExc_ValueError, e.what());
+      return NULL;
     }
     return PyFloat_FromDouble(q);
   }
@@ -198,7 +198,16 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->consider_comms;
 
-    double q = optimiser->move_nodes(partition, consider_comms);
+    double q  = 0.0;
+    try
+    {
+      q = optimiser->move_nodes(partition, consider_comms);
+    }
+    catch (Exception e)
+    {
+      PyErr_SetString(PyExc_ValueError, e.what());
+      return NULL;
+    }
     return PyFloat_FromDouble(q);
   }
 
@@ -241,7 +250,16 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->consider_comms;
 
-    double q = optimiser->merge_nodes(partition, consider_comms);
+    double q = 0.0;
+    try
+    {
+      q = optimiser->merge_nodes(partition, consider_comms);
+    }
+    catch (Exception e)
+    {
+      PyErr_SetString(PyExc_ValueError, e.what());
+      return NULL;
+    }
     return PyFloat_FromDouble(q);
   }
 
@@ -293,7 +311,16 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->refine_consider_comms;
 
-    double q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition);
+    double q = 0.0;
+    try
+    {
+      q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition);
+    }
+    catch (Exception e)
+    {
+      PyErr_SetString(PyExc_ValueError, e.what());
+      return NULL;
+    }
     return PyFloat_FromDouble(q);
   }
 
@@ -345,7 +372,16 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->refine_consider_comms;
 
-    double q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition);
+    double q = 0.0;
+    try
+    {
+      q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition);
+    }
+    catch (Exception e)
+    {
+      PyErr_SetString(PyExc_ValueError, e.what());
+      return NULL;
+    }
     return PyFloat_FromDouble(q);
   }
 
