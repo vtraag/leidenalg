@@ -73,7 +73,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partition)
+      q = optimiser->optimise_partition(partition);
     }
     catch (Exception e)
     {
