@@ -112,7 +112,10 @@ from .functions import RAND_NEIGH_COMM
 
 from .functions import find_partition
 from .functions import find_partition_multiplex
-from .functions import Layer
+from .functions import find_partition_temporal
+from .functions import slice_graph_to_layer_graph
+from .functions import time_slice_to_layer_graph
+
 from .Optimiser import Optimiser
 from .VertexPartition import ModularityVertexPartition
 from .VertexPartition import SurpriseVertexPartition
