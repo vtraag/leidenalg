@@ -86,7 +86,7 @@ extern "C"
     size_t nb_partitions = PyList_Size(py_partitions);
     if (nb_partitions != PyList_Size(py_layer_weights))
     {
-      PyErr_SetString(PyExc_ValueError, "Number of weights does not equal the number of partitions");
+      PyErr_SetString(PyExc_ValueError, "Number of layer weights does not equal the number of partitions");
       return NULL;
     }
 

@@ -155,15 +155,9 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   partitions = [];
   layer_weights = [1]*n_layers;
   for graph in graphs:
-    if layer.weight is not None:
-      if isinstance(layer.weight, str):
-        layer.weight = layer.graph.es[layer.weight];
-      else:
-        # Make sure it is a list
-        layer.weight = list(layer.weight);
     partitions.append(partition_type(graph, **kwargs));
   optimiser = Optimiser();
-  quality = optimiser.find_partition_multiplex(partitions, layer_weights);
+  quality = optimiser.optimise_partition_multiplex(partitions, layer_weights);
   return partitions[0].membership, quality;
 
 def find_partition_temporal(H_time_slices, partition_type,
