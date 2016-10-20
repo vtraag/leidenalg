@@ -129,14 +129,14 @@ extern "C"
       cerr << "n=" << n << endl;
     #endif
 
-    for (size_t layer = 0; layer < nb_partitions; layer++)
+    /*for (size_t layer = 0; layer < nb_partitions; layer++)
     {
       if (n != partitions[layer]->get_graph()->vcount())
       {
         PyErr_SetString(PyExc_ValueError, "Inconsistent number of nodes.");
         return NULL;
       }
-    }
+    }*/
 
     #ifdef DEBUG
       cerr << "Capsule optimiser at address " << py_optimiser << endl;
@@ -146,7 +146,16 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    double q = optimiser->optimise_partition(partitions, layer_weights);
+    double q = 0.0;
+    try
+    {
+      optimiser->optimise_partition(partitions, layer_weights);
+    }
+    catch (Exception e)
+    {
+        PyErr_SetString(PyExc_ValueError, e.what());
+        return NULL;
+    }
     return PyFloat_FromDouble(q);
   }
 
