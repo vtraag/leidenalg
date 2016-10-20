@@ -764,10 +764,6 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     }
   }
 
-  double const eps = 1e-6;
-  if (fabs(total_collapsed_weight - this->total_weight()) > eps)
-    throw Exception("Total collapsed weight is not equal to original weight.");
-
   // Create graph based on edges
   igraph_t* graph = new igraph_t();
   igraph_create(graph, &edges, n_collapsed, this->is_directed());

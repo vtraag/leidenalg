@@ -153,7 +153,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   """
   n_layers = len(graphs);
   partitions = [];
-  layer_weights = [1]**n_layers;
+  layer_weights = [1]*n_layers;
   for graph in graphs:
     if layer.weight is not None:
       if isinstance(layer.weight, str):
@@ -238,6 +238,7 @@ def slice_graph_to_layer_graph(G_slices,
   coupling is determined by the weight of this link in G_slices.
   """
   ##%%
+
   # Create disjoint union of the time graphs
   for v_slice in G_slices.vs:
     H = v_slice[slice_attr];
@@ -254,13 +255,13 @@ def slice_graph_to_layer_graph(G_slices,
           err = '\n'.join(
             ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_v).items() if count > 1]
             );
-          raise Exception('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(v_slice.index, err));
+          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(v_slice.index, err));
         nodes_u = G.vs.select(lambda v: v[slice_attr]==u_slice.index)[vertex_id_attr];
         if len(set(nodes_u)) != len(nodes_u):
           err = '\n'.join(
             ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_u).items() if count > 1]
             );
-          raise Exception('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(u_slice.index, err));
+          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(u_slice.index, err));
         common_nodes = set(nodes_v).intersection(set(nodes_u));
         nodes_v = sorted([v for v in G.vs if v[slice_attr] == v_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr]);
         nodes_u = sorted([v for v in G.vs if v[slice_attr] == u_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr]);
