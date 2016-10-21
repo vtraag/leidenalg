@@ -64,16 +64,21 @@ inline igraph_rng_t* init_rng()
   return rng;
 }
 
-static igraph_rng_t* default_rng = init_rng();
+inline igraph_rng_t* default_rng()
+{
+  static igraph_rng_t* default_rng = init_rng();
+  return default_rng;
+}
 
 inline size_t set_rng_seed(size_t seed)
 {
-  igraph_rng_seed(default_rng, seed);
+  igraph_rng_seed(default_rng(), seed);
 };
 
 inline size_t get_random_int(size_t from, size_t to)
 {
-  return igraph_rng_get_integer(default_rng, from, to);
+  cerr << "rng: " << default_rng() << endl;
+  return igraph_rng_get_integer(default_rng(), from, to);
 };
 
 void shuffle(vector<size_t>& v);

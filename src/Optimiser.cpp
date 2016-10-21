@@ -426,7 +426,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   vector<int> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
   vector<size_t> nodes = range(n);
-  random_shuffle( nodes.begin(), nodes.end() );
+  shuffle(nodes);
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
        it_node++)
@@ -637,6 +637,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
 double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
 {
+  #define DEBUG
   #ifdef DEBUG
     cerr << "double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
   #endif
@@ -666,8 +667,17 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   vector<size_t> vertex_order = range(n);
 
   // But if we use a random order, we shuffle this order.
-  random_shuffle( vertex_order.begin(), vertex_order.end() );
+  shuffle(vertex_order);
 
+  #ifdef DEBUG
+    cerr << "Node order: " << endl;
+    for (vector<size_t>::iterator it = vertex_order.begin();
+         it != vertex_order.end(); it++)
+    {
+      size_t v = *it;
+      cerr << v << endl;
+    }
+  #endif DEBUG
   // Iterate over all nodes
   for (vector<size_t>::iterator it = vertex_order.begin();
        it != vertex_order.end(); it++)
@@ -676,6 +686,10 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
     // What is the current community of the node (this should be the same for all layers)
     size_t v_comm = partitions[0]->membership(v);
+
+    #ifdef DEBUG
+      cerr << "Consider moving node " << v << " from " << v_comm << "." << endl;
+    #endif
 
     if (partitions[0]->get_community(v_comm).size() == 1)
     {
@@ -810,6 +824,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
     #endif DEBUG
   }
   return total_improv;
+  #undef DEBUG
 }
 
 double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition)
@@ -849,7 +864,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
   vector<int> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
   vector<size_t> nodes = range(n);
-  random_shuffle( nodes.begin(), nodes.end() );
+  shuffle(nodes);
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
        it_node++)
@@ -1075,7 +1090,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
   vector<size_t> vertex_order = range(n);
 
   // But if we use a random order, we shuffle this order.
-  random_shuffle( vertex_order.begin(), vertex_order.end() );
+  shuffle(vertex_order);
 
   // For each node
   for (vector<size_t>::iterator it = vertex_order.begin();

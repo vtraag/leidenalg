@@ -24,6 +24,9 @@ extern "C"
 {
 #endif
 
+  PyObject* _set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _get_random_int(PyObject *self, PyObject *args, PyObject *keywds);
+
   static PyMethodDef louvain_funcs[] = {
       {"_new_MutableVertexPartition",                               (PyCFunction)_new_MutableVertexPartition,                               METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_diff_move",                         (PyCFunction)_MutableVertexPartition_diff_move,                         METH_VARARGS | METH_KEYWORDS, ""},
@@ -31,7 +34,7 @@ extern "C"
       {"_MutableVertexPartition_get_py_igraph",                     (PyCFunction)_MutableVertexPartition_get_py_igraph,                     METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_aggregate_partition",               (PyCFunction)_MutableVertexPartition_aggregate_partition,               METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_from_coarser_partition",            (PyCFunction)_MutableVertexPartition_from_coarser_partition,            METH_VARARGS | METH_KEYWORDS, ""},
-      {"_MutableVertexPartition_renumber_communities",            (PyCFunction)_MutableVertexPartition_renumber_communities,                METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_renumber_communities",              (PyCFunction)_MutableVertexPartition_renumber_communities,              METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_MutableVertexPartition_quality",                           (PyCFunction)_MutableVertexPartition_quality,                           METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_total_weight_in_comm",              (PyCFunction)_MutableVertexPartition_total_weight_in_comm,              METH_VARARGS | METH_KEYWORDS, ""},
@@ -49,8 +52,8 @@ extern "C"
       {"_Optimiser_optimise_partition_multiplex",   (PyCFunction)_Optimiser_optimise_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_move_nodes",                     (PyCFunction)_Optimiser_move_nodes,                     METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_move_nodes_constrained",         (PyCFunction)_Optimiser_move_nodes_constrained,         METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_merge_nodes",                     (PyCFunction)_Optimiser_merge_nodes,                   METH_VARARGS | METH_KEYWORDS, ""},
-      {"_Optimiser_merge_nodes_constrained",         (PyCFunction)_Optimiser_merge_nodes_constrained,       METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_merge_nodes",                    (PyCFunction)_Optimiser_merge_nodes,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_merge_nodes_constrained",        (PyCFunction)_Optimiser_merge_nodes_constrained,        METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_Optimiser_set_consider_comms",             (PyCFunction)_Optimiser_set_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_set_refine_consider_comms",      (PyCFunction)_Optimiser_set_refine_consider_comms,      METH_VARARGS | METH_KEYWORDS, ""},
@@ -63,6 +66,9 @@ extern "C"
       {"_Optimiser_get_optimise_routine",           (PyCFunction)_Optimiser_get_optimise_routine,           METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_refine_routine",             (PyCFunction)_Optimiser_get_refine_routine,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_refine_partition",           (PyCFunction)_Optimiser_get_refine_partition,           METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_set_rng_seed",                             (PyCFunction)_set_rng_seed,                             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_get_random_int",                           (PyCFunction)_get_random_int,                           METH_VARARGS | METH_KEYWORDS, ""},
 
       {NULL}
   };
