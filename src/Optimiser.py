@@ -60,7 +60,7 @@ class Optimiser(object):
 
   @refine_routine.setter
   def refine_routine(self, value):
-    _c_louvain._Optimiser_set_refine_routine(self._optimiser, value)
+    _c_louvain._Optimiser_set_refine_routine(self._optimiser, value);
 
   #########################################################3
   # refine_partition
@@ -73,11 +73,18 @@ class Optimiser(object):
     _c_louvain._Optimiser_set_refine_partition(self._optimiser, value);
 
   def optimise_partition(self, partition):
-    """ Find optimal partition given the specific type of partition_class that
-    is provided.
+    """ Optimise the given partition.
 
-    Parameters:
-      partition       -- The partition to optimise"""
+    Parameters
+    ----------
+    partition
+      The partition to optimize4.
+
+    Returns
+    -------
+    quality
+      Quality of optimised partition.
+    """
     # Perhaps we
     diff = _c_louvain._Optimiser_optimise_partition(self._optimiser, partition._partition);
     partition._update_internal_membership();
@@ -118,7 +125,8 @@ class Optimiser(object):
     given quality function maximally (i.e. greedily).
 
     Parameters:
-      partition -- The partition to optimise.
+      partition
+        The partition to optimise.
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms;

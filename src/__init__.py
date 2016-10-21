@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+r"""
 This package implements the louvain algorithm in `C++` and exposes it to `python`.
 It relies on `(python-)igraph` for it to function. Besides the relative
 flexibility of the implementation, it also scales well, and can be run on graphs
@@ -14,11 +14,9 @@ for a number of different methods. The methods currently implemented are:
   we don't divide by the number of edges), so that this Modularity values
   generally does not fall between 0 and 1. The formal definition is
 
-  ```
-  H = sum_ij (A_ij - k_i k_j / 2m) d(s_i, s_j),
-  ```
+  .. math:: H = \sum_{ij} \left(A_{ij} - \frac{k_i k_j}{2m}\right) d(s_i, s_j),
 
-  where `A_ij = 1` if there is an edge between node `i` and `j`, `k_i` is the degree of
+  where :math:`A_ij = 1` if there is an edge between node `i` and `j`, `k_i` is the degree of
   node `i` and `s_i` is the community of node i.
 
 * RBConfiguration.
