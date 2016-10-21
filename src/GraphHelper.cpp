@@ -41,7 +41,6 @@ void shuffle(vector<size_t>& v)
   for (size_t idx = n - 1; idx > 0; idx--)
   {
     size_t rand_idx = get_random_int(0, idx);
-    cerr << rand_idx << endl;
     size_t tmp = v[idx];
     v[idx] = v[rand_idx];
     v[rand_idx] = tmp;

@@ -77,7 +77,6 @@ inline size_t set_rng_seed(size_t seed)
 
 inline size_t get_random_int(size_t from, size_t to)
 {
-  cerr << "rng: " << default_rng() << endl;
   return igraph_rng_get_integer(default_rng(), from, to);
 };
 

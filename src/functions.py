@@ -97,9 +97,6 @@ def find_partition(graph, partition_type,
 def set_rng_seed(seed):
   _c_louvain._set_rng_seed(seed);
 
-def get_random_int():
-  return _c_louvain._get_random_int();
-
 def find_partition_multiplex(graphs, partition_type, **kwargs):
   """
   Method for detecting communities using the Louvain algorithm. This functions

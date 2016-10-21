@@ -25,7 +25,6 @@ extern "C"
 #endif
 
   PyObject* _set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds);
-  PyObject* _get_random_int(PyObject *self, PyObject *args, PyObject *keywds);
 
   static PyMethodDef louvain_funcs[] = {
       {"_new_MutableVertexPartition",                               (PyCFunction)_new_MutableVertexPartition,                               METH_VARARGS | METH_KEYWORDS, ""},
@@ -68,7 +67,6 @@ extern "C"
       {"_Optimiser_get_refine_partition",           (PyCFunction)_Optimiser_get_refine_partition,           METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_set_rng_seed",                             (PyCFunction)_set_rng_seed,                             METH_VARARGS | METH_KEYWORDS, ""},
-      {"_get_random_int",                           (PyCFunction)_get_random_int,                           METH_VARARGS | METH_KEYWORDS, ""},
 
       {NULL}
   };
