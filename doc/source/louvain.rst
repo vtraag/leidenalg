@@ -9,6 +9,14 @@ Module contents
     :undoc-members:
     :show-inheritance:
 
+louvain.Optimiser class
+-----------------------------
+
+.. autoclass:: louvain.Optimiser
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 louvain.VertexPartition class
 -----------------------------
 

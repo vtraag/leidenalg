@@ -1,22 +1,25 @@
-import igraph as _ig
 from . import _c_louvain
-from .functions import _get_py_capsule
 import sys
 # Check if working with Python 3
 PY3 = (sys.version > '3');
 
-from .functions import ALL_COMMS
-from .functions import ALL_NEIGH_COMMS
-from .functions import RAND_COMM
-from .functions import RAND_NEIGH_COMM
+from collections import namedtuple, OrderedDict
+from math import log, sqrt
 
 class Optimiser(object):
   """ Class for doing community detection using the Louvain algorithm.
 
-  Given a certain partition type is calls diff_move for trying to move a node
-  to another community. It moves the node to the community that *maximises*
-  this diff_move. If no further improvement is possible, the graph is
-  aggregated (collapse_graph) and the method is reiterated on that graph."""
+  The optimiser class provides a number of different methods for optimising a
+  given partition. The overall optimise procedure :func:`optimise_partition`
+  calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled by
+  :attr:`optimise_routine`) then aggregates the graph and repeats the same
+  procedure. Possible, indicated by :attr:`refine_partition` the partition is refined
+  before aggregating, meaning that subsets of communities are considered for
+  moving around. Which routine is used for the refinement is indicated by :attr:`refine_routine`.
+  For calculating the actual improvement of moving a node (corresponding a subset of nodes in
+  the aggregate graph), the code relies on :func:`VertexPartition.diff_move` which provides
+  different values for different methods (e.g. modularity or CPM). Finally, the Optimiser
+  class provides a routine to construct a :func:`resolution_profile` on a resolution parameter."""
 
   def __init__(self):
     """ Create a new Optimiser object """
@@ -26,6 +29,31 @@ class Optimiser(object):
   # consider_comms
   @property
   def consider_comms(self):
+    """ Determine how alternative communities are considered for moving
+    a node for *optimising* a partition. Nodes will only move to alternative
+    communities that improve the given quality function.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.ALL_NEIGH_COMMS`
+      Consider all neighbouring communities for moving.
+
+    * :attr:`louvain.ALL_COMMS`
+      Consider all communities for moving. This is especially useful
+      in the case of negative links, in which case it may be better
+      to move a node to a non-neighbouring community.
+
+    * :attr:`louvain.RAND_NEIGH_COMM`
+      Consider a random neighbour community for moving. The probability to
+      choose a community is proportional to the number of neighbours a node
+      has in that community.
+
+    * :attr:`louvain.RAND_COMM`
+      Consider a random community for moving. The probability to choose a
+      community is proportional to the number of nodes in that community.
+    """
     return _c_louvain._Optimiser_get_consider_comms(self._optimiser);
 
   @consider_comms.setter
@@ -36,6 +64,31 @@ class Optimiser(object):
   # refine consider_comms
   @property
   def refine_consider_comms(self):
+    """ Determine how alternative communities are considered for moving
+    a node when *refining* a partition. Nodes will only move to alternative
+    communities that improve the given quality function.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.ALL_NEIGH_COMMS`
+      Consider all neighbouring communities for moving.
+
+    * :attr:`louvain.ALL_COMMS`
+      Consider all communities for moving. This is especially useful
+      in the case of negative links, in which case it may be better
+      to move a node to a non-neighbouring community.
+
+    * :attr:`louvain.RAND_NEIGH_COMM`
+      Consider a random neighbour community for moving. The probability to
+      choose a community is proportional to the number of neighbours a node
+      has in that community.
+
+    * :attr:`louvain.RAND_COMM`
+      Consider a random community for moving. The probability to choose a
+      community is proportional to the number of nodes in that community.
+    """
     return _c_louvain._Optimiser_get_refine_consider_comms(self._optimiser);
 
   @refine_consider_comms.setter
@@ -46,6 +99,18 @@ class Optimiser(object):
   # optimise routine
   @property
   def optimise_routine(self):
+    """ Determine the routine to use for *optimising* a partition.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.MOVE_NODES`
+      Use :func:`Optimiser.move_nodes`.
+
+    * :attr:`louvain.MERGE_NODES`
+      Use :func:`Optimiser.merge_node`.
+    """
     return _c_louvain._Optimiser_get_optimise_routine(self._optimiser);
 
   @optimise_routine.setter
@@ -56,6 +121,18 @@ class Optimiser(object):
   # optimise routine
   @property
   def refine_routine(self):
+    """ Determine the routine to use for *refining* a partition.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.MOVE_NODES`
+      Use :func:`Optimiser.move_nodes`.
+
+    * :attr:`louvain.MERGE_NODES`
+      Use :func:`Optimiser.merge_node`.
+    """
     return _c_louvain._Optimiser_get_refine_routine(self._optimiser);
 
   @refine_routine.setter
@@ -66,6 +143,7 @@ class Optimiser(object):
   # refine_partition
   @property
   def refine_partition(self):
+    """ boolean: if ``True`` refine partition before aggregation. """
     return _c_louvain._Optimiser_get_refine_partition(self._optimiser);
 
   @refine_partition.setter
@@ -78,12 +156,21 @@ class Optimiser(object):
     Parameters
     ----------
     partition
-      The partition to optimize4.
+      The :class:`louvain.VertexPartition` to optimise.
 
     Returns
     -------
-    quality
+    float
       Quality of optimised partition.
+
+    Examples
+    --------
+
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.optimise_partition(partition);
+
     """
     # Perhaps we
     diff = _c_louvain._Optimiser_optimise_partition(self._optimiser, partition._partition);
@@ -91,24 +178,68 @@ class Optimiser(object):
     return diff;
 
   def optimise_partition_multiplex(self, partitions, layer_weights=None):
-    """
-      Method for detecting communities using the Louvain algorithm. This functions
-      finds the optimal partition for all layers given the specified methods. For
-      the various possible methods see package documentation. This considers all
-      graphs in all layers, in which each node may be differently connected, but all
-      nodes must appear in all graphs. Furthermore, they should have identical
-      indices in the graph (i.e. node i is assumed to be the same node in all
-      graphs).  The quality of this partition is simply the sum of the individual
-      qualities for the various partitions, weighted by the layer_weight. If we
-      denote by q_k the quality of layer k and the weight by w_k, the overall
-      quality is then
-      q = sum_k w_k*q_k.
+    """ Optimise the given partitions simultaneously.
 
-      Notice that this is particularly useful for graphs containing negative links.
-      When separating the graph in two graphs, the one containing only the positive
-      links, and the other only the negative link, by supplying a negative weight to
-      the latter layer, we try to find relatively many positive links within a
-      community and relatively many negative links between communities.
+      Parameters
+      ----------
+      partitions
+        List of :class:`louvain.VertexPartition` layers to optimise.
+
+      layer_weights
+        List of weights of layers.
+
+      Returns
+      -------
+      float
+        quality of combined partitions, see `Notes`_.
+
+      Notes
+      -----
+      .. _Notes:
+
+      This method assumes that the partitions are defined for graphs with the same
+      vertices. The connections between the vertices may be different, but the
+      vertices themselves should be identical. In other words, all vertices should have
+      identical indices in all graphs (i.e. node `i` is assumed to be the same node in all
+      graphs). The quality of this partition is simply the sum of the individual
+      qualities for the various partitions, weighted by the layer_weight. If we
+      denote by :math:`q_k` the quality of layer :math:`k` and the weight by :math:`w_k`,
+      the overall quality is then
+
+      .. math::
+
+        q = \sum_k w_k q_k.
+
+      This is particularly useful for graphs containing negative links. When separating the
+      graph in two graphs, the one containing only the positive links, and the other only
+      the negative link, by supplying a negative weight to the latter layer, we try to
+      find relatively many positive links within a community and relatively many negative
+      links between communities. Note that in this case it may be better to assign a node
+      to a community to which it is not connected so that :attr:`consider_comms` may be better
+      set to :attr:`louvain.ALL_COMMS`.
+
+      Besides multiplex graphs where each node is assumed to have a single community, it is also
+      useful in the case of for example multiple time slices, or in situations where nodes can
+      have different communities in different slices. The package includes some special helper
+      functions for using :func:`optimise_partition_multiplex` in such cases, where there is a
+      conversion required from (time) slices to layers suitable for use in this function.
+
+      See Also
+      --------
+      louvain.slice_graph_to_layer_graph : Convert slices to layers.
+      louvain.time_slice_to_layer_graph : Convert time slices to layers.
+      louvain.find_partition_time_slices : Detect partition for time slices.
+
+      Examples
+      --------
+      >>> G_pos = ig.Graph.SBM(100, pref_matrix=[[0.5, 0.1], [0.1, 0.5]], block_sizes=[50, 50]);
+      >>> G_neg = ig.Graph.SBM(100, pref_matrix=[[0.1, 0.5], [0.5, 0.1]], block_sizes=[50, 50]);
+      >>> optimiser = louvain.Optimiser();
+      >>> partition_pos = louvain.ModularityVertexPartition(G_pos);
+      >>> partition_neg = louvain.ModularityVertexPartition(G_neg);
+      >>> optimiser.optimise_partition_multiplex(partitions=[partition_pos, partition_neg],
+      ...                                        layer_weights=[1,-1]);
+
       """
     if not layer_weights:
       layer_weights = [1]*len(partitions);
@@ -121,12 +252,39 @@ class Optimiser(object):
     return diff;
 
   def move_nodes(self, partition, consider_comms=None):
-    """ Move nodes to neighbouring communities such that each move improves the
-    given quality function maximally (i.e. greedily).
+    """ Move nodes to alternative communities for *optimising* the partition.
 
-    Parameters:
-      partition
-        The partition to optimise.
+    Parameters
+    ----------
+    partition
+      The partition for which to move nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    When moving nodes, the function loops over nodes and considers moving the node to
+    an alternative community. Which community depends on ``consider_comms``. The
+    function terminates when no more nodes can be moved to an alternative community.
+
+    See Also
+    --------
+    move_nodes_constrained : Move nodes for *refining* a partition.
+    merge_nodes : Merge nodes rather than moving nodes.
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.move_nodes(partition);
+
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms;
@@ -135,12 +293,45 @@ class Optimiser(object):
     return diff;
 
   def move_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
-    """ Move nodes to neighbouring communities such that each move improves the
-    given quality function maximally (i.e. greedily).
+    """ Move nodes to alternative communities for *refining* the partition.
 
-    Parameters:
-      partition             -- The partition to optimise.
-      constrained_partition -- The partition to which to constrained the optimisation.
+    Parameters
+    ----------
+    partition
+      The partition for which to move nodes.
+
+    constrained_partition
+      The partition within which we may move nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set to something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    The idea is constrain the movement of nodes to alternative communities to another
+    partition. In other words, if there is a partition ``P`` which we want to refine,
+    we can then initialize a new singleton partition, and move nodes in that partition
+    constrained to ``P``.
+
+    See Also
+    --------
+    move_nodes : Move nodes for *optimising* a partition.
+    merge_nodes_constrained : Merge nodes rather than moving nodes.
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.optimise_partition(partition);
+    >>> refine_partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+
     """
     if (consider_comms is None):
       consider_comms = self.refine_consider_comms;
@@ -149,11 +340,39 @@ class Optimiser(object):
     return diff;
 
   def merge_nodes(self, partition, consider_comms=None):
-    """ Move nodes to neighbouring communities such that each move improves the
-    given quality function maximally (i.e. greedily).
+    """ Merge nodes for *optimising* the partition.
 
-    Parameters:
-      partition -- The partition to optimise.
+    Parameters
+    ----------
+    partition
+      The partition for which to merge nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    This function loop over all nodes once and tries to merge them with another community.
+    Merging in this case implies that a node will never be removed from a community, only
+    merged with other communities.
+
+    See Also
+    --------
+    move_nodes_constrained : Move nodes for *refining* a partition.
+    merge_nodes : Merge nodes rather than moving nodes.
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.merge_nodes(partition);
+
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms;
@@ -162,12 +381,44 @@ class Optimiser(object):
     return diff;
 
   def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
-    """ Move nodes to neighbouring communities such that each move improves the
-    given quality function maximally (i.e. greedily).
+    """ Merge nodes for *refining* the partition.
 
-    Parameters:
-      partition             -- The partition to optimise.
-      constrained_partition -- The partition to which to constrained the optimisation.
+    Parameters
+    ----------
+    partition
+      The partition for which to merge nodes.
+
+    constrained_partition
+      The partition within which we may merge nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set to something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    The idea is constrain the merging of nodes to another partition. In other words, if there is a
+    partition ``P`` which we want to refine, we can then initialize a new singleton partition, and
+    move nodes in that partition constrained to ``P``.
+
+    See Also
+    --------
+    move_nodes : Move nodes for *optimising* a partition.
+    merge_nodes_constrained : Merge nodes rather than moving nodes.
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.optimise_partition(partition);
+    >>> refine_partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+
     """
     if (consider_comms is None):
       consider_comms = self.refine_consider_comms;
@@ -175,12 +426,11 @@ class Optimiser(object):
     partition._update_internal_membership();
     return diff;
 
-  def bisect(
+  def resolution_profile(self,
         graph,
-        method,
+        partition_type,
         resolution_range,
         weight=None,
-        consider_comms=ALL_NEIGH_COMMS,
         bisect_func=lambda p: p.total_weight_in_all_comms(),
         min_diff_bisect_value=1,
         min_diff_resolution=1e-3,
@@ -189,36 +439,39 @@ class Optimiser(object):
     """ Use bisectioning on the resolution parameter in order to construct a
     resolution profile.
 
-    Keyword arguments:
-
+    Parameters
+    ----------
     graph
-      The graph for which to find the optimal partition(s).
+      The graph for which to construct a resolution profile.
 
-    method
-      The method used to find a partition (must support resolution parameters
-      obviously).
+    partition_type
+      The type of :class:`louvain.VertexPartition` used to find a partition (must support
+      resolution parameters obviously).
 
     resolution_range
       The range of resolution values that we would like to scan.
 
-    weight=None
+    weight
       If provided, indicates the edge attribute to use as a weight.
 
-    consider_comms=ALL_NEIGH_COMMS
-      This parameter determines which communities to consider when moving a node.
-      Please refer to the documentation of `find_partition` for more information
-      on this parameter.
+    Returns
+    -------
+    OrderedDict
+      Contains resolution values as keys and a bisection object containing
+      partitions and bisection values.
 
-    bisect_func=total_internal_edges
+    Other Parameters
+    ----------------
+    bisect_func
       The function used for bisectioning. For the methods currently implemented,
       this should usually not be altered.
 
-    min_diff_bisect_value=1
+    min_diff_bisect_value
       The difference in the value returned by the bisect_func below which the
       bisectioning stops (i.e. by default, a difference of a single edge does not
       trigger further bisectioning).
 
-    min_diff_resolution=1e-3
+    min_diff_resolution
       The difference in resolution below which the bisectioning stops. For
       positive differences, the logarithmic difference is used by default, i.e.
       ``diff = log(res_1) - log(res_2) = log(res_1/res_2)``, for which ``diff >
@@ -226,12 +479,10 @@ class Optimiser(object):
       true in order to use only linear bisectioning (in the case of negative
       resolution parameters for example, which can happen with negative weights).
 
-    linear_bisection=False
+    linear_bisection
       Whether the bisectioning will be done on a linear or on a logarithmic basis
       (if possible).
-
-    returns: a list of partitions and resolution values.
-      """
+    """
     # Helper function for cleaning values to be a stepwise function
     def clean_stepwise(bisect_values):
       # We only need to keep the changes in the bisection values
@@ -259,6 +510,12 @@ class Optimiser(object):
         elif res > new_res and \
            bisect_part.bisect_value > bisect_values[new_res].bisect_value:
           bisect_values[res] = bisect_values[new_res];
+    def find_partition(self, graph, partition_type, weight=None, **kwargs):
+      partition = partition_type(graph,
+                             weight=weight,
+                             **kwargs);
+      self.optimise_partition(partition);
+      return partition;
     # Start actual bisectioning
     bisect_values = {};
     stack_res_range = [];
@@ -268,12 +525,12 @@ class Optimiser(object):
     # The namedtuple we will use in the bisection function
     BisectPartition = namedtuple('BisectPartition',
         ['partition', 'bisect_value']);
-    partition = find_partition(graph=graph, method=method, weight=weight,
-                                   resolution_parameter=resolution_range[0], consider_comms=consider_comms);
+    partition = find_partition(self, graph=graph, partition_type=partition_type, weight=weight,
+                                   resolution_parameter=resolution_range[0]);
     bisect_values[resolution_range[0]] = BisectPartition(partition=partition,
                                 bisect_value=bisect_func(partition));
-    partition = find_partition(graph=graph, method=method, weight=weight,
-                                   resolution_parameter=resolution_range[1], consider_comms=consider_comms);
+    partition = find_partition(self, graph=graph, partition_type=partition_type, weight=weight,
+                                   resolution_parameter=resolution_range[1]);
     bisect_values[resolution_range[1]] = BisectPartition(partition=partition,
                                 bisect_value=bisect_func(partition));
     # While stack of ranges not yet empty
@@ -290,8 +547,6 @@ class Optimiser(object):
       else:
         diff_resolution = abs(current_range[1] - current_range[0]);
       # Check if we still want to scan a smaller interval
-      logging.info('Range=[{0}, {1}], diff_res={2}, diff_bisect={3}'.format(
-          current_range[0], current_range[1], diff_resolution, diff_bisect_value));
       # If we would like to bisect this interval
       if diff_bisect_value > min_diff_bisect_value and \
          diff_resolution > min_diff_resolution:
@@ -307,12 +562,10 @@ class Optimiser(object):
         # If we haven't scanned this resolution value yet,
         # do so now
         if not bisect_values.has_key(new_res):
-          partition = find_partition(graph, method=method, weight=weight,
-                                         resolution_parameter=new_res, consider_comms=consider_comms);
+          partition = find_partition(self, graph, partition_type=partition_type, weight=weight,
+                                         resolution_parameter=new_res);
           bisect_values[new_res] = BisectPartition(partition=partition,
                                       bisect_value=bisect_func(partition));
-          logging.info('Resolution={0}, Resolution Value={1}'.format(new_res,
-            bisect_func(partition)));
         # Because of stochastic differences in different runs, the monotonicity
         # of the bisection values might be violated, so check for any
         # inconsistencies
