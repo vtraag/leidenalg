@@ -116,6 +116,16 @@ class BaseTest:
           places=5,
           msg='Quality not equal from coarser partition.');
 
+    def test_total_weight_in_all_comms(self, graph):
+      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignficanceVertexPartition:
+        partition = self.partition_type(graph, weight='weight');
+      else:
+        partition = self.partition_type(graph);
+      self.optimiser.optimise_partition(partition);
+      s = sum([partition.total_weight_in_comm(c) for c,_ in enumerate(partition)]);
+      self.assertEqual(s, partition.total_weight_in_all_comms(),
+                       msg='Total weight in all communities not equal to the sum of the weight in all communities.');
+
 #class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 #  def setUp(self):
 #    super(ModularityVertexPartitionTest, self).setUp();

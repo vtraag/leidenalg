@@ -6,29 +6,28 @@ import sys
 PY3 = (sys.version > '3');
 
 class MutableVertexPartition(_ig.VertexClustering):
-  """ Contains a partition of graph.
+  """ Contains a partition of graph, derives from `ig.VertexClustering`.
 
   This class contains the basic implementation for optimising a partition.
   Specifically, it implements all the administration necessary to keep track of
   the partition from various points of view. Internally, it keeps track of the
   number of internal edges (or total weight), the size of the communities, the
-  total incoming degree (or weight) for a community, etc... When deriving from
-  this class, one can easily use this administration to provide their own
-  implementation.
+  total incoming degree (or weight) for a community, et cetera.
 
-  In order to keep the administration up-to-date, all changes in partition
-  should be done through move_node. This function moves a node from one
-  community to another, and updates all the administration.
+  In order to keep the administration up-to-date, all changes in a partition
+  should be done through `move_node` or `set_membership`. The first moves a node
+  from one community to another, and updates the administration. The latter
+  simply updates the membership vector and updates the administration.
 
-  It is possible to manually update the membership vector, and then call
-  __init_admin() which completely refreshes all the administration. This is
-  only possible by updating the membership vector, not by changing some of the
-  other variables.
+  The basic idea is that `diff_move` computes the difference in the quality
+  function if we call `move_node` for the same move. These functions are
+  overridden in any derived classes to provide an actual implementation. These
+  functions are used by :class:`Optimiser` to optimise the partition.
 
-  The basic idea is that diff_move computes the difference in the quality
-  function if we call move_node for the same move. Using this framework, the
-  Louvain method in the optimisation class can call these general functions in
-  order to optimise the quality function.
+  .. warning::
+    This base class should never be used in practice, since only derived classes
+    provide an actual implementation.
+
   """
   def __init__(self, graph):
     super(MutableVertexPartition, self).__init__(graph);
@@ -38,14 +37,26 @@ class MutableVertexPartition(_ig.VertexClustering):
       weight=None, node_sizes=None, resolution_parameter=1.0):
     """ Create a new vertex partition.
 
-    Parameters:
-      graph            -- The igraph.Graph on which this partition is defined.
-      membership=None  -- The membership vector of this partition, i.e. an
-                          community number for each node. So membership[i] = c
-                          implies that node i is in community c. If None, it is
-                          initialised with each node in its own community.
-      weight_attr=None -- What edge attribute should be used as a weight for the
-                          edges? If None, the weight defaults to 1."""
+    Parameters
+    ----------
+    graph
+      The `ig.Graph` on which this partition is defined.
+
+    membership
+      The membership vector of this partition. Membership[i] = c implies that node i
+      is in community c. If None, it is initialised with a singleton partition
+      community, i.e. membership[i] = i.
+
+    weight
+      The weight of an edge. Should either be a `string` indicating the edge attribute
+      or an iterable.
+
+    node_sizes
+      The sizes of a node. This is only relevant for some methods.
+
+    resolution_parameter
+      Resolution parameter. Only relevant for some methods.
+    """
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
     self._method = method;
     pygraph_t = _get_py_capsule(graph);
@@ -91,34 +102,68 @@ class MutableVertexPartition(_ig.VertexClustering):
         self._len = 0
 
   def set_membership(self, membership):
+    """ Set membership. """
     _c_louvain._MutableVertexPartition_set_membership(self._partition, list(membership));
     self._update_internal_membership();
 
   # Calculate improvement *if* we move this node
   def diff_move(self,v,new_comm):
-    """ Calculate the difference in the quality function if we were to move
-    this node. In this base class, the quality function is always simply 0.0,
-    and so the diff_move is also always 0.0. For implementing actual quality
-    functions, one should derive from this base class and implement their own
-    diff_move and quality funcion.
+    """ Calculate the difference in the quality function if node ``v`` is
+    moved to community ``new_comm``.
+
+    Parameters
+    ----------
+    v
+      The node to move.
+
+    new_comm
+      The community to move to.
+
+    Returns
+    -------
+    float
+      Difference in quality function.
+
+    Notes
+    -----
+    For implementing actual quality functions, one should derive from this
+    base class and override the diff_move and quality funcion.
 
     The difference returned by diff_move should be equivalent to first
     determining the quality of the partition, then calling move_node, and then
     determining again the quality of the partition and looking at the
     difference. In other words
 
-    diff = partition.diff_move(v, new_comm);
-    q1 = partition.quality();
-    move_node(v, new_comm);
-    q2 = partition.quality();
-
-    Then diff == q2 - q1."""
+    >>> diff = partition.diff_move(v, new_comm);
+    >>> q1 = partition.quality();
+    >>> move_node(v, new_comm);
+    >>> q2 = partition.quality();
+    >>> diff == q2 - q1
+    True
+    """
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
 
   def aggregate_partition(self):
+    """ Aggregate the graph according to the current partition and provide a
+        default partition for it.
+    """
     return self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
 
   def move_node(self,v,new_comm):
+    """ Move node ``v`` to community ``new_comm``.
+    Parameters
+    ----------
+    v
+      Node to move.
+
+    new_comm
+      Community to move to.
+
+    Returns
+    -------
+    float
+      Difference in quality function.
+    """
     diff = _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
     # Make sure this move is also reflected in the membership vector of the python object
     self._membership[v] = new_comm;
@@ -126,40 +171,155 @@ class MutableVertexPartition(_ig.VertexClustering):
     return diff;
 
   def from_coarser_partition(self, partition):
-    """ Read new communities from coarser partition assuming that the community
-    represents a node in the coarser partition (with the same index as the
-    community number). """
+    """ Update current partition according to coarser partition.
+
+    Parameters
+    ----------
+    partition
+      The coarser partition used to update the current partition.
+
+    Notes
+    -----
+    This function is to be used to determine the correct partition
+    for an aggregated graph. In particular, suppose we move nodes
+    and then get an aggregate graph.
+
+    >>> optimiser.move_nodes(partition);
+    >>> aggregate_partition = partition.aggregate_partition();
+
+    Now we also move nodes in the aggregate partition
+
+    >>> optimiser.move_nodes(aggregate_partition);
+
+    Now we improved the quality function of ``aggregate_partition``, but
+    this is not yet reflected in the original ``partition``. We can thus
+    call
+
+    >>> partition.from_coarser_partition(aggregate_partition)
+
+    so that ``partition`` now reflects the changes made to
+    ``aggregate_partition``.
+    """
     # Read the coarser partition
     _c_louvain._MutableVertexPartition_from_coarser_partition(self._partition, partition.membership);
     self._update_internal_membership();
 
   def renumber_communities(self):
+    """ Renumber the communities so that they are numbered in decreasing size.
+
+    Notes
+    -----
+    The sort is not necessarilly stable.
+    """
     _c_louvain._MutableVertexPartition_renumber_communities(self._partition);
     self._update_internal_membership();
 
   def quality(self):
+    """ The current quality of the partition. """
     return _c_louvain._MutableVertexPartition_quality(self._partition);
 
   def total_weight_in_comm(self, comm):
-     return _c_louvain._MutableVertexPartition_total_weight_in_comm(self._partition, comm);
+    """ The total weight (i.e. number of edges) within a community.
+
+    Parameters
+    ----------
+    comm
+      Community
+
+    See Also
+    --------
+    total_weight_to_comm
+    total_weight_from_comm
+    total_weight_in_all_comms
+    """
+    return _c_louvain._MutableVertexPartition_total_weight_in_comm(self._partition, comm);
 
   def total_weight_from_comm(self, comm):
+    """ The total weight (i.e. number of edges) from a community.
+
+    Parameters
+    ----------
+    comm
+      Community
+
+    Notes
+    -----
+    This includes all edges, also the ones that are internal to a community.
+    Sometimes this is also referedd to as the community (out)degree.
+
+    See Also
+    --------
+    total_weight_to_comm
+    total_weight_in_comm
+    total_weight_in_all_comms
+    """
      return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm);
 
   def total_weight_to_comm(self, comm):
-     return _c_louvain._MutableVertexPartition_total_weight_to_comm(self._partition, comm);
+    """ The total weight (i.e. number of edges) to a community.
+
+    Parameters
+    ----------
+    comm
+      Community
+
+    Notes
+    -----
+    This includes all edges, also the ones that are internal to a community.
+    Sometimes this is also referedd to as the community (in)degree.
+
+    See Also
+    --------
+    total_weight_from_comm
+    total_weight_in_comm
+    total_weight_in_all_comms
+    """
+    return _c_louvain._MutableVertexPartition_total_weight_to_comm(self._partition, comm);
 
   def total_weight_in_all_comms(self):
-     return _c_louvain._MutableVertexPartition_total_weight_in_all_comms(self._partition);
+    """ The total weight (i.e. number of edges) within all communities.
+
+    Notes
+    -----
+    This should be equal to simply the sum of ``total_weight_in_comm`` for all communities.
+
+    See Also
+    --------
+    total_weight_to_comm
+    total_weight_from_comm
+    total_weight_in_comm
+    """
+    return _c_louvain._MutableVertexPartition_total_weight_in_all_comms(self._partition);
 
   def total_possible_edges_in_all_comms(self):
-     return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition);
+    """ The total possible number of edges in all communities.
+
+    Notes
+    -----
+    If we denote by :math:`n_c` the number of nodes in community :math:`c`, this is simply
+
+    .. math :: \sum_c \binom{n_c}{2}
+
+    """
+    return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition);
 
   def weight_to_comm(self, v, comm):
-     return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm);
+    """ The total number of edges (or sum of weights) from node ``v`` to community ``comm``
+
+    See Also
+    --------
+    weight_from_comm
+    """
+    return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm);
 
   def weight_from_comm(self, v, comm):
-     return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm);
+    """ The total number of edges (or sum of weights) to node ``v`` from community ``comm``
+
+    See Also
+    --------
+    weight_to_comm
+    """
+    return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm);
 
 class ModularityVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
