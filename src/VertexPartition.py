@@ -29,9 +29,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     provide an actual implementation.
 
   """
-  def __init__(self, graph):
-    super(MutableVertexPartition, self).__init__(graph);
-
+  
   # Init
   def __init__(self, graph, method, initial_membership=None,
       weight=None, node_sizes=None, resolution_parameter=1.0):
@@ -253,7 +251,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     total_weight_in_comm
     total_weight_in_all_comms
     """
-     return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm);
+    return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm);
 
   def total_weight_to_comm(self, comm):
     """ The total weight (i.e. number of edges) to a community.

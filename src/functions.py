@@ -8,10 +8,7 @@ from ._c_louvain import RAND_NEIGH_COMM
 from ._c_louvain import MOVE_NODES
 from ._c_louvain import MERGE_NODES
 
-from collections import namedtuple
-from collections import OrderedDict
-import logging
-from math import log, sqrt
+from collections import Counter
 
 import sys
 # Check if working with Python 3
