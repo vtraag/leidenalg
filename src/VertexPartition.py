@@ -361,33 +361,32 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   decreasing monotonic function, cf. CPM).
   """
   def __init__(self, graph, method, initial_membership=None,
-      weight=None, resolution_parameter=1.0):
-    super(LinearResolutionParameterVertexPartition, self).__init__(graph, method,
-          initial_membership, weight, resolution_parameter);
-    self.resolution = resolution;
+      weight=None, node_sizes=None, resolution_parameter=1.0):
+    super(LinearResolutionParameterVertexPartition, self).__init__(
+      graph, method, initial_membership, weight, node_sizes, resolution_parameter);
 
   def bisect_value(self):
     """  Give the value on which we can perform bisectioning. If p1 and p2 are
     two different optimal partitions for two different resolution parameters
     g1 and g2, then if p1.bisect_value() == p2.bisect_value() the two
     partitions should be optimal for both g1 and g2."""
-    return 0.0;
+    return self.total_weight_in_all_comms();
 
-class RBERVertexPartition(MutableVertexPartition):
+class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RBER, which uses a Erdos-Renyi graph as a null model. """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
       weight=None):
     super(RBERVertexPartition, self).__init__(graph, 'RBER', initial_membership, weight, node_sizes, resolution_parameter);
 
-class RBConfigurationVertexPartition(MutableVertexPartition):
+class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RB Configuration model (i.e. modularity with a resolution parameter). """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
       weight=None):
     super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight=weight, resolution_parameter=resolution_parameter);
 
-class CPMVertexPartition(MutableVertexPartition):
+class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   CPM. """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
