@@ -9,15 +9,15 @@ Module contents
     :undoc-members:
     :show-inheritance:
 
-louvain.Optimiser class
+Optimiser class
 -----------------------
 
-.. autoclass:: louvain.Optimiser
+.. autoclass:: Optimiser
     :members:
     :undoc-members:
     :show-inheritance:
 
-louvain.VertexPartition.MutableVertexPartition class
+VertexPartition.MutableVertexPartition class
 ----------------------------------------------------
 
 .. autoclass:: louvain.VertexPartition.MutableVertexPartition
@@ -25,50 +25,50 @@ louvain.VertexPartition.MutableVertexPartition class
     :undoc-members:
     :show-inheritance:
 
-louvain.ModularityVertexPartition class
+ModularityVertexPartition class
 ---------------------------------------
 
-.. autoclass:: louvain.ModularityVertexPartition
+.. autoclass:: ModularityVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-louvain.RBConfigurationVertexPartition class
+RBConfigurationVertexPartition class
 --------------------------------------------
 
-.. autoclass:: louvain.RBConfigurationVertexPartition 
+.. autoclass:: RBConfigurationVertexPartition 
     :members:
     :undoc-members:
     :show-inheritance:
 
-louvain.RBERVertexPartition class
+RBERVertexPartition class
 ---------------------------------
 
-.. autoclass:: louvain.RBERVertexPartition 
+.. autoclass:: RBERVertexPartition 
     :members:
     :undoc-members:
     :show-inheritance:
 
-louvain.CPMVertexPartition class
+CPMVertexPartition class
 --------------------------------
 
-.. autoclass:: louvain.CPMVertexPartition
+.. autoclass:: CPMVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-louvain.SignficanceVertexPartition class
+SignficanceVertexPartition class
 ----------------------------------------
 
-.. autoclass:: louvain.SignficanceVertexPartition
+.. autoclass:: SignficanceVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-louvain.SurpriseVertexPartition class
+SurpriseVertexPartition class
 -------------------------------------
 
-.. autoclass:: louvain.SurpriseVertexPartition
+.. autoclass:: SurpriseVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:

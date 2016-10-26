@@ -328,6 +328,8 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
+autoclass_content = 'both'
+
 # Documents to append as an appendix to all manuals.
 #
 # texinfo_appendices = []

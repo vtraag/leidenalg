@@ -6,7 +6,7 @@ import sys
 PY3 = (sys.version > '3');
 
 class MutableVertexPartition(_ig.VertexClustering):
-  """ Contains a partition of graph, derives from `ig.VertexClustering`.
+  """ Contains a partition of graph, derives from :class:`ig.VertexClustering`.
 
   This class contains the basic implementation for optimising a partition.
   Specifically, it implements all the administration necessary to keep track of
@@ -15,26 +15,27 @@ class MutableVertexPartition(_ig.VertexClustering):
   total incoming degree (or weight) for a community, et cetera.
 
   In order to keep the administration up-to-date, all changes in a partition
-  should be done through `move_node` or `set_membership`. The first moves a node
-  from one community to another, and updates the administration. The latter
-  simply updates the membership vector and updates the administration.
+  should be done through :func:`~louvain.VertexPartition.MutableVertexPartition.move_node`
+  or :func:`~louvain.VertexPartition.MutableVertexPartition.set_membership`.
+  The first moves a node from one community to another, and updates the administration.
+  The latter simply updates the membership vector and updates the administration.
 
-  The basic idea is that `diff_move` computes the difference in the quality
-  function if we call `move_node` for the same move. These functions are
+  The basic idea is that :func:`~louvain.VertexPartition.MutableVertexPartition.diff_move`
+  computes the difference in the quality
+  function if we would call :func:`~louvain.VertexPartition.MutableVertexPartition.move_node` for the same move. These functions are
   overridden in any derived classes to provide an actual implementation. These
-  functions are used by :class:`Optimiser` to optimise the partition.
+  functions are used by :class:`~louvain.Optimiser` to optimise the partition.
 
   .. warning::
     This base class should never be used in practice, since only derived classes
     provide an actual implementation.
 
   """
-  
+
   # Init
   def __init__(self, graph, method, initial_membership=None,
       weight=None, node_sizes=None, resolution_parameter=1.0):
-    """ Create a new vertex partition.
-
+    """
     Parameters
     ----------
     graph
@@ -124,9 +125,6 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Notes
     -----
-    For implementing actual quality functions, one should derive from this
-    base class and override the diff_move and quality funcion.
-
     The difference returned by diff_move should be equivalent to first
     determining the quality of the partition, then calling move_node, and then
     determining again the quality of the partition and looking at the
@@ -138,6 +136,11 @@ class MutableVertexPartition(_ig.VertexClustering):
     >>> q2 = partition.quality();
     >>> diff == q2 - q1
     True
+
+    .. warning::
+      Only derived classes provide actual implementations, the base class provides no implementation
+      for this function.
+
     """
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
 
@@ -149,6 +152,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   def move_node(self,v,new_comm):
     """ Move node ``v`` to community ``new_comm``.
+
     Parameters
     ----------
     v

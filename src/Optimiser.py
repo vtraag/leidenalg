@@ -17,8 +17,8 @@ class Optimiser(object):
   before aggregating, meaning that subsets of communities are considered for
   moving around. Which routine is used for the refinement is indicated by :attr:`refine_routine`.
   For calculating the actual improvement of moving a node (corresponding a subset of nodes in
-  the aggregate graph), the code relies on :func:`VertexPartition.diff_move` which provides
-  different values for different methods (e.g. modularity or CPM). Finally, the Optimiser
+  the aggregate graph), the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
+  which provides different values for different methods (e.g. modularity or CPM). Finally, the Optimiser
   class provides a routine to construct a :func:`resolution_profile` on a resolution parameter."""
 
   def __init__(self):
