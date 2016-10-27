@@ -291,8 +291,36 @@ class MutableVertexPartition(_ig.VertexClustering):
     return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm);
 
 class ModularityVertexPartition(MutableVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  modularity. """
+  """ Implements modularity.
+
+  Notes
+  -----
+  The quality function is
+
+  .. math::
+    Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
+
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
+  :math:`m` is the total number of edges, :math:`\sigma_i` denotes the community of node :math:`i`
+  and :math:`\delta(\sigma_i, \\sigma_j) = 1` if :math:`\sigma_i = \\sigma_j` and `0` otherwise.
+
+  This can alternatively be formulated as a sum over communities:
+
+  .. math::
+    Q = \\frac{1}{2m} \\sum_{C} \\left(e_c - \\frac{K_c^2}{4m} \\right)
+
+  where :math:`e_c` is the number of internal edges of community :math:`c` and
+  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
+  :math:`c`.
+
+  For directed graphs, the formulation is similar
+
+  .. math::
+    Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k^\\text{out}_i k^\\text{in}_j}{m} \\right)
+
+  Simply replacing the adjacency matrix by a weighted adjacency matrix, and similarly
+  representing the degree by the weighted degree yields a version suitable for weighted graphs.
+   """
   def __init__(self, graph, initial_membership=None, weight=None):
     super(ModularityVertexPartition, self).__init__(graph, initial_membership);
     pygraph_t = _get_py_capsule(graph);
@@ -406,8 +434,22 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
     self._update_internal_membership();
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  RB Configuration model (i.e. modularity with a resolution parameter). """
+  """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
+  This quality function uses a linear resolution parameter.
+
+  Notes
+  -----
+  The quality function is
+
+  .. math::
+    Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
+
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
+  :math:`m` is the total number of edges, :math:`\sigma_i` denotes the community of node :math:`i`,
+  :math:`\delta(\sigma_i, \\sigma_j) = 1` if :math:`\sigma_i = \\sigma_j` and `0` otherwise, and, finally
+  :math:`\\gamma` is a resolution parameter. Similar to :class:`ModularityVertexPartition` there
+  are variants for directed and weighted graphs.
+   """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, weight=None):
     super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership);
 
