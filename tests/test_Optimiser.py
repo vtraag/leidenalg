@@ -57,6 +57,17 @@ class OptimiserTest(unittest.TestCase):
     self.assertListEqual(
         partition.sizes(), 2*[50],
         msg="After optimising partition failed to find bipartite structure with CPMVertexPartition(resolution_parameter=-0.1)");
+
+  def test_resolution_profile(self):
+    G = ig.Graph.Famous('Zachary');
+    profile = self.optimiser.resolution_profile(G, louvain.CPMVertexPartition, resolution_range=(0,1));
+    self.assertListEqual(
+      profile[0].partition.sizes(), [G.vcount()],
+      msg="Resolution profile incorrect: at resolution 0, not equal to a single community for CPM.");
+    self.assertListEqual(
+      profile[1].partition.sizes(), [1]*G.vcount(),
+      msg="Resolution profile incorrect: at resolution 1, not equal to a singleton partition for CPM.");
+
 #%%
 if __name__ == '__main__':
   #%%

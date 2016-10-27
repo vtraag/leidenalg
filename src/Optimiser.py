@@ -1,4 +1,5 @@
 from . import _c_louvain
+from .VertexPartition import LinearResolutionParameterVertexPartition
 import sys
 # Check if working with Python 3
 PY3 = (sys.version > '3');
@@ -516,6 +517,8 @@ class Optimiser(object):
                              **kwargs);
       self.optimise_partition(partition);
       return partition;
+    assert(issubclass(partition_type, LinearResolutionParameterVertexPartition),
+        "Bisectioning only works on partitions with a linear resolution parameter.");
     # Start actual bisectioning
     bisect_values = {};
     stack_res_range = [];
