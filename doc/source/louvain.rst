@@ -57,10 +57,10 @@ CPMVertexPartition class
     :undoc-members:
     :show-inheritance:
 
-SignficanceVertexPartition class
+SignificanceVertexPartition class
 ----------------------------------------
 
-.. autoclass:: SignficanceVertexPartition
+.. autoclass:: SignificanceVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:

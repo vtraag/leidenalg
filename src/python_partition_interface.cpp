@@ -1,73 +1,8 @@
 #include "python_partition_interface.h"
 
-MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter)
+Graph* create_graph_from_py(PyObject* py_obj_graph)
 {
-  MutableVertexPartition* partition;
-  #ifdef DEBUG
-    cerr << "Creating partition for graph at address " << graph
-         << " for method " << method << " using resolution " << resolution_parameter
-         << " (if relevant)." << endl;
-  #endif
-  if (strcmp(method, "Modularity") == 0)
-  {
-    if (initial_membership != NULL)
-      partition = new ModularityVertexPartition(graph, *initial_membership);
-    else
-      partition = new ModularityVertexPartition(graph);
-  }
-  else if (strcmp(method, "Significance") == 0)
-  {
-    // Make sure no weight has been indicated, because Significance is not suited for that.
-    if (graph->is_weighted())
-    {
-      PyErr_SetString(PyExc_ValueError, "Significance is not suited for optimisation on weighted graphs. Please consider a different method.");
-      delete graph;
-      return NULL;
-    }
-    if (initial_membership != NULL)
-      partition = new SignificanceVertexPartition(graph, *initial_membership);
-    else
-      partition = new SignificanceVertexPartition(graph);
-  }
-  else if (strcmp(method, "Surprise") == 0)
-  {
-    if (initial_membership != NULL)
-      partition = new SurpriseVertexPartition(graph, *initial_membership);
-    else
-      partition = new SurpriseVertexPartition(graph);
-  }
-  else if (strcmp(method, "RBConfiguration") == 0)
-  {
-    if (initial_membership != NULL)
-      partition = new RBConfigurationVertexPartition(graph, *initial_membership, resolution_parameter);
-    else
-      partition = new RBConfigurationVertexPartition(graph, resolution_parameter);
-  }
-  else if (strcmp(method, "RBER") == 0)
-  {
-    if (initial_membership != NULL)
-      partition = new RBERVertexPartition(graph, *initial_membership, resolution_parameter);
-    else
-      partition = new RBERVertexPartition(graph, resolution_parameter);
-  }
-  else if (strcmp(method, "CPM") == 0)
-  {
-    if (initial_membership != NULL)
-      partition = new CPMVertexPartition(graph, *initial_membership, resolution_parameter);
-    else
-      partition = new CPMVertexPartition(graph, resolution_parameter);
-  }
-  else
-  {
-    PyErr_SetString(PyExc_ValueError, "Non-existing method for optimization specified.");
-    delete graph;
-    return NULL;
-  }
-  #ifdef DEBUG
-    cerr << "Created partition at address " << partition << endl;
-  #endif
-  partition->destructor_delete_graph = true;
-  return partition;
+  return create_graph_from_py(py_obj_graph, NULL, NULL);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights)
@@ -151,39 +86,6 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
   return graph;
 }
 
-// The graph is also created, don't forget to remove it!
-MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter)
-{
-  #ifdef DEBUG
-    cerr << "create_partition_from_py" << endl;
-  #endif
-
-  Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
-
-  vector<size_t> initial_membership;
-  int has_initial_membership = false;
-  // If necessary create an initial partition
-  if (py_initial_membership != NULL && py_initial_membership != Py_None)
-  {
-    #ifdef DEBUG
-      cerr << "Reading initial membership." << endl;
-    #endif
-    has_initial_membership = true;
-    size_t n = PyList_Size(py_initial_membership);
-    initial_membership.resize(n);
-    for (size_t v = 0; v < n; v++)
-      initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
-  }
-
-  MutableVertexPartition* partition;
-  if (has_initial_membership)
-    partition = create_partition(graph, method, &initial_membership, resolution_parameter);
-  else
-    partition = create_partition(graph, method, NULL, resolution_parameter);
-
-  return partition;
-}
-
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition)
 {
   PyObject* py_partition = PyCapsule_New(partition, "louvain.VertexPartition.MutableVertexPartition", del_MutableVertexPartition);
@@ -261,24 +163,270 @@ extern "C"
     }
   }
 
-  PyObject* _new_MutableVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _new_SignificanceVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_obj_graph = NULL;
-    char* method = "Modularity";
+    PyObject* py_initial_membership = NULL;
+
+    static char* kwlist[] = {"graph", "initial_membership", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|O", kwlist,
+                                     &py_obj_graph, &py_initial_membership))
+        return NULL;
+
+    try
+    {
+
+      Graph* graph = create_graph_from_py(py_obj_graph);
+
+      SignificanceVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+
+        vector<size_t> initial_membership;
+
+        #ifdef DEBUG
+          cerr << "Reading initial membership." << endl;
+        #endif
+        size_t n = PyList_Size(py_initial_membership);
+        initial_membership.resize(n);
+        for (size_t v = 0; v < n; v++)
+          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+
+        partition = new SignificanceVertexPartition(graph, initial_membership);
+      }
+      else
+        partition = new SignificanceVertexPartition(graph);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
+
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception const & e )
+    {
+      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      return NULL;
+    }
+  }
+
+  PyObject* _new_SurpriseVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
+    PyObject* py_initial_membership = NULL;
+    PyObject* py_weights = NULL;
+
+    static char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights))
+        return NULL;
+
+    try
+    {
+
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
+
+      SurpriseVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+
+        vector<size_t> initial_membership;
+
+        #ifdef DEBUG
+          cerr << "Reading initial membership." << endl;
+        #endif
+        size_t n = PyList_Size(py_initial_membership);
+        initial_membership.resize(n);
+        for (size_t v = 0; v < n; v++)
+          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+
+        partition = new SurpriseVertexPartition(graph, initial_membership);
+      }
+      else
+        partition = new SurpriseVertexPartition(graph);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
+
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception const & e )
+    {
+      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      return NULL;
+    }
+  }
+
+  PyObject* _new_CPMVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "method", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Os|OOOd", kwlist,
-                                     &py_obj_graph, &method, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
     try
     {
-      MutableVertexPartition* partition = create_partition_from_py(py_obj_graph, method, py_initial_membership, py_weights, py_node_sizes, resolution_parameter);
+
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
+
+      CPMVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+
+        vector<size_t> initial_membership;
+
+        #ifdef DEBUG
+          cerr << "Reading initial membership." << endl;
+        #endif
+        size_t n = PyList_Size(py_initial_membership);
+        initial_membership.resize(n);
+        for (size_t v = 0; v < n; v++)
+          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+
+        partition = new CPMVertexPartition(graph, initial_membership, resolution_parameter);
+      }
+      else
+        partition = new CPMVertexPartition(graph, resolution_parameter);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
+
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception const & e )
+    {
+      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      return NULL;
+    }
+  }
+
+  PyObject* _new_RBERVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
+    PyObject* py_initial_membership = NULL;
+    PyObject* py_weights = NULL;
+    PyObject* py_node_sizes = NULL;
+    double resolution_parameter = 1.0;
+
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+        return NULL;
+
+    try
+    {
+
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
+
+      RBERVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+
+        vector<size_t> initial_membership;
+
+        #ifdef DEBUG
+          cerr << "Reading initial membership." << endl;
+        #endif
+        size_t n = PyList_Size(py_initial_membership);
+        initial_membership.resize(n);
+        for (size_t v = 0; v < n; v++)
+          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+
+        partition = new RBERVertexPartition(graph, initial_membership, resolution_parameter);
+      }
+      else
+        partition = new RBERVertexPartition(graph, resolution_parameter);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
+
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception const & e )
+    {
+      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      return NULL;
+    }
+  }
+
+  PyObject* _new_RBConfigurationVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
+    PyObject* py_initial_membership = NULL;
+    PyObject* py_weights = NULL;
+    double resolution_parameter = 1.0;
+
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "resolution_parameter", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &resolution_parameter))
+        return NULL;
+
+    try
+    {
+
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
+
+      RBConfigurationVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+
+        vector<size_t> initial_membership;
+
+        #ifdef DEBUG
+          cerr << "Reading initial membership." << endl;
+        #endif
+        size_t n = PyList_Size(py_initial_membership);
+        initial_membership.resize(n);
+        for (size_t v = 0; v < n; v++)
+          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+
+        partition = new RBConfigurationVertexPartition(graph, initial_membership, resolution_parameter);
+      }
+      else
+        partition = new RBConfigurationVertexPartition(graph, resolution_parameter);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
 
       PyObject* py_partition = capsule_MutableVertexPartition(partition);
       #ifdef DEBUG
@@ -884,6 +1032,7 @@ extern "C"
     }
     return py_membership;
   }
+
   PyObject* _MutableVertexPartition_set_membership(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
@@ -929,6 +1078,65 @@ extern "C"
     return Py_None;
   }
 
+  PyObject* _ResolutionParameterVertexPartition_get_resolution(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+    static char* kwlist[] = {"partition", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_partition))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_resolution();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule ResolutionParameterVertexPartition at address " << py_ResolutionParameterVertexPartition << endl;
+    #endif
+    ResolutionParameterVertexPartition* partition = (ResolutionParameterVertexPartition*)decapsule_MutableVertexPartition(py_partition);
+    #ifdef DEBUG
+      cerr << "Using ResolutionParameterVertexPartition at address " << ResolutionParameterVertexPartition << endl;
+    #endif
+
+    return PyFloat_FromDouble(partition->resolution_parameter);
+  }
+
+  PyObject* _ResolutionParameterVertexPartition_set_resolution(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+    double resolution_parameter = 1.0;
+    static char* kwlist[] = {"partition", "resolution_parameter", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_partition, &resolution_parameter))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_resolution(" << resolution << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule ResolutionParameterVertexPartition at address " << py_ResolutionParameterVertexPartition << endl;
+    #endif
+    ResolutionParameterVertexPartition* partition = (ResolutionParameterVertexPartition*)decapsule_MutableVertexPartition(py_partition);
+    #ifdef DEBUG
+      cerr << "Using ResolutionParameterVertexPartition at address " << ResolutionParameterVertexPartition << endl;
+    #endif
+
+    partition->resolution_parameter = resolution_parameter;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
 #ifdef __cplusplus
 }
 #endif

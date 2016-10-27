@@ -74,7 +74,7 @@ class BaseTest:
 
     @data(*graphs)
     def test_move_nodes(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type == louvain.SignficanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type == louvain.SignificanceVertexPartition:
         raise unittest.SkipTest('Significance doesn\'t handle weighted graphs');
 
       if 'weight' in graph.es.attributes():
@@ -97,7 +97,7 @@ class BaseTest:
 
     @data(*graphs)
     def test_aggregate_partition(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignficanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignificanceVertexPartition:
         partition = self.partition_type(graph, weight='weight');
       else:
         partition = self.partition_type(graph);
@@ -118,7 +118,7 @@ class BaseTest:
 
     @data(*graphs)
     def test_total_weight_in_all_comms(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignficanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignificanceVertexPartition:
         partition = self.partition_type(graph, weight='weight');
       else:
         partition = self.partition_type(graph);
@@ -160,7 +160,7 @@ class SurpriseVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 class SignificanceVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
     super(SignificanceVertexPartitionTest, self).setUp();
-    self.partition_type = louvain.SignficanceVertexPartition;
+    self.partition_type = louvain.SignificanceVertexPartition;
 
 #%%
 if __name__ == '__main__':

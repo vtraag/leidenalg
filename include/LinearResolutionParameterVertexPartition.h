@@ -1,9 +1,9 @@
 #ifndef LINEARRESOLUTIONPARAMETERVERTEXPARTITION_H
 #define LINEARRESOLUTIONPARAMETERVERTEXPARTITION_H
 
-#include <MutableVertexPartition.h>
+#include <ResolutionParameterVertexPartition.h>
 
-class LinearResolutionParameterVertexPartition : public MutableVertexPartition
+class LinearResolutionParameterVertexPartition : public ResolutionParameterVertexPartition
 {
   public:
     LinearResolutionParameterVertexPartition(Graph* graph,
@@ -14,9 +14,8 @@ class LinearResolutionParameterVertexPartition : public MutableVertexPartition
     LinearResolutionParameterVertexPartition(Graph* graph);
     virtual ~LinearResolutionParameterVertexPartition();
 
-  protected:
-    double resolution_parameter;
   private:
+
 };
 
-#endif // LINEARRESOLUTIONPARAMETERVERTEXPARTITION_H
+#endif // RESOLUTIONPARAMETERVERTEXPARTITION_H

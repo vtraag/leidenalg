@@ -45,7 +45,7 @@ from .functions import set_rng_seed
 from .Optimiser import Optimiser
 from .VertexPartition import ModularityVertexPartition
 from .VertexPartition import SurpriseVertexPartition
-from .VertexPartition import SignficanceVertexPartition
+from .VertexPartition import SignificanceVertexPartition
 from .VertexPartition import RBERVertexPartition
 from .VertexPartition import RBConfigurationVertexPartition
 from .VertexPartition import CPMVertexPartition

@@ -22,6 +22,10 @@ class OptimiserTest(unittest.TestCase):
     self.assertListEqual(
         partition.sizes(), [100],
         msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after merge nodes incorrect.");
+    self.assertEqual(
+        partition.total_weight_in_all_comms(),
+        G.ecount(),
+        msg="total_weight_in_all_comms not equal to ecount of graph.");
 
   def test_diff_move_node_optimality(self):
     G = ig.Graph.Erdos_Renyi(100, p=5./100, directed=False, loops=False);
@@ -53,7 +57,6 @@ class OptimiserTest(unittest.TestCase):
     self.assertListEqual(
         partition.sizes(), 2*[50],
         msg="After optimising partition failed to find bipartite structure with CPMVertexPartition(resolution_parameter=-0.1)");
-
 #%%
 if __name__ == '__main__':
   #%%

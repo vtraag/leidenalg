@@ -44,16 +44,6 @@ class MutableVertexPartition(_ig.VertexClustering):
       The membership vector of this partition. Membership[i] = c implies that node i
       is in community c. If None, it is initialised with a singleton partition
       community, i.e. membership[i] = i.
-
-    weight
-      The weight of an edge. Should either be a `string` indicating the edge attribute
-      or an iterable.
-
-    node_sizes
-      The sizes of a node. This is only relevant for some methods.
-
-    resolution_parameter
-      Resolution parameter. Only relevant for some methods.
     """
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
 
@@ -303,8 +293,8 @@ class MutableVertexPartition(_ig.VertexClustering):
 class ModularityVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   modularity. """
-  def __init__(self, graph, initial_membership=None,
-      weight=None):
+  def __init__(self, graph, initial_membership=None, weight=None):
+    super(ModularityVertexPartition, self).__init__(graph, initial_membership);
     pygraph_t = _get_py_capsule(graph);
 
     if weight is not None:
@@ -314,7 +304,6 @@ class ModularityVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weight = list(weight);
 
-    super(ModularityVertexPartition, self).__init__(graph, initial_membership);
     self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t, initial_membership, weight);
     self._update_internal_membership();
 
@@ -324,14 +313,30 @@ class SurpriseVertexPartition(MutableVertexPartition):
   Surprise. """
   def __init__(self, graph, initial_membership=None, node_sizes=None,
       weight=None):
-    super(SurpriseVertexPartition, self).__init__(graph, 'Surprise', initial_membership, weight, node_sizes);
+    super(SurpriseVertexPartition, self).__init__(graph, initial_membership);
 
-class SignficanceVertexPartition(MutableVertexPartition):
+    pygraph_t = _get_py_capsule(graph);
+
+    if weight is not None:
+      if isinstance(weight, str):
+        weight = graph.es[weight];
+      else:
+        # Make sure it is a list
+        weight = list(weight);
+
+    self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t, initial_membership, weight);
+    self._update_internal_membership();
+
+class SignificanceVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   Significance. """
-  def __init__(self, graph, initial_membership=None, node_sizes=None,
-      weight=None):
-    super(SignficanceVertexPartition, self).__init__(graph, 'Significance', initial_membership, weight, node_sizes);
+  def __init__(self, graph, initial_membership=None, node_sizes=None):
+    super(SignificanceVertexPartition, self).__init__(graph, initial_membership);
+
+    pygraph_t = _get_py_capsule(graph);
+
+    self._partition = _c_louvain._new_SignificanceVertexPartition(pygraph_t, initial_membership);
+    self._update_internal_membership();
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """ Some quality functions have a linear resolution parameter, for which the
@@ -349,13 +354,27 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   bisectioning on the gamma function (also assuming that E is a stepwise
   decreasing monotonic function, cf. CPM).
   """
-  def __init__(self, graph, method, initial_membership=None,
-      weight=None, node_sizes=None, resolution_parameter=1.0):
-    super(LinearResolutionParameterVertexPartition, self).__init__(
-      graph, method, initial_membership, weight, node_sizes, resolution_parameter);
+  def __init__(self, graph, initial_membership=None):
+    super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership);
+
+  #########################################################3
+  # resolution parameter
+  @property
+  def resolution_parameter(self):
+    """ Resolution parameter.
+
+    Notes
+    -----
+    The exact role is determined by the actual implemented method.
+    """
+    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
+
+  @resolution_parameter.setter
+  def resolution_parameter(self, value):
+    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition);
 
   def bisect_value(self):
-    """  Give the value on which we can perform bisectioning. If p1 and p2 are
+    """ Give the value on which we can perform bisectioning. If p1 and p2 are
     two different optimal partitions for two different resolution parameters
     g1 and g2, then if p1.bisect_value() == p2.bisect_value() the two
     partitions should be optimal for both g1 and g2."""
@@ -364,20 +383,68 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RBER, which uses a Erdos-Renyi graph as a null model. """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
-      weight=None):
-    super(RBERVertexPartition, self).__init__(graph, 'RBER', initial_membership, weight, node_sizes, resolution_parameter);
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None, weight=None):
+    super(RBERVertexPartition, self).__init__(graph, initial_membership);
+
+    pygraph_t = _get_py_capsule(graph);
+
+    if weight is not None:
+      if isinstance(weight, str):
+        weight = graph.es[weight];
+      else:
+        # Make sure it is a list
+        weight = list(weight);
+
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes];
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes);
+
+    self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t, initial_membership, weight, node_sizes, resolution_parameter);
+    self._update_internal_membership();
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RB Configuration model (i.e. modularity with a resolution parameter). """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None,
-      weight=None):
-    super(RBConfigurationVertexPartition, self).__init__(graph, 'RBConfiguration', initial_membership, weight=weight, resolution_parameter=resolution_parameter);
+  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, weight=None):
+    super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership);
+
+    pygraph_t = _get_py_capsule(graph);
+
+    if weight is not None:
+      if isinstance(weight, str):
+        weight = graph.es[weight];
+      else:
+        # Make sure it is a list
+        weight = list(weight);
+
+    self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t, initial_membership, weight, resolution_parameter);
+    self._update_internal_membership();
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   CPM. """
   def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
       weight=None):
-    super(CPMVertexPartition, self).__init__(graph, 'CPM', initial_membership, weight, node_sizes, resolution_parameter);
+    super(CPMVertexPartition, self).__init__(graph, initial_membership);
+
+    pygraph_t = _get_py_capsule(graph);
+
+    if weight is not None:
+      if isinstance(weight, str):
+        weight = graph.es[weight];
+      else:
+        # Make sure it is a list
+        weight = list(weight);
+
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes];
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes);
+
+    self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t, initial_membership, weight, node_sizes, resolution_parameter);
+    self._update_internal_membership();
