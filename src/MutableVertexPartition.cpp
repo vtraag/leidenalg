@@ -162,11 +162,20 @@ void MutableVertexPartition::init_admin()
     #ifdef DEBUG
       cerr << "\t" << "Add (" << v << ", " << u << ") weight " << w << " to to_comm " << u_comm << "." << endl;
     #endif
+    if (!this->graph->is_directed())
+    {
+      #ifdef DEBUG
+        cerr << "\t" << "Add (" << u << ", " << v << ") weight " << w << " to from_comm " << u_comm <<  "." << endl;
+      #endif
+      this->_total_weight_from_comm[u_comm] += w;
+      #ifdef DEBUG
+        cerr << "\t" << "Add (" << u << ", " << v << ") weight " << w << " to to_comm " << v_comm << "." << endl;
+      #endif
+      this->_total_weight_to_comm[v_comm] += w;
+    }
     // If it is an edge within a community
     if (v_comm == u_comm)
     {
-      if (!this->graph->is_directed())
-        w /= 2.0;
       this->_total_weight_in_comm[v_comm] += w;
       this->_total_weight_in_all_comms += w;
       #ifdef DEBUG
