@@ -23,7 +23,10 @@
 #endif
 
 MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter);
-MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, double resolution_parameter);
+MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter);
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights);
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes);
 
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition);
 MutableVertexPartition* decapsule_MutableVertexPartition(PyObject* py_partition);
@@ -34,6 +37,7 @@ void del_MutableVertexPartition(PyObject *self);
 extern "C"
 {
 #endif
+  PyObject* _new_ModularityVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_MutableVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _MutableVertexPartition_diff_move(PyObject *self, PyObject *args, PyObject *keywds);

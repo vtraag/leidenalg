@@ -70,11 +70,15 @@ MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size
   return partition;
 }
 
-// The graph is also created, don't forget to remove it!
-MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter)
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, NULL);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes)
 {
   #ifdef DEBUG
-    cerr << "create_partition_from_py" << endl;
+    cerr << "create_graph_from_py" << endl;
   #endif
 
   #if PY_MAJOR_VERSION >= 3
@@ -144,6 +148,18 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
     cerr << "Total weight " << graph->total_weight() << endl;
   #endif
 
+  return graph;
+}
+
+// The graph is also created, don't forget to remove it!
+MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter)
+{
+  #ifdef DEBUG
+    cerr << "create_partition_from_py" << endl;
+  #endif
+
+  Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
+
   vector<size_t> initial_membership;
   int has_initial_membership = false;
   // If necessary create an initial partition
@@ -170,13 +186,13 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
 
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition)
 {
-  PyObject* py_partition = PyCapsule_New(partition, "louvain.MutableVertexPartition", del_MutableVertexPartition);
+  PyObject* py_partition = PyCapsule_New(partition, "louvain.VertexPartition.MutableVertexPartition", del_MutableVertexPartition);
   return py_partition;
 }
 
 MutableVertexPartition* decapsule_MutableVertexPartition(PyObject* py_partition)
 {
-  MutableVertexPartition* partition = (MutableVertexPartition*) PyCapsule_GetPointer(py_partition, "louvain.MutableVertexPartition");
+  MutableVertexPartition* partition = (MutableVertexPartition*) PyCapsule_GetPointer(py_partition, "louvain.VertexPartition.MutableVertexPartition");
   return partition;
 }
 
@@ -190,6 +206,61 @@ void del_MutableVertexPartition(PyObject* py_partition)
 extern "C"
 {
 #endif
+  PyObject* _new_ModularityVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
+    PyObject* py_initial_membership = NULL;
+    PyObject* py_weights = NULL;
+
+    static char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights))
+        return NULL;
+
+    try
+    {
+
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
+
+      ModularityVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+
+        vector<size_t> initial_membership;
+
+        #ifdef DEBUG
+          cerr << "Reading initial membership." << endl;
+        #endif
+        size_t n = PyList_Size(py_initial_membership);
+        initial_membership.resize(n);
+        for (size_t v = 0; v < n; v++)
+          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+
+        partition = new ModularityVertexPartition(graph, initial_membership);
+      }
+      else
+        partition = new ModularityVertexPartition(graph);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
+
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception const & e )
+    {
+      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      return NULL;
+    }
+  }
+
   PyObject* _new_MutableVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_obj_graph = NULL;
@@ -529,6 +600,12 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    if (comm >= partition->nb_communities())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
+      return NULL;
+    }
+
     double w = partition->total_weight_in_comm(comm);
     return PyFloat_FromDouble(w);
   }
@@ -557,6 +634,12 @@ extern "C"
     #endif
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    if (comm >= partition->nb_communities())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
+      return NULL;
+    }
 
     #ifdef DEBUG
       cerr << "Using partition at address " << partition << endl;
@@ -590,6 +673,12 @@ extern "C"
     #endif
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    if (comm >= partition->nb_communities())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
+      return NULL;
+    }
 
     #ifdef DEBUG
       cerr << "Using partition at address " << partition << endl;
@@ -689,6 +778,18 @@ extern "C"
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
 
+    if (comm >= partition->nb_communities())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
+      return NULL;
+    }
+
+    if (v >= partition->get_graph()->vcount())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of nodes.");
+      return NULL;
+    }
+
     #ifdef DEBUG
       cerr << "Using partition at address " << partition << endl;
     #endif
@@ -722,6 +823,18 @@ extern "C"
     #endif
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
+
+    if (comm >= partition->nb_communities())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
+      return NULL;
+    }
+
+    if (v >= partition->get_graph()->vcount())
+    {
+      PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of nodes.");
+      return NULL;
+    }
 
     #ifdef DEBUG
       cerr << "Using partition at address " << partition << endl;

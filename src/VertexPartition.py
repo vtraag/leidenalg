@@ -33,8 +33,7 @@ class MutableVertexPartition(_ig.VertexClustering):
   """
 
   # Init
-  def __init__(self, graph, method, initial_membership=None,
-      weight=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None):
     """
     Parameters
     ----------
@@ -57,28 +56,6 @@ class MutableVertexPartition(_ig.VertexClustering):
       Resolution parameter. Only relevant for some methods.
     """
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
-    self._method = method;
-    pygraph_t = _get_py_capsule(graph);
-
-    if weight is not None:
-      if isinstance(weight, str):
-        weight = graph.es[weight];
-      else:
-        # Make sure it is a list
-        weight = list(weight);
-
-    if node_sizes is not None:
-      if isinstance(node_sizes, str):
-        node_sizes = graph.vs[node_sizes];
-      else:
-        # Make sure it is a list
-        node_sizes = list(node_sizes);
-
-    if initial_membership is not None:
-      gen = _ig.UniqueIdGenerator();
-      initial_membership = [gen[m] for m in initial_membership];
-    self._partition = _c_louvain._new_MutableVertexPartition(pygraph_t, method, initial_membership, weight, node_sizes, resolution_parameter);
-    self._update_internal_membership();
 
   @classmethod
   def _FromCPartition(cls, partition):
@@ -328,7 +305,19 @@ class ModularityVertexPartition(MutableVertexPartition):
   modularity. """
   def __init__(self, graph, initial_membership=None,
       weight=None):
-    super(ModularityVertexPartition, self).__init__(graph, 'Modularity', initial_membership, weight=weight);
+    pygraph_t = _get_py_capsule(graph);
+
+    if weight is not None:
+      if isinstance(weight, str):
+        weight = graph.es[weight];
+      else:
+        # Make sure it is a list
+        weight = list(weight);
+
+    super(ModularityVertexPartition, self).__init__(graph, initial_membership);
+    self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t, initial_membership, weight);
+    self._update_internal_membership();
+
 
 class SurpriseVertexPartition(MutableVertexPartition):
   """ Implements the diff_move and quality function in order to optimise

@@ -10,11 +10,17 @@ SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph,
       vector<size_t> const& membership) :
         MutableVertexPartition(graph,
         membership)
-{ }
+{
+  if (graph->is_weighted())
+    throw Exception("SignificanceVertexPartition does not work on weighted graphs.");
+}
 
 SignificanceVertexPartition::SignificanceVertexPartition(Graph* graph) :
         MutableVertexPartition(graph)
-{ }
+{
+  if (graph->is_weighted())
+    throw Exception("SignificanceVertexPartition does not work on weighted graphs.");
+}
 
 SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph)
 {
