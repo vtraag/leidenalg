@@ -51,7 +51,7 @@ class OptimiserTest(unittest.TestCase):
   def test_neg_weight_bipartite(self):
     G = ig.Graph.Full_Bipartite(50, 50);
     G.es['weight'] = -0.1;
-    partition = louvain.CPMVertexPartition(G, resolution_parameter=-0.1, weight='weight');
+    partition = louvain.CPMVertexPartition(G, resolution_parameter=-0.1, weights='weight');
     self.optimiser.consider_comms=louvain.ALL_COMMS;
     self.optimiser.optimise_partition(partition);
     self.assertListEqual(

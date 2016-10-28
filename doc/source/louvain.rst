@@ -37,7 +37,7 @@ RBConfigurationVertexPartition class
 --------------------------------------------
 
 .. autoclass:: RBConfigurationVertexPartition 
-    :members:
+    :members: resolution_parameter
     :undoc-members:
     :show-inheritance:
 

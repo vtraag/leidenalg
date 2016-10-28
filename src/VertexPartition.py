@@ -307,58 +307,97 @@ class ModularityVertexPartition(MutableVertexPartition):
   This can alternatively be formulated as a sum over communities:
 
   .. math::
-    Q = \\frac{1}{2m} \\sum_{C} \\left(e_c - \\frac{K_c^2}{4m} \\right)
+    Q = \\frac{1}{2m} \\sum_{c} \\left(e_c - \\frac{K_c^2}{4m} \\right)
 
   where :math:`e_c` is the number of internal edges of community :math:`c` and
   :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
   :math:`c`.
 
-  For directed graphs, the formulation is similar
-
-  .. math::
-    Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k^\\text{out}_i k^\\text{in}_j}{m} \\right)
-
-  Simply replacing the adjacency matrix by a weighted adjacency matrix, and similarly
-  representing the degree by the weighted degree yields a version suitable for weighted graphs.
+  References
+  ----------
+  .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community structure in networks.
+         Physical Review E, 69(2), 026113+.
+         `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
    """
-  def __init__(self, graph, initial_membership=None, weight=None):
+  def __init__(self, graph, initial_membership=None, weights=None):
+    """
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the partition on
+
+    initial_membership : list of int
+      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+
+    weights : list of double, or edge attribute
+      Weights of edges. Can be either an iterable or an edge attribute.
+    """
     super(ModularityVertexPartition, self).__init__(graph, initial_membership);
     pygraph_t = _get_py_capsule(graph);
 
-    if weight is not None:
-      if isinstance(weight, str):
-        weight = graph.es[weight];
+    if weights is not None:
+      if isinstance(weights, str):
+        weights = graph.es[weights];
       else:
         # Make sure it is a list
-        weight = list(weight);
+        weights = list(weights);
 
-    self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t, initial_membership, weight);
+    self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t,
+        initial_membership, weights);
     self._update_internal_membership();
 
 
 class SurpriseVertexPartition(MutableVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  Surprise. """
-  def __init__(self, graph, initial_membership=None, node_sizes=None,
-      weight=None):
+  """ Implements Surprise. """
+
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None):
+    """
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the partition on
+
+    initial_membership : list of int
+      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+
+    weights : list of double, or edge attribute
+      Weights of edges. Can be either an iterable or an edge attribute.
+
+    node_sizes : list of int, or vertex attribute
+      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
+      is set to 1 for all nodes, but in specific cases this could be changed.
+    """
     super(SurpriseVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
 
-    if weight is not None:
-      if isinstance(weight, str):
-        weight = graph.es[weight];
+    if weights is not None:
+      if isinstance(weights, str):
+        weights = graph.es[weights];
       else:
         # Make sure it is a list
-        weight = list(weight);
+        weights = list(weights);
 
-    self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t, initial_membership, weight);
+    self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t,
+        initial_membership, weights);
     self._update_internal_membership();
 
 class SignificanceVertexPartition(MutableVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  Significance. """
+  """ Implements Significance. """
   def __init__(self, graph, initial_membership=None, node_sizes=None):
+    """
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the partition on
+
+    initial_membership : list of int
+      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+
+    node_sizes : list of int, or vertex attribute
+      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
+      is set to 1 for all nodes, but in specific cases this could be changed.
+    """
     super(SignificanceVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
@@ -389,12 +428,7 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   # resolution parameter
   @property
   def resolution_parameter(self):
-    """ Resolution parameter.
-
-    Notes
-    -----
-    The exact role is determined by the actual implemented method.
-    """
+    """ Resolution parameter. """
     return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
 
   @resolution_parameter.setter
@@ -411,17 +445,36 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   RBER, which uses a Erdos-Renyi graph as a null model. """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None, weight=None):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+    """
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the partition on.
+
+    initial_membership : list of int
+      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+
+    weights : list of double, or edge attribute
+      Weights of edges. Can be either an iterable or an edge attribute.
+
+    node_sizes : list of int, or vertex attribute
+      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
+      is set to 1 for all nodes, but in specific cases this could be changed.
+
+    resolution_parameter : double
+      Resolution parameter.
+    """
     super(RBERVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
 
-    if weight is not None:
-      if isinstance(weight, str):
-        weight = graph.es[weight];
+    if weights is not None:
+      if isinstance(weights, str):
+        weights = graph.es[weights];
       else:
         # Make sure it is a list
-        weight = list(weight);
+        weights = list(weights);
 
     if node_sizes is not None:
       if isinstance(node_sizes, str):
@@ -430,7 +483,8 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes);
 
-    self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t, initial_membership, weight, node_sizes, resolution_parameter);
+    self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t,
+        initial_membership, weights, node_sizes, resolution_parameter);
     self._update_internal_membership();
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
@@ -447,39 +501,90 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
   :math:`m` is the total number of edges, :math:`\sigma_i` denotes the community of node :math:`i`,
   :math:`\delta(\sigma_i, \\sigma_j) = 1` if :math:`\sigma_i = \\sigma_j` and `0` otherwise, and, finally
-  :math:`\\gamma` is a resolution parameter. Similar to :class:`ModularityVertexPartition` there
-  are variants for directed and weighted graphs.
+  :math:`\\gamma` is a resolution parameter.
+
+  This can alternatively be formulated as a sum over communities:
+
+  .. math::
+    Q = \\sum_{c} \\left(e_c - \\gamma\\frac{K_c^2}{4m} \\right)
+
+  where :math:`e_c` is the number of internal edges of community :math:`c` and
+  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
+  :math:`c`.
+
+  Note that this is the same as :class:`ModularityVertexPartition` for :math:`\\gamma=1` and using the
+  normalisation by :math:`2m`.
+
+  References
+  ----------
+  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of community detection.
+         Physical Review E, 74(1), 016110+. `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+
    """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, weight=None):
+  def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
+    """
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the partition on.
+
+    initial_membership : list of int
+      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+
+    weights : list of double, or edge attribute
+      Weights of edges. Can be either an iterable or an edge attribute.
+
+    resolution_parameter : double
+      Resolution parameter.
+    """
     super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
 
-    if weight is not None:
-      if isinstance(weight, str):
-        weight = graph.es[weight];
+    if weights is not None:
+      if isinstance(weights, str):
+        weights = graph.es[weights];
       else:
         # Make sure it is a list
-        weight = list(weight);
+        weights = list(weights);
 
-    self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t, initial_membership, weight, resolution_parameter);
+    self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
+        initial_membership, weights, resolution_parameter);
     self._update_internal_membership();
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements the diff_move and quality function in order to optimise
   CPM. """
-  def __init__(self, graph, resolution_parameter=1.0, initial_membership=None, node_sizes=None,
-      weight=None):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+    """
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the partition on.
+
+    initial_membership : list of int
+      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+
+    weights : list of double, or edge attribute
+      Weights of edges. Can be either an iterable or an edge attribute.
+
+    node_sizes : list of int, or vertex attribute
+      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
+      is set to 1 for all nodes, but in specific cases this could be changed.
+
+    resolution_parameter : double
+      Resolution parameter.
+    """
     super(CPMVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
 
-    if weight is not None:
-      if isinstance(weight, str):
-        weight = graph.es[weight];
+    if weights is not None:
+      if isinstance(weights, str):
+        weights = graph.es[weights];
       else:
         # Make sure it is a list
-        weight = list(weight);
+        weights = list(weights);
 
     if node_sizes is not None:
       if isinstance(node_sizes, str):
@@ -488,5 +593,6 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes);
 
-    self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t, initial_membership, weight, node_sizes, resolution_parameter);
+    self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
+        initial_membership, weights, node_sizes, resolution_parameter);
     self._update_internal_membership();

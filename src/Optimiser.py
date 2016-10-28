@@ -431,7 +431,7 @@ class Optimiser(object):
         graph,
         partition_type,
         resolution_range,
-        weight=None,
+        weights=None,
         bisect_func=lambda p: p.total_weight_in_all_comms(),
         min_diff_bisect_value=1,
         min_diff_resolution=1e-3,
@@ -452,7 +452,7 @@ class Optimiser(object):
     resolution_range
       The range of resolution values that we would like to scan.
 
-    weight
+    weights
       If provided, indicates the edge attribute to use as a weight.
 
     Returns
@@ -511,9 +511,9 @@ class Optimiser(object):
         elif res > new_res and \
            bisect_part.bisect_value > bisect_values[new_res].bisect_value:
           bisect_values[res] = bisect_values[new_res];
-    def find_partition(self, graph, partition_type, weight=None, **kwargs):
+    def find_partition(self, graph, partition_type, weights=None, **kwargs):
       partition = partition_type(graph,
-                             weight=weight,
+                             weights=weights,
                              **kwargs);
       self.optimise_partition(partition);
       return partition;
@@ -528,12 +528,12 @@ class Optimiser(object):
     # The namedtuple we will use in the bisection function
     BisectPartition = namedtuple('BisectPartition',
         ['partition', 'bisect_value']);
-    partition = find_partition(self, graph=graph, partition_type=partition_type, weight=weight,
-                                   resolution_parameter=resolution_range[0]);
+    partition = find_partition(self, graph=graph, partition_type=partition_type,
+        weights=weights,resolution_parameter=resolution_range[0]);
     bisect_values[resolution_range[0]] = BisectPartition(partition=partition,
                                 bisect_value=bisect_func(partition));
-    partition = find_partition(self, graph=graph, partition_type=partition_type, weight=weight,
-                                   resolution_parameter=resolution_range[1]);
+    partition = find_partition(self, graph=graph, partition_type=partition_type,
+        weights=weights, resolution_parameter=resolution_range[1]);
     bisect_values[resolution_range[1]] = BisectPartition(partition=partition,
                                 bisect_value=bisect_func(partition));
     # While stack of ranges not yet empty
@@ -565,8 +565,8 @@ class Optimiser(object):
         # If we haven't scanned this resolution value yet,
         # do so now
         if not bisect_values.has_key(new_res):
-          partition = find_partition(self, graph, partition_type=partition_type, weight=weight,
-                                         resolution_parameter=new_res);
+          partition = find_partition(self, graph, partition_type=partition_type,
+              weights=weights, resolution_parameter=new_res);
           bisect_values[new_res] = BisectPartition(partition=partition,
                                       bisect_value=bisect_func(partition));
         # Because of stochastic differences in different runs, the monotonicity
