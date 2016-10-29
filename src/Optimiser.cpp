@@ -136,9 +136,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       if (collapsed_partitions[layer] != partitions[layer])
       {
         if (this->refine_partition)
-          partitions[layer]->from_coarser_partition(collapsed_partitions[layer], aggregate_node_per_individual_node);
+          partitions[layer]->from_coarse_partition(collapsed_partitions[layer], aggregate_node_per_individual_node);
         else
-          partitions[layer]->from_coarser_partition(collapsed_partitions[layer]);
+          partitions[layer]->from_coarse_partition(collapsed_partitions[layer]);
       }
     }
 
@@ -314,7 +314,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     partitions[layer]->renumber_communities(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
   }
-  return q;
+  return improv;
 }
 
 /*****************************************************************************

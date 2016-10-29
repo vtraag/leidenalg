@@ -181,67 +181,67 @@ class Optimiser(object):
   def optimise_partition_multiplex(self, partitions, layer_weights=None):
     """ Optimise the given partitions simultaneously.
 
-      Parameters
-      ----------
-      partitions
-        List of :class:`louvain.VertexPartition` layers to optimise.
+    Parameters
+    ----------
+    partitions
+      List of :class:`louvain.VertexPartition` layers to optimise.
 
-      layer_weights
-        List of weights of layers.
+    layer_weights
+      List of weights of layers.
 
-      Returns
-      -------
-      float
-        quality of combined partitions, see `Notes`_.
+    Returns
+    -------
+    float
+      quality of combined partitions, see `Notes`_.
 
-      Notes
-      -----
-      .. _Notes:
+    Notes
+    -----
+    .. _Notes:
 
-      This method assumes that the partitions are defined for graphs with the same
-      vertices. The connections between the vertices may be different, but the
-      vertices themselves should be identical. In other words, all vertices should have
-      identical indices in all graphs (i.e. node `i` is assumed to be the same node in all
-      graphs). The quality of this partition is simply the sum of the individual
-      qualities for the various partitions, weighted by the layer_weight. If we
-      denote by :math:`q_k` the quality of layer :math:`k` and the weight by :math:`w_k`,
-      the overall quality is then
+    This method assumes that the partitions are defined for graphs with the same
+    vertices. The connections between the vertices may be different, but the
+    vertices themselves should be identical. In other words, all vertices should have
+    identical indices in all graphs (i.e. node `i` is assumed to be the same node in all
+    graphs). The quality of this partition is simply the sum of the individual
+    qualities for the various partitions, weighted by the layer_weight. If we
+    denote by :math:`q_k` the quality of layer :math:`k` and the weight by :math:`w_k`,
+    the overall quality is then
 
-      .. math::
+    .. math::
 
-        q = \sum_k w_k q_k.
+      q = \sum_k w_k q_k.
 
-      This is particularly useful for graphs containing negative links. When separating the
-      graph in two graphs, the one containing only the positive links, and the other only
-      the negative link, by supplying a negative weight to the latter layer, we try to
-      find relatively many positive links within a community and relatively many negative
-      links between communities. Note that in this case it may be better to assign a node
-      to a community to which it is not connected so that :attr:`consider_comms` may be better
-      set to :attr:`louvain.ALL_COMMS`.
+    This is particularly useful for graphs containing negative links. When separating the
+    graph in two graphs, the one containing only the positive links, and the other only
+    the negative link, by supplying a negative weight to the latter layer, we try to
+    find relatively many positive links within a community and relatively many negative
+    links between communities. Note that in this case it may be better to assign a node
+    to a community to which it is not connected so that :attr:`consider_comms` may be better
+    set to :attr:`louvain.ALL_COMMS`.
 
-      Besides multiplex graphs where each node is assumed to have a single community, it is also
-      useful in the case of for example multiple time slices, or in situations where nodes can
-      have different communities in different slices. The package includes some special helper
-      functions for using :func:`optimise_partition_multiplex` in such cases, where there is a
-      conversion required from (time) slices to layers suitable for use in this function.
+    Besides multiplex graphs where each node is assumed to have a single community, it is also
+    useful in the case of for example multiple time slices, or in situations where nodes can
+    have different communities in different slices. The package includes some special helper
+    functions for using :func:`optimise_partition_multiplex` in such cases, where there is a
+    conversion required from (time) slices to layers suitable for use in this function.
 
-      See Also
-      --------
-      louvain.slice_graph_to_layer_graph : Convert slices to layers.
-      louvain.time_slice_to_layer_graph : Convert time slices to layers.
-      louvain.find_partition_time_slices : Detect partition for time slices.
+    See Also
+    --------
+    louvain.slice_graph_to_layer_graph : Convert slices to layers.
+    louvain.time_slice_to_layer_graph : Convert time slices to layers.
+    louvain.find_partition_time_slices : Detect partition for time slices.
 
-      Examples
-      --------
-      >>> G_pos = ig.Graph.SBM(100, pref_matrix=[[0.5, 0.1], [0.1, 0.5]], block_sizes=[50, 50]);
-      >>> G_neg = ig.Graph.SBM(100, pref_matrix=[[0.1, 0.5], [0.5, 0.1]], block_sizes=[50, 50]);
-      >>> optimiser = louvain.Optimiser();
-      >>> partition_pos = louvain.ModularityVertexPartition(G_pos);
-      >>> partition_neg = louvain.ModularityVertexPartition(G_neg);
-      >>> optimiser.optimise_partition_multiplex(partitions=[partition_pos, partition_neg],
-      ...                                        layer_weights=[1,-1]);
+    Examples
+    --------
+    >>> G_pos = ig.Graph.SBM(100, pref_matrix=[[0.5, 0.1], [0.1, 0.5]], block_sizes=[50, 50]);
+    >>> G_neg = ig.Graph.SBM(100, pref_matrix=[[0.1, 0.5], [0.5, 0.1]], block_sizes=[50, 50]);
+    >>> optimiser = louvain.Optimiser();
+    >>> partition_pos = louvain.ModularityVertexPartition(G_pos);
+    >>> partition_neg = louvain.ModularityVertexPartition(G_neg);
+    >>> optimiser.optimise_partition_multiplex(partitions=[partition_pos, partition_neg],
+    ...                                        layer_weights=[1,-1]);
 
-      """
+    """
     if not layer_weights:
       layer_weights = [1]*len(partitions);
     diff = _c_louvain._Optimiser_optimise_partition_multiplex(

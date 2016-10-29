@@ -109,7 +109,7 @@ class BaseTest:
           places=5,
           msg='Quality not equal for aggregate partition.');
       self.optimiser.move_nodes(aggregate_partition);
-      partition.from_coarser_partition(aggregate_partition);
+      partition.from_coarse_partition(aggregate_partition);
       self.assertAlmostEqual(
           partition.quality(),
           aggregate_partition.quality(),

@@ -11,6 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+  intro
+  advanced
+  multiplex
+  implement 
 
 
 Indices and tables

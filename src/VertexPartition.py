@@ -139,13 +139,16 @@ class MutableVertexPartition(_ig.VertexClustering):
     self._modularity_dirty = True;
     return diff;
 
-  def from_coarser_partition(self, partition):
+  def from_coarse_partition(self, partition, coarse_node=None):
     """ Update current partition according to coarser partition.
 
     Parameters
     ----------
-    partition
+    partition : :class:`~louvain.VertexPartition.MutableVertexPartition`
       The coarser partition used to update the current partition.
+
+    coarse_node : list of int
+      The coarser node which represent the current node in the partition.
 
     Notes
     -----
@@ -164,13 +167,28 @@ class MutableVertexPartition(_ig.VertexClustering):
     this is not yet reflected in the original ``partition``. We can thus
     call
 
-    >>> partition.from_coarser_partition(aggregate_partition)
+    >>> partition.from_coarse_partition(aggregate_partition)
 
     so that ``partition`` now reflects the changes made to
     ``aggregate_partition``.
+
+    The ``coarse_node`` can be used it the ``aggregate_partition`` is not
+    defined based on the membership of this partition. In particular
+    the membership of this partition is defined as follows::
+
+    >>> for v in G.vs:
+    ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]]
+
+    If ``coarse_node`` is ``None`` it is assumed the coarse node was defined
+    based on the membership of the current partition, so that
+
+    >>> for v in G.vs:
+    ...   partition.membership[v] = aggregate_partition.membership[partition.membership[v]]
+
+    This can be useful when the aggregate partition is defined on a more refined partition.
     """
     # Read the coarser partition
-    _c_louvain._MutableVertexPartition_from_coarser_partition(self._partition, partition.membership);
+    _c_louvain._MutableVertexPartition_from_coarse_partition(self._partition, partition.membership, coarse_node);
     self._update_internal_membership();
 
   def renumber_communities(self):
@@ -267,7 +285,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     -----
     If we denote by :math:`n_c` the number of nodes in community :math:`c`, this is simply
 
-    .. math :: \sum_c \binom{n_c}{2}
+    .. math :: \\sum_c \\binom{n_c}{2}
 
     """
     return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition);
@@ -301,23 +319,22 @@ class ModularityVertexPartition(MutableVertexPartition):
     Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
   where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
-  :math:`m` is the total number of edges, :math:`\sigma_i` denotes the community of node :math:`i`
-  and :math:`\delta(\sigma_i, \\sigma_j) = 1` if :math:`\sigma_i = \\sigma_j` and `0` otherwise.
+  :math:`m` is the total number of edges, :math:`\\sigma_i` denotes the community of node :math:`i`
+  and :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise.
 
   This can alternatively be formulated as a sum over communities:
 
   .. math::
-    Q = \\frac{1}{2m} \\sum_{c} \\left(e_c - \\frac{K_c^2}{4m} \\right)
+    Q = \\frac{1}{2m} \\sum_{c} \\left(m_c - \\frac{K_c^2}{4m} \\right)
 
-  where :math:`e_c` is the number of internal edges of community :math:`c` and
+  where :math:`m_c` is the number of internal edges of community :math:`c` and
   :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
   :math:`c`.
 
   References
   ----------
   .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community structure in networks.
-         Physical Review E, 69(2), 026113+.
-         `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+         Physical Review E, 69(2), 026113. `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
    """
   def __init__(self, graph, initial_membership=None, weights=None):
     """
@@ -348,7 +365,42 @@ class ModularityVertexPartition(MutableVertexPartition):
 
 
 class SurpriseVertexPartition(MutableVertexPartition):
-  """ Implements Surprise. """
+  """ Implements (asymptotic) Surprise.
+
+  Notes
+  -----
+  The quality function is
+
+  .. math::
+    Q = m D(q \\parallel \\langle q \\rangle)
+
+  where :math:`m` is the number of edges,
+
+  .. math::
+    q = \\frac{\\sum_c m_c}{m},
+
+  is the fraction of internal edges,
+
+  .. math::
+    \\langle q \\rangle = \\frac{\\sum_c \\binom{n_c}{2}}{\\binom{n}{2}}
+
+  is the expected fraction of internal edges, and finally
+
+  .. math::
+    D(x \\parallel y) = x \\ln \\frac{x}{y} + (1 - x) \\ln \\frac{1 - x}{1 - y}
+
+  is the binary Kullback-Leibler divergence.
+
+  For directed graphs we can multiplying the binomials by 2, and this leaves
+  :math:`\\langle q \\rangle` unchanged, so that we can simply use the same formulation.
+  For weighted graphs we can simply count the total internal weight instead of the total
+  number of edges for :math:`q`, while :math:`\\langle q \\rangle` remains unchanged.
+
+  References
+  ----------
+  .. [1] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting communities using asymptotical surprise.
+         Physical Review E, 92(2), 022816. `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`_
+  """
 
   def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None):
     """
@@ -383,7 +435,44 @@ class SurpriseVertexPartition(MutableVertexPartition):
     self._update_internal_membership();
 
 class SignificanceVertexPartition(MutableVertexPartition):
-  """ Implements Significance. """
+  """ Implements Significance.
+
+  Notes
+  -----
+  The quality function is
+
+  .. math::
+    Q = \\sum_c \\binom{n_c}{2} D(p_c \\parallel p)
+
+  where :math:`n_c` is the number of nodes in community :math:`c`,
+
+  .. math::
+    p_c = \\frac{m_c}{\\binom{n_c}{2}},
+
+  is the density of community :math:`c`,
+
+  .. math::
+    p = \\frac{m}{\\binom{n}{2}}
+
+  is the overall density of the graph, and finally
+
+  .. math::
+    D(x \\parallel y) = x \\ln \\frac{x}{y} + (1 - x) \\ln \\frac{1 - x}{1 - y}
+
+  is the binary Kullback-Leibler divergence.
+
+  For directed graphs simply multiply the binomials by 2. The expected Significance
+  in Erdos-Renyi graphs behaves roughly as :math:`\\frac{1}{2} n \\ln n` for both
+  directed and undirected graphs in this formulation.
+
+  .. warning::
+    This method is not suitable for weighted graphs.
+
+  References
+  ----------
+  .. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in community structure.
+         Scientific Reports, 3, 2930. `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`_
+  """
   def __init__(self, graph, initial_membership=None, node_sizes=None):
     """
     Parameters
@@ -443,8 +532,38 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     return self.total_weight_in_all_comms();
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  RBER, which uses a Erdos-Renyi graph as a null model. """
+  """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
+  This quality function uses a linear resolution parameter.
+
+  Notes
+  -----
+  The quality function is
+
+  .. math::
+    Q = \\sum_{ij} \\left(A_{ij} - \\gamma p \\right)\\delta(\\sigma_i, \\sigma_j)
+
+  where :math:`A` is the adjacency matrix,
+
+  .. math::
+    p = \\frac{m}{\\binom{n}{2}}
+
+  is the overall density of the graph, :math:`\\sigma_i` denotes the community of node :math:`i`,
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and,
+  finally :math:`\\gamma` is a resolution parameter.
+
+  This can alternatively be formulated as a sum over communities:
+
+  .. math::
+    Q = \\sum_{c} \\left[m_c - \\gamma p \\binom{n_c}{2} \\right]
+
+  where :math:`m_c` is the number of internal edges of community :math:`c` and
+  :math:`n_c` the number of nodes in community :math:`c`.
+
+  References
+  ----------
+  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of community detection.
+         Physical Review E, 74(1), 016110. `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+   """
   def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
     """
     Parameters
@@ -499,16 +618,16 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
   where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
-  :math:`m` is the total number of edges, :math:`\sigma_i` denotes the community of node :math:`i`,
-  :math:`\delta(\sigma_i, \\sigma_j) = 1` if :math:`\sigma_i = \\sigma_j` and `0` otherwise, and, finally
+  :math:`m` is the total number of edges, :math:`\\sigma_i` denotes the community of node :math:`i`,
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally
   :math:`\\gamma` is a resolution parameter.
 
   This can alternatively be formulated as a sum over communities:
 
   .. math::
-    Q = \\sum_{c} \\left(e_c - \\gamma\\frac{K_c^2}{4m} \\right)
+    Q = \\sum_{c} \\left(m_c - \\gamma\\frac{K_c^2}{4m} \\right)
 
-  where :math:`e_c` is the number of internal edges of community :math:`c` and
+  where :math:`m_c` is the number of internal edges of community :math:`c` and
   :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
   :math:`c`.
 
@@ -518,7 +637,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   References
   ----------
   .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of community detection.
-         Physical Review E, 74(1), 016110+. `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+         Physical Review E, 74(1), 016110. `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
 
    """
   def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
@@ -553,8 +672,49 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     self._update_internal_membership();
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
-  """ Implements the diff_move and quality function in order to optimise
-  CPM. """
+  """ Implements CPM.
+  This quality function uses a linear resolution parameter.
+
+  Notes
+  -----
+  The quality function is
+
+  .. math::
+    Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\right)\\delta(\\sigma_i, \\sigma_j)
+
+  where :math:`A` is the adjacency matrix, :math:`\\sigma_i` denotes the community of node :math:`i`,
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally
+  :math:`\\gamma` is a resolution parameter.
+
+  This can alternatively be formulated as a sum over communities:
+
+  .. math::
+    Q = \\sum_{c} \\left[m_c - \\gamma \\binom{n_c}{2} \\right]
+
+  where :math:`m_c` is the number of internal edges of community :math:`c` and
+  :math:`n_c` the number of nodes in community :math:`c`.
+
+  The resolution parameter :math:`\\gamma` for this functions has a particularly simply interpretation.
+  The internaly density of communities
+
+  .. math::
+    p_c = \\frac{m_c}{\\binom{n_c}{2}} \\geq \\gamma
+
+  is higher than :math:`\\gamma`, while the external density
+
+  .. math::
+    p_{cd} = \\frac{m_{cd}}{n_c n_d} \\leq \\gamma
+
+  is lower than :math:`\\gamma`. In other words, choosing a particular :math:`\\gamma` corresponds
+  to choosing to find communities of a particular density, and as such defines communities. Finally,
+  the definition of a community in this sense is independent of the actual graph, which is not the
+  case for any of the other methods (see the reference for more detail).
+
+  References
+  ----------
+  .. [1] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for resolution-limit-free community detection.
+         Physical Review E, 84(1), 016114. `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
+   """
   def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
     """
     Parameters

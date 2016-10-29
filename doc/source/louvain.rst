@@ -5,7 +5,11 @@ Module contents
 ---------------
 
 .. automodule:: louvain 
-    :members: find_partition, find_partition_multiplex
+    :members: find_partition, 
+              find_partition_multiplex, 
+              find_partition_temporal,
+              time_slice_to_layer_graph,
+              slice_graph_to_layer_graph,
     :undoc-members:
     :show-inheritance:
 

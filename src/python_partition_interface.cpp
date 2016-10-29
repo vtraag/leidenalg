@@ -503,10 +503,12 @@ extern "C"
     return Py_BuildValue("lOOO", n, edges, weights, node_sizes);
   }
 
-  PyObject* _MutableVertexPartition_from_coarser_partition(PyObject *self, PyObject *args, PyObject *keywds)
+  PyObject* _MutableVertexPartition_from_coarse_partition(PyObject *self, PyObject *args, PyObject *keywds)
   {
+    #define DEBUG
     PyObject* py_partition = NULL;
     PyObject* py_membership = NULL;
+    PyObject* py_coarse_node = NULL;
 
     static char* kwlist[] = {"partition", "membership", NULL};
 
@@ -514,12 +516,13 @@ extern "C"
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
-                                     &py_partition, &py_membership))
+    // TODO : Instead of simply returning NULL, we should also set an error.
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", kwlist,
+                                     &py_partition, &py_membership, &py_coarse_node));
         return NULL;
 
     #ifdef DEBUG
-      cerr << "from_coarser_partition();" << endl;
+      cerr << "from_coarse_partition();" << endl;
     #endif
 
     size_t n = PyList_Size(py_membership);
@@ -538,10 +541,24 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
-    partition->from_coarser_partition(membership);
+    if (py_coarse_node != NULL && py_coarse_node != Py_None)
+    {
+      cerr << "Get coarse node list" << endl;
+      size_t n = PyList_Size(py_coarse_node);
+      vector<size_t> coarse_node;
+      membership.resize(n);
+      for (size_t v = 0; v < n; v++)
+        coarse_node[v] = PyLong_AsLong(PyList_GetItem(py_coarse_node, v));
+
+    cerr << "Got coarse node list" << endl;
+      partition->from_coarse_partition(membership, coarse_node);
+    }
+    else
+      partition->from_coarse_partition(membership);
 
     Py_INCREF(Py_None);
     return Py_None;
+    #undef DEBUG
   }
 
   PyObject* _MutableVertexPartition_renumber_communities(PyObject *self, PyObject *args, PyObject *keywds)

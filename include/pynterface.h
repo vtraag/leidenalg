@@ -39,7 +39,7 @@ extern "C"
       {"_MutableVertexPartition_move_node",                         (PyCFunction)_MutableVertexPartition_move_node,                         METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_get_py_igraph",                     (PyCFunction)_MutableVertexPartition_get_py_igraph,                     METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_aggregate_partition",               (PyCFunction)_MutableVertexPartition_aggregate_partition,               METH_VARARGS | METH_KEYWORDS, ""},
-      {"_MutableVertexPartition_from_coarser_partition",            (PyCFunction)_MutableVertexPartition_from_coarser_partition,            METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_from_coarse_partition",            (PyCFunction)_MutableVertexPartition_from_coarse_partition,            METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_renumber_communities",              (PyCFunction)_MutableVertexPartition_renumber_communities,              METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_MutableVertexPartition_quality",                           (PyCFunction)_MutableVertexPartition_quality,                           METH_VARARGS | METH_KEYWORDS, ""},
