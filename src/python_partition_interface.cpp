@@ -505,12 +505,11 @@ extern "C"
 
   PyObject* _MutableVertexPartition_from_coarse_partition(PyObject *self, PyObject *args, PyObject *keywds)
   {
-    #define DEBUG
     PyObject* py_partition = NULL;
     PyObject* py_membership = NULL;
     PyObject* py_coarse_node = NULL;
 
-    static char* kwlist[] = {"partition", "membership", NULL};
+    static char* kwlist[] = {"partition", "membership", "coarse_node", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -518,7 +517,7 @@ extern "C"
 
     // TODO : Instead of simply returning NULL, we should also set an error.
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", kwlist,
-                                     &py_partition, &py_membership, &py_coarse_node));
+                                     &py_partition, &py_membership, &py_coarse_node))
         return NULL;
 
     #ifdef DEBUG
@@ -558,7 +557,6 @@ extern "C"
 
     Py_INCREF(Py_None);
     return Py_None;
-    #undef DEBUG
   }
 
   PyObject* _MutableVertexPartition_renumber_communities(PyObject *self, PyObject *args, PyObject *keywds)
