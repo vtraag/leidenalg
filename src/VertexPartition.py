@@ -526,11 +526,11 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   @property
   def resolution_parameter(self):
     """ Resolution parameter. """
-    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
+    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition);
 
   @resolution_parameter.setter
   def resolution_parameter(self, value):
-    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition);
+    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
 
   def bisect_value(self):
     """ Give the value on which we can perform bisectioning. If p1 and p2 are
