@@ -111,11 +111,19 @@ class MutableVertexPartition(_ig.VertexClustering):
     """
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
 
-  def aggregate_partition(self):
+  def aggregate_partition(self, membership_partition=None):
     """ Aggregate the graph according to the current partition and provide a
         default partition for it.
     """
-    return self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
+    partition_agg = self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
+
+    if (not membership_partition is None):
+      membership = partition_agg.membership;
+      for v in self.graph.vs:
+        membership[self.membership[v.index]] = membership_partition.membership[v.index];
+      partition_agg.set_membership(membership);
+
+    return partition_agg;
 
   def move_node(self,v,new_comm):
     """ Move node ``v`` to community ``new_comm``.

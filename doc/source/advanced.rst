@@ -6,6 +6,9 @@ start detecting communities. However, perhaps you want to improve the partitions
 further or want to do some more advanced analysis. In this section, we will
 explain this in more detail.
 
+Optimiser
+---------
+
 Although the package provides simple access to the function
 :func:`find_partition`, there is actually an underlying :class:`Optimiser` class
 that is doing the actual work. We can also explicitly construct an
@@ -81,11 +84,39 @@ These functions in turn rely on two key functions of the partition:
 :func:`~louvain.VertexPartition.MutableVertexPartition.move_node`. The first
 calculates the difference when moving a node, and the latter actually moves the
 node, and updates all necessary internal administration. The :func:`move_nodes`
-then does some as follows  
+then does some as follows
 
 >>> for v in G.vs:
-...   best_comm = max(range(len(partition)), 
+...   best_comm = max(range(len(partition)),
 ...                   key=lambda c: partition.diff_move(v.index, c));
 ...   partition.move_node(v.index, best_comm);
 
 The actual implementation is more complicated, but this gives the general idea.
+
+Resolution profile
+------------------
+
+Some methods accept so-called resolution parameters, such as
+:class:`CPMVertexPartition` or :class:`RBConfigurationVertexPartition`. Although
+some method may seem to have some 'natural' resolution, in reality this is often
+quite arbitrary. However, the methods implemented here (which depend in a linear
+way on resolution parameters) allow for an effective scanning of a full range
+for the resolution parameter. In particular, these methods somehow can be
+formulated as :math:`Q = E - \\gamma N` where :math:`E` and :math:`N` are some
+other quantities. In the case for :class:`CPMVertexPartition` for example,
+:math:`E = \\sum_c m_c` is the number of internal edges and `N = \\sum_c
+\\binom{n_c}{2}` is the sum of the internal possible edges. The essential
+insight for these formulations is that if there is an optimal partition for both
+:math:`\\gamma_1` and :math:`\\gamma_2` then the partition is also optimal for
+all :math:`\\gamma_1 \leq \\gamma \\gamma_2`.
+
+Such a resolution profile can be constructed using the :class:`Optimiser` object. 
+
+>>> G = ig.Graph.Famous('Zachary');
+>>> optimiser = louvain.Optimiser();
+>>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
+...                                        resolution_range=(0,1));
+
+Now ``profile`` is an OrderedDictionary which contains as keys the resolution
+parameters at which there is a jump and as values the actual partitions and the
+bisection value.
