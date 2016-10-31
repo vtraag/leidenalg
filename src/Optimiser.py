@@ -484,6 +484,7 @@ class Optimiser(object):
       Whether the bisectioning will be done on a linear or on a logarithmic basis
       (if possible).
     """
+
     # Helper function for cleaning values to be a stepwise function
     def clean_stepwise(bisect_values):
       # We only need to keep the changes in the bisection values
@@ -496,21 +497,33 @@ class Optimiser(object):
         # resolution parameter
         if v1 == v2:
           del bisect_values[res2];
+
     # We assume here that the bisection values are
     # monotonically decreasing with increasing resolution
-    # parameter values
+    # parameter values.
+    # TODO: The monotonicity can be guaranteed, but the function below incorrectly
+    # assumes that we can just increase/decrease the bisect value which is incorrect.
+    # Additionally, we should probably better implement the bisection value and make
+    # it a property of the LinearResolutionVertexParameter so that it can be properly
+    # overridden in any particular implementation.
     def ensure_monotonicity(bisect_values, new_res):
+      # First check what is best partition for the new_res
+      partition = bisect_values[new_res];
+      current_quality = bisect_values[new_res].partition.quality()
+      best_res = new_res;
       for res, bisect_part in bisect_values.iteritems():
-        # If at a lower resolution value there were lower bisection values, we
-        # should update them in order to maintain monotonicity
-        if res < new_res and \
-           bisect_part.bisect_value < bisect_values[new_res].bisect_value:
+        bisect_part.partition.resolution_parameter = new_res;
+        if bisect_part.partition.quality() > current_quality:
+          best_res = new_res;
+        bisect_part.partition.resolution_parameter = res;
+      bisect_values[new_res] = bisect_values[best_res];
+      # Then check if this improves on any other partition
+      for res, bisect_part in bisect_values.iteritems():
+        bisect_values[new_res].partition.resolution_parameter = res;
+        if bisect_values[new_res].partition.quality() > bisect_part.partition.quality():
           bisect_values[res] = bisect_values[new_res];
-        # If at a higher resolution value there were higher bisection values, we
-        # should update them in order to maintain monotonicity
-        elif res > new_res and \
-           bisect_part.bisect_value > bisect_values[new_res].bisect_value:
-          bisect_values[res] = bisect_values[new_res];
+      bisect_values[new_res].partition.resolution_parameter = new_res;
+
     def find_partition(self, graph, partition_type, weights=None, **kwargs):
       partition = partition_type(graph,
                              weights=weights,
@@ -573,6 +586,7 @@ class Optimiser(object):
         # of the bisection values might be violated, so check for any
         # inconsistencies
         ensure_monotonicity(bisect_values, new_res);
+
     # Ensure we only keep those resolution values for which
     # the bisection values actually changed, instead of all of them
     clean_stepwise(bisect_values);

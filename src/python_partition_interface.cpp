@@ -1131,7 +1131,7 @@ extern "C"
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Od", kwlist,
                                      &py_partition, &resolution_parameter))
         return NULL;
 
