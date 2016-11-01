@@ -102,13 +102,13 @@ some method may seem to have some 'natural' resolution, in reality this is often
 quite arbitrary. However, the methods implemented here (which depend in a linear
 way on resolution parameters) allow for an effective scanning of a full range
 for the resolution parameter. In particular, these methods somehow can be
-formulated as :math:`Q = E - \\gamma N` where :math:`E` and :math:`N` are some
+formulated as :math:`Q = E - \gamma N` where :math:`E` and :math:`N` are some
 other quantities. In the case for :class:`CPMVertexPartition` for example,
-:math:`E = \\sum_c m_c` is the number of internal edges and `N = \\sum_c
-\\binom{n_c}{2}` is the sum of the internal possible edges. The essential
-insight for these formulations is that if there is an optimal partition for both
-:math:`\\gamma_1` and :math:`\\gamma_2` then the partition is also optimal for
-all :math:`\\gamma_1 \leq \\gamma \\gamma_2`.
+:math:`E = \sum_c m_c` is the number of internal edges and :math:`N = \sum_c
+\binom{n_c}{2}` is the sum of the internal possible edges. The essential
+insight for these formulations [1]_ is that if there is an optimal partition for both
+:math:`\gamma_1` and :math:`\gamma_2` then the partition is also optimal for
+all :math:`\gamma_1 \leq \gamma \gamma_2`.
 
 Such a resolution profile can be constructed using the :class:`Optimiser` object. 
 
@@ -117,6 +117,26 @@ Such a resolution profile can be constructed using the :class:`Optimiser` object
 >>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
 ...                                        resolution_range=(0,1));
 
-Now ``profile`` is an OrderedDictionary which contains as keys the resolution
-parameters at which there is a jump and as values the actual partitions and the
-bisection value.
+Plotting the resolution parameter versus the total number of internal edges we
+thus obtain something as follows:
+
+.. image:: figures/resolution_profile.png
+
+Now ``profile`` contains a list of partitions of the specified type
+(:class:`CPMVertexPartition` in this case) for resolution parameters at which
+there was a change. In particular, ``profile[i]`` should be better until
+``profile[i+1]``, or stated otherwise for any resolution parameter between
+``profile[i].resolution_parameter`` and ``profile[i+1].resolution_parameter``
+the partition at position ``i`` should be better. Of course, there will be some
+variations because :func:`optimise_partition` will find partitions of varying
+quality. The change points can then also vary for different runs. 
+
+This function repeatedly calls :func:`optimise_partition` and can therefore
+require a lot of time. Especially for resolution parameters right around a
+change point there may be many possible partitions, thus requiring a lot of runs.
+
+References
+----------
+.. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
+       community structure. Scientific Reports, 3, 2930.
+       `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`_
