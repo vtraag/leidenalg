@@ -118,7 +118,7 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
   return diff;
 }
 
-double RBERVertexPartition::quality()
+double RBERVertexPartition::quality(double resolution_parameter)
 {
   #ifdef DEBUG
     cerr << "double RBERVertexPartition::quality()" << endl;
@@ -133,7 +133,7 @@ double RBERVertexPartition::quality()
     #ifdef DEBUG
       cerr << "\t" << "Comm: " << c << ", w_c=" << w << ", n_c=" << csize << ", comm_possible_edges=" << comm_possible_edges << ", p=" << this->graph->density() << "." << endl;
     #endif
-    mod += w - this->resolution_parameter*this->graph->density()*comm_possible_edges;
+    mod += w - resolution_parameter*this->graph->density()*comm_possible_edges;
   }
   #ifdef DEBUG
     cerr << "exit double RBERVertexPartition::quality()" << endl;

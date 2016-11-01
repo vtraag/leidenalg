@@ -2,7 +2,6 @@
 
   PyObject* _set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds)
   {
-    PyObject* py_optimiser = NULL;
     static char* kwlist[] = {"seed", NULL};
     size_t seed = 0;
     #ifdef DEBUG

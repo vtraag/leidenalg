@@ -1152,6 +1152,46 @@ extern "C"
     Py_INCREF(Py_None);
     return Py_None;
   }
+
+  PyObject* _ResolutionParameterVertexPartition_quality(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_partition = NULL;
+    PyObject* py_res = NULL;
+    double resolution_parameter = 0.0;
+
+    static char* kwlist[] = {"partition", "resolution_parameter", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|O", kwlist,
+                                     &py_partition, &py_res))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "quality();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule partition at address " << py_partition << endl;
+    #endif
+
+    ResolutionParameterVertexPartition* partition = (ResolutionParameterVertexPartition*)decapsule_MutableVertexPartition(py_partition);
+
+    if (py_res != NULL && py_res != Py_None)
+      resolution_parameter = PyFloat_AsDouble(py_res);
+    else
+      resolution_parameter = partition->resolution_parameter;
+
+    #ifdef DEBUG
+      cerr << "Using partition at address " << partition << endl;
+    #endif
+
+    double q = partition->quality(resolution_parameter);
+    return PyFloat_FromDouble(q);
+  }
+
 #ifdef __cplusplus
 }
 #endif

@@ -125,7 +125,7 @@ double RBConfigurationVertexPartition::diff_move(size_t v, size_t new_comm)
   We here use the unscaled version of modularity, in other words, we don"t
   normalise by the number of edges.
 ******************************************************************************/
-double RBConfigurationVertexPartition::quality()
+double RBConfigurationVertexPartition::quality(double resolution_parameter)
 {
   #ifdef DEBUG
     cerr << "double ModularityVertexPartition::quality()" << endl;
@@ -140,7 +140,7 @@ double RBConfigurationVertexPartition::quality()
       size_t csize = this->csize(c);
       cerr << "\t" << "Comm: " << c << ", size=" << csize << ", w=" << w << ", w_out=" << w_out << ", w_in=" << w_in << "." << endl;
     #endif
-    mod += w - this->resolution_parameter*w_out*w_in/((this->graph->is_directed() ? 1.0 : 4.0)*this->graph->total_weight());
+    mod += w - resolution_parameter*w_out*w_in/((this->graph->is_directed() ? 1.0 : 4.0)*this->graph->total_weight());
   }
   double q = (2.0 - this->graph->is_directed())*mod;
   #ifdef DEBUG

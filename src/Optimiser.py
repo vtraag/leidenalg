@@ -432,7 +432,7 @@ class Optimiser(object):
         partition_type,
         resolution_range,
         weights=None,
-        bisect_func=lambda p: p.total_weight_in_all_comms(),
+        bisect_func=lambda p: p.bisect_value(),
         min_diff_bisect_value=1,
         min_diff_resolution=1e-3,
         linear_bisection=False,
@@ -487,6 +487,17 @@ class Optimiser(object):
 
     # Helper function for cleaning values to be a stepwise function
     def clean_stepwise(bisect_values):
+      # Check best partition for each resolution parameter
+      for res, bisect in bisect_values.iteritems():
+        best_bisect = bisect;
+        best_quality = bisect.partition.quality(res);
+        for res2, bisect2 in bisect_values.iteritems():
+          if bisect2.partition.quality(res) > best_quality:
+            best_bisect = bisect2;
+            best_quality = bisect2.partition.quality(res);
+        if best_bisect != bisect:
+          bisect_values[res] = best_bisect;
+
       # We only need to keep the changes in the bisection values
       bisect_list = sorted([(res, part.bisect_value) for res, part in
         bisect_values.iteritems()], key=lambda x: x[0]);
@@ -498,6 +509,9 @@ class Optimiser(object):
         if v1 == v2:
           del bisect_values[res2];
 
+      for res, bisect in bisect_values.iteritems():
+        bisect.partition.resolution_parameter = res;
+
     # We assume here that the bisection values are
     # monotonically decreasing with increasing resolution
     # parameter values.
@@ -507,22 +521,17 @@ class Optimiser(object):
     # it a property of the LinearResolutionVertexParameter so that it can be properly
     # overridden in any particular implementation.
     def ensure_monotonicity(bisect_values, new_res):
-      # First check what is best partition for the new_res
-      partition = bisect_values[new_res];
-      current_quality = bisect_values[new_res].partition.quality()
+      # First check if this partition improves on any other partition
+      for res, bisect_part in bisect_values.iteritems():
+        if bisect_values[new_res].partition.quality(res) > bisect_part.partition.quality(res):
+          bisect_values[res] = bisect_values[new_res];
+      # Then check what is best partition for the new_res
+      current_quality = bisect_values[new_res].partition.quality(new_res)
       best_res = new_res;
       for res, bisect_part in bisect_values.iteritems():
-        bisect_part.partition.resolution_parameter = new_res;
-        if bisect_part.partition.quality() > current_quality:
+        if bisect_part.partition.quality(new_res) > current_quality:
           best_res = new_res;
-        bisect_part.partition.resolution_parameter = res;
       bisect_values[new_res] = bisect_values[best_res];
-      # Then check if this improves on any other partition
-      for res, bisect_part in bisect_values.iteritems():
-        bisect_values[new_res].partition.resolution_parameter = res;
-        if bisect_values[new_res].partition.quality() > bisect_part.partition.quality():
-          bisect_values[res] = bisect_values[new_res];
-      bisect_values[new_res].partition.resolution_parameter = new_res;
 
     def find_partition(self, graph, partition_type, weights=None, **kwargs):
       partition = partition_type(graph,
@@ -582,15 +591,15 @@ class Optimiser(object):
               weights=weights, resolution_parameter=new_res);
           bisect_values[new_res] = BisectPartition(partition=partition,
                                       bisect_value=bisect_func(partition));
-        # Because of stochastic differences in different runs, the monotonicity
-        # of the bisection values might be violated, so check for any
-        # inconsistencies
-        ensure_monotonicity(bisect_values, new_res);
+          # Because of stochastic differences in different runs, the monotonicity
+          # of the bisection values might be violated, so check for any
+          # inconsistencies
+          ensure_monotonicity(bisect_values, new_res);
 
     # Ensure we only keep those resolution values for which
     # the bisection values actually changed, instead of all of them
     clean_stepwise(bisect_values);
     # Use an ordered dict so that when iterating over it, the results appear in
     # increasing order based on the resolution value.
-    return OrderedDict(sorted(((res, part) for res, part in
-      bisect_values.iteritems()), key=lambda x: x[0]));
+    return sorted((bisect.partition for res, bisect in
+      bisect_values.iteritems()), key=lambda x: x.resolution_parameter);

@@ -119,7 +119,7 @@ double CPMVertexPartition::diff_move(size_t v, size_t new_comm)
   return diff;
 }
 
-double CPMVertexPartition::quality()
+double CPMVertexPartition::quality(double resolution_parameter)
 {
   #ifdef DEBUG
     cerr << "double CPMVertexPartition::quality()" << endl;
@@ -134,7 +134,7 @@ double CPMVertexPartition::quality()
     #ifdef DEBUG
       cerr << "\t" << "Comm: " << c << ", w_c=" << w << ", n_c=" << csize << ", comm_possible_edges=" << comm_possible_edges << ", p=" << this->graph->density() << "." << endl;
     #endif
-    mod += w - this->resolution_parameter*comm_possible_edges;
+    mod += w - resolution_parameter*comm_possible_edges;
   }
   #ifdef DEBUG
     cerr << "exit double CPMVertexPartition::quality()" << endl;

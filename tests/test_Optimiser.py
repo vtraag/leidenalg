@@ -62,10 +62,10 @@ class OptimiserTest(unittest.TestCase):
     G = ig.Graph.Famous('Zachary');
     profile = self.optimiser.resolution_profile(G, louvain.CPMVertexPartition, resolution_range=(0,1));
     self.assertListEqual(
-      profile[0].partition.sizes(), [G.vcount()],
+      profile[0].sizes(), [G.vcount()],
       msg="Resolution profile incorrect: at resolution 0, not equal to a single community for CPM.");
     self.assertListEqual(
-      profile[1].partition.sizes(), [1]*G.vcount(),
+      profile[-1].sizes(), [1]*G.vcount(),
       msg="Resolution profile incorrect: at resolution 1, not equal to a singleton partition for CPM.");
 
 #%%
