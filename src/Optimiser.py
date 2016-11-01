@@ -515,11 +515,6 @@ class Optimiser(object):
     # We assume here that the bisection values are
     # monotonically decreasing with increasing resolution
     # parameter values.
-    # TODO: The monotonicity can be guaranteed, but the function below incorrectly
-    # assumes that we can just increase/decrease the bisect value which is incorrect.
-    # Additionally, we should probably better implement the bisection value and make
-    # it a property of the LinearResolutionVertexParameter so that it can be properly
-    # overridden in any particular implementation.
     def ensure_monotonicity(bisect_values, new_res):
       # First check if this partition improves on any other partition
       for res, bisect_part in bisect_values.iteritems():
