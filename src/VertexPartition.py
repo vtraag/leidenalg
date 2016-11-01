@@ -51,9 +51,9 @@ class MutableVertexPartition(_ig.VertexClustering):
   def _FromCPartition(cls, partition):
     n, edges, weights, node_sizes = _c_louvain._MutableVertexPartition_get_py_igraph(partition);
     graph = _ig.Graph(n=n,
-                     edges=edges,
-                     edge_attrs={'weight': weights},
-                     vertex_attrs={'node_size': node_sizes});
+                      edges=edges,
+                      edge_attrs={'weight': weights},
+                      vertex_attrs={'node_size': node_sizes});
     new_partition = cls(graph);
     new_partition._partition = partition;
     new_partition._update_internal_membership();
@@ -526,11 +526,11 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   @property
   def resolution_parameter(self):
     """ Resolution parameter. """
-    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
+    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition);
 
   @resolution_parameter.setter
   def resolution_parameter(self, value):
-    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition);
+    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
 
   def bisect_value(self):
     """ Give the value on which we can perform bisectioning. If p1 and p2 are
@@ -538,6 +538,9 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     g1 and g2, then if p1.bisect_value() == p2.bisect_value() the two
     partitions should be optimal for both g1 and g2."""
     return self.total_weight_in_all_comms();
+
+  def quality(self, resolution_parameter=None):
+    return _c_louvain._ResolutionParameterVertexPartition_quality(self._partition, resolution_parameter);
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.

@@ -352,7 +352,7 @@ double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_co
 
 double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
 {
-  this->move_nodes_constrained(partition, this->refine_consider_comms, constrained_partition);
+  return this->move_nodes_constrained(partition, this->refine_consider_comms, constrained_partition);
 }
 
 double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition)
@@ -365,7 +365,7 @@ double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, int 
 
 double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
 {
-  this->merge_nodes_constrained(partition, this->refine_consider_comms, constrained_partition);
+  return this->merge_nodes_constrained(partition, this->refine_consider_comms, constrained_partition);
 }
 
 double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition)
@@ -391,7 +391,7 @@ double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int
 ******************************************************************************/
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
 {
-  this->move_nodes(partitions, layer_weights, this->consider_comms);
+  return this->move_nodes(partitions, layer_weights, this->consider_comms);
 }
 
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
@@ -632,7 +632,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
 double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
 {
-  this->merge_nodes(partitions, layer_weights, this->consider_comms);
+  return this->merge_nodes(partitions, layer_weights, this->consider_comms);
 }
 
 double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
@@ -684,7 +684,6 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
     if (partitions[0]->get_community(v_comm).size() == 1)
     {
       set<size_t> comms;
-      Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
 
       if (consider_comms == ALL_COMMS)
@@ -745,7 +744,6 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
         // Consider the improvement of moving to a community for all layers
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          graph = graphs[layer];
           partition = partitions[layer];
           // Make sure to multiply it by the weight per layer
           possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
@@ -818,7 +816,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
 double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition)
 {
-  this->move_nodes_constrained(partitions, layer_weights, this->refine_consider_comms, constrained_partition);
+  return this->move_nodes_constrained(partitions, layer_weights, this->refine_consider_comms, constrained_partition);
 }
 
 double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition)
@@ -1045,7 +1043,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
 
 double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition)
 {
-  this->merge_nodes_constrained(partitions, layer_weights, this->refine_consider_comms, constrained_partition);
+  return this->merge_nodes_constrained(partitions, layer_weights, this->refine_consider_comms, constrained_partition);
 }
 
 double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition)
@@ -1093,7 +1091,6 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
     if (partitions[0]->get_community(v_comm).size() == 1)
     {
       set<size_t> comms;
-      Graph* graph = NULL;
       MutableVertexPartition* partition = NULL;
 
       if (consider_comms == ALL_COMMS)
@@ -1165,7 +1162,6 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
         // Consider the improvement of moving to a community for all layers
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          graph = graphs[layer];
           partition = partitions[layer];
           // Make sure to multiply it by the weight per layer
           possible_improv += layer_weights[layer]*partition->diff_move(v, comm);

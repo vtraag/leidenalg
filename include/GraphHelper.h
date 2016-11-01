@@ -70,7 +70,7 @@ inline igraph_rng_t* default_rng()
   return default_rng;
 }
 
-inline size_t set_rng_seed(size_t seed)
+inline void set_rng_seed(size_t seed)
 {
   igraph_rng_seed(default_rng(), seed);
 };

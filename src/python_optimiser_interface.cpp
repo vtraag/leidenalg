@@ -128,16 +128,6 @@ extern "C"
       layer_weights[layer] = PyFloat_AsDouble(layer_weight);
     }
 
-    size_t n;
-
-    #ifdef DEBUG
-      cerr << "Getting node count" << endl;
-    #endif
-    n = partitions[0]->get_graph()->vcount();
-    #ifdef DEBUG
-      cerr << "n=" << n << endl;
-    #endif
-
     #ifdef DEBUG
       cerr << "Capsule optimiser at address " << py_optimiser << endl;
     #endif
