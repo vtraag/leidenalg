@@ -2,15 +2,25 @@
 
 Graph* create_graph_from_py(PyObject* py_obj_graph)
 {
-  return create_graph_from_py(py_obj_graph, NULL, NULL);
+  return create_graph_from_py(py_obj_graph, NULL, NULL, false);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights)
 {
-  return create_graph_from_py(py_obj_graph, py_weights, NULL);
+  return create_graph_from_py(py_obj_graph, py_weights, NULL, true);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, int check_positive_weight)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, NULL, check_positive_weight);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, true);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, int check_positive_weight)
 {
   #ifdef DEBUG
     cerr << "create_graph_from_py" << endl;
@@ -56,7 +66,15 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     size_t nb_weights = PyList_Size(py_weights);
     weights.resize(m);
     for (size_t e = 0; e < nb_weights; e++)
+    {
       weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
+
+      if (check_positive_weight)
+      {
+          if (weights[e] < 0)
+            throw Exception("Cannot accept negative weights.");
+      }
+    }
   }
 
   // TODO: Pass correct_for_self_loops as parameter
@@ -156,9 +174,10 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (Exception const & e )
     {
-      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }
@@ -210,9 +229,10 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (Exception const & e )
     {
-      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }
@@ -265,9 +285,10 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (Exception const & e )
     {
-      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }
@@ -289,7 +310,7 @@ extern "C"
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, false);
 
       CPMVertexPartition* partition = NULL;
 
@@ -322,9 +343,10 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (Exception const & e )
     {
-      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }
@@ -379,9 +401,10 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (Exception const & e )
     {
-      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }
@@ -435,9 +458,10 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (Exception const & e )
     {
-      PyErr_SetString(PyExc_BaseException, "Could not constuct partition.");
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }

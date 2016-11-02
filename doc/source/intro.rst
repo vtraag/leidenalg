@@ -56,6 +56,11 @@ method however by using the :class:`CPMVertexPartition`:
 
 .. image:: figures/karate_CPM.png
 
+Note that any additional ``**kwargs`` passed to :func:`louvain.find_partition` is
+passed on to the constructor of the given ``partition_type``. In this case, we can
+pass the ``resolution_parameter``, but we could also pass ``weight`` or
+``node_size``.
+
 This is the real benefit of using this package: it provides implementations for
 six different methods (see :page:`louvain`), and works also on directed and
 weighted graphs. In addition, it also provides flexible functionality for

@@ -22,14 +22,13 @@ The function :func:`find_partition` then does nothing else then calling
 >>> optimiser.optimise_partition(partition)
 
 But :func:`~Optimiser.optimise_partition` simply tries to improve any provided
-partition. We can thus try to repeatedly call :func:`~Optimiser.optimise_partition`
-to keep on improving the current partition:
+partition. We can thus try to repeatedly call
+:func:`~Optimiser.optimise_partition` to keep on improving the current
+partition:
 
->>> G = ig.Graph.Erdos_Renyi(100, p=5./100);
->>> partition = louvain.ModularityVertexPartition(G);
->>> improv = 1;
->>> while improv > 0:
-...  improv = optimiser.optimise_partition(partition);
+>>> G = ig.Graph.Erdos_Renyi(100, p=5./100); >>> partition =
+louvain.ModularityVertexPartition(G); >>> improv = 1; >>> while improv > 0: ...
+improv = optimiser.optimise_partition(partition);
 
 Even if a call to `optimise_partition` did not improve the current partition, it
 is still possible that a next call will improve the partition. Of course, if the
@@ -50,9 +49,9 @@ The usual strategy in the Louvain algorithm is then to aggregate the partition
 and repeat the move_nodes on the aggregated partition. We can easily repeat
 that:
 
->>> partition = louvain.ModularityVertexPartition(G);
->>> while optimiser.merge_nodes(partition) > 0:
-...   partition = partition.aggregate_partition();
+>>> partition = louvain.ModularityVertexPartition(G); >>> while
+optimiser.merge_nodes(partition) > 0: ...   partition =
+partition.aggregate_partition();
 
 This summarises the whole Louvain algorithm in just three lines of code.
 Although this finds the final aggregate partition, this leaves it unclear the
@@ -60,18 +59,17 @@ actual partition on the level of the individual nodes. In order to do that, we
 need to update the membership based on the aggregate partition, for which we use
 the function :func:`from_coarse_partition`.
 
->>> partition = louvain.ModularityVertexPartition(G);
->>> partition_agg = partition.aggregate_partition();
->>> while optimiser.move_nodes(partition_agg):
-...   partition.from_coarse_partition(partition_agg);
-...   partition_agg = partition_agg.aggregate_partition();
+>>> partition = louvain.ModularityVertexPartition(G); >>> partition_agg =
+partition.aggregate_partition(); >>> while optimiser.move_nodes(partition_agg):
+...   partition.from_coarse_partition(partition_agg); ...   partition_agg =
+partition_agg.aggregate_partition();
 
 Now ``partition_agg`` contains the aggregate partition and ``partition``
 contains the actual partition of the original graph ``G``. Of course,
 ``partition_agg.quality() == partition.quality()`` (save some rounding).
 
-Instead of :func:`move_nodes`, you could also use :func:`merge_nodes`.
-These functions depend on choosing particular alternative communities, the
+Instead of :func:`move_nodes`, you could also use :func:`merge_nodes`.  These
+functions depend on choosing particular alternative communities, the
 documentation of the functions provides more detail.
 
 One possibility is that rather than aggregating the partition based on the
@@ -86,10 +84,9 @@ calculates the difference when moving a node, and the latter actually moves the
 node, and updates all necessary internal administration. The :func:`move_nodes`
 then does some as follows
 
->>> for v in G.vs:
-...   best_comm = max(range(len(partition)),
-...                   key=lambda c: partition.diff_move(v.index, c));
-...   partition.move_node(v.index, best_comm);
+>>> for v in G.vs: ...   best_comm = max(range(len(partition)), ...
+key=lambda c: partition.diff_move(v.index, c)); ...
+partition.move_node(v.index, best_comm);
 
 The actual implementation is more complicated, but this gives the general idea.
 
@@ -105,17 +102,17 @@ for the resolution parameter. In particular, these methods somehow can be
 formulated as :math:`Q = E - \gamma N` where :math:`E` and :math:`N` are some
 other quantities. In the case for :class:`CPMVertexPartition` for example,
 :math:`E = \sum_c m_c` is the number of internal edges and :math:`N = \sum_c
-\binom{n_c}{2}` is the sum of the internal possible edges. The essential
-insight for these formulations [1]_ is that if there is an optimal partition for both
-:math:`\gamma_1` and :math:`\gamma_2` then the partition is also optimal for
-all :math:`\gamma_1 \leq \gamma \gamma_2`.
+\binom{n_c}{2}` is the sum of the internal possible edges. The essential insight
+for these formulations [1]_ is that if there is an optimal partition for both
+:math:`\gamma_1` and :math:`\gamma_2` then the partition is also optimal for all
+:math:`\gamma_1 \leq \gamma \gamma_2`.
 
-Such a resolution profile can be constructed using the :class:`Optimiser` object. 
+Such a resolution profile can be constructed using the :class:`Optimiser`
+object. 
 
->>> G = ig.Graph.Famous('Zachary');
->>> optimiser = louvain.Optimiser();
->>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
-...                                        resolution_range=(0,1));
+>>> G = ig.Graph.Famous('Zachary'); >>> optimiser = louvain.Optimiser(); >>>
+profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, ...
+resolution_range=(0,1));
 
 Plotting the resolution parameter versus the total number of internal edges we
 thus obtain something as follows:
@@ -133,10 +130,11 @@ quality. The change points can then also vary for different runs.
 
 This function repeatedly calls :func:`optimise_partition` and can therefore
 require a lot of time. Especially for resolution parameters right around a
-change point there may be many possible partitions, thus requiring a lot of runs.
+change point there may be many possible partitions, thus requiring a lot of
+runs.
 
 References
 ----------
 .. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
-       community structure. Scientific Reports, 3, 2930.
-       `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`_
+       community structure. Scientific Reports, 3, 2930.  `10.1038/srep02930
+       <http://doi.org/10.1038/srep02930>`_

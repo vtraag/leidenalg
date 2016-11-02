@@ -92,8 +92,17 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
 
   Returns
   -------
+  list of int
+    membership of nodes.
+
   float
     quality of combined partitions, see :func:`Optimiser.optimise_partition_multiplex`.
+
+  Notes
+  -----
+  We don't return a partition in this case because a partition is always defined on
+  a single graph. We therefore simply return the membership (which is the same for
+  all layers).
 
   See Also
   --------

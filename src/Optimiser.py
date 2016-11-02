@@ -192,7 +192,7 @@ class Optimiser(object):
     Returns
     -------
     float
-      quality of combined partitions, see `Notes`_.
+      improvement in quality of combined partitions, see `Notes`_.
 
     Notes
     -----
@@ -200,12 +200,12 @@ class Optimiser(object):
 
     This method assumes that the partitions are defined for graphs with the same
     vertices. The connections between the vertices may be different, but the
-    vertices themselves should be identical. In other words, all vertices should have
-    identical indices in all graphs (i.e. node `i` is assumed to be the same node in all
-    graphs). The quality of this partition is simply the sum of the individual
-    qualities for the various partitions, weighted by the layer_weight. If we
-    denote by :math:`q_k` the quality of layer :math:`k` and the weight by :math:`w_k`,
-    the overall quality is then
+    vertices themselves should be identical. In other words, all vertices should
+    have identical indices in all graphs (i.e. node `i` is assumed to be the same
+    node in all graphs). The quality of the overall partition is simply the sum of
+    the individual qualities for the various partitions, weighted by the
+    layer_weight. If we denote by :math:`q_k` the quality of layer :math:`k` and the
+    weight by :math:`w_k`, the overall quality is then
 
     .. math::
 
