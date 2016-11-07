@@ -1,3 +1,4 @@
+import sys
 import igraph as _ig
 from . import _c_louvain
 from ._c_louvain import ALL_COMMS
@@ -8,12 +9,8 @@ from ._c_louvain import RAND_NEIGH_COMM
 from ._c_louvain import MOVE_NODES
 from ._c_louvain import MERGE_NODES
 
-from .VertexPartition import *
-from .Optimiser import *
-
 from collections import Counter
 
-import sys
 # Check if working with Python 3
 PY3 = (sys.version > '3');
 
@@ -22,6 +19,9 @@ def _get_py_capsule(graph):
     return graph.__graph_as_capsule();
   else:
     return graph.__graph_as_cobject();
+
+from .VertexPartition import *
+from .Optimiser import *
 
 def set_rng_seed(seed):
   """ Set seed for internal random number generator. """
