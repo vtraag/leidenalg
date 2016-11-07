@@ -15,7 +15,7 @@ Contents:
   advanced
   multiplex
   implement 
-  louvain
+  reference
 
 Indices and tables
 ==================
