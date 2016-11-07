@@ -15,12 +15,11 @@ Contents:
   advanced
   multiplex
   implement 
-
+  louvain
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
