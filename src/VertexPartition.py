@@ -59,6 +59,11 @@ class MutableVertexPartition(_ig.VertexClustering):
     new_partition._update_internal_membership();
     return new_partition;
 
+  @classmethod
+  def FromPartition(cls, partition, **kwargs):
+    new_partition = cls(partition.graph, partition.membership);
+    return new_partition;
+
   def _update_internal_membership(self):
     self._membership = _c_louvain._MutableVertexPartition_get_membership(self._partition);
     # Reset the length of the object, i.e. the number of communities

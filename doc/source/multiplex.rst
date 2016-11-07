@@ -88,12 +88,13 @@ The layer weights are especially useful when negative links are present,
 representing for example conflict or animosity. Most methods (except CPM) only
 accept positive weights. In order to deal with graphs that do have negative
 links, a solution is to separate the graph into two layers: one layer with
-positive links, the other with only negative links. In general, we would like to
-have relatively many positive links within communities, while for negative links
-the opposite holds: we want many negative links between communities. We can
-easily do this within the multiplex layer framework by passing in a negative
-layer weight. For example, suppose we have a graph ``G`` with possibly negative
-weights. We can then separate it into a positive and negative graph as follows:
+positive links, the other with only negative links [2]_. In general, we would
+like to have relatively many positive links within communities, while for
+negative links the opposite holds: we want many negative links between
+communities. We can easily do this within the multiplex layer framework by
+passing in a negative layer weight. For example, suppose we have a graph ``G``
+with possibly negative weights. We can then separate it into a positive and
+negative graph as follows:
 
 >>> G_pos = G.subgraph_edges(G.es.select(weight_gt = 0), delete_vertices=False);
 >>> G_neg = G.subgraph_edges(G.es.select(weight_lt = 0), delete_vertices=False);
@@ -110,11 +111,124 @@ We can then simply detect communities using;
 Slices to layers
 ----------------
 
+The multiplex formulation as layers has two limitations: (1) each graph needs to
+have an identical vertex set; (2) each node is only in a single community.
+Ideally, one would like to relax both these requirements, so that you can work
+with graphs that do not need to have identical nodes and where nodes can be in
+different communities in different layers. For example, a person could be in one
+community when looking at his professional relations, but in another community
+looking at his personal relations. Perhaps more commonly: a person could be in
+one community at time 1 and in another community at time 2.
+
+Fortunately, this is also possible with this package. We call the more general
+formulation *slices* in contrast to the *layers* required by the earlier
+functions. Slices are then just different graphs, which do not need to have the
+same vertex set in any way. The idea is to build one big graph out of all the
+slices and then decompose it again in layers that correspond with slices. The
+key element is that some slices are coupled: for example two consecutive time
+windows, or simply two different slices of types of relations. Because any two
+slices can be coupled in theory, we represent the coupling itself again with a
+graph. The nodes of this *coupling graph* thus are slices, and the (possibly
+weighted) links in the coupling graph represent the (possibly weighted)
+couplings between slices. Below an example with three different time slices,
+where slice 1 is coupled to slice 2, which in turn is coupled to slice 3:
+
+.. image:: figures/slices.png
+
+The coupling graph thus consists of three nodes and a simple line structure: ``1
+-- 2 -- 3``. We convert this into layers by putting all nodes of all slices in
+one big network. Each node is thus represented by a tuple ``(node, slice)`` in a
+certain sense. Out of this big network, we then only take those edges that are
+defined between nodes of the same slice, which then constitutes a single layer.
+Finally, we need one more layer for the couplings. In addition, for methods such
+as :class:`CPMVertexPartition`, so-called ``node_sizes`` are required, and for
+them to properly function, they should be set to 0 (which is handled
+appropriately by the package). We thus obtain equally many layers as we have
+slices, and we need one more layer for representing the interslice couplings.
+For the example provided above, we thus obtain the following:
+
+.. image:: figures/layers_separate.png
+
+To transform slices into layers using a coupling graph, this package provides
+:func:`layers_to_slices`. For the example above, this would function as follows.
+First create the coupling graph assuming we have three slices ``G_1``,``G_2``
+and ``G_3``:
+
+>>> G_coupling = ig.Graph.Formula('1 -- 2 -- 3');
+>>> G_coupling.es['weight'] = 0.1; # Interslice coupling strength
+>>> G_coupling.vs['slice'] = [G_1, G_2, G_3]
+
+Then we convert them to layers
+
+>>> layers, interslice_layer, G_full = louvain.slices_to_layers(G_coupling);
+
+Now we still have to create partitions for all the layers. We can freely choose
+here to use the same partition types for all partitions, or to use different
+types for different layers.
+
+.. warning:: The interslice layer should usually be of type
+:class:`CPMVertexPartition` with a ``resolution_parameter=0`` and ``node_sizes``
+set to 0. The ``G.vs[node_size]`` is automatically set to 0 for all nodes in the
+interslice layer in :func:`slices_to_layers`, so you can simply pass in the
+attribute ``node_size``. Unless you know what you are doing, simply use these
+settings.
+
+.. warning:: When using methods that accept a node_size argument, this should
+always be used. This is the case for :class:`CPMVertexPartition`,
+:class:`RBERVertexPartition`, :class:`SurpriseVertexPartition` and
+:class:`SignificanceVertexPartition`.
+
+>>> partitions = [louvain.CPMVertexPartition(H, node_sizes='node_size', 
+...                                          weight='weight', resolution_parameter=gamma) 
+...               for H in layers];
+>>> partition_interslice = louvain.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+...                                                   node_sizes='node_size', weight='weight');
+
+You can then simply optimise these partitions as before using
+:func:`optimise_partition_multiplex`:
+
+>>> optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+
 Temporal community detection
 ----------------------------
+
+One of the most common tasks for converting slices to layers is that we have
+slices at different points in time. We call this temporal community detection.
+Because it is such a common task, we provide several helper functions to
+simplify the above process. Let us assume again that we have three slices
+``G_1``, ``G_2`` and ``G_3`` as in the example above. The most straightforward
+function is func:`louvain.find_partition_temporal`:
+
+>>> membership, improvement = louvain.find_partition_temporal(
+...                             [G_1, G_2, G_3],
+...                             interslice_weight=0.1,
+...                             louvain.CPMVertextPartition,
+...                             resolution_parameter=gamma)
+
+This function only returns the membership vectors for the different time slices,
+rather than actual partitions.
+
+Rather than directly detecting communities, you can also obtain the actual
+partitions in a slightly more convenient way using
+:func:`time_slices_to_layers`:
+
+>>> partitions, partition_interslice, G_full = \
+...               louvain.time_slices_to_layers([G_1, G_2, G_3],
+...                                             interslice_weight=0.1,
+...                                             louvain.CPMVertextPartition,
+...                                             resolution_parameter=gamma);
+>>> optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+
+Both these functions assume that the interslice coupling is always identical for
+all slices. If you want more finegrained control, you will have to use the
+earlier explained functions.
 
 References
 ----------
 .. [1] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela, J.-P.
        (2010). Community structure in time-dependent, multiscale, and multiplex
-       networks. Science, 328(5980), 876–8. `10.1126/science.1184819 <http://doi.org/10.1126/science.1184819>`_
+       networks. Science, 328(5980), 876–8. `10.1126/science.1184819
+       <http://doi.org/10.1126/science.1184819>`_
+.. [2] Traag, V. A., & Bruggeman, J. (2009). Community detection in networks
+       with positive and negative links. Physical Review E, 80(3), 036115.
+       `10.1103/PhysRevE.80.036115 <http://doi.org/10.1103/PhysRevE.80.036115>`_

@@ -125,14 +125,15 @@ def find_partition_temporal(graphs, partition_type,
   """ Detect communities for temporal graphs.
 
   Each graph is considered to represent a time slice and does not necessarily
-  need to be defined on the same set of vertices. Nodes in two consecutive slices
-  are identified on the basis of the ``vertex_id_attr``, i.e. if two nodes in two
-  consecutive slices have an identical value of the ``vertex_id_attr`` they are coupled.
-  The ``vertex_id_attr`` should hence be unique in each slice. The
-  nodes are then coupled with a weight of ``interslice_weight`` which is set in the edge
-  attribute ``weight_attr``. No weight is set if the ``interslice_weight`` is None (i.e.
-  corresponding in practice with a weight of 1). See :func:`time_slice_to_layer_graph` for a
-  more detailed explanation.
+  need to be defined on the same set of vertices. Nodes in two consecutive
+  slices are identified on the basis of the ``vertex_id_attr``, i.e. if two
+  nodes in two consecutive slices have an identical value of the
+  ``vertex_id_attr`` they are coupled.  The ``vertex_id_attr`` should hence be
+  unique in each slice. The nodes are then coupled with a weight of
+  ``interslice_weight`` which is set in the edge attribute ``weight_attr``. No
+  weight is set if the ``interslice_weight`` is None (i.e.  corresponding in
+  practice with a weight of 1). See :func:`time_slices_to_layers` for a more
+  detailed explanation.
 
   Parameters
   ----------
@@ -162,26 +163,30 @@ def find_partition_temporal(graphs, partition_type,
 
   Returns
   -------
+  list of membership
+    list containing for each slice the membership vector.
+
   float
-    quality of combined partitions, see :func:`Optimiser.optimise_partition_multiplex`.
+    quality improvement of combined partitions, see
+    :func:`Optimiser.optimise_partition_multiplex`.
 
   See Also
   --------
-  :func:`slice_graph_to_layer_graph`
+  :func:`slices_to_layers`
   """
   # Create layers
-  G_layers, G_interslice, G = time_slice_to_layer_graph(graphs,
-                                                        interslice_weight,
-                                                        slice_attr,
-                                                        vertex_id_attr,
-                                                        edge_type_attr,
-                                                        weight_attr);
+  G_layers, G_interslice, G = time_slices_to_layers(graphs,
+                                                    interslice_weight,
+                                                    slice_attr,
+                                                    vertex_id_attr,
+                                                    edge_type_attr,
+                                                    weight_attr);
   # Optimise partitions
   partitions = [partition_type(H, node_sizes='node_size', weight=weight_attr, **kwargs) for H in G_layers];
   # We can always take the same interslice partition, as this should have no cost in the optimisation.
   partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0, node_sizes='node_size', weight=weight_attr);
   optimiser = Optimiser();
-  optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
   # Transform results back into original form.
   membership = {(v[slice_attr], v[vertex_id_attr]): m for v, m in zip(G.vs, partitions[0].membership)}
 
@@ -189,7 +194,7 @@ def find_partition_temporal(graphs, partition_type,
   for slice_idx, H in enumerate(graphs):
     membership_slice = [membership[(slice_idx, v[vertex_id_attr])] for v in H.vs];
     membership_time_slices.append(list(membership_slice));
-  return membership_time_slices;
+  return membership_time_slices, improvement;
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # These are helper functions to create a proper
@@ -220,50 +225,50 @@ def disjoint_union_attrs(graphs):
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Conversion to layer graphs
 
-def time_slice_to_layer_graph(graphs,
-                              interslice_weight=None,
-                              slice_attr='slice',
-                              vertex_id_attr='id',
-                              edge_type_attr='type',
-                              weight_attr='weight'):
+def time_slices_to_layers(graphs,
+                          interslice_weight=None,
+                          slice_attr='slice',
+                          vertex_id_attr='id',
+                          edge_type_attr='type',
+                          weight_attr='weight'):
   """ Convert time slices to layer graphs.
 
-  Each graph is considered to represent a time slice. This function simply connects
-  all the consecutive slices (i.e. the slice graph) with an ``interslice_weight``.
-  The further conversion is then delegated to :func:`slice_graph_to_layer_graph`, which
-  also provides further details.
+  Each graph is considered to represent a time slice. This function simply
+  connects all the consecutive slices (i.e. the slice graph) with an
+  ``interslice_weight``.  The further conversion is then delegated to
+  :func:`slices_to_layers`, which also provides further details.
 
   """
   G_slices = _ig.Graph.Tree(len(graphs), 1, mode=_ig.TREE_UNDIRECTED);
   G_slices.vs[slice_attr] = graphs;
-  return slice_graph_to_layer_graph(G_slices,
-                                    slice_attr,
-                                    vertex_id_attr,
-                                    edge_type_attr,
-                                    weight_attr);
+  return slices_to_layers(G_slices,
+                          slice_attr,
+                          vertex_id_attr,
+                          edge_type_attr,
+                          weight_attr);
 
-def slice_graph_to_layer_graph(G_slices,
-                               slice_attr='slice',
-                               vertex_id_attr='id',
-                               edge_type_attr='type',
-                               weight_attr='weight'):
-  """ Convert a graph of slices to layers of graphs.
+def slices_to_layers(G_coupling,
+                     slice_attr='slice',
+                     vertex_id_attr='id',
+                     edge_type_attr='type',
+                     weight_attr='weight'):
+  """ Convert a coupling graph of slices to layers of graphs.
 
-  This function converts a graph of slices to layers so that they
-  can be used with this package. This function assumes that the slices are
-  represented by nodes in ``G_slices``, and stored in the
-  attribute ``slice_attr``. In other words, ``G_slices.vs[slice_attr]`` should contain
-  :class:`ig.Graph`s. The slices will be converted to layers, and nodes in different slices
-  will be coupled if the two slices are connected in ``G_slices``. Nodes in two connected slices
-  are identified on the basis of the ``vertex_id_attr``, i.e. if two nodes in two connected slices have an
-  identical value of the ``vertex_id_attr`` they will be coupled. The ``vertex_id_attr`` should hence be unique in each slice.
-  The weight of the
-  coupling is determined by the weight of this link in ``G_slices``, as determined by the
-  ``weight_attr``.
+  This function converts a graph of slices to layers so that they can be used
+  with this package. This function assumes that the slices are represented by
+  nodes in ``G_coupling``, and stored in the attribute ``slice_attr``. In other
+  words, ``G_coupling.vs[slice_attr]`` should contain :class:`ig.Graph`s. The
+  slices will be converted to layers, and nodes in different slices will be
+  coupled if the two slices are connected in ``G_coupling``. Nodes in two
+  connected slices are identified on the basis of the ``vertex_id_attr``, i.e.
+  if two nodes in two connected slices have an identical value of the
+  ``vertex_id_attr`` they will be coupled. The ``vertex_id_attr`` should hence
+  be unique in each slice.  The weight of the coupling is determined by the
+  weight of this link in ``G_coupling``, as determined by the ``weight_attr``.
 
   Parameters
   ----------
-  G_slices : :class:`ig.Graph`
+  G_coupling : :class:`ig.Graph`
     The graph connecting the different slices.
 
   slice_attr : string
@@ -288,30 +293,34 @@ def slice_graph_to_layer_graph(G_slices,
 
   Notes
   -----
-  The distinction between slices and layers is not easy to grasp. Slices in this context
-  refer to graphs that somehow represents different aspects of a network. The simplest
-  example is probably slices that represents time: there are different snapshots network
-  across time, and each snapshot is considered a slice. Some nodes may drop out of
-  the network over time, while others enter the network. Edges may change over time, or
-  the weight of the links may change over time. This is just the simplest example
-  of a slice, and there may be different, more complex possibilities. Below an example with
-  three time slices:
+  The distinction between slices and layers is not easy to grasp. Slices in this
+  context refer to graphs that somehow represents different aspects of a
+  network. The simplest example is probably slices that represents time: there
+  are different snapshots network across time, and each snapshot is considered a
+  slice. Some nodes may drop out of the network over time, while others enter
+  the network. Edges may change over time, or the weight of the links may change
+  over time. This is just the simplest example of a slice, and there may be
+  different, more complex possibilities. Below an example with three time
+  slices:
 
   .. image:: figures/slices.png
 
-  Now in order to optimise partitions across these different slices, we represent them slightly
-  differently, namely as layers. The idea of layers is that all graphs always are defined
-  on the same set of nodes, and that only the links differ for different layers. We thus
-  create new nodes as combinations of original nodes and slices. For example, if node 1 existed
-  in both slice 1 and in slice 2, we will thus create two nodes to build the layers: a node 1-1
-  and a node 1-2. Additionally, if the slices are connected in the slice graph, the two nodes
-  would also be connected, so there would be a linke between node 1-1 and 1-2. Different slices
-  will then correspond to different layers: each layer only contains the link for that particular
-  slice. In addition, for methods such as :class:`CPMVertexPartition`, so-called ``node_sizes`` are
-  required, and for them to properly function, they should be set to 0 (which is handled appropriately
-  in this function, and stored in the vertex attribute ``node_size``). We thus obtain equally
-  many layers as we have slices, and we need one more layer for representing the interslice couplings.
-  For the example provided below, we thus obtain the following:
+  Now in order to optimise partitions across these different slices, we
+  represent them slightly differently, namely as layers. The idea of layers is
+  that all graphs always are defined on the same set of nodes, and that only the
+  links differ for different layers. We thus create new nodes as combinations of
+  original nodes and slices. For example, if node 1 existed in both slice 1 and
+  in slice 2, we will thus create two nodes to build the layers: a node 1-1 and
+  a node 1-2. Additionally, if the slices are connected in the slice graph, the
+  two nodes would also be connected, so there would be a linke between node 1-1
+  and 1-2. Different slices will then correspond to different layers: each layer
+  only contains the link for that particular slice. In addition, for methods
+  such as :class:`CPMVertexPartition`, so-called ``node_sizes`` are required,
+  and for them to properly function, they should be set to 0 (which is handled
+  appropriately in this function, and stored in the vertex attribute
+  ``node_size``). We thus obtain equally many layers as we have slices, and we
+  need one more layer for representing the interslice couplings.  For the
+  example provided above, we thus obtain the following:
 
   .. image:: figures/layers_separate.png
 
@@ -327,16 +336,16 @@ def slice_graph_to_layer_graph(G_slices,
   ##%%
 
   # Create disjoint union of the time graphs
-  for v_slice in G_slices.vs:
+  for v_slice in G_coupling.vs:
     H = v_slice[slice_attr];
     H.vs[slice_attr] = v_slice.index;
 
-  G = disjoint_union_attrs(G_slices.vs[slice_attr]);
+  G = disjoint_union_attrs(G_coupling.vs[slice_attr]);
   G.es[edge_type_attr] = 'intraslice';
   ##%%
-  for v_slice in G_slices.vs:
+  for v_slice in G_coupling.vs:
     for u_slice in v_slice.neighbors(mode=_ig.OUT):
-      if v_slice.index < u_slice.index or G_slices.is_directed():
+      if v_slice.index < u_slice.index or G_coupling.is_directed():
         nodes_v = G.vs.select(lambda v: v[slice_attr]==v_slice.index)[vertex_id_attr];
         if len(set(nodes_v)) != len(nodes_v):
           err = '\n'.join(
@@ -357,15 +366,15 @@ def slice_graph_to_layer_graph(G_slices,
         G.add_edges(edges);
         e_end = G.ecount();
         e_idx = range(e_start, e_end);
-        interslice_weight = G_slices.es[G_slices.get_eid(v_slice, u_slice)][weight_attr];
+        interslice_weight = G_coupling.es[G_coupling.get_eid(v_slice, u_slice)][weight_attr];
         if not interslice_weight is None:
           G.es[e_idx][weight_attr] = interslice_weight;
         G.es[e_idx][edge_type_attr] = 'interslice';
 
   ##%%
   # Convert aggregate graph to individual layers for each time slice.
-  G_layers = [None]*G_slices.vcount();
-  for v_slice in G_slices.vs:
+  G_layers = [None]*G_coupling.vcount();
+  for v_slice in G_coupling.vs:
     H = G.subgraph_edges(G.es.select(_within=[v.index for v in G.vs if v[slice_attr] == v_slice.index]), delete_vertices=False);
     H.vs['node_size'] = [1 if v[slice_attr] == v_slice.index else 0 for v in H.vs];
     G_layers[v_slice.index] = H;

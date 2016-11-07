@@ -418,7 +418,7 @@ extern "C"
 
     static char* kwlist[] = {"graph", "initial_membership", "weights", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOd", kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_weights, &resolution_parameter))
         return NULL;
 
