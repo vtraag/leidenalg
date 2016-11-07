@@ -1,27 +1,29 @@
 from . import _c_louvain
 from .VertexPartition import LinearResolutionParameterVertexPartition
+from collections import namedtuple
+from math import log, sqrt
 import sys
+
 # Check if working with Python 3
 PY3 = (sys.version > '3');
-
-from collections import namedtuple, OrderedDict
-from math import log, sqrt
 
 class Optimiser(object):
   """ Class for doing community detection using the Louvain algorithm.
 
   The optimiser class provides a number of different methods for optimising a
   given partition. The overall optimise procedure :func:`optimise_partition`
-  calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled by
-  :attr:`optimise_routine`) then aggregates the graph and repeats the same
-  procedure. Possible, indicated by :attr:`refine_partition` the partition is refined
-  before aggregating, meaning that subsets of communities are considered for
-  moving around. Which routine is used for the refinement is indicated by :attr:`refine_routine`.
-  For calculating the actual improvement of moving a node (corresponding a subset of nodes in
-  the aggregate graph), the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
-  which provides different values for different methods (e.g. modularity or CPM). Finally, the Optimiser
-  class provides a routine to construct a :func:`resolution_profile` on a resolution parameter."""
-
+  calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled
+  by :attr:`optimise_routine`) then aggregates the graph and repeats the same
+  procedure. Possible, indicated by :attr:`refine_partition` the partition is
+  refined before aggregating, meaning that subsets of communities are
+  considered for moving around. Which routine is used for the refinement is
+  indicated by :attr:`refine_routine`.  For calculating the actual improvement
+  of moving a node (corresponding a subset of nodes in the aggregate graph),
+  the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
+  which provides different values for different methods (e.g. modularity or
+  CPM). Finally, the Optimiser class provides a routine to construct a
+  :func:`resolution_profile` on a resolution parameter.
+  """
   def __init__(self):
     """ Create a new Optimiser object """
     self._optimiser = _c_louvain._new_Optimiser();
@@ -31,8 +33,10 @@ class Optimiser(object):
   @property
   def consider_comms(self):
     """ Determine how alternative communities are considered for moving
-    a node for *optimising* a partition. Nodes will only move to alternative
-    communities that improve the given quality function.
+    a node for *optimising* a partition. 
+    
+    Nodes will only move to alternative communities that improve the given
+    quality function.
 
     Notes
     -------
@@ -42,14 +46,14 @@ class Optimiser(object):
       Consider all neighbouring communities for moving.
 
     * :attr:`louvain.ALL_COMMS`
-      Consider all communities for moving. This is especially useful
-      in the case of negative links, in which case it may be better
-      to move a node to a non-neighbouring community.
+      Consider all communities for moving. This is especially useful in the
+      case of negative links, in which case it may be better to move a node to
+      a non-neighbouring community.
 
     * :attr:`louvain.RAND_NEIGH_COMM`
       Consider a random neighbour community for moving. The probability to
-      choose a community is proportional to the number of neighbours a node
-      has in that community.
+      choose a community is proportional to the number of neighbours a node has
+      in that community.
 
     * :attr:`louvain.RAND_COMM`
       Consider a random community for moving. The probability to choose a
@@ -66,8 +70,10 @@ class Optimiser(object):
   @property
   def refine_consider_comms(self):
     """ Determine how alternative communities are considered for moving
-    a node when *refining* a partition. Nodes will only move to alternative
-    communities that improve the given quality function.
+    a node when *refining* a partition. 
+    
+    Nodes will only move to alternative communities that improve the given
+    quality function.
 
     Notes
     -------
@@ -77,14 +83,14 @@ class Optimiser(object):
       Consider all neighbouring communities for moving.
 
     * :attr:`louvain.ALL_COMMS`
-      Consider all communities for moving. This is especially useful
-      in the case of negative links, in which case it may be better
-      to move a node to a non-neighbouring community.
+      Consider all communities for moving. This is especially useful in the
+      case of negative links, in which case it may be better to move a node to
+      a non-neighbouring community.
 
     * :attr:`louvain.RAND_NEIGH_COMM`
       Consider a random neighbour community for moving. The probability to
-      choose a community is proportional to the number of neighbours a node
-      has in that community.
+      choose a community is proportional to the number of neighbours a node has
+      in that community.
 
     * :attr:`louvain.RAND_COMM`
       Consider a random community for moving. The probability to choose a
@@ -162,7 +168,7 @@ class Optimiser(object):
     Returns
     -------
     float
-      Quality of optimised partition.
+      Improvement in quality function.
 
     Examples
     --------
@@ -192,38 +198,39 @@ class Optimiser(object):
     Returns
     -------
     float
-      improvement in quality of combined partitions, see `Notes`_.
+      Improvement in quality of combined partitions, see `Notes`_.
 
     Notes
     -----
     .. _Notes:
 
-    This method assumes that the partitions are defined for graphs with the same
-    vertices. The connections between the vertices may be different, but the
-    vertices themselves should be identical. In other words, all vertices should
-    have identical indices in all graphs (i.e. node `i` is assumed to be the same
-    node in all graphs). The quality of the overall partition is simply the sum of
-    the individual qualities for the various partitions, weighted by the
-    layer_weight. If we denote by :math:`q_k` the quality of layer :math:`k` and the
-    weight by :math:`w_k`, the overall quality is then
+    This method assumes that the partitions are defined for graphs with the
+    same vertices. The connections between the vertices may be different, but
+    the vertices themselves should be identical. In other words, all vertices
+    should have identical indices in all graphs (i.e. node `i` is assumed to be
+    the same node in all graphs). The quality of the overall partition is
+    simply the sum of the individual qualities for the various partitions,
+    weighted by the layer_weight. If we denote by :math:`q_k` the quality of
+    layer :math:`k` and the weight by :math:`w_k`, the overall quality is then
 
-    .. math::
+    .. math:: q = \sum_k w_k q_k.
 
-      q = \sum_k w_k q_k.
+    This is particularly useful for graphs containing negative links. When
+    separating the graph in two graphs, the one containing only the positive
+    links, and the other only the negative link, by supplying a negative weight
+    to the latter layer, we try to find relatively many positive links within a
+    community and relatively many negative links between communities. Note that
+    in this case it may be better to assign a node to a community to which it
+    is not connected so that :attr:`consider_comms` may be better set to
+    :attr:`louvain.ALL_COMMS`.
 
-    This is particularly useful for graphs containing negative links. When separating the
-    graph in two graphs, the one containing only the positive links, and the other only
-    the negative link, by supplying a negative weight to the latter layer, we try to
-    find relatively many positive links within a community and relatively many negative
-    links between communities. Note that in this case it may be better to assign a node
-    to a community to which it is not connected so that :attr:`consider_comms` may be better
-    set to :attr:`louvain.ALL_COMMS`.
-
-    Besides multiplex graphs where each node is assumed to have a single community, it is also
-    useful in the case of for example multiple time slices, or in situations where nodes can
-    have different communities in different slices. The package includes some special helper
-    functions for using :func:`optimise_partition_multiplex` in such cases, where there is a
-    conversion required from (time) slices to layers suitable for use in this function.
+    Besides multiplex graphs where each node is assumed to have a single
+    community, it is also useful in the case of for example multiple time
+    slices, or in situations where nodes can have different communities in
+    different slices. The package includes some special helper functions for
+    using :func:`optimise_partition_multiplex` in such cases, where there is a
+    conversion required from (time) slices to layers suitable for use in this
+    function.
 
     See Also
     --------
@@ -261,7 +268,8 @@ class Optimiser(object):
       The partition for which to move nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to something else.
+      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to
+      something else.
 
     Returns
     -------
@@ -270,9 +278,10 @@ class Optimiser(object):
 
     Notes
     -----
-    When moving nodes, the function loops over nodes and considers moving the node to
-    an alternative community. Which community depends on ``consider_comms``. The
-    function terminates when no more nodes can be moved to an alternative community.
+    When moving nodes, the function loops over nodes and considers moving the
+    node to an alternative community. Which community depends on
+    ``consider_comms``. The function terminates when no more nodes can be moved
+    to an alternative community.
 
     See Also
     --------
@@ -305,7 +314,8 @@ class Optimiser(object):
       The partition within which we may move nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set to something else.
+      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set
+      to something else.
 
     Returns
     -------
@@ -314,10 +324,10 @@ class Optimiser(object):
 
     Notes
     -----
-    The idea is constrain the movement of nodes to alternative communities to another
-    partition. In other words, if there is a partition ``P`` which we want to refine,
-    we can then initialize a new singleton partition, and move nodes in that partition
-    constrained to ``P``.
+    The idea is constrain the movement of nodes to alternative communities to
+    another partition. In other words, if there is a partition ``P`` which we
+    want to refine, we can then initialize a new singleton partition, and move
+    nodes in that partition constrained to ``P``.
 
     See Also
     --------
@@ -349,7 +359,8 @@ class Optimiser(object):
       The partition for which to merge nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to something else.
+      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to
+      something else.
 
     Returns
     -------
@@ -358,9 +369,9 @@ class Optimiser(object):
 
     Notes
     -----
-    This function loop over all nodes once and tries to merge them with another community.
-    Merging in this case implies that a node will never be removed from a community, only
-    merged with other communities.
+    This function loop over all nodes once and tries to merge them with another
+    community.  Merging in this case implies that a node will never be removed
+    from a community, only merged with other communities.
 
     See Also
     --------
@@ -393,7 +404,8 @@ class Optimiser(object):
       The partition within which we may merge nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set to something else.
+      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set
+      to something else.
 
     Returns
     -------
@@ -402,9 +414,10 @@ class Optimiser(object):
 
     Notes
     -----
-    The idea is constrain the merging of nodes to another partition. In other words, if there is a
-    partition ``P`` which we want to refine, we can then initialize a new singleton partition, and
-    move nodes in that partition constrained to ``P``.
+    The idea is constrain the merging of nodes to another partition. In other
+    words, if there is a partition ``P`` which we want to refine, we can then
+    initialize a new singleton partition, and move nodes in that partition
+    constrained to ``P``.
 
     See Also
     --------
@@ -447,8 +460,8 @@ class Optimiser(object):
       The graph for which to construct a resolution profile.
 
     partition_type
-      The type of :class:`louvain.VertexPartition` used to find a partition (must support
-      resolution parameters obviously).
+      The type of :class:`louvain.VertexPartition` used to find a partition
+      (must support resolution parameters obviously).
 
     resolution_range
       The range of resolution values that we would like to scan.
@@ -458,32 +471,32 @@ class Optimiser(object):
 
     Returns
     -------
-    OrderedDict
-      Contains resolution values as keys and a bisection object containing
-      partitions and bisection values.
+    list of :class:`MutableVertexPartition` 
+      A list of partitions for different resolutions.
 
     Other Parameters
     ----------------
     bisect_func
-      The function used for bisectioning. For the methods currently implemented,
-      this should usually not be altered.
+      The function used for bisectioning. For the methods currently
+      implemented, this should usually not be altered.
 
     min_diff_bisect_value
       The difference in the value returned by the bisect_func below which the
-      bisectioning stops (i.e. by default, a difference of a single edge does not
-      trigger further bisectioning).
+      bisectioning stops (i.e. by default, a difference of a single edge does
+      not trigger further bisectioning).
 
     min_diff_resolution
       The difference in resolution below which the bisectioning stops. For
       positive differences, the logarithmic difference is used by default, i.e.
       ``diff = log(res_1) - log(res_2) = log(res_1/res_2)``, for which ``diff >
-      min_diff_resolution`` to continue bisectioning. Set the linear_bisection to
-      true in order to use only linear bisectioning (in the case of negative
-      resolution parameters for example, which can happen with negative weights).
+      min_diff_resolution`` to continue bisectioning. Set the linear_bisection
+      to true in order to use only linear bisectioning (in the case of negative
+      resolution parameters for example, which can happen with negative
+      weights).
 
     linear_bisection
-      Whether the bisectioning will be done on a linear or on a logarithmic basis
-      (if possible).
+      Whether the bisectioning will be done on a linear or on a logarithmic
+      basis (if possible).
 
     until_stable
       If ``True`` iterate ``optimise_partition`` until no more improvement can

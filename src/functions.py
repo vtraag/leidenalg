@@ -8,6 +8,9 @@ from ._c_louvain import RAND_NEIGH_COMM
 from ._c_louvain import MOVE_NODES
 from ._c_louvain import MERGE_NODES
 
+from .VertexPartition import *
+from .Optimiser import *
+
 from collections import Counter
 
 import sys
@@ -20,9 +23,6 @@ def _get_py_capsule(graph):
   else:
     return graph.__graph_as_cobject();
 
-from .VertexPartition import *
-from .Optimiser import *
-
 def set_rng_seed(seed):
   """ Set seed for internal random number generator. """
   _c_louvain._set_rng_seed(seed);
@@ -30,11 +30,13 @@ def set_rng_seed(seed):
 def find_partition(graph, partition_type, initial_membership=None, weights=None, **kwargs):
   """ Detect communities using the default settings.
 
-  This function detects communities given the specified method in the ``partition_type``. This
-  should be type derived from :class:`~louvain.VertexPartition.MutableVertexPartition`, e.g.
-  :class:`ModularityVertexPartition` or :class:`CPMVertexPartition`. Optionally an initial
-  membership and edge weights can be provided. Remaining ``**kwargs`` are passed on to the
-  constructor of the ``partition_type``, including for example a ``resolution_parameter``.
+  This function detects communities given the specified method in the
+  ``partition_type``. This should be type derived from
+  :class:`~louvain.VertexPartition.MutableVertexPartition`, e.g.
+  :class:`ModularityVertexPartition` or :class:`CPMVertexPartition`. Optionally
+  an initial membership and edge weights can be provided. Remaining
+  ``**kwargs`` are passed on to the constructor of the ``partition_type``,
+  including for example a ``resolution_parameter``.
 
   Parameters
   ----------
@@ -45,13 +47,15 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
     The type of partition to use for optimisation.
 
   initial_membership : list of int
-    Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+    Initial membership for the partition. If :obj:`None` then defaults to a
+    singleton partition.
 
   weights : list of double, or edge attribute
     Weights of edges. Can be either an iterable or an edge attribute.
 
   **kwargs
-    Remaining keyword arguments, passed on to constructor of ``partition_type``.
+    Remaining keyword arguments, passed on to constructor of
+    ``partition_type``.
 
   Returns
   -------
@@ -74,8 +78,8 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 def find_partition_multiplex(graphs, partition_type, **kwargs):
   """ Detect communities for multiplex graphs.
 
-  Each graph should be defined on the same set of vertices, only the edges
-  may differ for different graphs. See
+  Each graph should be defined on the same set of vertices, only the edges may
+  differ for different graphs. See
   :func:`Optimiser.optimise_partition_multiplex` for a more detailed
   explanation.
 
@@ -96,13 +100,14 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
     membership of nodes.
 
   float
-    quality of combined partitions, see :func:`Optimiser.optimise_partition_multiplex`.
+    quality of combined partitions, see
+    :func:`Optimiser.optimise_partition_multiplex`.
 
   Notes
   -----
-  We don't return a partition in this case because a partition is always defined on
-  a single graph. We therefore simply return the membership (which is the same for
-  all layers).
+  We don't return a partition in this case because a partition is always
+  defined on a single graph. We therefore simply return the membership (which
+  is the same for all layers).
 
   See Also
   --------
@@ -153,13 +158,15 @@ def find_partition_temporal(graphs, partition_type,
     The vertex to use to identify nodes.
 
   edge_type_attr : string
-    The edge attribute to use for indicating the type of link (`interslice` or `intraslice`).
+    The edge attribute to use for indicating the type of link (`interslice` or
+    `intraslice`).
 
   weight_attr : string
     The edge attribute used to indicate the weight.
 
   **kwargs
-    Remaining keyword arguments, passed on to constructor of ``partition_type``.
+    Remaining keyword arguments, passed on to constructor of
+    ``partition_type``.
 
   Returns
   -------
@@ -275,7 +282,8 @@ def slices_to_layers(G_coupling,
     The vertex attribute which contains the slices.
 
   edge_type_attr : string
-    The edge attribute to use for indicating the type of link (``interslice`` or ``intraslice``).
+    The edge attribute to use for indicating the type of link (``interslice``
+    or ``intraslice``).
 
   weight_attr : string
     The edge attribute used to indicate the (coupling) weight.
@@ -293,34 +301,35 @@ def slices_to_layers(G_coupling,
 
   Notes
   -----
-  The distinction between slices and layers is not easy to grasp. Slices in this
-  context refer to graphs that somehow represents different aspects of a
+  The distinction between slices and layers is not easy to grasp. Slices in
+  this context refer to graphs that somehow represents different aspects of a
   network. The simplest example is probably slices that represents time: there
-  are different snapshots network across time, and each snapshot is considered a
-  slice. Some nodes may drop out of the network over time, while others enter
-  the network. Edges may change over time, or the weight of the links may change
-  over time. This is just the simplest example of a slice, and there may be
-  different, more complex possibilities. Below an example with three time
+  are different snapshots network across time, and each snapshot is considered
+  a slice. Some nodes may drop out of the network over time, while others enter
+  the network. Edges may change over time, or the weight of the links may
+  change over time. This is just the simplest example of a slice, and there may
+  be different, more complex possibilities. Below an example with three time
   slices:
 
   .. image:: figures/slices.png
 
   Now in order to optimise partitions across these different slices, we
   represent them slightly differently, namely as layers. The idea of layers is
-  that all graphs always are defined on the same set of nodes, and that only the
-  links differ for different layers. We thus create new nodes as combinations of
-  original nodes and slices. For example, if node 1 existed in both slice 1 and
-  in slice 2, we will thus create two nodes to build the layers: a node 1-1 and
-  a node 1-2. Additionally, if the slices are connected in the slice graph, the
-  two nodes would also be connected, so there would be a linke between node 1-1
-  and 1-2. Different slices will then correspond to different layers: each layer
-  only contains the link for that particular slice. In addition, for methods
-  such as :class:`CPMVertexPartition`, so-called ``node_sizes`` are required,
-  and for them to properly function, they should be set to 0 (which is handled
-  appropriately in this function, and stored in the vertex attribute
-  ``node_size``). We thus obtain equally many layers as we have slices, and we
-  need one more layer for representing the interslice couplings.  For the
-  example provided above, we thus obtain the following:
+  that all graphs always are defined on the same set of nodes, and that only
+  the links differ for different layers. We thus create new nodes as
+  combinations of original nodes and slices. For example, if node 1 existed in
+  both slice 1 and in slice 2, we will thus create two nodes to build the
+  layers: a node 1-1 and a node 1-2. Additionally, if the slices are connected
+  in the slice graph, the two nodes would also be connected, so there would be
+  a linke between node 1-1 and 1-2. Different slices will then correspond to
+  different layers: each layer only contains the link for that particular
+  slice. In addition, for methods such as :class:`CPMVertexPartition`,
+  so-called ``node_sizes`` are required, and for them to properly function,
+  they should be set to 0 (which is handled appropriately in this function, and
+  stored in the vertex attribute ``node_size``). We thus obtain equally many
+  layers as we have slices, and we need one more layer for representing the
+  interslice couplings.  For the example provided above, we thus obtain the
+  following:
 
   .. image:: figures/layers_separate.png
 
@@ -328,10 +337,10 @@ def slices_to_layers(G_coupling,
 
   References
   ----------
-  .. [1] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela, J.-P. (2010).
-         Community structure in time-dependent, multiscale, and multiplex networks. Science,
-         328(5980), 876–8. `10.1126/science.1184819 <http://doi.org/10.1126/science.1184819>`_
-
+  .. [1] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela,
+         J.-P. (2010).  Community structure in time-dependent, multiscale, and
+         multiplex networks. Science, 328(5980), 876–8.
+         `10.1126/science.1184819 <http://doi.org/10.1126/science.1184819>`_
   """
   ##%%
 

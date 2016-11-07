@@ -1,8 +1,8 @@
-louvain package
+Reference
 ===============
 
-Module contents
----------------
+Module functions
+----------------
 
 .. automodule:: louvain 
     :members: find_partition, 
@@ -13,64 +13,64 @@ Module contents
     :undoc-members:
     :show-inheritance:
 
-Optimiser class
------------------------
+Optimiser 
+---------
 
 .. autoclass:: Optimiser
     :members:
     :undoc-members:
     :show-inheritance:
 
-VertexPartition.MutableVertexPartition class
-----------------------------------------------------
+MutableVertexPartition
+----------------------
 
 .. autoclass:: louvain.VertexPartition.MutableVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-ModularityVertexPartition class
----------------------------------------
+ModularityVertexPartition
+-------------------------
 
 .. autoclass:: ModularityVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-RBConfigurationVertexPartition class
---------------------------------------------
+RBConfigurationVertexPartition
+------------------------------
 
 .. autoclass:: RBConfigurationVertexPartition 
     :members: resolution_parameter
     :undoc-members:
     :show-inheritance:
 
-RBERVertexPartition class
----------------------------------
+RBERVertexPartition
+-------------------
 
 .. autoclass:: RBERVertexPartition 
     :members:
     :undoc-members:
     :show-inheritance:
 
-CPMVertexPartition class
---------------------------------
+CPMVertexPartition
+------------------
 
 .. autoclass:: CPMVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-SignificanceVertexPartition class
-----------------------------------------
+SignificanceVertexPartition
+---------------------------
 
 .. autoclass:: SignificanceVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:
 
-SurpriseVertexPartition class
--------------------------------------
+SurpriseVertexPartition
+-----------------------
 
 .. autoclass:: SurpriseVertexPartition
     :members:

@@ -15,20 +15,23 @@ class MutableVertexPartition(_ig.VertexClustering):
   total incoming degree (or weight) for a community, et cetera.
 
   In order to keep the administration up-to-date, all changes in a partition
-  should be done through :func:`~louvain.VertexPartition.MutableVertexPartition.move_node`
-  or :func:`~louvain.VertexPartition.MutableVertexPartition.set_membership`.
-  The first moves a node from one community to another, and updates the administration.
-  The latter simply updates the membership vector and updates the administration.
+  should be done through
+  :func:`~louvain.VertexPartition.MutableVertexPartition.move_node` or
+  :func:`~louvain.VertexPartition.MutableVertexPartition.set_membership`.  The
+  first moves a node from one community to another, and updates the
+  administration.  The latter simply updates the membership vector and updates
+  the administration.
 
-  The basic idea is that :func:`~louvain.VertexPartition.MutableVertexPartition.diff_move`
-  computes the difference in the quality
-  function if we would call :func:`~louvain.VertexPartition.MutableVertexPartition.move_node` for the same move. These functions are
-  overridden in any derived classes to provide an actual implementation. These
-  functions are used by :class:`~louvain.Optimiser` to optimise the partition.
+  The basic idea is that
+  :func:`~louvain.VertexPartition.MutableVertexPartition.diff_move` computes
+  the difference in the quality function if we would call
+  :func:`~louvain.VertexPartition.MutableVertexPartition.move_node` for the
+  same move. These functions are overridden in any derived classes to provide
+  an actual implementation. These functions are used by
+  :class:`~louvain.Optimiser` to optimise the partition.
 
-  .. warning::
-    This base class should never be used in practice, since only derived classes
-    provide an actual implementation.
+  .. warning:: This base class should never be used in practice, since only
+  derived classes provide an actual implementation.
 
   """
 
@@ -41,9 +44,9 @@ class MutableVertexPartition(_ig.VertexClustering):
       The `ig.Graph` on which this partition is defined.
 
     membership
-      The membership vector of this partition. Membership[i] = c implies that node i
-      is in community c. If None, it is initialised with a singleton partition
-      community, i.e. membership[i] = i.
+      The membership vector of this partition. Membership[i] = c implies that
+      node i is in community c. If None, it is initialised with a singleton
+      partition community, i.e. membership[i] = i.
     """
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
 
@@ -109,16 +112,15 @@ class MutableVertexPartition(_ig.VertexClustering):
     >>> diff == q2 - q1
     True
 
-    .. warning::
-      Only derived classes provide actual implementations, the base class provides no implementation
-      for this function.
+    .. warning:: Only derived classes provide actual implementations, the base
+    class provides no implementation for this function.
 
     """
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
 
   def aggregate_partition(self, membership_partition=None):
     """ Aggregate the graph according to the current partition and provide a
-        default partition for it.
+    default partition for it.
     """
     partition_agg = self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
 
@@ -165,9 +167,9 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Notes
     -----
-    This function is to be used to determine the correct partition
-    for an aggregated graph. In particular, suppose we move nodes
-    and then get an aggregate graph.
+    This function is to be used to determine the correct partition for an
+    aggregated graph. In particular, suppose we move nodes and then get an
+    aggregate graph.
 
     >>> optimiser.move_nodes(partition);
     >>> aggregate_partition = partition.aggregate_partition();
@@ -176,9 +178,8 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     >>> optimiser.move_nodes(aggregate_partition);
 
-    Now we improved the quality function of ``aggregate_partition``, but
-    this is not yet reflected in the original ``partition``. We can thus
-    call
+    Now we improved the quality function of ``aggregate_partition``, but this
+    is not yet reflected in the original ``partition``. We can thus call
 
     >>> partition.from_coarse_partition(aggregate_partition)
 
@@ -186,8 +187,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     ``aggregate_partition``.
 
     The ``coarse_node`` can be used it the ``aggregate_partition`` is not
-    defined based on the membership of this partition. In particular
-    the membership of this partition is defined as follows::
+    defined based on the membership of this partition. In particular the
+    membership of this partition is defined as follows::
 
     >>> for v in G.vs:
     ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]]
@@ -198,7 +199,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     >>> for v in G.vs:
     ...   partition.membership[v] = aggregate_partition.membership[partition.membership[v]]
 
-    This can be useful when the aggregate partition is defined on a more refined partition.
+    This can be useful when the aggregate partition is defined on a more
+    refined partition.
     """
     # Read the coarser partition
     _c_louvain._MutableVertexPartition_from_coarse_partition(self._partition, partition.membership, coarse_node);
@@ -245,7 +247,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Notes
     -----
     This includes all edges, also the ones that are internal to a community.
-    Sometimes this is also referedd to as the community (out)degree.
+    Sometimes this is also referred to as the community (out)degree.
 
     See Also
     --------
@@ -266,7 +268,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Notes
     -----
     This includes all edges, also the ones that are internal to a community.
-    Sometimes this is also referedd to as the community (in)degree.
+    Sometimes this is also referred to as the community (in)degree.
 
     See Also
     --------
@@ -296,7 +298,8 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Notes
     -----
-    If we denote by :math:`n_c` the number of nodes in community :math:`c`, this is simply
+    If we denote by :math:`n_c` the number of nodes in community :math:`c`,
+    this is simply
 
     .. math :: \\sum_c \\binom{n_c}{2}
 
@@ -304,7 +307,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition);
 
   def weight_to_comm(self, v, comm):
-    """ The total number of edges (or sum of weights) from node ``v`` to community ``comm``
+    """ The total number of edges (or sum of weights) from node ``v`` to
+    community ``comm``.
 
     See Also
     --------
@@ -313,7 +317,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm);
 
   def weight_from_comm(self, v, comm):
-    """ The total number of edges (or sum of weights) to node ``v`` from community ``comm``
+    """ The total number of edges (or sum of weights) to node ``v`` from
+    community ``comm``.
 
     See Also
     --------
@@ -328,26 +333,26 @@ class ModularityVertexPartition(MutableVertexPartition):
   -----
   The quality function is
 
-  .. math::
-    Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
+  .. math:: Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
-  :math:`m` is the total number of edges, :math:`\\sigma_i` denotes the community of node :math:`i`
-  and :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise.
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
+  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
+  the community of node :math:`i` and :math:`\\delta(\\sigma_i, \\sigma_j) = 1`
+  if :math:`\\sigma_i = \\sigma_j` and `0` otherwise.
 
   This can alternatively be formulated as a sum over communities:
 
-  .. math::
-    Q = \\frac{1}{2m} \\sum_{c} \\left(m_c - \\frac{K_c^2}{4m} \\right)
+  .. math:: Q = \\frac{1}{2m} \\sum_{c} \\left(m_c - \\frac{K_c^2}{4m} \\right)
 
   where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
-  :math:`c`.
+  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
+  in community :math:`c`.
 
   References
   ----------
-  .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community structure in networks.
-         Physical Review E, 69(2), 026113. `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+  .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating
+         community structure in networks.  Physical Review E, 69(2), 026113.
+         `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
    """
   def __init__(self, graph, initial_membership=None, weights=None):
     """
@@ -357,7 +362,8 @@ class ModularityVertexPartition(MutableVertexPartition):
       Graph to define the partition on
 
     initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+      Initial membership for the partition. If :obj:`None` then defaults to a
+      singleton partition.
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
@@ -384,35 +390,34 @@ class SurpriseVertexPartition(MutableVertexPartition):
   -----
   The quality function is
 
-  .. math::
-    Q = m D(q \\parallel \\langle q \\rangle)
+  .. math:: Q = m D(q \\parallel \\langle q \\rangle)
 
   where :math:`m` is the number of edges,
 
-  .. math::
-    q = \\frac{\\sum_c m_c}{m},
+  .. math:: q = \\frac{\\sum_c m_c}{m},
 
   is the fraction of internal edges,
 
-  .. math::
-    \\langle q \\rangle = \\frac{\\sum_c \\binom{n_c}{2}}{\\binom{n}{2}}
+  .. math:: \\langle q \\rangle = \\frac{\\sum_c \\binom{n_c}{2}}{\\binom{n}{2}}
 
   is the expected fraction of internal edges, and finally
 
-  .. math::
-    D(x \\parallel y) = x \\ln \\frac{x}{y} + (1 - x) \\ln \\frac{1 - x}{1 - y}
+  .. math:: D(x \\parallel y) = x \\ln \\frac{x}{y} + (1 - x) \\ln \\frac{1 - x}{1 - y}
 
   is the binary Kullback-Leibler divergence.
 
   For directed graphs we can multiplying the binomials by 2, and this leaves
-  :math:`\\langle q \\rangle` unchanged, so that we can simply use the same formulation.
-  For weighted graphs we can simply count the total internal weight instead of the total
-  number of edges for :math:`q`, while :math:`\\langle q \\rangle` remains unchanged.
+  :math:`\\langle q \\rangle` unchanged, so that we can simply use the same
+  formulation.  For weighted graphs we can simply count the total internal
+  weight instead of the total number of edges for :math:`q`, while
+  :math:`\\langle q \\rangle` remains unchanged.
 
   References
   ----------
-  .. [1] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting communities using asymptotical surprise.
-         Physical Review E, 92(2), 022816. `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`_
+  .. [1] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting
+          communities using asymptotical surprise.  Physical Review E, 92(2),
+          022816. 
+          `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`_
   """
 
   def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None):
@@ -423,14 +428,16 @@ class SurpriseVertexPartition(MutableVertexPartition):
       Graph to define the partition on
 
     initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+      Initial membership for the partition. If :obj:`None` then defaults to a
+      singleton partition.
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
 
     node_sizes : list of int, or vertex attribute
-      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
-      is set to 1 for all nodes, but in specific cases this could be changed.
+      Sizes of nodes are necessary to know the size of communities in aggregate
+      graphs. Usually this is set to 1 for all nodes, but in specific cases
+      this could be changed.
     """
     super(SurpriseVertexPartition, self).__init__(graph, initial_membership);
 
@@ -454,29 +461,25 @@ class SignificanceVertexPartition(MutableVertexPartition):
   -----
   The quality function is
 
-  .. math::
-    Q = \\sum_c \\binom{n_c}{2} D(p_c \\parallel p)
+  .. math:: Q = \\sum_c \\binom{n_c}{2} D(p_c \\parallel p)
 
   where :math:`n_c` is the number of nodes in community :math:`c`,
 
-  .. math::
-    p_c = \\frac{m_c}{\\binom{n_c}{2}},
+  .. math:: p_c = \\frac{m_c}{\\binom{n_c}{2}},
 
   is the density of community :math:`c`,
 
-  .. math::
-    p = \\frac{m}{\\binom{n}{2}}
+  .. math:: p = \\frac{m}{\\binom{n}{2}}
 
   is the overall density of the graph, and finally
 
-  .. math::
-    D(x \\parallel y) = x \\ln \\frac{x}{y} + (1 - x) \\ln \\frac{1 - x}{1 - y}
+  .. math:: D(x \\parallel y) = x \\ln \\frac{x}{y} + (1 - x) \\ln \\frac{1 - x}{1 - y}
 
   is the binary Kullback-Leibler divergence.
 
-  For directed graphs simply multiply the binomials by 2. The expected Significance
-  in Erdos-Renyi graphs behaves roughly as :math:`\\frac{1}{2} n \\ln n` for both
-  directed and undirected graphs in this formulation.
+  For directed graphs simply multiply the binomials by 2. The expected
+  Significance in Erdos-Renyi graphs behaves roughly as :math:`\\frac{1}{2} n
+  \\ln n` for both directed and undirected graphs in this formulation.
 
   .. warning::
     This method is not suitable for weighted graphs.
@@ -494,11 +497,13 @@ class SignificanceVertexPartition(MutableVertexPartition):
       Graph to define the partition on
 
     initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+      Initial membership for the partition. If :obj:`None` then defaults to a
+      singleton partition.
 
     node_sizes : list of int, or vertex attribute
-      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
-      is set to 1 for all nodes, but in specific cases this could be changed.
+      Sizes of nodes are necessary to know the size of communities in aggregate
+      graphs. Usually this is set to 1 for all nodes, but in specific cases
+      this could be changed.
     """
     super(SignificanceVertexPartition, self).__init__(graph, initial_membership);
 
@@ -514,14 +519,15 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   With a linear resolution parameter, we mean that the objective function has
   the form:
 
-  H = E - gamma F
+  .. math:: Q = E - \\gamma F
 
-  where gamma is some resolution parameter and E and F arbitrary other
-  functions of the partition.
+  where :math:`\\gamma` is some resolution parameter and :math:`E` and
+  :math:`F` arbitrary other functions of the partition.
 
   One thing that can be easily done on these type of quality functions, is
-  bisectioning on the gamma function (also assuming that E is a stepwise
-  decreasing monotonic function, cf. CPM).
+  bisectioning on the gamma function (also assuming that :math:`E` is a
+  stepwise decreasing monotonic function, e.g. as for
+  :class:`CPMVertexPartition`).
   """
   def __init__(self, graph, initial_membership=None):
     super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership);
@@ -538,10 +544,12 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
 
   def bisect_value(self):
-    """ Give the value on which we can perform bisectioning. If p1 and p2 are
-    two different optimal partitions for two different resolution parameters
-    g1 and g2, then if p1.bisect_value() == p2.bisect_value() the two
-    partitions should be optimal for both g1 and g2."""
+    """ Give the value on which we can perform bisectioning. 
+    
+    If p1 and p2 are two different optimal partitions for two different
+    resolution parameters g1 and g2, then if p1.bisect_value() ==
+    p2.bisect_value() the two partitions should be optimal for both g1 and g2.
+    """
     return self.total_weight_in_all_comms();
 
   def quality(self, resolution_parameter=None):
@@ -549,36 +557,36 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
+
   This quality function uses a linear resolution parameter.
 
   Notes
   -----
   The quality function is
 
-  .. math::
-    Q = \\sum_{ij} \\left(A_{ij} - \\gamma p \\right)\\delta(\\sigma_i, \\sigma_j)
+  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma p \\right)\\delta(\\sigma_i, \\sigma_j)
 
   where :math:`A` is the adjacency matrix,
 
-  .. math::
-    p = \\frac{m}{\\binom{n}{2}}
+  .. math:: p = \\frac{m}{\\binom{n}{2}}
 
-  is the overall density of the graph, :math:`\\sigma_i` denotes the community of node :math:`i`,
-  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and,
-  finally :math:`\\gamma` is a resolution parameter.
+  is the overall density of the graph, :math:`\\sigma_i` denotes the community
+  of node :math:`i`, :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if
+  :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally :math:`\\gamma`
+  is a resolution parameter.
 
   This can alternatively be formulated as a sum over communities:
 
-  .. math::
-    Q = \\sum_{c} \\left[m_c - \\gamma p \\binom{n_c}{2} \\right]
+  .. math:: Q = \\sum_{c} \\left[m_c - \\gamma p \\binom{n_c}{2} \\right]
 
   where :math:`m_c` is the number of internal edges of community :math:`c` and
   :math:`n_c` the number of nodes in community :math:`c`.
 
   References
   ----------
-  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of community detection.
-         Physical Review E, 74(1), 016110. `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
+         community detection.  Physical Review E, 74(1), 016110.
+         `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
    """
   def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
     """
@@ -588,14 +596,16 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
       Graph to define the partition on.
 
     initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+      Initial membership for the partition. If :obj:`None` then defaults to a
+      singleton partition.
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
 
     node_sizes : list of int, or vertex attribute
-      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
-      is set to 1 for all nodes, but in specific cases this could be changed.
+      Sizes of nodes are necessary to know the size of communities in aggregate
+      graphs. Usually this is set to 1 for all nodes, but in specific cases
+      this could be changed.
 
     resolution_parameter : double
       Resolution parameter.
@@ -624,36 +634,37 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
+
   This quality function uses a linear resolution parameter.
 
   Notes
   -----
   The quality function is
 
-  .. math::
-    Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
+  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node :math:`i`,
-  :math:`m` is the total number of edges, :math:`\\sigma_i` denotes the community of node :math:`i`,
-  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally
-  :math:`\\gamma` is a resolution parameter.
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
+  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
+  the community of node :math:`i`, :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if
+  :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally :math:`\\gamma`
+  is a resolution parameter.
 
   This can alternatively be formulated as a sum over communities:
 
-  .. math::
-    Q = \\sum_{c} \\left(m_c - \\gamma\\frac{K_c^2}{4m} \\right)
+  .. math:: Q = \\sum_{c} \\left(m_c - \\gamma\\frac{K_c^2}{4m} \\right)
 
   where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes in community
-  :math:`c`.
+  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
+  in community :math:`c`.
 
-  Note that this is the same as :class:`ModularityVertexPartition` for :math:`\\gamma=1` and using the
-  normalisation by :math:`2m`.
+  Note that this is the same as :class:`ModularityVertexPartition` for
+  :math:`\\gamma=1` and using the normalisation by :math:`2m`.
 
   References
   ----------
-  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of community detection.
-         Physical Review E, 74(1), 016110. `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+  .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
+         community detection.  Physical Review E, 74(1), 016110.
+         `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
 
    """
   def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
@@ -664,7 +675,8 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
       Graph to define the partition on.
 
     initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+      Initial membership for the partition. If :obj:`None` then defaults to a
+      singleton partition.
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
@@ -695,41 +707,40 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   -----
   The quality function is
 
-  .. math::
-    Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\right)\\delta(\\sigma_i, \\sigma_j)
+  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`\\sigma_i` denotes the community of node :math:`i`,
-  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally
-  :math:`\\gamma` is a resolution parameter.
+  where :math:`A` is the adjacency matrix, :math:`\\sigma_i` denotes the
+  community of node :math:`i`, :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if
+  :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally :math:`\\gamma`
+  is a resolution parameter.
 
   This can alternatively be formulated as a sum over communities:
 
-  .. math::
-    Q = \\sum_{c} \\left[m_c - \\gamma \\binom{n_c}{2} \\right]
+  .. math:: Q = \\sum_{c} \\left[m_c - \\gamma \\binom{n_c}{2} \\right]
 
   where :math:`m_c` is the number of internal edges of community :math:`c` and
   :math:`n_c` the number of nodes in community :math:`c`.
 
-  The resolution parameter :math:`\\gamma` for this functions has a particularly simply interpretation.
-  The internaly density of communities
+  The resolution parameter :math:`\\gamma` for this functions has a
+  particularly simply interpretation. The internal density of communities
 
-  .. math::
-    p_c = \\frac{m_c}{\\binom{n_c}{2}} \\geq \\gamma
+  .. math:: p_c = \\frac{m_c}{\\binom{n_c}{2}} \\geq \\gamma
 
   is higher than :math:`\\gamma`, while the external density
 
-  .. math::
-    p_{cd} = \\frac{m_{cd}}{n_c n_d} \\leq \\gamma
+  .. math:: p_{cd} = \\frac{m_{cd}}{n_c n_d} \\leq \\gamma
 
-  is lower than :math:`\\gamma`. In other words, choosing a particular :math:`\\gamma` corresponds
-  to choosing to find communities of a particular density, and as such defines communities. Finally,
-  the definition of a community in this sense is independent of the actual graph, which is not the
+  is lower than :math:`\\gamma`. In other words, choosing a particular
+  :math:`\\gamma` corresponds to choosing to find communities of a particular
+  density, and as such defines communities. Finally, the definition of a
+  community in this sense is independent of the actual graph, which is not the
   case for any of the other methods (see the reference for more detail).
 
   References
   ----------
-  .. [1] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for resolution-limit-free community detection.
-         Physical Review E, 84(1), 016114. `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
+  .. [1] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for
+         resolution-limit-free community detection.  Physical Review E, 84(1),
+         016114.  `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
    """
   def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
     """
@@ -739,14 +750,16 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
       Graph to define the partition on.
 
     initial_membership : list of int
-      Initial membership for the partition. If :obj:`None` then defaults to a singleton partition.
+      Initial membership for the partition. If :obj:`None` then defaults to a
+      singleton partition.
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
 
     node_sizes : list of int, or vertex attribute
-      Sizes of nodes are necessary to know the size of communities in aggregate graphs. Usually this
-      is set to 1 for all nodes, but in specific cases this could be changed.
+      Sizes of nodes are necessary to know the size of communities in aggregate
+      graphs. Usually this is set to 1 for all nodes, but in specific cases
+      this could be changed.
 
     resolution_parameter : double
       Resolution parameter.
