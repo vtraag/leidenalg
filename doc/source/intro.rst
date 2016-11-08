@@ -3,9 +3,9 @@ Introduction
 
 This package facilitates community detection of networks and builds on the
 package :mod:`igraph`, referred to as ``ig`` throughout this documentation.
-Although the options in the package are extensive, most people are
-presumably simply interested in detecting communities with a robust method that
-works well. This introduction explains how to do that.
+Although the options in the package are extensive, most people are presumably
+simply interested in detecting communities with a robust method that works
+well. This introduction explains how to do that.
 
 For those without patience (and some prior experience), if you simply want to
 detect communities given a graph ``G`` using modularity, you simply use
@@ -15,10 +15,10 @@ detect communities given a graph ``G`` using modularity, you simply use
 That's it.
 
 Why then should you use this package rather than the Louvain algorithm built
-into :mod:`igraph` (:func:community_multilevel)? If you want to use modularity,
-and you work with a simple undirected, unweighted graph, then indeed you may use
-the built-in method. For anything else, the functionality is not built-in and
-this package is for you.
+into :mod:`igraph` (:func:`community_multilevel`)? If you want to use modularity,
+and you work with a simple undirected, unweighted graph, then indeed you may
+use the built-in method. For anything else, the functionality is not built-in
+and this package is for you.
 
 For those less familiar with :mod:`igraph`, let us work out an example more
 fully. First, we need to import the relevant packages:
@@ -44,11 +44,11 @@ You can simply plot the results as follows:
 
 In this case, the algorithm actually finds the optimal partition (for small
 graphs like these you can check this using
-:func:`~ig.Graph.communtiy_optimal_modularity`), but this is generally not the
-case (although the algorithm should do well). Although this is the optimal
-partition, it does not correspond to the split in two factions that was observed
-for this particular network. We can uncover that split in two using a different
-method however by using the :class:`CPMVertexPartition`:
+:func:`~ig.Graph.communtiy_optimal_modularity` in the :mod:`igraph` package),
+but this is generally not the case (although the algorithm should do well).
+Although this is the optimal partition, it does not correspond to the split in
+two factions that was observed for this particular network. We can uncover that
+split in two using a different method: :class:`~louvain.CPMVertexPartition`:
 
 >>> partition = louvain.find_partition(G, louvain.CPMVertexPartition,
 ...                                    resolution_parameter = 0.05);
@@ -58,12 +58,12 @@ method however by using the :class:`CPMVertexPartition`:
 
 Note that any additional ``**kwargs`` passed to :func:`louvain.find_partition` is
 passed on to the constructor of the given ``partition_type``. In this case, we can
-pass the ``resolution_parameter``, but we could also pass ``weight`` or
-``node_size``.
+pass the ``resolution_parameter``, but we could also pass ``weights`` or
+``node_sizes``.
 
 This is the real benefit of using this package: it provides implementations for
-six different methods (see :page:`louvain`), and works also on directed and
+six different methods (see :ref:`Reference`), and works also on directed and
 weighted graphs. In addition, it also provides flexible functionality for
-customizing to some extent the optimisation routines (see :sec:`advanced`).
+customizing to some extent the optimisation routines (see :ref:`Advanced`).
 Finally, it also allows to work with more complex multiplex graphs (see
-:sec:`multiplex`).
+:ref:`Multiplex`).

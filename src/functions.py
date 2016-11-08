@@ -88,7 +88,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   graphs : list of :class:`ig.Graph`
     List of :class:`louvain.VertexPartition` layers to optimise.
 
-  partition_type : type of :class:`
+  partition_type : type of :class:`MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
 
   **kwargs
@@ -100,7 +100,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
     membership of nodes.
 
   float
-    quality of combined partitions, see
+    Improvement in quality of combined partitions, see
     :func:`Optimiser.optimise_partition_multiplex`.
 
   Notes
@@ -119,8 +119,8 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   for graph in graphs:
     partitions.append(partition_type(graph, **kwargs));
   optimiser = Optimiser();
-  quality = optimiser.optimise_partition_multiplex(partitions, layer_weights);
-  return partitions[0].membership, quality;
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights);
+  return partitions[0].membership, improvement;
 
 def find_partition_temporal(graphs, partition_type,
                             interslice_weight=None,
@@ -137,15 +137,15 @@ def find_partition_temporal(graphs, partition_type,
   unique in each slice. The nodes are then coupled with a weight of
   ``interslice_weight`` which is set in the edge attribute ``weight_attr``. No
   weight is set if the ``interslice_weight`` is None (i.e.  corresponding in
-  practice with a weight of 1). See :func:`time_slices_to_layers` for a more
-  detailed explanation.
+  practice with a weight of 1). See :func:`~louvain.time_slices_to_layers` for
+  a more detailed explanation.
 
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
     List of :class:`louvain.VertexPartition` layers to optimise.
 
-  partition_type : type of :class:`
+  partition_type : type of :class:`~louvain.VertexPartition.MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
 
   interslice_weight : float
@@ -174,12 +174,12 @@ def find_partition_temporal(graphs, partition_type,
     list containing for each slice the membership vector.
 
   float
-    quality improvement of combined partitions, see
+    Improvement in quality of combined partitions, see
     :func:`Optimiser.optimise_partition_multiplex`.
 
   See Also
   --------
-  :func:`slices_to_layers`
+  :func:`~louvain.slices_to_layers`
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,
@@ -243,7 +243,7 @@ def time_slices_to_layers(graphs,
   Each graph is considered to represent a time slice. This function simply
   connects all the consecutive slices (i.e. the slice graph) with an
   ``interslice_weight``.  The further conversion is then delegated to
-  :func:`slices_to_layers`, which also provides further details.
+  :func:`~louvain.slices_to_layers`, which also provides further details.
 
   """
   G_slices = _ig.Graph.Tree(len(graphs), 1, mode=_ig.TREE_UNDIRECTED);

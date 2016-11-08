@@ -1,7 +1,7 @@
 Advanced
 ========
 
-The basic interface explained in the :sec:`intro` should provide you enough to
+The basic interface explained in the :ref:`Introduction` should provide you enough to
 start detecting communities. However, perhaps you want to improve the partitions
 further or want to do some more advanced analysis. In this section, we will
 explain this in more detail.
@@ -26,9 +26,11 @@ partition. We can thus try to repeatedly call
 :func:`~Optimiser.optimise_partition` to keep on improving the current
 partition:
 
->>> G = ig.Graph.Erdos_Renyi(100, p=5./100); >>> partition =
-louvain.ModularityVertexPartition(G); >>> improv = 1; >>> while improv > 0: ...
-improv = optimiser.optimise_partition(partition);
+>>> G = ig.Graph.Erdos_Renyi(100, p=5./100); 
+>>> partition = louvain.ModularityVertexPartition(G);
+>>> improv = 1;
+>>> while improv > 0: 
+...   improv = optimiser.optimise_partition(partition);
 
 Even if a call to `optimise_partition` did not improve the current partition, it
 is still possible that a next call will improve the partition. Of course, if the
@@ -49,20 +51,21 @@ The usual strategy in the Louvain algorithm is then to aggregate the partition
 and repeat the move_nodes on the aggregated partition. We can easily repeat
 that:
 
->>> partition = louvain.ModularityVertexPartition(G); >>> while
-optimiser.merge_nodes(partition) > 0: ...   partition =
-partition.aggregate_partition();
+>>> partition = louvain.ModularityVertexPartition(G); 
+>>> while optimiser.merge_nodes(partition) > 0: 
+...   partition = partition.aggregate_partition();
 
 This summarises the whole Louvain algorithm in just three lines of code.
 Although this finds the final aggregate partition, this leaves it unclear the
 actual partition on the level of the individual nodes. In order to do that, we
-need to update the membership based on the aggregate partition, for which we use
-the function :func:`from_coarse_partition`.
+need to update the membership based on the aggregate partition, for which we
+use the function :func:`from_coarse_partition`.
 
->>> partition = louvain.ModularityVertexPartition(G); >>> partition_agg =
-partition.aggregate_partition(); >>> while optimiser.move_nodes(partition_agg):
-...   partition.from_coarse_partition(partition_agg); ...   partition_agg =
-partition_agg.aggregate_partition();
+>>> partition = louvain.ModularityVertexPartition(G); 
+>>> partition_agg = partition.aggregate_partition();
+>>> while optimiser.move_nodes(partition_agg):
+...   partition.from_coarse_partition(partition_agg); 
+...   partition_agg = partition_agg.aggregate_partition();
 
 Now ``partition_agg`` contains the aggregate partition and ``partition``
 contains the actual partition of the original graph ``G``. Of course,
@@ -84,9 +87,10 @@ calculates the difference when moving a node, and the latter actually moves the
 node, and updates all necessary internal administration. The :func:`move_nodes`
 then does some as follows
 
->>> for v in G.vs: ...   best_comm = max(range(len(partition)), ...
-key=lambda c: partition.diff_move(v.index, c)); ...
-partition.move_node(v.index, best_comm);
+>>> for v in G.vs:
+...   best_comm = max(range(len(partition)),
+...   key=lambda c: partition.diff_move(v.index, c));
+...   partition.move_node(v.index, best_comm);
 
 The actual implementation is more complicated, but this gives the general idea.
 
@@ -110,9 +114,10 @@ for these formulations [1]_ is that if there is an optimal partition for both
 Such a resolution profile can be constructed using the :class:`Optimiser`
 object. 
 
->>> G = ig.Graph.Famous('Zachary'); >>> optimiser = louvain.Optimiser(); >>>
-profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, ...
-resolution_range=(0,1));
+>>> G = ig.Graph.Famous('Zachary'); 
+>>> optimiser = louvain.Optimiser(); 
+>>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
+...                                        resolution_range=(0,1));
 
 Plotting the resolution parameter versus the total number of internal edges we
 thus obtain something as follows:

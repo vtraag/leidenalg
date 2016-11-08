@@ -31,7 +31,7 @@ class MutableVertexPartition(_ig.VertexClustering):
   :class:`~louvain.Optimiser` to optimise the partition.
 
   .. warning:: This base class should never be used in practice, since only
-  derived classes provide an actual implementation.
+               derived classes provide an actual implementation.
 
   """
 
@@ -64,7 +64,27 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   @classmethod
   def FromPartition(cls, partition, **kwargs):
-    new_partition = cls(partition.graph, partition.membership);
+    """ Create a new partition from an existing partition.
+
+    Parameters
+    ----------
+    partition 
+      The :class:`~louvain.VertexPartition.MutableVertexPartition` to replicate.
+
+    **kwargs 
+      Any remaining keyword arguments will be passed on to the constructor of
+      the new partition.
+
+    Notes
+    -----
+    This may for example come in handy when determining the quality of a
+    partition using a different method. Suppose that we already have a
+    partition ``p`` and that we want to determine the Significance of that
+    partition. We can then simply use
+
+    >>> louvain.SignificanceVertexPartition.FromPartition(p).quality()
+    """
+    new_partition = cls(partition.graph, partition.membership, **kwargs);
     return new_partition;
 
   def _update_internal_membership(self):
@@ -113,7 +133,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     True
 
     .. warning:: Only derived classes provide actual implementations, the base
-    class provides no implementation for this function.
+                 class provides no implementation for this function.
 
     """
     return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
@@ -188,12 +208,12 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     The ``coarse_node`` can be used it the ``aggregate_partition`` is not
     defined based on the membership of this partition. In particular the
-    membership of this partition is defined as follows::
+    membership of this partition is defined as follows:
 
     >>> for v in G.vs:
     ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]]
 
-    If ``coarse_node`` is ``None`` it is assumed the coarse node was defined
+    If ``coarse_node`` is :obj:`None` it is assumed the coarse node was defined
     based on the membership of the current partition, so that
 
     >>> for v in G.vs:
@@ -211,7 +231,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Notes
     -----
-    The sort is not necessarilly stable.
+    The sort is not necessarily stable.
     """
     _c_louvain._MutableVertexPartition_renumber_communities(self._partition);
     self._update_internal_membership();
@@ -481,8 +501,7 @@ class SignificanceVertexPartition(MutableVertexPartition):
   Significance in Erdos-Renyi graphs behaves roughly as :math:`\\frac{1}{2} n
   \\ln n` for both directed and undirected graphs in this formulation.
 
-  .. warning::
-    This method is not suitable for weighted graphs.
+  .. warning:: This method is not suitable for weighted graphs.
 
   References
   ----------
@@ -722,7 +741,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   :math:`n_c` the number of nodes in community :math:`c`.
 
   The resolution parameter :math:`\\gamma` for this functions has a
-  particularly simply interpretation. The internal density of communities
+  particularly simple interpretation. The internal density of communities
 
   .. math:: p_c = \\frac{m_c}{\\binom{n_c}{2}} \\geq \\gamma
 
@@ -733,7 +752,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   is lower than :math:`\\gamma`. In other words, choosing a particular
   :math:`\\gamma` corresponds to choosing to find communities of a particular
   density, and as such defines communities. Finally, the definition of a
-  community in this sense is independent of the actual graph, which is not the
+  community is in a sense independent of the actual graph, which is not the
   case for any of the other methods (see the reference for more detail).
 
   References

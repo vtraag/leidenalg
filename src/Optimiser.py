@@ -113,10 +113,10 @@ class Optimiser(object):
     This attribute should be set to one of the following values
 
     * :attr:`louvain.MOVE_NODES`
-      Use :func:`Optimiser.move_nodes`.
+      Use :func:`~Optimiser.move_nodes`.
 
     * :attr:`louvain.MERGE_NODES`
-      Use :func:`Optimiser.merge_node`.
+      Use :func:`~Optimiser.merge_nodes`.
     """
     return _c_louvain._Optimiser_get_optimise_routine(self._optimiser);
 
@@ -135,10 +135,10 @@ class Optimiser(object):
     This attribute should be set to one of the following values
 
     * :attr:`louvain.MOVE_NODES`
-      Use :func:`Optimiser.move_nodes`.
+      Use :func:`~Optimiser.move_nodes`.
 
     * :attr:`louvain.MERGE_NODES`
-      Use :func:`Optimiser.merge_node`.
+      Use :func:`~Optimiser.merge_nodes`.
     """
     return _c_louvain._Optimiser_get_refine_routine(self._optimiser);
 
@@ -163,7 +163,7 @@ class Optimiser(object):
     Parameters
     ----------
     partition
-      The :class:`louvain.VertexPartition` to optimise.
+      The :class:`~louvain.VertexPartition.MutableVertexPartition` to optimise.
 
     Returns
     -------
@@ -190,7 +190,7 @@ class Optimiser(object):
     Parameters
     ----------
     partitions
-      List of :class:`louvain.VertexPartition` layers to optimise.
+      List of :class:`~louvain.VertexPartition.MutableVertexPartition` layers to optimise.
 
     layer_weights
       List of weights of layers.
@@ -210,10 +210,10 @@ class Optimiser(object):
     should have identical indices in all graphs (i.e. node `i` is assumed to be
     the same node in all graphs). The quality of the overall partition is
     simply the sum of the individual qualities for the various partitions,
-    weighted by the layer_weight. If we denote by :math:`q_k` the quality of
-    layer :math:`k` and the weight by :math:`w_k`, the overall quality is then
+    weighted by the layer_weight. If we denote by :math:`Q_k` the quality of
+    layer :math:`k` and the weight by :math:`\\lambda_k`, the overall quality is then
 
-    .. math:: q = \sum_k w_k q_k.
+    .. math:: Q = \sum_k \\lambda_k Q_k.
 
     This is particularly useful for graphs containing negative links. When
     separating the graph in two graphs, the one containing only the positive
@@ -234,9 +234,9 @@ class Optimiser(object):
 
     See Also
     --------
-    louvain.slice_graph_to_layer_graph : Convert slices to layers.
-    louvain.time_slice_to_layer_graph : Convert time slices to layers.
-    louvain.find_partition_time_slices : Detect partition for time slices.
+    louvain.slices_to_layers : Convert slices to layers.
+    louvain.time_slices_to_layers : Convert time slices to layers.
+    louvain.find_partition_temporal : Detect partition for time slices.
 
     Examples
     --------
@@ -268,7 +268,7 @@ class Optimiser(object):
       The partition for which to move nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to
+      If ``None`` uses :attr:`~Optimiser.consider_comms`, but can be set to
       something else.
 
     Returns
@@ -314,7 +314,7 @@ class Optimiser(object):
       The partition within which we may move nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set
+      If ``None`` uses :attr:`~Optimiser.refine_consider_comms`, but can be set
       to something else.
 
     Returns
@@ -359,7 +359,7 @@ class Optimiser(object):
       The partition for which to merge nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.consider_comms`, but can be set to
+      If ``None`` uses :attr:`~Optimiser.consider_comms`, but can be set to
       something else.
 
     Returns
@@ -404,7 +404,7 @@ class Optimiser(object):
       The partition within which we may merge nodes.
 
     consider_comms
-      If ``None`` uses :attr:`Optimiser.refine_consider_comms`, but can be set
+      If ``None`` uses :attr:`~Optimiser.refine_consider_comms`, but can be set
       to something else.
 
     Returns
@@ -460,8 +460,8 @@ class Optimiser(object):
       The graph for which to construct a resolution profile.
 
     partition_type
-      The type of :class:`louvain.VertexPartition` used to find a partition
-      (must support resolution parameters obviously).
+      The type of :class:`~louvain.VertexPartition.MutableVertexPartition` used
+      to find a partition (must support resolution parameters obviously).
 
     resolution_range
       The range of resolution values that we would like to scan.
@@ -471,7 +471,7 @@ class Optimiser(object):
 
     Returns
     -------
-    list of :class:`MutableVertexPartition` 
+    list of :class:`~louvain.VertexPartition.MutableVertexPartition` 
       A list of partitions for different resolutions.
 
     Other Parameters

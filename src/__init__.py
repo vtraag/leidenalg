@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-r"""
-This package implements the louvain algorithm in C++ and exposes it to python.
-It relies on (python-)igraph for it to function. Besides the relative
-flexibility of the implementation, it also scales well, and can be run on graphs
-of millions of nodes (as long as they can fit in memory). Each method is represented
-by a different class, all of whom derive from :class:`VertexPartition`. In addition, multiplex
-graphs are supported as layers, which also supports multislice representations.
+r""" This package implements the louvain algorithm in C++ and exposes it to
+python.  It relies on (python-)igraph for it to function. Besides the relative
+flexibility of the implementation, it also scales well, and can be run on
+graphs of millions of nodes (as long as they can fit in memory). Each method is
+represented by a different class, all of whom derive from
+:class:`~louvain.VertexPartition.MutableVertexPartition`. In addition,
+multiplex graphs are supported as layers, which also supports multislice
+representations.
 
 Examples
 --------
@@ -17,18 +18,19 @@ The simplest example just finds a partition using modularity
 
 Alternatively, one can access the different optimisation routines individually
 and construct partitions oneself. These partitions can then be optimised by
-constructing an :class:`Optimiser` object and running :func:`optimise_partition`.
+constructing an :class:`Optimiser` object and running
+:func:`~Optimiser.optimise_partition`.
 
   >>> G = ig.Graph.Tree(100, 3);
   >>> partition = louvain.CPMVertexPartition(G, resolution_parameter = 0.1)
   >>> optimiser = louvain.Optimiser();
   >>> optimiser.optimise_partition(partition);
 
-The :class:`Optimiser` class contains also the different subroutines that are used
-internally by :func:`optimise_partition`. In addition, through the Optimiser class
-there are various options available for changing some of the optimisation
-procedure which can affect both speed and quality, which are not immediately
-available in :func:`louvain.find_partition`.
+The :class:`Optimiser` class contains also the different subroutines that are
+used internally by :func:`~Optimiser.optimise_partition`. In addition, through
+the Optimiser class there are various options available for changing some of
+the optimisation procedure which can affect both speed and quality, which are
+not immediately available in :func:`louvain.find_partition`.
 """
 from .functions import ALL_COMMS
 from .functions import ALL_NEIGH_COMMS
