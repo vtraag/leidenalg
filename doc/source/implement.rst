@@ -38,27 +38,36 @@ created a new class called ``CoolVertexPartition``. In order of dependencies, it
 goes as follows:
 
 1. Your own new VertexPartition class should add some specific methods. In
-   particular, you need to ensure you create a method::
+   particular, you need to ensure you create a method
 
-    CoolVertexPartition* CoolVertexPartition::create(Graph* graph)
-    {
-      return new CoolVertexPartition(graph);
-    }
+   .. code-block:: c++
 
-   and::
+      CoolVertexPartition* CoolVertexPartition::create(Graph* graph)
+      {
+        return new CoolVertexPartition(graph);
+      }
 
-    CoolVertexPartition* CoolVertexPartition::create(Graph* graph, vector<size_t> const& membership)
-    {
-      return new CoolVertexPartition(graph, membership);
-    }
+
+   and
+
+   .. code-block:: c++
+
+      CoolVertexPartition* CoolVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+      {
+        return new CoolVertexPartition(graph, membership);
+      }
   
+
    These methods ensure that based on a current partition, we can create a new
    partition (without knowing its type).
 
 2. In ``python_partition_interface.cpp`` some methods need to be added. In
-   particular::
+   particular
 
-     PyObject* _new_CoolVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+   .. code-block:: c++
+
+      PyObject* _new_CoolVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+
 
    You should be able to simply copy an existing method, and adapt it to your
    own needs.
@@ -81,7 +90,7 @@ goes as follows:
    to your own needs. Don't forget to change to ``docstring`` to update the
    documentation so that everybody knows how your new cool method works.
 
-5. Expose your newly create ``python`` class directly in ``__init__.py`` by
+5. Expose your newly created ``python`` class directly in ``__init__.py`` by
    importing it::
     
      from .VertexPartition import CoolVertexPartition

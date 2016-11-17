@@ -804,3 +804,150 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
         initial_membership, weights, node_sizes, resolution_parameter);
     self._update_internal_membership();
+
+  def Bipartite(G, resolution_parameter_01,
+                resolution_parameter_0 = 0, resolution_parameter_1 = 0,
+                degree_as_node_size=False, types='type', **kwargs):
+    """ Create three layers for bipartite partitions. 
+
+    This creates three layers for bipartite partition necessary for detecting
+    communities in bipartite networks. These three layers should be passed to
+    :func:`~louvain.Optimiser.optimise_partition_multiplex` with
+    ``layer_weights=[1,-1,-1]``.
+
+    Parameters
+    ----------
+    graph : :class:`ig.Graph`
+      Graph to define the bipartite partitions on.
+
+    resolution_parameter_01 : double
+      Resolution parameter for in between two classes.
+
+    resolution_parameter_0 : double
+      Resolution parameter for class 0.
+
+    resolution_parameter_1 : double
+      Resolution parameter for class 1.
+
+    degree_as_node_size : boolean
+      If ``True`` use degree as node size instead of 1, to mimic modularity,
+      see `Notes <#notes-bipartite>`_.
+
+    types : vertex attribute or list
+      Indicator of the class for each vertex. If not 0, 1, it is automatically
+      converted.
+
+    **kwargs
+      Additional arguments passed on to default constructor of
+      :class:`~louvain.CPMVertexPartition`.
+
+
+    .. _notes-bipartite:
+
+    Notes
+    -----
+
+    For bipartite networks, we would like to be able to set three different
+    resolution parameters: one for within each class :math:`\\gamma_0,
+    \\gamma_1`, and one for the links between classes, :math:`\\gamma_{01}`.
+    Then the formulation would be
+
+    .. math:: Q = \\sum_{ij} 
+       [A_{ij}
+        - (\\gamma_0\\delta(s_i,0) + \\gamma_1\\delta(s_i,1)) \\delta(s_i,s_j) 
+        - \\gamma_{01}(1 - \\delta(s_i, s_j)) 
+       ]\\delta(\sigma_i, \\sigma_j)
+
+    In terms of communities this is
+
+    .. math:: Q = \\sum_c (e_c 
+                          - \\gamma_{01} 2 n_c(0) n_c(1)
+                          - \\gamma_0 n^2_c(0) 
+                          - \\gamma_1 n^2_c(1))
+
+    where :math:`n_c(0)` is the number of nodes in community :math:`c` of class 0
+    (and similarly for 1) and :math:`e_c` is the number of edges within community
+    :math:`c`. We denote by :math:`n_c = n_c(0) + n_c(1)` the total number of nodes
+    in community :math:`c`.
+
+    We achieve this by creating three layers : (1) all nodes have ``node_size =
+    1`` and all relevant links; (2) only nodes of class 0 have ``node_size =
+    1`` and no links; (3) only nodes of class 1 have ``node_size = 1`` and no
+    links. If we add the first with resolution parameter :math:`\\gamma_{01}`,
+    and the others with resolution parameters :math:`\\gamma_{01} - \\gamma_0`
+    and :math:`\\gamma_{01} - \\gamma_1`, but the latter two with a layer
+    weight of -1 while the first layer has layer weight 1, we obtain the
+    following:
+
+    .. math:: Q &=  \sum_c (e_c - \\gamma_{01} n_c^2)
+                   -\sum_c (- (\\gamma_{01} - \\gamma_0) n_c(0)^2)
+                   -\sum_c (- (\\gamma_{01} - \\gamma_1) n_c(1)^2) \\\\
+                &=  \sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
+                                - \\gamma_{01} n_c(0)^2
+                                - \\gamma_{01} n_c(1)^2)
+                                + ( \\gamma_{01} - \\gamma_0) n_c(0)^2
+                                + ( \\gamma_{01} - \\gamma_1) n_c(1)^2
+                           ] \\\\
+                &=  \sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
+                                - \\gamma_{0} n_c(0)^2 
+                                - \\gamma_{1} n_c(1)^2]
+
+    Although the derivation above is using :math:`n_c^2`, implicitly assuming a
+    direct graph with self-loops, similar derivations can be made for
+    undirected graphs using :math:`\binom{n_c}{2}`, but the notation is then
+    somewhat more convoluted.
+
+    If we set node sizes equal to the degree, we get something similar to
+    modularity, except that the resolution parameter should still be divided by
+    :math:`2m`. In particular, in general (i.e. not specifically for bipartite
+    graph) if ``node_sizes=G.degree()`` we then obtain 
+
+    .. math:: Q = \sum_{ij} A_{ij} - \\gamma k_i k_j
+
+    In the case of bipartite graphs something similar is obtained, but then
+    correctly adapted (as long as the resolution parameter is also
+    appropriately rescaled).
+
+    .. note:: This function is not suited for directed graphs in the case of
+              using the degree as node sizes.
+    """
+
+    if types is not None:
+      if isinstance(types, str):
+        types = graph.vs[types];
+      else:
+        # Make sure it is a list
+        types = list(types);
+
+    if set(types) != set([0, 1]):
+      new_type = ig.UniqueIdGenerator();
+      types = [new_type[t] for t in types];
+
+    if set(types) != set([0, 1]):
+      raise ValueError("More than one type specified.");
+
+    if degree_as_node_size:
+      if (G.is_directed()):
+        raise ValueError("This method is not suitable for directed graphs " +
+                         "when using degree as node sizes.");
+      node_sizes = G.degree();
+    else:
+      node_sizes = [1]*G.vcount();
+
+    partition_01 = louvain.CPMVertexPartition(G,
+                     node_sizes=node_sizes,
+                     resolution_parameter=resolution_parameter_01,
+                     **kwargs);
+    H_0 = G.subgraph_edges([], delete_vertices=False);
+    partition_0 = louvain.CPMVertexPartition(H_0, weights=None,
+                     node_sizes=[s if v[type_attr] == 0 else 0 
+                                 for v, s in zip(G.vs,node_sizes)],
+                     resolution_parameter=resolution_parameter_01 - resolution_parameter_0,
+                     **kwargs);
+    H_1 = G.subgraph_edges([], delete_vertices=False);
+    partition_1 = louvain.CPMVertexPartition(H_1, weights=None,
+                     node_sizes=[s if v[type_attr] == 1 else 0 
+                                 for v, s in zip(G.vs,node_sizes)],
+                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1
+                     **kwargs);
+    return partition_01, partition_0, partition_1;

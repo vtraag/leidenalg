@@ -139,7 +139,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      optimiser->optimise_partition(partitions, layer_weights);
+      q = optimiser->optimise_partition(partitions, layer_weights);
     }
     catch (Exception e)
     {

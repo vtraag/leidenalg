@@ -198,11 +198,13 @@ class Optimiser(object):
     Returns
     -------
     float
-      Improvement in quality of combined partitions, see `Notes`_.
+      Improvement in quality of combined partitions, see `Notes <#notes-multiplex>`_.
+
+
+    .. _notes-multiplex:
 
     Notes
     -----
-    .. _Notes:
 
     This method assumes that the partitions are defined for graphs with the
     same vertices. The connections between the vertices may be different, but

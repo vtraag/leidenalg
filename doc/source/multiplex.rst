@@ -40,27 +40,27 @@ the sum of the individual differences in all partitions. The rest (aggregating
 and repeating on the aggregate partition) simple proceeds as usual.
 
 The most straightforward way to use this is then to use
-:func:`louvain.find_partition_multiplex`:
+:func:`~louvain.find_partition_multiplex`:
 
 >>> membership, improv = louvain.find_partition_multiplex(
 ...                        [G_telephone, G_email],
 ...                        louvain.ModularityVertexPartition);
 
 .. note:: You may need to carefully reflect how you want to weigh the importance
-of an individual layer. Since the :class:`ModularityVertexPartition` is
-normalised by the number of links, you essentially weigh layers the same,
-independent of the number of links. This may be undesirable, in which case it
-may be better to use :class:`RBConfigurationVertexPartition`, which is
-unnormalised. Alternatively, you may specify different ``layer_weights``.
+  of an individual layer. Since the :class:`~louvain.ModularityVertexPartition`
+  is normalised by the number of links, you essentially weigh layers the same,
+  independent of the number of links. This may be undesirable, in which case it
+  may be better to use :class:`RBConfigurationVertexPartition`, which is
+  unnormalised. Alternatively, you may specify different ``layer_weights``.
 
-Similar to the simpler function :func:`louvain.find_partition`, it is a simple
+Similar to the simpler function :func:`~louvain.find_partition`, it is a simple
 helper function. The function returns a membership vector, because the
 membership for all layers is identical. You can also control the partitions and
 optimisation in more detail. Perhaps it is better to use
-:func:`CPMVertexPartition` with different resolution parameter for example for
-different layers of the graph.  For example, using email creates a more
-connected structure because multiple people can be involved in a single mail,
-which may require a higher resolution parameter for the email graph.
+:class:`~louvain.CPMVertexPartition` with different resolution parameter for
+example for different layers of the graph.  For example, using email creates a
+more connected structure because multiple people can be involved in a single
+mail, which may require a higher resolution parameter for the email graph.
 
 >>> part_telephone = louvain.CPMVertexPartition(
 ...                    G_telephone, resolution_parameter=0.01);
@@ -108,6 +108,103 @@ We can then simply detect communities using;
 ...   [part_pos, part_neg],
 ...   layer_weights=[1,-1]);
 
+Bipartite
+^^^^^^^^^
+
+For some methods it may be possible to to community detection in bipartite
+networks. Bipartite networks are special in the sense that they have only links
+between the two different classes, and no links within a class are allowed. For
+example, there might be products and customers, and there is a link between
+:math:`i` and :math:`j` if a product :math:`i` is bought by a customer
+:math:`j`. In this case, there are no links among products, nor among
+customers. One possible approach is simply project this bipartite network into
+the one or the other class and then detect communities. But then the
+correspondence between the communities in the two different projections is
+lost. Detecting communities in the bipartite network can therefore be useful.
+
+Setting this up requires a bit of a creative approach, which is why it is also
+explicitly explained here. We will explain it for the CPM method, and then show
+how this works the same for some related measures. In the case of CPM you would
+like to be able to set three different resolution parameters: one for within
+each class :math:`\gamma_0, \gamma_1`, and one for the links between classes,
+:math:`\gamma_{01}`. Then the formulation would be
+
+.. math:: Q = \sum_{ij} 
+   [A_{ij}
+    - (\gamma_0\delta(s_i,0) + \gamma_1\delta(s_i,1)) \delta(s_i,s_j) 
+    - \gamma_{01}(1 - \delta(s_i, s_j)) 
+   ]\delta(\sigma_i, \sigma_j)
+
+where :math:`s_i` denotes the bipartite class of a node and :math:`\sigma_i`
+the community of the node as elsewhere in the documentation. Rewriting as a sum
+over communities gives a bit more insight
+
+.. math:: Q = \sum_c (e_c 
+                      - \gamma_{01} 2 n_c(0) n_c(1)
+                      - \gamma_0 n^2_c(0) 
+                      - \gamma_1 n^2_c(1))
+
+where :math:`n_c(0)` is the number of nodes in community :math:`c` of class 0
+(and similarly for 1) and :math:`e_c` is the number of edges within community
+:math:`c`. We denote by :math:`n_c = n_c(0) + n_c(1)` the total number of nodes
+in community :math:`c`. Note that
+
+.. math:: n_c^2 &= (n_c(0) + n_c(1))^2 \\
+                &= n_c(0)^2 + 2 n_c(0) n_c(1) + n_c(1)^2
+
+We then create three different layers: (1) all nodes have ``node_size = 1`` and
+all relevant links; (2) only nodes of class 0 have ``node_size = 1`` and no
+links; (3) only nodes of class 1 have ``node_size = 1`` and no links. If we add
+the first with resolution parameter :math:`\gamma_{01}`, and the others with
+resolution parameters :math:`\gamma_{01} - \gamma_0` and :math:`\gamma_{01}
+- \gamma_1`, but the latter two with a layer weight of -1 while the first
+layer has layer weight 1, we obtain the following:
+
+.. math:: Q &=  \sum_c (e_c - \gamma_{01} n_c^2)
+               -\sum_c (- (\gamma_{01} - \gamma_0) n_c(0)^2)
+               -\sum_c (- (\gamma_{01} - \gamma_1) n_c(0)^2) \\
+            &=  \sum_c [e_c - \gamma_{01} 2 n_c(0) n_c(1)
+                            - \gamma_{01} n_c(0)^2
+                            - \gamma_{01} n_c(1)^2)
+                            + ( \gamma_{01} - \gamma_0) n_c(0)^2
+                            + ( \gamma_{01} - \gamma_1) n_c(1)^2
+                      ] \\
+            &=  \sum_c (e_c - \gamma_{01} 2 n_c(0) n_c(1)
+                          - \gamma_{0} n_c(0)^2 
+                          - \gamma_{1} n_c(1)^2) \\
+
+Hence detecting communities with these three layers corresponds to detecting
+communities in bipartite networks. Although we worked out this example for
+directed network including self-loops (since it is easiest), it works out
+similarly for undirected networks (with or without self-loops). This only
+corresponds to the CPM method. However, using a little additional trick, we can
+also make this work for modularity. Essentially, modularity is nothing else
+than CPM with the ``node_size`` set to the degree, and the resolution parameter
+set to :math:`\gamma = \frac{1}{2m}`. In particular, in general (i.e. not
+specifically for bipartite graph) if ``node_sizes=G.degree()`` we then obtain 
+
+.. math:: Q = \sum_{ij} A_{ij} - \gamma k_i k_j
+
+In the case of bipartite graphs something similar is obtained, but then
+correctly adapted (as long as the resolution parameter is also appropriately
+rescaled). Note that this is only possible for modularity for undirected
+graphs. Hence, we can also detect communities in bipartite networks using
+modularity by using this little trick.
+
+All of this has been implemented in the constructor
+:func:`~louvain.CPMVertexPartition.Bipartite`. You can simply pass in a
+bipartite network with the classes appropriately defined in ``G.vs['type']`` or
+equivalent. This function assumes the two classes are coded by ``0`` and ``1``,
+and if this is not the case it will try to convert it into such categories by
+:func:`ig.UniqueIdGenerator`.
+
+An explicit example of this:
+
+>>> p_01, p_0, p_1 = louvain.CPMVertexPartition.Bipartite(G,
+...                    resolution_parameter_01=0.1);
+>>> optimiser.optimise_partition_multiplex([p_01, p_0, p_1], 
+...                                        layer_weights=[1, -1, -1]);
+
 Slices to layers
 ----------------
 
@@ -141,7 +238,7 @@ one big network. Each node is thus represented by a tuple ``(node, slice)`` in a
 certain sense. Out of this big network, we then only take those edges that are
 defined between nodes of the same slice, which then constitutes a single layer.
 Finally, we need one more layer for the couplings. In addition, for methods such
-as :class:`CPMVertexPartition`, so-called ``node_sizes`` are required, and for
+as :class:`~louvain.CPMVertexPartition`, so-called ``node_sizes`` are required, and for
 them to properly function, they should be set to 0 (which is handled
 appropriately by the package). We thus obtain equally many layers as we have
 slices, and we need one more layer for representing the interslice couplings.
@@ -150,9 +247,9 @@ For the example provided above, we thus obtain the following:
 .. image:: figures/layers_separate.png
 
 To transform slices into layers using a coupling graph, this package provides
-:func:`layers_to_slices`. For the example above, this would function as follows.
-First create the coupling graph assuming we have three slices ``G_1``,``G_2``
-and ``G_3``:
+:func:`~louvain.layers_to_slices`. For the example above, this would function
+as follows.  First create the coupling graph assuming we have three slices
+``G_1``,``G_2`` and ``G_3``:
 
 >>> G_coupling = ig.Graph.Formula('1 -- 2 -- 3');
 >>> G_coupling.es['weight'] = 0.1; # Interslice coupling strength
@@ -167,16 +264,16 @@ here to use the same partition types for all partitions, or to use different
 types for different layers.
 
 .. warning:: The interslice layer should usually be of type
-:class:`CPMVertexPartition` with a ``resolution_parameter=0`` and ``node_sizes``
-set to 0. The ``G.vs[node_size]`` is automatically set to 0 for all nodes in the
-interslice layer in :func:`slices_to_layers`, so you can simply pass in the
-attribute ``node_size``. Unless you know what you are doing, simply use these
-settings.
+  :class:`~louvain.CPMVertexPartition` with a ``resolution_parameter=0`` and
+  ``node_sizes`` set to 0. The ``G.vs[node_size]`` is automatically set to 0
+  for all nodes in the interslice layer in :func:`~louvain.slices_to_layers`,
+  so you can simply pass in the attribute ``node_size``. Unless you know what
+  you are doing, simply use these settings.
 
 .. warning:: When using methods that accept a node_size argument, this should
-always be used. This is the case for :class:`CPMVertexPartition`,
-:class:`RBERVertexPartition`, :class:`SurpriseVertexPartition` and
-:class:`SignificanceVertexPartition`.
+  always be used. This is the case for :class:`~louvain.CPMVertexPartition`,
+  :class:`~louvain.RBERVertexPartition`, :class:`~louvain.SurpriseVertexPartition` and
+  :class:`~louvain.SignificanceVertexPartition`.
 
 >>> partitions = [louvain.CPMVertexPartition(H, node_sizes='node_size', 
 ...                                          weight='weight', resolution_parameter=gamma) 
@@ -185,7 +282,7 @@ always be used. This is the case for :class:`CPMVertexPartition`,
 ...                                                   node_sizes='node_size', weight='weight');
 
 You can then simply optimise these partitions as before using
-:func:`optimise_partition_multiplex`:
+:func:`~louvain.Optimiser.optimise_partition_multiplex`:
 
 >>> optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
 
@@ -197,7 +294,7 @@ slices at different points in time. We call this temporal community detection.
 Because it is such a common task, we provide several helper functions to
 simplify the above process. Let us assume again that we have three slices
 ``G_1``, ``G_2`` and ``G_3`` as in the example above. The most straightforward
-function is func:`louvain.find_partition_temporal`:
+function is :func:`~louvain.find_partition_temporal`:
 
 >>> membership, improvement = louvain.find_partition_temporal(
 ...                             [G_1, G_2, G_3],
@@ -210,7 +307,7 @@ rather than actual partitions.
 
 Rather than directly detecting communities, you can also obtain the actual
 partitions in a slightly more convenient way using
-:func:`time_slices_to_layers`:
+:func:`~louvain.time_slices_to_layers`:
 
 >>> partitions, partition_interslice, G_full = \
 ...               louvain.time_slices_to_layers([G_1, G_2, G_3],
