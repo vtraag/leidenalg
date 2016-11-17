@@ -48,6 +48,9 @@ class MutableVertexPartition(_ig.VertexClustering):
       node i is in community c. If None, it is initialised with a singleton
       partition community, i.e. membership[i] = i.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(MutableVertexPartition, self).__init__(graph, initial_membership);
 
   @classmethod
@@ -388,6 +391,9 @@ class ModularityVertexPartition(MutableVertexPartition):
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(ModularityVertexPartition, self).__init__(graph, initial_membership);
     pygraph_t = _get_py_capsule(graph);
 
@@ -459,6 +465,9 @@ class SurpriseVertexPartition(MutableVertexPartition):
       graphs. Usually this is set to 1 for all nodes, but in specific cases
       this could be changed.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(SurpriseVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
@@ -524,6 +533,9 @@ class SignificanceVertexPartition(MutableVertexPartition):
       graphs. Usually this is set to 1 for all nodes, but in specific cases
       this could be changed.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(SignificanceVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
@@ -549,6 +561,9 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   :class:`CPMVertexPartition`).
   """
   def __init__(self, graph, initial_membership=None):
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership);
 
   #########################################################3
@@ -629,6 +644,9 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
     resolution_parameter : double
       Resolution parameter.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(RBERVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
@@ -703,6 +721,9 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     resolution_parameter : double
       Resolution parameter.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);
@@ -783,6 +804,9 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     resolution_parameter : double
       Resolution parameter.
     """
+    if initial_membership is not None:
+      initial_membership = list(initial_membership);
+
     super(CPMVertexPartition, self).__init__(graph, initial_membership);
 
     pygraph_t = _get_py_capsule(graph);

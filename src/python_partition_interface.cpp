@@ -174,7 +174,7 @@ extern "C"
 
       return py_partition;
     }
-    catch (Exception const & e )
+    catch (std::exception const & e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());
@@ -229,7 +229,7 @@ extern "C"
 
       return py_partition;
     }
-    catch (Exception const & e )
+    catch (std::exception const & e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());
@@ -285,7 +285,7 @@ extern "C"
 
       return py_partition;
     }
-    catch (Exception const & e )
+    catch (std::exception const & e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());
@@ -324,6 +324,9 @@ extern "C"
           cerr << "Reading initial membership." << endl;
         #endif
         size_t n = PyList_Size(py_initial_membership);
+        #ifdef DEBUG
+          cerr << "Size " << n << endl;
+        #endif
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
           initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
@@ -343,7 +346,7 @@ extern "C"
 
       return py_partition;
     }
-    catch (Exception const & e )
+    catch (std::exception const & e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());
@@ -401,7 +404,7 @@ extern "C"
 
       return py_partition;
     }
-    catch (Exception const & e )
+    catch (std::exception const & e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());
@@ -458,7 +461,7 @@ extern "C"
 
       return py_partition;
     }
-    catch (Exception const & e )
+    catch (std::exception const & e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());

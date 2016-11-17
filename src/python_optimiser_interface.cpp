@@ -75,7 +75,7 @@ extern "C"
     {
       q = optimiser->optimise_partition(partition);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -141,7 +141,7 @@ extern "C"
     {
       q = optimiser->optimise_partition(partitions, layer_weights);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -193,7 +193,7 @@ extern "C"
     {
       q = optimiser->move_nodes(partition, consider_comms);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -245,7 +245,7 @@ extern "C"
     {
       q = optimiser->merge_nodes(partition, consider_comms);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -306,7 +306,7 @@ extern "C"
     {
       q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -367,7 +367,7 @@ extern "C"
     {
       q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
