@@ -16,6 +16,8 @@
 #include "CPMVertexPartition.h"
 #include "Optimiser.h"
 
+#include <sstream>
+
 #ifdef DEBUG
 #include <iostream>
   using std::cerr;

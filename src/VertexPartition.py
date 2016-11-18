@@ -226,7 +226,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     refined partition.
     """
     # Read the coarser partition
-    _c_louvain._MutableVertexPartition_from_coarse_partition(self._partition, partition.membership, coarse_node);
+    _c_louvain._MutableVertexPartition_from_coarse_partition(self._partition,
+                                                             partition.membership, coarse_node);
     self._update_internal_membership();
 
   def renumber_communities(self):

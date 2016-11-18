@@ -54,8 +54,19 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
 
     size_t nb_node_size = PyList_Size(py_node_sizes);
     node_sizes.resize(n);
-    for (size_t v = 0; v < nb_node_size; v++)
-      node_sizes[v] = PyLong_AsLong(PyList_GetItem(py_node_sizes, v));
+    for (size_t v = 0; v < n; v++)
+    {
+      PyObject* py_item = PyList_GetItem(py_node_sizes, v);
+      if (PyLong_Check(py_item) || PyInt_Check(py_item))
+      {
+        node_sizes[v] = PyLong_AsLong(py_item);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected integer value for node sizes vector.");
+        return NULL;
+      }
+    }
   }
 
   if (py_weights != NULL && py_weights != Py_None)
@@ -157,7 +168,18 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
-          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+        {
+          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
+          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          {
+            initial_membership[v] = PyLong_AsLong(py_item);
+          }
+          else
+          {
+            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+            return NULL;
+          }
+        }
 
         partition = new ModularityVertexPartition(graph, initial_membership);
       }
@@ -212,7 +234,18 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
-          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+        {
+          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
+          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          {
+            initial_membership[v] = PyLong_AsLong(py_item);
+          }
+          else
+          {
+            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+            return NULL;
+          }
+        }
 
         partition = new SignificanceVertexPartition(graph, initial_membership);
       }
@@ -268,7 +301,18 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
-          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+        {
+          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
+          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          {
+            initial_membership[v] = PyLong_AsLong(py_item);
+          }
+          else
+          {
+            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+            return NULL;
+          }
+        }
 
         partition = new SurpriseVertexPartition(graph, initial_membership);
       }
@@ -329,7 +373,18 @@ extern "C"
         #endif
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
-          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+        {
+          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
+          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          {
+            initial_membership[v] = PyLong_AsLong(py_item);
+          }
+          else
+          {
+            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+            return NULL;
+          }
+        }
 
         partition = new CPMVertexPartition(graph, initial_membership, resolution_parameter);
       }
@@ -387,7 +442,18 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
-          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+        {
+          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
+          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          {
+            initial_membership[v] = PyLong_AsLong(py_item);
+          }
+          else
+          {
+            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+            return NULL;
+          }
+        }
 
         partition = new RBERVertexPartition(graph, initial_membership, resolution_parameter);
       }
@@ -444,7 +510,18 @@ extern "C"
         size_t n = PyList_Size(py_initial_membership);
         initial_membership.resize(n);
         for (size_t v = 0; v < n; v++)
-          initial_membership[v] = PyLong_AsLong(PyList_GetItem(py_initial_membership, v));
+        {
+          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
+          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          {
+            initial_membership[v] = PyLong_AsLong(py_item);
+          }
+          else
+          {
+            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+            return NULL;
+          }
+        }
 
         partition = new RBConfigurationVertexPartition(graph, initial_membership, resolution_parameter);
       }
@@ -555,7 +632,18 @@ extern "C"
     vector<size_t> membership;
     membership.resize(n);
     for (size_t v = 0; v < n; v++)
-      membership[v] = PyLong_AsLong(PyList_GetItem(py_membership, v));
+    {
+      PyObject* py_item = PyList_GetItem(py_membership, v);
+      if (PyLong_Check(py_item) || PyInt_Check(py_item))
+      {
+        membership[v] = PyLong_AsLong(py_item);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+        return NULL;
+      }
+    }
 
     #ifdef DEBUG
       cerr << "Capsule partition at address " << py_partition << endl;
@@ -572,9 +660,20 @@ extern "C"
       cerr << "Get coarse node list" << endl;
       size_t n = PyList_Size(py_coarse_node);
       vector<size_t> coarse_node;
-      membership.resize(n);
+      coarse_node.resize(n);
       for (size_t v = 0; v < n; v++)
-        coarse_node[v] = PyLong_AsLong(PyList_GetItem(py_coarse_node, v));
+      {
+        PyObject* py_item = PyList_GetItem(py_coarse_node, v);
+        if (PyLong_Check(py_item) || PyInt_Check(py_item))
+        {
+          coarse_node[v] = PyLong_AsLong(py_item);
+        }
+        else
+        {
+          PyErr_SetString(PyExc_TypeError, "Expected integer value for coarse vector.");
+          return NULL;
+        }
+      }
 
     cerr << "Got coarse node list" << endl;
       partition->from_coarse_partition(membership, coarse_node);
@@ -1108,7 +1207,18 @@ extern "C"
     vector<size_t> membership;
     membership.resize(n);
     for (size_t v = 0; v < n; v++)
-      membership[v] = PyLong_AsLong(PyList_GetItem(py_membership, v));
+    {
+      PyObject* py_item = PyList_GetItem(py_membership, v);
+      if (PyLong_Check(py_item) || PyInt_Check(py_item))
+      {
+        membership[v] = PyLong_AsLong(py_item);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
+        return NULL;
+      }
+    }
 
     partition->set_membership(membership);
 
