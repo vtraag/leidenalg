@@ -1,91 +1,19 @@
 INTRODUCTION
 ============
 
-This package implements the louvain algorithm in `C++` and exposes it to `python`.
-It relies on `(python-)igraph` for it to function. Besides the relative
-flexibility of the implementation, it also scales well, and can be run on graphs
-of millions of nodes (as long as they can fit in memory). The core function is
-``find_partition`` which finds the optimal partition using the louvain algorithm
-for a number of different methods. The methods currently implemented are:
-
-* Modularity.
-  This method compares the actual graph to the expected graph, taking into
-  account the degree of the nodes [1]. The expected graph is based on a
-  configuration null-model. Notice that we use the non-normalized version (i.e.
-  we don't divide by the number of edges), so that this Modularity values
-  generally does not fall between 0 and 1. The formal definition is
-
-  ```
-  H = sum_ij (A_ij - k_i k_j / 2m) d(s_i, s_j),
-  ```
-
-  where `A_ij = 1` if there is an edge between node `i` and `j`, `k_i` is the degree of
-  node `i` and `s_i` is the community of node i.
-
-* RBConfiguration.
-  This is an extension of modularity which includes a resolution parameter [2].
-  In general, a higher resolution parameter will lead to smaller communities.
-  The formal definition is
-
-  ```
-  H = sum_ij (A_ij - gamma k_i k_j / 2m) d(s_i, s_j),
-  ```
-
-  where `gamma` is the resolution value, and the other variables are the same as
-  for Modularity.
-
-* RBER.
-  A variant of the previous method that instead of a configuration null-model
-  uses a Erdös-Rényi null-model in which each edge has the same probability of
-  appearing [2]. The formal definition is
-
-  ```
-  H = sum_ij (A_ij - gamma p) d(s_i, s_j),
-  ```
-
-  where `p` is the density of the graph, and the other variables are the same as
-  for Modularity, with `gamma` a resolution parameter.
-
-
-* CPM.
-  This method compares to a fixed resolution parameter, so that it finds
-  communities that have an internal density higher than the resolution
-  parameter, and is separated from other communities with a density lower than
-  the resolution parameter [3].The formal definition is
-
-  ```
-  H = sum_ij (A_ij - gamma ) d(s_i, s_j),
-  ```
-
-  with `gamma` a resolution parameter, and the other variables are the same as for
-  Modularity.
-
-* Significance.
-  This is a probabilistic method based on the idea of assessing the probability
-  of finding such dense subgraphs in an (ER) random graph [4]. The formal
-  definition is
-
-  ```
-  H = sum_c M_c D(p_c || p)
-  ```
-
-  where `M_c` is the number of possible edges in community `c`, i.e. `n_c (n_c - 1)/2`
-  for undirected graphs and twice that for directed grahs with `n_c` the size of
-  community `c`, `p_c` is the density of the community `c`, and `p` the general density
-  of the graph, and `D(x || y)` is the binary Kullback-Leibler divergence.
-
-* Surprise.
-  Another probabilistic method, but rather than the probability of finding dense
-  subgraphs, it focuses on the probability of so many edges within communities
-  [5, 6]. The formal definition is
-
-  ```
-  H = m D(q || <q>)
-  ```
-
-  where `m` is the number of edges, `q` is the proportion of edges within
-  communities (i.e. `sum_c m_c / m`) and `<q>` is the expected proportion of edges
-  within communities in an Erdős–Rényi graph.
+This package implements the louvain algorithm in `C++` and exposes it to
+`python`.  It relies on `(python-)igraph` for it to function. Besides the
+relative flexibility of the implementation, it also scales well, and can be run
+on graphs of millions of nodes (as long as they can fit in memory). The core
+function is ``find_partition`` which finds the optimal partition using the
+louvain algorithm [1]_ for a number of different methods. The methods currently
+implemented are (1) modularity [2]_, (2) Reichardt and Bornholdt's model using
+the configuration null model and the Erdös-Rényi null model [3]_, (3) the
+constant Potts model (CPM) [4]_, (4) Significance [5]_, and finally (5)
+Surprise [6]_. In addition, it supports multiplex partition optimisation
+allowing community detection on for example negative links [7]_ or multiple
+time slices [8]_. It also provides some support for community detection on
+bipartite graphs. See the documentation for more information.
 
 INSTALLATION
 ============
@@ -131,111 +59,62 @@ USAGE
 =====
 
 There is no standalone version of louvain-igraph, and you will always need
-python to access it. There are no plans for developing a standalone version or R
-support. So, use python. Please refer to the documentation within the python
-package for more details on function calls and parameters.
+python to access it. There are no plans for developing a standalone version or
+R support. So, use python. Please refer to the documentation for more details
+on function calls and parameters.
 
+Just to get you started, below the essential parts.
 To start, make sure to import the packages:
-```python
-import louvain
-import igraph as ig
-```
+
+>>> import louvain
+>>> import igraph as ig
 
 We'll create a random graph for testing purposes:
-```python
-G = ig.Graph.Erdos_Renyi(100, 0.1);
-```
+
+>>> G = ig.Graph.Erdos_Renyi(100, 0.1);
 
 For simply finding a partition use:
-```python
-part = louvain.find_partition(G, method='Modularity');
-```
 
-In case you want to use a weighted graph, you can store this in an edge
-attribute:
-```python
-G.es['weight'] = 1.0;
-part = louvain.find_partition(G, method='Modularity', weight='weight');
-```
-Please note that not all methods are necessarily capable of handling weighted
-graphs.
+>>> part = louvain.find_partition(G, louvain.ModularityVertexPartition);
 
-Notice that ``part`` now contains an additional variable, ``part.quality`` which
-stores the quality of the partition as calculated by the used method. You can
-always get the quality of the partition using another method by calling
-```python
-part.significance = louvain.quality(G, partition, method='Significance');
-```
-
-You can also find partition for multiplex graphs. For each layer you then
-specify the objective function, and the overall objective function is simply the
-sum over all layers, weighted by some weight. If we denote by ``q_k`` the quality
-of layer ``k`` and the weight by ``w_k``, the overall quality is then ``q = sum_k
-w_k q_k``.  This can also be useful in case you have negative links. In
-principle, this could also be used to detect temporal communities in a dynamic
-setting, cf. [8].
-
-For example, assuming you have a graph with positive weights ``G_positive`` and
-a graph with negative weights ``G_negative``, and you want to use Modularity for
-finding a partition, you can use
-```python
-membership, quality = louvain.find_partition_multiplex([
-louvain.Layer(graph=G_positive, method='Modularity', layer_weight=1.0),
-louvain.Layer(graph=G_negative, method='Modularity', layer_weight=-1.0)])
-```
-
-Notice the negative layer weight is ``-1.0`` for the negative graph, since we
-want those edges to fall between communities rather than within. One particular
-problem when using negative links, is that the optimal community is no longer
-guaranteed to be connected (it may be a multipartite partition). You may
-therefore need the options `consider_comms=ALL_COMMS` to improve the quality of
-the partition. Notice that this runs much slower than only considering
-neighbouring communities (which is the default).
-
-Various methods (such as Reichardt and Bornholdt's Potts model, or CPM) support
-a (linear) resolution parameter, which can be effectively bisected, cf. [5]. You
-can do this by calling:
-```python
-res_parts = louvain.bisect(G, method='CPM', resolution_range=[0,1]);
-```
-Notice this may take some time to run, as it effectively calls
-`louvain.find_partition` for various resolution parameters (depending on the
-settings possibly hundreds of times).
-
-Then `res_parts` is a dictionary containing as keys the resolution, and as
-values a `NamedTuple` with variables `partition` and `bisect_value`, which
-contains the partition and the value at which the resolution was bisected (the
-value of the `bisect_func` of the `bisect` function). You could for example plot
-the bisection value of all the found partitions by using:
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-res_df = pd.DataFrame({
-         'resolution': res_parts.keys(),
-         'bisect_value': [bisect.bisect_value for bisect in res_parts.values()]});
-plt.step(res_df['resolution'], res_df['bisect_value']);
-plt.xscale('log');
-```
 
 REFERENCES
 ==========
 
 Please cite the references appropriately in case they are used.
 
-1. Blondel, V. D., Guillaume, J.-L., Lambiotte, R. & Lefebvre, E. Fast unfolding
-   of communities in large networks. J. Stat. Mech. 2008, P10008 (2008).
-2. Newman, M. & Girvan, M. Finding and evaluating community structure in networks.
-   Physical Review E 69, 026113 (2004).
-3. Reichardt, J. & Bornholdt, S. Partitioning and modularity of graphs with arbitrary
-   degree distribution. Physical Review E 76, 015102 (2007).
-4. Traag, V. A., Van Dooren, P. & Nesterov, Y. Narrow scope for resolution-limit-free
-   community detection. Physical Review E 84, 016114 (2011).
-5. Traag, V. A., Krings, G. & Van Dooren, P. Significant scales in community structure.
-   Scientific Reports 3, 2930 (2013).
-6. Aldecoa, R. & Marín, I. Surprise maximization reveals the community structure
-   of complex networks. Scientific reports 3, 1060 (2013).
-7. Traag, V.A., Aldecoa, R. & Delvenne, J.-C. Detecting communities using Asymptotical
-   Surprise. Forthcoming (2015).
-8. Mucha, P. J., Richardson, T., Macon, K., Porter, M. A. & Onnela, J.-P.
-   Community structure in time-dependent, multiscale, and multiplex networks.
-   Science 328, 876–8 (2010).
+.. [1] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008).
+       Fast unfolding of communities in large networks. Journal of Statistical
+       Mechanics: Theory and Experiment, 10008(10), 6. 
+       `10.1088/1742-5468/2008/10/P10008 <http://doi.org/10.1088/1742-5468/2008/10/P10008>`_
+
+.. [2] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community
+       structure in networks. Physical Review E, 69(2), 026113.
+       `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+
+.. [3] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
+       community detection. Physical Review E, 74(1), 016110.
+       `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+
+.. [4] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for
+       resolution-limit-free community detection. Physical Review E, 84(1),
+       016114. 
+       `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`
+
+.. [5] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
+       community structure. Scientific Reports, 3, 2930.
+       `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`
+
+.. [6] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting
+       communities using asymptotical surprise. Physical Review E, 92(2),
+       022816. 
+       `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`
+
+.. [7] Traag, V. A., & Bruggeman, J. (2009). Community detection in networks
+       with positive and negative links. Physical Review E, 80(3), 036115.
+       `10.1103/PhysRevE.80.036115 <http://doi.org/10.1103/PhysRevE.80.036115>`
+
+.. [8] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela, J.-P.
+       (2010). Community structure in time-dependent, multiscale, and multiplex
+       networks. Science, 328(5980), 876–8. `10.1126/science.1184819
+       <http://doi.org/10.1126/science.1184819>`_
