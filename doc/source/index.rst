@@ -9,6 +9,7 @@ Louvain documentation
 .. toctree::
   :maxdepth: 2
 
+  install
   intro
   advanced
   multiplex

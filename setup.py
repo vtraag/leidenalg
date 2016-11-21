@@ -583,7 +583,7 @@ options =  dict(
   name = 'louvain',
   version = version,
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
-  long_description=read('README.md'),
+  long_description=read('README.rst'),
   license = 'GPLv3+',
   url = 'https://github.com/vtraag/louvain-igraph',
 
