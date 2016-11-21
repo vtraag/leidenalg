@@ -1,4 +1,4 @@
-INTRODUCTION
+Introduction
 ============
 
 This package implements the louvain algorithm in `C++` and exposes it to
@@ -15,7 +15,7 @@ allowing community detection on for example negative links [7]_ or multiple
 time slices [8]_. It also provides some support for community detection on
 bipartite graphs. See the documentation for more information.
 
-INSTALLATION
+Installation
 ============
 
 In short, for Unix: ``sudo pip install louvain``.
@@ -45,7 +45,7 @@ sure that the header files are also included, e.g. install also the development
 package from igraph). Then both the python-igraph package, as well as this
 package are compiled and (dynamically) linked to the same C core library.
 
-TROUBLESHOOTING
+Troubleshooting
 ===============
 
 In case of any problems, best to start over with a clean environment. Make sure
@@ -55,7 +55,7 @@ install louvain``. In case you want a dynamic library be sure to then install
 the C core library from source before. Make sure you **install the same
 versions**.
 
-USAGE
+Usage
 =====
 
 There is no standalone version of louvain-igraph, and you will always need
@@ -78,7 +78,7 @@ For simply finding a partition use:
 >>> part = louvain.find_partition(G, louvain.ModularityVertexPartition);
 
 
-REFERENCES
+References
 ==========
 
 Please cite the references appropriately in case they are used.
@@ -98,21 +98,22 @@ Please cite the references appropriately in case they are used.
 
 .. [4] Traag, V. A., Van Dooren, P., & Nesterov, Y. (2011). Narrow scope for
        resolution-limit-free community detection. Physical Review E, 84(1),
-       016114. 
-       `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`
+       016114.  `10.1103/PhysRevE.84.016114
+       <http://doi.org/10.1103/PhysRevE.84.016114>`_
 
 .. [5] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
-       community structure. Scientific Reports, 3, 2930.
-       `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`
+       community structure. Scientific Reports, 3, 2930.  `10.1038/srep02930
+       <http://doi.org/10.1038/srep02930>`_
 
 .. [6] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting
        communities using asymptotical surprise. Physical Review E, 92(2),
-       022816. 
-       `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`
+       022816.  `10.1103/PhysRevE.92.022816
+       <http://doi.org/10.1103/PhysRevE.92.022816>`_
 
 .. [7] Traag, V. A., & Bruggeman, J. (2009). Community detection in networks
        with positive and negative links. Physical Review E, 80(3), 036115.
-       `10.1103/PhysRevE.80.036115 <http://doi.org/10.1103/PhysRevE.80.036115>`
+       `10.1103/PhysRevE.80.036115
+       <http://doi.org/10.1103/PhysRevE.80.036115>`_
 
 .. [8] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela, J.-P.
        (2010). Community structure in time-dependent, multiscale, and multiplex
