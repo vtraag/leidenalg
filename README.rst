@@ -1,8 +1,8 @@
 Introduction
 ============
 
-This package implements the louvain algorithm in `C++` and exposes it to
-`python`.  It relies on `(python-)igraph` for it to function. Besides the
+This package implements the louvain algorithm in ``C++`` and exposes it to
+``python``.  It relies on ``(python-)igraph`` for it to function. Besides the
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
 function is ``find_partition`` which finds the optimal partition using the
