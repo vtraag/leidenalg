@@ -120,12 +120,20 @@ extern "C"
       #endif
 
       PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
-      #ifdef DEBUG
-        cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
-      #endif
 
       partitions[layer] = partition;
-      layer_weights[layer] = PyFloat_AsDouble(layer_weight);
+      if (PyFloat_Check(layer_weight))
+      {
+        #ifdef DEBUG
+          cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
+        #endif
+        layer_weights[layer] = PyFloat_AsDouble(layer_weight);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected floating value for layer weight.");
+        return NULL;
+      }
     }
 
     #ifdef DEBUG

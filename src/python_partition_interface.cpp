@@ -53,8 +53,8 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     #endif
 
     size_t nb_node_size = PyList_Size(py_node_sizes);
-    node_sizes.resize(n);
-    for (size_t v = 0; v < n; v++)
+    node_sizes.resize(nb_node_size);
+    for (size_t v = 0; v < nb_node_size; v++)
     {
       PyObject* py_item = PyList_GetItem(py_node_sizes, v);
       if (PyLong_Check(py_item) || PyInt_Check(py_item))
@@ -78,7 +78,16 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     weights.resize(m);
     for (size_t e = 0; e < nb_weights; e++)
     {
-      weights[e] = PyFloat_AsDouble(PyList_GetItem(py_weights, e));
+      PyObject* py_item = PyList_GetItem(py_weights, e);
+      if (PyFloat_Check(py_item))
+      {
+        weights[e] = PyFloat_AsDouble(py_item);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected floating point value for weight vector.");
+        return NULL;
+      }
 
       if (check_positive_weight)
       {
@@ -1317,7 +1326,17 @@ extern "C"
     ResolutionParameterVertexPartition* partition = (ResolutionParameterVertexPartition*)decapsule_MutableVertexPartition(py_partition);
 
     if (py_res != NULL && py_res != Py_None)
-      resolution_parameter = PyFloat_AsDouble(py_res);
+    {
+      if (PyFloat_Check(py_res))
+      {
+        resolution_parameter = PyFloat_AsDouble(py_res);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected floating point value for resolution parameter.");
+        return NULL;
+      }
+    }
     else
       resolution_parameter = partition->resolution_parameter;
 
