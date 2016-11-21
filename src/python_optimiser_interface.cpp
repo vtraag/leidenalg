@@ -122,7 +122,7 @@ extern "C"
       PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
 
       partitions[layer] = partition;
-      if (PyFloat_Check(layer_weight))
+      if (PyFloat_Check(layer_weight) || PyInt_Check(layer_weight) || PyLong_Check(layer_weight))
       {
         #ifdef DEBUG
           cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;

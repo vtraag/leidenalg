@@ -79,7 +79,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     for (size_t e = 0; e < nb_weights; e++)
     {
       PyObject* py_item = PyList_GetItem(py_weights, e);
-      if (PyFloat_Check(py_item))
+      if (PyFloat_Check(py_item) || PyInt_Check(py_item) || PyLong_Check(py_item))
       {
         weights[e] = PyFloat_AsDouble(py_item);
       }
@@ -1327,7 +1327,7 @@ extern "C"
 
     if (py_res != NULL && py_res != Py_None)
     {
-      if (PyFloat_Check(py_res))
+      if (PyFloat_Check(py_res) || PyInt_Check(py_res) || PyLong_Check(py_res))
       {
         resolution_parameter = PyFloat_AsDouble(py_res);
       }
