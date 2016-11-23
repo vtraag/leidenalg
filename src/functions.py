@@ -65,6 +65,12 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   See Also
   --------
   :func:`Optimiser.optimise_partition`
+
+  Examples
+  --------
+  >>> G = ig.Graph.Famous('Zachary')
+  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
+
   """
   if not weights is None:
     kwargs['weights'] = weights;
@@ -112,6 +118,12 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   See Also
   --------
   :func:`Optimiser.optimise_partition_multiplex`
+
+  Examples
+  --------
+  >>> G_1 = ig.Graph.Erdos_Renyi(100, 0.01);
+  >>> G_2 = ig.Graph.Erdos_Renyi(100, 0.01);
+  >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2], louvain.ModularityVertexPartition)
   """
   n_layers = len(graphs);
   partitions = [];
@@ -180,6 +192,20 @@ def find_partition_temporal(graphs, partition_type,
   See Also
   --------
   :func:`~louvain.slices_to_layers`
+
+  Examples
+  --------
+  H_time_slices = [];
+  for idx in range(n_slices):
+    #H.vs['id'] = range(idx, n + idx);
+    H = ig.Graph.Lattice([n], 1)
+    H.vs['id'] = range(n);
+    H.es['weight'] = 1;
+    H_time_slices.append(H);
+
+gamma = 0.5;
+membership_time_slices = louvain.find_partition_temporal(H_time_slices, louvain.CPMVertexPartition, 
+                                                 interslice_weight=interslice_weight, resolution_parameter=gamma);
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,
@@ -339,19 +365,22 @@ def slices_to_layers(G_coupling,
   ----------
   .. [1] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela,
          J.-P. (2010).  Community structure in time-dependent, multiscale, and
-         multiplex networks. Science, 328(5980), 876–8.
+         multiplex networks. Science, 328(5980), 876-8.
          `10.1126/science.1184819 <http://doi.org/10.1126/science.1184819>`_
   """
-  ##%%
+  if not slice_attr in G_coupling.vertex_attributes():
+    raise ValueError("Could not find the vertex attribute {0} in the coupling graph.".format(slice_attr));
 
   # Create disjoint union of the time graphs
   for v_slice in G_coupling.vs:
     H = v_slice[slice_attr];
     H.vs[slice_attr] = v_slice.index;
+    if not vertex_id_attr in H.vertex_attributes():
+      raise ValueError("Could not find the vertex attribute {0} to identify nodes in different slices.".format(vertex_id_attr ));
 
   G = disjoint_union_attrs(G_coupling.vs[slice_attr]);
   G.es[edge_type_attr] = 'intraslice';
-  ##%%
+
   for v_slice in G_coupling.vs:
     for u_slice in v_slice.neighbors(mode=_ig.OUT):
       if v_slice.index < u_slice.index or G_coupling.is_directed():
@@ -380,7 +409,6 @@ def slices_to_layers(G_coupling,
           G.es[e_idx][weight_attr] = interslice_weight;
         G.es[e_idx][edge_type_attr] = 'interslice';
 
-  ##%%
   # Convert aggregate graph to individual layers for each time slice.
   G_layers = [None]*G_coupling.vcount();
   for v_slice in G_coupling.vs:
@@ -391,5 +419,5 @@ def slices_to_layers(G_coupling,
   # Create one graph for the interslice links.
   G_interslice = G.subgraph_edges(G.es.select(type_eq='interslice'), delete_vertices=False);
   G_interslice.vs['node_size'] = 0;
-  ##%%
+
   return G_layers, G_interslice, G;

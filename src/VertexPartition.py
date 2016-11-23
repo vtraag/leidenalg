@@ -383,7 +383,7 @@ class ModularityVertexPartition(MutableVertexPartition):
     Parameters
     ----------
     graph : :class:`ig.Graph`
-      Graph to define the partition on
+      Graph to define the partition on.
 
     initial_membership : list of int
       Initial membership for the partition. If :obj:`None` then defaults to a
@@ -452,7 +452,7 @@ class SurpriseVertexPartition(MutableVertexPartition):
     Parameters
     ----------
     graph : :class:`ig.Graph`
-      Graph to define the partition on
+      Graph to define the partition on.
 
     initial_membership : list of int
       Initial membership for the partition. If :obj:`None` then defaults to a
@@ -523,7 +523,7 @@ class SignificanceVertexPartition(MutableVertexPartition):
     Parameters
     ----------
     graph : :class:`ig.Graph`
-      Graph to define the partition on
+      Graph to define the partition on.
 
     initial_membership : list of int
       Initial membership for the partition. If :obj:`None` then defaults to a
@@ -881,7 +881,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
        [A_{ij}
         - (\\gamma_0\\delta(s_i,0) + \\gamma_1\\delta(s_i,1)) \\delta(s_i,s_j) 
         - \\gamma_{01}(1 - \\delta(s_i, s_j)) 
-       ]\\delta(\sigma_i, \\sigma_j)
+       ]\\delta(\\sigma_i, \\sigma_j)
 
     In terms of communities this is
 
@@ -904,22 +904,22 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     weight of -1 while the first layer has layer weight 1, we obtain the
     following:
 
-    .. math:: Q &=  \sum_c (e_c - \\gamma_{01} n_c^2)
-                   -\sum_c (- (\\gamma_{01} - \\gamma_0) n_c(0)^2)
-                   -\sum_c (- (\\gamma_{01} - \\gamma_1) n_c(1)^2) \\\\
-                &=  \sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
-                                - \\gamma_{01} n_c(0)^2
-                                - \\gamma_{01} n_c(1)^2)
-                                + ( \\gamma_{01} - \\gamma_0) n_c(0)^2
-                                + ( \\gamma_{01} - \\gamma_1) n_c(1)^2
+    .. math:: Q &=  \\sum_c (e_c - \\gamma_{01} n_c^2)
+                   -\\sum_c (- (\\gamma_{01} - \\gamma_0) n_c(0)^2)
+                   -\\sum_c (- (\\gamma_{01} - \\gamma_1) n_c(1)^2) \\\\
+                &=  \\sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
+                                 - \\gamma_{01} n_c(0)^2
+                                 - \\gamma_{01} n_c(1)^2)
+                                 + ( \\gamma_{01} - \\gamma_0) n_c(0)^2
+                                 + ( \\gamma_{01} - \\gamma_1) n_c(1)^2
                            ] \\\\
-                &=  \sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
-                                - \\gamma_{0} n_c(0)^2 
-                                - \\gamma_{1} n_c(1)^2]
+                &=  \\sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
+                                 - \\gamma_{0} n_c(0)^2 
+                                 - \\gamma_{1} n_c(1)^2]
 
     Although the derivation above is using :math:`n_c^2`, implicitly assuming a
     direct graph with self-loops, similar derivations can be made for
-    undirected graphs using :math:`\binom{n_c}{2}`, but the notation is then
+    undirected graphs using :math:`\\binom{n_c}{2}`, but the notation is then
     somewhat more convoluted.
 
     If we set node sizes equal to the degree, we get something similar to
@@ -927,7 +927,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     :math:`2m`. In particular, in general (i.e. not specifically for bipartite
     graph) if ``node_sizes=G.degree()`` we then obtain 
 
-    .. math:: Q = \sum_{ij} A_{ij} - \\gamma k_i k_j
+    .. math:: Q = \\sum_{ij} A_{ij} - \\gamma k_i k_j
 
     In the case of bipartite graphs something similar is obtained, but then
     correctly adapted (as long as the resolution parameter is also

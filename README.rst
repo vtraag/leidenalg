@@ -1,5 +1,5 @@
-Introduction
-============
+louvain-igraph
+==============
 
 This package implements the louvain algorithm in ``C++`` and exposes it to
 ``python``.  It relies on ``(python-)igraph`` for it to function. Besides the
@@ -16,7 +16,7 @@ time slices [8]_. It also provides some support for community detection on
 bipartite graphs. See the documentation for more information.
 
 Installation
-============
+------------
 
 In short, for Unix: ``sudo pip install louvain``.  For Windows: download the
 binary installers.
@@ -26,6 +26,9 @@ is overly complicated, and you are recommended to use the binary installation
 files.  There are two things that are needed by this package: the igraph ``C``
 core library and the python-igraph python package. For both, please see
 http://igraph.org.
+
+You can check if all went well by running a variety of tests using ``python
+setup.py test``.
 
 There are basically two installation modes, similar to the python-igraph
 package itself (from which most of the setup.py comes).
@@ -48,7 +51,7 @@ as this package are compiled and (dynamically) linked to the same ``C`` core
 library.
 
 Troubleshooting
-===============
+---------------
 
 In case of any problems, best to start over with a clean environment. Make sure
 you remove the python-igraph package completely, remove the ``C`` core library
@@ -58,7 +61,7 @@ install the ``C`` core library from source before. Make sure you **install the
 same versions**.
 
 Usage
-=====
+-----
 
 There is no standalone version of louvain-igraph, and you will always need
 python to access it. There are no plans for developing a standalone version or
@@ -79,9 +82,18 @@ For simply finding a partition use:
 
 >>> part = louvain.find_partition(G, louvain.ModularityVertexPartition);
 
+Contribute
+----------
+
+Source code: https://github.com/vtraag/louvain-igraph
+
+Issue tracking: https://github.com/vtraag/louvain-igraph/issues
+
+See the documentation on `Implementation` for more details on how to
+contribute new methods.
 
 References
-==========
+----------
 
 Please cite the references appropriately in case they are used.
 
@@ -121,3 +133,21 @@ Please cite the references appropriately in case they are used.
        (2010). Community structure in time-dependent, multiscale, and multiplex
        networks. Science, 328(5980), 876–8. `10.1126/science.1184819
        <http://doi.org/10.1126/science.1184819>`_
+
+Licence
+-------
+
+Copyright (C) 2016 V.A. Traag
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program. If not, see http://www.gnu.org/licenses/.
+

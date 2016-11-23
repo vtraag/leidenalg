@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-r""" This package implements the louvain algorithm in C++ and exposes it to
-python.  It relies on (python-)igraph for it to function. Besides the relative
-flexibility of the implementation, it also scales well, and can be run on
-graphs of millions of nodes (as long as they can fit in memory). Each method is
-represented by a different class, all of whom derive from
+r""" This package implements the louvain algorithm in ``C++`` and exposes it to
+python.  It relies on ``(python-)igraph`` for it to function. Besides the
+relative flexibility of the implementation, it also scales well, and can be run
+on graphs of millions of nodes (as long as they can fit in memory). Each method
+is represented by a different class, all of whom derive from
 :class:`~louvain.VertexPartition.MutableVertexPartition`. In addition,
 multiplex graphs are supported as layers, which also supports multislice
 representations.

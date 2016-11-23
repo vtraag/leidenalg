@@ -8,8 +8,9 @@ Module functions
     :members: find_partition, 
               find_partition_multiplex, 
               find_partition_temporal,
-              time_slice_to_layer_graph,
-              slice_graph_to_layer_graph,
+              slices_to_layers,
+              time_slices_to_layers,
+              set_rng_seed
     :undoc-members:
     :show-inheritance:
 

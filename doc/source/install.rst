@@ -10,6 +10,9 @@ files.  There are two things that are needed by this package: the igraph ``C``
 core library and the python-igraph python package. For both, please see
 http://igraph.org.
 
+You can check if all went well by running a variety of tests using ``python
+setup.py test``.
+
 There are basically two installation modes, similar to the python-igraph
 package itself (from which most of the setup.py comes).
 
