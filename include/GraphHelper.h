@@ -39,7 +39,7 @@ template <class T> T sum(vector<T> vec)
   return sum_of_elems;
 };
 
-class Exception : std::exception
+class Exception : public std::exception
 {
   public:
     Exception(const char* str)
