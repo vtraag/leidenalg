@@ -32,7 +32,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   This function detects communities given the specified method in the
   ``partition_type``. This should be type derived from
-  :class:`~louvain.VertexPartition.MutableVertexPartition`, e.g.
+  :class:`VertexPartition.MutableVertexPartition`, e.g.
   :class:`ModularityVertexPartition` or :class:`CPMVertexPartition`. Optionally
   an initial membership and edge weights can be provided. Remaining
   ``**kwargs`` are passed on to the constructor of the ``partition_type``,
@@ -119,11 +119,15 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   --------
   :func:`Optimiser.optimise_partition_multiplex`
 
+  :func:`slices_to_layers`
+
   Examples
   --------
-  >>> G_1 = ig.Graph.Erdos_Renyi(100, 0.01);
-  >>> G_2 = ig.Graph.Erdos_Renyi(100, 0.01);
-  >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2], louvain.ModularityVertexPartition)
+  >>> n = 100;
+  >>> G_1 = ig.Graph.Lattice([n], 1);
+  >>> G_2 = ig.Graph.Lattice([n], 1);
+  >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2],
+  ...                                                            louvain.ModularityVertexPartition);
   """
   n_layers = len(graphs);
   partitions = [];
@@ -149,7 +153,7 @@ def find_partition_temporal(graphs, partition_type,
   unique in each slice. The nodes are then coupled with a weight of
   ``interslice_weight`` which is set in the edge attribute ``weight_attr``. No
   weight is set if the ``interslice_weight`` is None (i.e.  corresponding in
-  practice with a weight of 1). See :func:`~louvain.time_slices_to_layers` for
+  practice with a weight of 1). See :func:`time_slices_to_layers` for
   a more detailed explanation.
 
   Parameters
@@ -157,7 +161,7 @@ def find_partition_temporal(graphs, partition_type,
   graphs : list of :class:`ig.Graph`
     List of :class:`louvain.VertexPartition` layers to optimise.
 
-  partition_type : type of :class:`~louvain.VertexPartition.MutableVertexPartition`
+  partition_type : type of :class:`VertexPartition.MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
 
   interslice_weight : float
@@ -191,33 +195,47 @@ def find_partition_temporal(graphs, partition_type,
 
   See Also
   --------
-  :func:`~louvain.slices_to_layers`
+  :func:`time_slices_to_layers`
+
+  :func:`slices_to_layers`
 
   Examples
   --------
-  H_time_slices = [];
-  for idx in range(n_slices):
-    #H.vs['id'] = range(idx, n + idx);
-    H = ig.Graph.Lattice([n], 1)
-    H.vs['id'] = range(n);
-    H.es['weight'] = 1;
-    H_time_slices.append(H);
-
-gamma = 0.5;
-membership_time_slices = louvain.find_partition_temporal(H_time_slices, louvain.CPMVertexPartition, 
-                                                 interslice_weight=interslice_weight, resolution_parameter=gamma);
+  >>> n = 100;
+  >>> G_1 = ig.Graph.Lattice([n], 1);
+  >>> G_1.vs['id'] = range(n);
+  >>> G_2 = ig.Graph.Lattice([n], 1);
+  >>> G_2.vs['id'] = range(n);
+  >>> membership, improvement = louvain.find_partition_temporal([G_1, G_2], 
+  ...                                                           louvain.ModularityVertexPartition, 
+  ...                                                           interslice_weight=1);
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,
                                                     interslice_weight,
-                                                    slice_attr,
-                                                    vertex_id_attr,
-                                                    edge_type_attr,
-                                                    weight_attr);
+                                                    slice_attr=slice_attr,
+                                                    vertex_id_attr=vertex_id_attr,
+                                                    edge_type_attr=edge_type_attr,
+                                                    weight_attr=weight_attr);
   # Optimise partitions
-  partitions = [partition_type(H, node_sizes='node_size', weight=weight_attr, **kwargs) for H in G_layers];
-  # We can always take the same interslice partition, as this should have no cost in the optimisation.
-  partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0, node_sizes='node_size', weight=weight_attr);
+  arg_dict = {};
+  if 'node_sizes' in partition_type.__init__.__code__.co_varnames:
+    arg_dict['node_sizes'] = 'node_size';
+
+  if 'weights' in partition_type.__init__.__code__.co_varnames:
+    arg_dict['weights'] = 'weight';
+
+  arg_dict.update(kwargs);
+
+  partitions = [];
+  for H in G_layers:
+    arg_dict['graph'] = H;
+    partitions.append(partition_type(**arg_dict));
+
+  # We can always take the same interslice partition, as this should have no
+  # cost in the optimisation.
+  partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0,
+                                            node_sizes='node_size', weights=weight_attr);
   optimiser = Optimiser();
   improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
   # Transform results back into original form.
@@ -259,7 +277,7 @@ def disjoint_union_attrs(graphs):
 # Conversion to layer graphs
 
 def time_slices_to_layers(graphs,
-                          interslice_weight=None,
+                          interslice_weight=1,
                           slice_attr='slice',
                           vertex_id_attr='id',
                           edge_type_attr='type',
@@ -269,10 +287,17 @@ def time_slices_to_layers(graphs,
   Each graph is considered to represent a time slice. This function simply
   connects all the consecutive slices (i.e. the slice graph) with an
   ``interslice_weight``.  The further conversion is then delegated to
-  :func:`~louvain.slices_to_layers`, which also provides further details.
+  :func:`slices_to_layers`, which also provides further details.
+
+  See Also
+  --------
+  :func:`find_partition_temporal`
+
+  :func:`slices_to_layers`
 
   """
   G_slices = _ig.Graph.Tree(len(graphs), 1, mode=_ig.TREE_UNDIRECTED);
+  G_slices.es[weight_attr] = interslice_weight;
   G_slices.vs[slice_attr] = graphs;
   return slices_to_layers(G_slices,
                           slice_attr,
@@ -367,9 +392,18 @@ def slices_to_layers(G_coupling,
          J.-P. (2010).  Community structure in time-dependent, multiscale, and
          multiplex networks. Science, 328(5980), 876-8.
          `10.1126/science.1184819 <http://doi.org/10.1126/science.1184819>`_
+  See Also
+  --------
+  :func:`find_partition_temporal`
+
+  :func:`time_slices_to_layers`
+
   """
   if not slice_attr in G_coupling.vertex_attributes():
     raise ValueError("Could not find the vertex attribute {0} in the coupling graph.".format(slice_attr));
+
+  if not weight_attr in G_coupling.edge_attributes():
+    raise ValueError("Could not find the edge attribute {0} in the coupling graph.".format(weight_attr));
 
   # Create disjoint union of the time graphs
   for v_slice in G_coupling.vs:
@@ -377,6 +411,8 @@ def slices_to_layers(G_coupling,
     H.vs[slice_attr] = v_slice.index;
     if not vertex_id_attr in H.vertex_attributes():
       raise ValueError("Could not find the vertex attribute {0} to identify nodes in different slices.".format(vertex_id_attr ));
+    if not weight_attr in H.edge_attributes():
+      H.es[weight_attr] = 1;
 
   G = disjoint_union_attrs(G_coupling.vs[slice_attr]);
   G.es[edge_type_attr] = 'intraslice';

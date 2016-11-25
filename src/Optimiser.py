@@ -113,10 +113,10 @@ class Optimiser(object):
     This attribute should be set to one of the following values
 
     * :attr:`louvain.MOVE_NODES`
-      Use :func:`~Optimiser.move_nodes`.
+      Use :func:`move_nodes`.
 
     * :attr:`louvain.MERGE_NODES`
-      Use :func:`~Optimiser.merge_nodes`.
+      Use :func:`merge_nodes`.
     """
     return _c_louvain._Optimiser_get_optimise_routine(self._optimiser);
 
@@ -135,10 +135,10 @@ class Optimiser(object):
     This attribute should be set to one of the following values
 
     * :attr:`louvain.MOVE_NODES`
-      Use :func:`~Optimiser.move_nodes`.
+      Use :func:`move_nodes`.
 
     * :attr:`louvain.MERGE_NODES`
-      Use :func:`~Optimiser.merge_nodes`.
+      Use :func:`merge_nodes`.
     """
     return _c_louvain._Optimiser_get_refine_routine(self._optimiser);
 
@@ -163,7 +163,7 @@ class Optimiser(object):
     Parameters
     ----------
     partition
-      The :class:`~louvain.VertexPartition.MutableVertexPartition` to optimise.
+      The :class:`~VertexPartition.MutableVertexPartition` to optimise.
 
     Returns
     -------
@@ -190,7 +190,7 @@ class Optimiser(object):
     Parameters
     ----------
     partitions
-      List of :class:`~louvain.VertexPartition.MutableVertexPartition` layers to optimise.
+      List of :class:`~VertexPartition.MutableVertexPartition` layers to optimise.
 
     layer_weights
       List of weights of layers.
@@ -236,9 +236,13 @@ class Optimiser(object):
 
     See Also
     --------
-    louvain.slices_to_layers : Convert slices to layers.
-    louvain.time_slices_to_layers : Convert time slices to layers.
-    louvain.find_partition_temporal : Detect partition for time slices.
+    :func:`slices_to_layers`
+
+    :func:`time_slices_to_layers`
+
+    :func:`find_partition_multiplex`
+
+    :func:`find_partition_temporal`
 
     Examples
     --------
@@ -270,7 +274,7 @@ class Optimiser(object):
       The partition for which to move nodes.
 
     consider_comms
-      If ``None`` uses :attr:`~Optimiser.consider_comms`, but can be set to
+      If ``None`` uses :attr:`consider_comms`, but can be set to
       something else.
 
     Returns
@@ -287,8 +291,9 @@ class Optimiser(object):
 
     See Also
     --------
-    move_nodes_constrained : Move nodes for *refining* a partition.
-    merge_nodes : Merge nodes rather than moving nodes.
+    :func:`Optimiser.move_nodes_constrained`
+
+    :func:`Optimiser.merge_nodes`
 
     Examples
     --------
@@ -316,7 +321,7 @@ class Optimiser(object):
       The partition within which we may move nodes.
 
     consider_comms
-      If ``None`` uses :attr:`~Optimiser.refine_consider_comms`, but can be set
+      If ``None`` uses :attr:`refine_consider_comms`, but can be set
       to something else.
 
     Returns
@@ -333,8 +338,9 @@ class Optimiser(object):
 
     See Also
     --------
-    move_nodes : Move nodes for *optimising* a partition.
-    merge_nodes_constrained : Merge nodes rather than moving nodes.
+    :func:`Optimiser.move_nodes`
+
+    :func:`Optimiser.merge_nodes_constrained`
 
     Examples
     --------
@@ -361,7 +367,7 @@ class Optimiser(object):
       The partition for which to merge nodes.
 
     consider_comms
-      If ``None`` uses :attr:`~Optimiser.consider_comms`, but can be set to
+      If ``None`` uses :attr:`consider_comms`, but can be set to
       something else.
 
     Returns
@@ -377,8 +383,9 @@ class Optimiser(object):
 
     See Also
     --------
-    move_nodes_constrained : Move nodes for *refining* a partition.
-    merge_nodes : Merge nodes rather than moving nodes.
+    :func:`Optimiser.move_nodes_constrained 
+
+    :func:`Optimiser.merge_nodes`
 
     Examples
     --------
@@ -406,7 +413,7 @@ class Optimiser(object):
       The partition within which we may merge nodes.
 
     consider_comms
-      If ``None`` uses :attr:`~Optimiser.refine_consider_comms`, but can be set
+      If ``None`` uses :attr:`refine_consider_comms`, but can be set
       to something else.
 
     Returns
@@ -423,8 +430,9 @@ class Optimiser(object):
 
     See Also
     --------
-    move_nodes : Move nodes for *optimising* a partition.
-    merge_nodes_constrained : Merge nodes rather than moving nodes.
+    :func:`Optimiser.move_nodes`
+
+    :func:`Optimiser.merge_nodes_constrained`
 
     Examples
     --------
@@ -462,7 +470,7 @@ class Optimiser(object):
       The graph for which to construct a resolution profile.
 
     partition_type
-      The type of :class:`~louvain.VertexPartition.MutableVertexPartition` used
+      The type of :class:`~VertexPartition.MutableVertexPartition` used
       to find a partition (must support resolution parameters obviously).
 
     resolution_range
@@ -473,7 +481,7 @@ class Optimiser(object):
 
     Returns
     -------
-    list of :class:`~louvain.VertexPartition.MutableVertexPartition` 
+    list of :class:`~VertexPartition.MutableVertexPartition` 
       A list of partitions for different resolutions.
 
     Other Parameters
@@ -503,6 +511,13 @@ class Optimiser(object):
     until_stable
       If ``True`` iterate ``optimise_partition`` until no more improvement can
       be found.
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
+    ...                                        resolution_range=(0,1));
     """
 
     # Helper function for cleaning values to be a stepwise function

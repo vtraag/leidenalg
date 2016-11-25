@@ -16,19 +16,19 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   In order to keep the administration up-to-date, all changes in a partition
   should be done through
-  :func:`~louvain.VertexPartition.MutableVertexPartition.move_node` or
-  :func:`~louvain.VertexPartition.MutableVertexPartition.set_membership`.  The
+  :func:`~VertexPartition.MutableVertexPartition.move_node` or
+  :func:`~VertexPartition.MutableVertexPartition.set_membership`.  The
   first moves a node from one community to another, and updates the
   administration.  The latter simply updates the membership vector and updates
   the administration.
 
   The basic idea is that
-  :func:`~louvain.VertexPartition.MutableVertexPartition.diff_move` computes
+  :func:`~VertexPartition.MutableVertexPartition.diff_move` computes
   the difference in the quality function if we would call
-  :func:`~louvain.VertexPartition.MutableVertexPartition.move_node` for the
+  :func:`~VertexPartition.MutableVertexPartition.move_node` for the
   same move. These functions are overridden in any derived classes to provide
   an actual implementation. These functions are used by
-  :class:`~louvain.Optimiser` to optimise the partition.
+  :class:`Optimiser` to optimise the partition.
 
   .. warning:: This base class should never be used in practice, since only
                derived classes provide an actual implementation.
@@ -72,7 +72,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Parameters
     ----------
     partition 
-      The :class:`~louvain.VertexPartition.MutableVertexPartition` to replicate.
+      The :class:`~VertexPartition.MutableVertexPartition` to replicate.
 
     **kwargs 
       Any remaining keyword arguments will be passed on to the constructor of
@@ -144,6 +144,27 @@ class MutableVertexPartition(_ig.VertexClustering):
   def aggregate_partition(self, membership_partition=None):
     """ Aggregate the graph according to the current partition and provide a
     default partition for it.
+
+    The aggregated graph can then be found as a parameter of the partition
+    ``partition.graph``.
+
+    Notes
+    -----
+    This function contrasts to the function ``cluster_graph`` in igraph itself,
+    which also provides the aggregate graph, but we may require setting
+    the appropriate ``resolution_parameter``, ``weights`` and ``node_sizes``.
+    In particular, this function also ensures that the quality defined on the
+    aggregate partition is identical to the quality defined on the original
+    partition.
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
+    >>> aggregate_partition = partition.aggregate_partition(partition);
+    >>> aggregate_graph = aggregate_partition.graph;
+    >>> aggregate_partition.quality() == partition.quality()
+    True
     """
     partition_agg = self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
 
@@ -166,23 +187,23 @@ class MutableVertexPartition(_ig.VertexClustering):
     new_comm
       Community to move to.
 
-    Returns
-    -------
-    float
-      Difference in quality function.
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> partition.move_node(0, 1);
     """
-    diff = _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
+    _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
     # Make sure this move is also reflected in the membership vector of the python object
     self._membership[v] = new_comm;
     self._modularity_dirty = True;
-    return diff;
 
   def from_coarse_partition(self, partition, coarse_node=None):
     """ Update current partition according to coarser partition.
 
     Parameters
     ----------
-    partition : :class:`~louvain.VertexPartition.MutableVertexPartition`
+    partition : :class:`~VertexPartition.MutableVertexPartition`
       The coarser partition used to update the current partition.
 
     coarse_node : list of int
@@ -254,9 +275,11 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     See Also
     --------
-    total_weight_to_comm
-    total_weight_from_comm
-    total_weight_in_all_comms
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_to_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_from_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
     return _c_louvain._MutableVertexPartition_total_weight_in_comm(self._partition, comm);
 
@@ -275,9 +298,11 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     See Also
     --------
-    total_weight_to_comm
-    total_weight_in_comm
-    total_weight_in_all_comms
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_to_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_in_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
     return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm);
 
@@ -296,9 +321,11 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     See Also
     --------
-    total_weight_from_comm
-    total_weight_in_comm
-    total_weight_in_all_comms
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_from_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_in_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
     return _c_louvain._MutableVertexPartition_total_weight_to_comm(self._partition, comm);
 
@@ -311,9 +338,11 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     See Also
     --------
-    total_weight_to_comm
-    total_weight_from_comm
-    total_weight_in_comm
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_to_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_from_comm`
+
+    :func:`~VertexPartition.MutableVertexPartition.total_weight_in_comm`
     """
     return _c_louvain._MutableVertexPartition_total_weight_in_all_comms(self._partition);
 
@@ -336,7 +365,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     See Also
     --------
-    weight_from_comm
+    :func:`~VertexPartition.MutableVertexPartition.weight_from_comm`
     """
     return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm);
 
@@ -346,7 +375,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     See Also
     --------
-    weight_to_comm
+    :func:`~VertexPartition.MutableVertexPartition.weight_to_comm`
     """
     return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm);
 
@@ -837,7 +866,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
 
     This creates three layers for bipartite partition necessary for detecting
     communities in bipartite networks. These three layers should be passed to
-    :func:`~louvain.Optimiser.optimise_partition_multiplex` with
+    :func:`Optimiser.optimise_partition_multiplex` with
     ``layer_weights=[1,-1,-1]``.
 
     Parameters
@@ -864,8 +893,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
 
     **kwargs
       Additional arguments passed on to default constructor of
-      :class:`~louvain.CPMVertexPartition`.
-
+      :class:`CPMVertexPartition`.
 
     .. _notes-bipartite:
 

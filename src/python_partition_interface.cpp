@@ -53,8 +53,12 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     #endif
 
     size_t nb_node_size = PyList_Size(py_node_sizes);
-    node_sizes.resize(nb_node_size);
-    for (size_t v = 0; v < nb_node_size; v++)
+    if (nb_node_size != n)
+    {
+      throw Exception("Node size vector not the same size as the number of nodes.");
+    }
+    node_sizes.resize(n);
+    for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_node_sizes, v);
       if (PyLong_Check(py_item) || PyInt_Check(py_item))
@@ -63,8 +67,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
       }
       else
       {
-        PyErr_SetString(PyExc_TypeError, "Expected integer value for node sizes vector.");
-        return NULL;
+        throw Exception("Expected integer value for node sizes vector.");
       }
     }
   }
@@ -75,18 +78,24 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
       cerr << "Reading weights." << endl;
     #endif
     size_t nb_weights = PyList_Size(py_weights);
+    if (nb_weights != m)
+      throw("Weight vector not the same size as the number of edges.");
     weights.resize(m);
-    for (size_t e = 0; e < nb_weights; e++)
+    for (size_t e = 0; e < m; e++)
     {
       PyObject* py_item = PyList_GetItem(py_weights, e);
+      #ifdef DEBUG
+        PyObject* py_item_repr = PyObject_Repr(py_item);
+        const char* s = PyString_AsString(py_item_repr);
+        cerr << "Got item " << e << ": " << s << endl;
+      #endif
       if (PyFloat_Check(py_item) || PyInt_Check(py_item) || PyLong_Check(py_item))
       {
         weights[e] = PyFloat_AsDouble(py_item);
       }
       else
       {
-        PyErr_SetString(PyExc_TypeError, "Expected floating point value for weight vector.");
-        return NULL;
+        throw Exception("Expected floating point value for weight vector.");
       }
 
       if (check_positive_weight)
@@ -205,13 +214,14 @@ extern "C"
 
       return py_partition;
     }
-    catch (std::exception const & e )
+    catch (std::exception& e )
     {
       string s = "Could not construct partition: " + string(e.what());
       PyErr_SetString(PyExc_BaseException, s.c_str());
       return NULL;
     }
   }
+  
 
   PyObject* _new_SignificanceVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {

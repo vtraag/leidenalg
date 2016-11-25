@@ -230,9 +230,11 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
   #ifdef DEBUG
     for (size_t layer; layer < nb_layers; layer++)
     {
-      for (size_t v; v < n; v++)
-        if (partitions[0]->membership[v] != partitions[layer]->membership[v])
-          cerr << "Membership of all partitions are not equal".
+      for (size_t v = 0; v < n; v++)
+      {
+        if (partitions[0]->membership(v) != partitions[layer]->membership(v))
+          cerr << "Membership of all partitions are not equal";
+      }
     }
   #endif
   // First sort the communities by size
