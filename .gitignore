@@ -14,6 +14,7 @@ Makefile
 *.log
 **/*.o
 **/*.so
+**/*.pyc
 files.txt
 files_py3.txt
 callgrind*
@@ -30,5 +31,4 @@ igraphcore/
 valgrind-python.supp
 test/
 test_install.sh
-*.pyc
 massif*
