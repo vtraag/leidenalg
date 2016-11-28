@@ -74,11 +74,11 @@ class BaseTest:
 
     @data(*graphs)
     def test_move_nodes(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type == louvain.SignficanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type == louvain.SignificanceVertexPartition:
         raise unittest.SkipTest('Significance doesn\'t handle weighted graphs');
 
       if 'weight' in graph.es.attributes():
-        partition = self.partition_type(graph, weight='weight');
+        partition = self.partition_type(graph, weights='weight');
       else:
         partition = self.partition_type(graph);
       for v in range(graph.vcount()):
@@ -97,8 +97,8 @@ class BaseTest:
 
     @data(*graphs)
     def test_aggregate_partition(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignficanceVertexPartition:
-        partition = self.partition_type(graph, weight='weight');
+      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignificanceVertexPartition:
+        partition = self.partition_type(graph, weights='weight');
       else:
         partition = self.partition_type(graph);
       self.optimiser.move_nodes(partition);
@@ -109,12 +109,28 @@ class BaseTest:
           places=5,
           msg='Quality not equal for aggregate partition.');
       self.optimiser.move_nodes(aggregate_partition);
-      partition.from_coarser_partition(aggregate_partition);
+      partition.from_coarse_partition(aggregate_partition);
       self.assertAlmostEqual(
           partition.quality(),
           aggregate_partition.quality(),
           places=5,
           msg='Quality not equal from coarser partition.');
+
+    @data(*graphs)
+    def test_total_weight_in_all_comms(self, graph):
+      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignificanceVertexPartition:
+        partition = self.partition_type(graph, weights='weight');
+      else:
+        partition = self.partition_type(graph);
+      self.optimiser.optimise_partition(partition);
+      s = sum([partition.total_weight_in_comm(c) for c,_ in enumerate(partition)]);
+      self.assertAlmostEqual(
+        s,
+        partition.total_weight_in_all_comms(),
+        places=5,
+        msg='Total weight in all communities ({0}) not equal to the sum of the weight in all communities ({1}).'.format(
+          s, partition.total_weight_in_all_comms())
+        );
 
 #class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 #  def setUp(self):
@@ -144,7 +160,7 @@ class SurpriseVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 class SignificanceVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
     super(SignificanceVertexPartitionTest, self).setUp();
-    self.partition_type = louvain.SignficanceVertexPartition;
+    self.partition_type = louvain.SignificanceVertexPartition;
 
 #%%
 if __name__ == '__main__':

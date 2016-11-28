@@ -75,7 +75,7 @@ extern "C"
     {
       q = optimiser->optimise_partition(partition);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -120,23 +120,21 @@ extern "C"
       #endif
 
       PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
-      #ifdef DEBUG
-        cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
-      #endif
 
       partitions[layer] = partition;
-      layer_weights[layer] = PyFloat_AsDouble(layer_weight);
+      if (PyFloat_Check(layer_weight) || PyInt_Check(layer_weight) || PyLong_Check(layer_weight))
+      {
+        #ifdef DEBUG
+          cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
+        #endif
+        layer_weights[layer] = PyFloat_AsDouble(layer_weight);
+      }
+      else
+      {
+        PyErr_SetString(PyExc_TypeError, "Expected floating value for layer weight.");
+        return NULL;
+      }
     }
-
-    size_t n;
-
-    #ifdef DEBUG
-      cerr << "Getting node count" << endl;
-    #endif
-    n = partitions[0]->get_graph()->vcount();
-    #ifdef DEBUG
-      cerr << "n=" << n << endl;
-    #endif
 
     #ifdef DEBUG
       cerr << "Capsule optimiser at address " << py_optimiser << endl;
@@ -149,9 +147,9 @@ extern "C"
     double q = 0.0;
     try
     {
-      optimiser->optimise_partition(partitions, layer_weights);
+      q = optimiser->optimise_partition(partitions, layer_weights);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -203,7 +201,7 @@ extern "C"
     {
       q = optimiser->move_nodes(partition, consider_comms);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -255,7 +253,7 @@ extern "C"
     {
       q = optimiser->merge_nodes(partition, consider_comms);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -316,7 +314,7 @@ extern "C"
     {
       q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;
@@ -377,7 +375,7 @@ extern "C"
     {
       q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition);
     }
-    catch (Exception e)
+    catch (std::exception e)
     {
       PyErr_SetString(PyExc_ValueError, e.what());
       return NULL;

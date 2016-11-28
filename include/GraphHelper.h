@@ -39,7 +39,7 @@ template <class T> T sum(vector<T> vec)
   return sum_of_elems;
 };
 
-class Exception : std::exception
+class Exception : public std::exception
 {
   public:
     Exception(const char* str)
@@ -70,7 +70,7 @@ inline igraph_rng_t* default_rng()
   return default_rng;
 }
 
-inline size_t set_rng_seed(size_t seed)
+inline void set_rng_seed(size_t seed)
 {
   igraph_rng_seed(default_rng(), seed);
 };

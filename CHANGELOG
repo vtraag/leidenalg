@@ -1,3 +1,11 @@
+0.6.0
+- Major API changes, now exposing actual classes and optimisation routine.
+- Improved algorithm, now runs much faster and finds better solutions.
+- Improved error handling, doing more type checking.
+- Improved documentation throughout, now done using Sphinx and available from
+  readthedocs.org.
+- Now includes testing module, available through python setup.py test.
+
 0.5.3
 - Fixed bug concerning weights (were rounded to integers).
 - Improved documentation.
@@ -5,7 +13,8 @@
 - Fixed some minor bugs.
 
 0.5.2
-- Ensured that random neighbour selection works in O(1) rather than O(k), with k the average number of neighbours.
+- Ensured that random neighbour selection works in O(1) rather than O(k), with
+  k the average number of neighbours.
 - Optimized the calculation of weight from/to community.
 - Included some missing references.
 

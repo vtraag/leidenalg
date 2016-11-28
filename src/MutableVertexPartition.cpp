@@ -230,9 +230,11 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
   #ifdef DEBUG
     for (size_t layer; layer < nb_layers; layer++)
     {
-      for (size_t v; v < n; v++)
-        if (partitions[0]->membership[v] != partitions[layer]->membership[v])
-          cerr << "Membership of all partitions are not equal".
+      for (size_t v = 0; v < n; v++)
+      {
+        if (partitions[0]->membership(v) != partitions[layer]->membership(v))
+          cerr << "Membership of all partitions are not equal";
+      }
     }
   #endif
   // First sort the communities by size
@@ -539,38 +541,38 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
  represents a node in the coarser partition (with the same index as the
  community number).
 ****************************************************************************/
-void MutableVertexPartition::from_coarser_partition(vector<size_t> const& coarser_partition_membership)
+void MutableVertexPartition::from_coarse_partition(vector<size_t> const& coarse_partition_membership)
 {
-  this->from_coarser_partition(coarser_partition_membership, this->_membership);
+  this->from_coarse_partition(coarse_partition_membership, this->_membership);
 }
 
-void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* coarser_partition)
+void MutableVertexPartition::from_coarse_partition(MutableVertexPartition* coarse_partition)
 {
-  this->from_coarser_partition(coarser_partition, this->_membership);
+  this->from_coarse_partition(coarse_partition, this->_membership);
 }
 
-void MutableVertexPartition::from_coarser_partition(MutableVertexPartition* coarser_partition, vector<size_t> const& coarser_node)
+void MutableVertexPartition::from_coarse_partition(MutableVertexPartition* coarse_partition, vector<size_t> const& coarse_node)
 {
-  this->from_coarser_partition(coarser_partition->membership(), coarser_node);
+  this->from_coarse_partition(coarse_partition->membership(), coarse_node);
 }
 
 /****************************************************************************
  Set the current community of all nodes to the community specified in the partition
  assuming that the coarser partition is created using the membership as specified
- by coarser_membership. In other words node i becomes node coarser_node[i] in
- the coarser partition and thus has community coarser_partition_membership[coarser_node[i]].
+ by coarser_membership. In other words node i becomes node coarse_node[i] in
+ the coarser partition and thus has community coarse_partition_membership[coarse_node[i]].
 ****************************************************************************/
-void MutableVertexPartition::from_coarser_partition(vector<size_t> const& coarser_partition_membership, vector<size_t> const& coarser_node)
+void MutableVertexPartition::from_coarse_partition(vector<size_t> const& coarse_partition_membership, vector<size_t> const& coarse_node)
 {
   // Read the coarser partition
   for (size_t v = 0; v < this->graph->vcount(); v++)
   {
     // In the coarser partition, the node should have the community id
     // as represented by the coarser_membership vector
-    size_t v_level2 = coarser_node[v];
+    size_t v_level2 = coarse_node[v];
 
     // In the coarser partition, this node is represented by v_level2
-    size_t v_comm_level2 = coarser_partition_membership[v_level2];
+    size_t v_comm_level2 = coarse_partition_membership[v_level2];
 
     // Set local membership to community found for node at second level
     this->_membership[v] = v_comm_level2;
