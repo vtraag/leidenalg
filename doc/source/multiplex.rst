@@ -249,7 +249,7 @@ For the example provided above, we thus obtain the following:
 To transform slices into layers using a coupling graph, this package provides
 :func:`~louvain.layers_to_slices`. For the example above, this would function
 as follows.  First create the coupling graph assuming we have three slices
-``G_1``,``G_2`` and ``G_3``:
+``G_1``, ``G_2`` and ``G_3``:
 
 >>> G_coupling = ig.Graph.Formula('1 -- 2 -- 3');
 >>> G_coupling.es['weight'] = 0.1; # Interslice coupling strength
