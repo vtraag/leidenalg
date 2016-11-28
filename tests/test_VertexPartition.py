@@ -1,7 +1,7 @@
 import unittest
 import igraph as ig
 import louvain
-import numpy as np
+import random
 
 from ddt import ddt, data, unpack
 
@@ -59,7 +59,7 @@ graphs = [
 
 def make_weighted(G):
   m = G.ecount();
-  G.es['weight'] = np.random.rand(m);
+  G.es['weight'] = [random.random() for i in xrange(G.ecount())];
   G.__name__ += '_weighted';
   return G;
 
