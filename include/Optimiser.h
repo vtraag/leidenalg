@@ -37,7 +37,7 @@ class Optimiser
     double move_nodes(MutableVertexPartition* partition);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
 
     double merge_nodes(MutableVertexPartition* partition);
     double merge_nodes(MutableVertexPartition* partition, int consider_comms);
@@ -61,6 +61,7 @@ class Optimiser
     int refine_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
     int optimise_routine; // What routine to use for optimisation
     int refine_routine; // What routine to use for optimisation
+    int consider_empty_community; // Determine whether to consider moving nodes to an empty community
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.
