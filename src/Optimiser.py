@@ -157,6 +157,18 @@ class Optimiser(object):
   def refine_partition(self, value):
     _c_louvain._Optimiser_set_refine_partition(self._optimiser, value);
 
+  #########################################################3
+  # consider_empty_community
+  @property
+  def consider_empty_community(self):
+    """ boolean: if ``True`` consider also moving nodes to an empty community
+    (default). """
+    return _c_louvain._Optimiser_get_consider_empty_community(self._optimiser);
+
+  @consider_empty_community.setter
+  def consider_empty_community(self, value):
+    _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, value);
+
   def optimise_partition(self, partition):
     """ Optimise the given partition.
 

@@ -623,6 +623,73 @@ extern "C"
     return PyInt_FromLong(optimiser->refine_routine);
   }
 
+  PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int consider_empty_community = true;
+    static char* kwlist[] = {"optimiser", "consider_empty_community", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &consider_empty_community))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_consider_empty_community(" << consider_empty_community << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Setting consider_empty_community to " << consider_empty_community << endl;
+    #endif
+    optimiser->consider_empty_community = consider_empty_community;
+    #ifdef DEBUG
+      cerr << "Set consider_empty_community to " << optimiser->consider_empty_community << endl;
+    #endif
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_get_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_consider_empty_community();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+      cerr << "Returning " << optimiser->consider_empty_community << endl;
+    #endif
+
+    return PyBool_FromLong(optimiser->consider_empty_community);
+  }
+
   PyObject* _Optimiser_set_refine_partition(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;

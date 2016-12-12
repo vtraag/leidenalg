@@ -117,9 +117,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Quality before moving " <<  q << endl;
     #endif
     if (this->optimise_routine == Optimiser::MOVE_NODES)
-      improv += this->move_nodes(collapsed_partitions, layer_weights, this->consider_comms);
+      improv += this->move_nodes(collapsed_partitions, layer_weights);
     else if (this->optimise_routine == Optimiser::MERGE_NODES)
-      improv += this->merge_nodes(collapsed_partitions, layer_weights, this->consider_comms);
+      improv += this->merge_nodes(collapsed_partitions, layer_weights);
 
     #ifdef DEBUG
       cerr << "Found " << collapsed_partitions[0]->nb_communities() << " communities, improved " << improv << endl;
@@ -334,7 +334,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
   vector<MutableVertexPartition*> partitions(1, NULL);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->move_nodes(partitions, layer_weights, consider_comms);
+  return this->move_nodes(partitions, layer_weights, consider_comms, this->consider_empty_community);
 }
 
 double Optimiser::merge_nodes(MutableVertexPartition* partition)
@@ -391,10 +391,10 @@ double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int
 ******************************************************************************/
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
 {
-  return this->move_nodes(partitions, layer_weights, this->consider_comms);
+  return this->move_nodes(partitions, layer_weights, this->consider_comms, this->consider_empty_community);
 }
 
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -520,36 +520,39 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     }
 
     // Check if we should move to an empty community
-    for (size_t layer = 0; layer < nb_layers; layer++)
+    if (consider_empty_community)
     {
-      graph = graphs[layer];
-      partition = partitions[layer];
-      if ( partition->get_community(v_comm).size() > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+      for (size_t layer = 0; layer < nb_layers; layer++)
       {
-        size_t comm = partition->get_empty_community();
-        #ifdef DEBUG
-          cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
-        #endif
-        if (comm == partition->nb_communities())
+        graph = graphs[layer];
+        partition = partitions[layer];
+        if ( partition->get_community(v_comm).size() > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
         {
-          // If the empty community has just been added, we need to make sure
-          // that is has also been added to the other layers
-          for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
-            partitions[layer_2]->add_empty_community();
-        }
+          size_t comm = partition->get_empty_community();
+          #ifdef DEBUG
+            cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
+          #endif
+          if (comm == partition->nb_communities())
+          {
+            // If the empty community has just been added, we need to make sure
+            // that is has also been added to the other layers
+            for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+              partitions[layer_2]->add_empty_community();
+          }
 
-        double possible_improv = 0.0;
-        for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
-        {
-          possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
-        }
-        #ifdef DEBUG
-          cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
-        #endif
-        if (possible_improv > max_improv)
-        {
-          max_improv = possible_improv;
-          max_comm = comm;
+          double possible_improv = 0.0;
+          for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
+          {
+            possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
+          }
+          #ifdef DEBUG
+            cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
+          #endif
+          if (possible_improv > max_improv)
+          {
+            max_improv = possible_improv;
+            max_comm = comm;
+          }
         }
       }
     }
