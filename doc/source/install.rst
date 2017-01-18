@@ -8,7 +8,12 @@ For Unix like systems it is possible to install from source. For Windows this
 is overly complicated, and you are recommended to use the binary installation
 files.  There are two things that are needed by this package: the igraph ``C``
 core library and the python-igraph python package. For both, please see
-http://igraph.org.
+http://igraph.org. 
+
+Make sure you have all necessary tools for compilation. In Ubuntu this can be
+installed using ``sudo apt-get install build-essential``, please refer to the
+documentation for your specific system.  Make sure that not only ``gcc`` is
+installed, but also ``g++``, as the louvain package is programmed in ``C++``.
 
 You can check if all went well by running a variety of tests using ``python
 setup.py test``.
