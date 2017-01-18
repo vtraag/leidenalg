@@ -752,7 +752,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
           possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
         }
 
-        if (possible_improv > max_improv)
+        if (possible_improv >= max_improv)
         {
           max_comm = comm;
           max_improv = possible_improv;
@@ -1142,10 +1142,15 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
             all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
             delete neigh_comm_layer;
           }
-          if (all_neigh_comms_incl_dupes.size() > 0)
+          size_t k = all_neigh_comms_incl_dupes.size();
+          if (k > 0)
           {
-            size_t random_idx = get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
-            comms.insert(all_neigh_comms_incl_dupes[random_idx]);
+            // Make sure there is also a probability not to move the node
+            if (get_random_int(0, k) > 0)
+            {
+              size_t random_idx = get_random_int(0, k - 1);
+              comms.insert(all_neigh_comms_incl_dupes[random_idx]);
+            }
           }
       }
 
@@ -1170,7 +1175,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
         }
 
-        if (possible_improv > max_improv)
+        if (possible_improv >= max_improv)
         {
           max_comm = comm;
           max_improv = possible_improv;
