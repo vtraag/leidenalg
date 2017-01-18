@@ -20,8 +20,12 @@ bipartite graphs. See the documentation for more information.
                 :alt: Louvain documentation status (development version)
 
 .. image:: https://travis-ci.org/vtraag/louvain-igraph.svg?branch=develop
-                  :target: https://travis-ci.org/vtraag/louvain-igraph
+                :target: https://travis-ci.org/vtraag/louvain-igraph
+                :alt: Louvain build status (development version)
 
+.. image:: https://zenodo.org/badge/31305324.svg
+                :target: https://zenodo.org/badge/latestdoi/31305324
+                :alt: DOI 
 Installation
 ------------
 
