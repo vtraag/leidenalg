@@ -592,7 +592,7 @@ options =  dict(
   package_dir = {'louvain': 'src'},
   packages = ['louvain'],
   ext_modules = [louvain_ext],
-  install_requires = 'python-igraph >= {0}.0'.format(VERSION),
+  install_requires = ['python-igraph >= {0}.0'.format(VERSION)],
   classifiers=[
       'Development Status :: 4 - Beta',
       'Environment :: Console',
