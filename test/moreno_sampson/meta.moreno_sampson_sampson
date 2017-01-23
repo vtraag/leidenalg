@@ -1,0 +1,10 @@
+category: HumanSocial
+code: Ms
+name: Sampson
+description: Monk–monk ratings
+entity-names: monk
+extr: moreno
+url: http://moreno.ss.uci.edu/data.html#sampson
+long-description: This directed network contains ratings between monks related to a crisis in a cloister which lead to a departure of several monks. This dataset aggregates several available ratings ((dis)esteem, (dis)liking, positive/negative influence, praise/blame) into only one rating, which is positive if all original ratings were positive and negative if all original ratings were negativ. If there were mixed opinions the rating has the value 0. A node represents a monk and an edge between two monks shows that the left monk rated the right monk.
+relationship-names: ratings
+cite: konect:sampson,konect:breiger
