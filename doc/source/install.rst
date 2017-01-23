@@ -14,6 +14,8 @@ Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential``, please refer to the
 documentation for your specific system.  Make sure that not only ``gcc`` is
 installed, but also ``g++``, as the louvain package is programmed in ``C++``.
+Note that to compile ``igraph`` itself, you also need to install
+``libxml2-dev``.
 
 You can check if all went well by running a variety of tests using ``python
 setup.py test``.
