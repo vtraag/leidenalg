@@ -2,6 +2,8 @@ from setuptools import setup, Extension
 import glob
 import os
 
+IGRAPH_VERSION = '0.7.1'
+
 # Utility function to read the README file.
 # Used for the long_description.  It's nice, because now 1) we have a top level
 # README file and 2) it's easier to type in the README file than to put a raw
@@ -53,6 +55,8 @@ options =  dict(
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
 
+  install_requires = ['python-igraph >= {0}.0'.format(IGRAPH_VERSION)],
+					
   provides = ['louvain'],
   package_dir = {'louvain': 'src'},
   packages = ['louvain'],

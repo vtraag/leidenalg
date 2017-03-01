@@ -395,9 +395,9 @@ class Optimiser(object):
 
     See Also
     --------
-    :func:`Optimiser.move_nodes_constrained 
+    :func:`Optimiser.move_nodes`
 
-    :func:`Optimiser.merge_nodes`
+    :func:`Optimiser.merge_nodes_constrained`
 
     Examples
     --------
@@ -442,9 +442,9 @@ class Optimiser(object):
 
     See Also
     --------
-    :func:`Optimiser.move_nodes`
+    :func:`Optimiser.move_nodes_constrained`
 
-    :func:`Optimiser.merge_nodes_constrained`
+    :func:`Optimiser.merge_nodes`
 
     Examples
     --------
