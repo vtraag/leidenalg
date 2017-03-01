@@ -24,3 +24,6 @@ igraph-0.7.0.tar.gz
 igraph-0.7.1.tar.gz
 igraphcore/
 **/*.swp
+**/*.pyc
+test/
+test_install.sh
