@@ -116,7 +116,7 @@ other quantities. In the case for
 \binom{n_c}{2}` is the sum of the internal possible edges. The essential
 insight for these formulations [1]_ is that if there is an optimal partition
 for both :math:`\gamma_1` and :math:`\gamma_2` then the partition is also
-optimal for all :math:`\gamma_1 \leq \gamma \gamma_2`.
+optimal for all :math:`\gamma_1 \leq \gamma \leq \gamma_2`.
 
 Such a resolution profile can be constructed using the
 :class:`~louvain.Optimiser` object. 

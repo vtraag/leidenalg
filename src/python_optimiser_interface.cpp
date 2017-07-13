@@ -122,7 +122,11 @@ extern "C"
       PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
 
       partitions[layer] = partition;
+      #ifdef IS_PY3K
+      if (PyFloat_Check(layer_weight) || PyLong_Check(layer_weight))
+      #else
       if (PyFloat_Check(layer_weight) || PyInt_Check(layer_weight) || PyLong_Check(layer_weight))
+      #endif
       {
         #ifdef DEBUG
           cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
@@ -440,7 +444,11 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
+    #ifdef IS_PY3K
+    return PyLong_FromLong(optimiser->consider_comms);
+    #else
     return PyInt_FromLong(optimiser->consider_comms);
+    #endif
   }
 
   PyObject* _Optimiser_set_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
@@ -500,7 +508,11 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
+    #ifdef IS_PY3K
+    return PyLong_FromLong(optimiser->refine_consider_comms);
+    #else
     return PyInt_FromLong(optimiser->refine_consider_comms);
+    #endif
   }
 
   PyObject* _Optimiser_set_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds)
@@ -560,7 +572,11 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
+    #ifdef IS_PY3K
+    return PyLong_FromLong(optimiser->optimise_routine);
+    #else
     return PyInt_FromLong(optimiser->optimise_routine);
+    #endif
   }
 
   PyObject* _Optimiser_set_refine_routine(PyObject *self, PyObject *args, PyObject *keywds)
@@ -620,7 +636,11 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
+    #ifdef IS_PY3K
+    return PyLong_FromLong(optimiser->refine_routine);
+    #else
     return PyInt_FromLong(optimiser->refine_routine);
+    #endif
   }
 
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)

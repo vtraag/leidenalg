@@ -1,5 +1,9 @@
 #include "python_partition_interface.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define IS_PY3K
+#endif
+
 Graph* create_graph_from_py(PyObject* py_obj_graph)
 {
   return create_graph_from_py(py_obj_graph, NULL, NULL, false);
@@ -26,7 +30,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     cerr << "create_graph_from_py" << endl;
   #endif
 
-  #if PY_MAJOR_VERSION >= 3
+  #ifdef IS_PY3K
     igraph_t* py_graph = (igraph_t*) PyCapsule_GetPointer(py_obj_graph, NULL);
   #else
     igraph_t* py_graph = (igraph_t*) PyCObject_AsVoidPtr(py_obj_graph);
@@ -61,7 +65,11 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_node_sizes, v);
-      if (PyLong_Check(py_item) || PyInt_Check(py_item))
+      #ifdef IS_PY3K
+      if (PyLong_Check(py_item))
+      #else
+      if (PyInt_Check(py_item) || PyLong_Check(py_item))
+      #endif
       {
         node_sizes[v] = PyLong_AsLong(py_item);
       }
@@ -89,7 +97,11 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
         const char* s = PyString_AsString(py_item_repr);
         cerr << "Got item " << e << ": " << s << endl;
       #endif
+      #ifdef IS_PY3K
+      if (PyFloat_Check(py_item) || PyLong_Check(py_item))
+      #else
       if (PyFloat_Check(py_item) || PyInt_Check(py_item) || PyLong_Check(py_item))
+      #endif
       {
         weights[e] = PyFloat_AsDouble(py_item);
       }
@@ -188,7 +200,11 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          #ifdef IS_PY3K
+          if (PyLong_Check(py_item))
+          #else
+          if (PyInt_Check(py_item) || PyLong_Check(py_item))
+          #endif
           {
             initial_membership[v] = PyLong_AsLong(py_item);
           }
@@ -255,7 +271,11 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          #ifdef IS_PY3K
+          if (PyLong_Check(py_item))
+          #else
+          if (PyInt_Check(py_item) || PyLong_Check(py_item))
+          #endif
           {
             initial_membership[v] = PyLong_AsLong(py_item);
           }
@@ -322,7 +342,11 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          #ifdef IS_PY3K
+          if (PyLong_Check(py_item))
+          #else
+          if (PyInt_Check(py_item) || PyLong_Check(py_item))
+          #endif
           {
             initial_membership[v] = PyLong_AsLong(py_item);
           }
@@ -394,7 +418,11 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          #ifdef IS_PY3K
+          if (PyLong_Check(py_item))
+          #else
+          if (PyInt_Check(py_item) || PyLong_Check(py_item))
+          #endif
           {
             initial_membership[v] = PyLong_AsLong(py_item);
           }
@@ -463,7 +491,11 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          #ifdef IS_PY3K
+          if (PyLong_Check(py_item))
+          #else
+          if (PyInt_Check(py_item) || PyLong_Check(py_item))
+          #endif
           {
             initial_membership[v] = PyLong_AsLong(py_item);
           }
@@ -531,7 +563,11 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyLong_Check(py_item) || PyInt_Check(py_item))
+          #ifdef IS_PY3K
+          if (PyLong_Check(py_item))
+          #else
+          if (PyInt_Check(py_item) || PyLong_Check(py_item))
+          #endif
           {
             initial_membership[v] = PyLong_AsLong(py_item);
           }
@@ -615,7 +651,7 @@ extern "C"
     PyObject* node_sizes = PyList_New(n);
     for (size_t v = 0; v < n; v++)
     {
-      #if PY_MAJOR_VERSION >= 3
+      #ifdef IS_PY3K
         PyObject* item = PyLong_FromSize_t(graph->node_size(v));
       #else
         PyObject* item = PyInt_FromSize_t(graph->node_size(v));
@@ -653,7 +689,11 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_membership, v);
-      if (PyLong_Check(py_item) || PyInt_Check(py_item))
+      #ifdef IS_PY3K
+      if (PyLong_Check(py_item))
+      #else
+      if (PyInt_Check(py_item) || PyLong_Check(py_item))
+      #endif
       {
         membership[v] = PyLong_AsLong(py_item);
       }
@@ -683,7 +723,11 @@ extern "C"
       for (size_t v = 0; v < n; v++)
       {
         PyObject* py_item = PyList_GetItem(py_coarse_node, v);
-        if (PyLong_Check(py_item) || PyInt_Check(py_item))
+        #ifdef IS_PY3K
+        if (PyLong_Check(py_item))
+        #else
+        if (PyInt_Check(py_item) || PyLong_Check(py_item))
+        #endif
         {
           coarse_node[v] = PyLong_AsLong(py_item);
         }
@@ -1183,7 +1227,7 @@ extern "C"
     PyObject* py_membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
     {
-      #if PY_MAJOR_VERSION >= 3
+      #ifdef IS_PY3K 
         PyObject* item = PyLong_FromSize_t(partition->membership(v));
       #else
         PyObject* item = PyInt_FromSize_t(partition->membership(v));
@@ -1228,7 +1272,11 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_membership, v);
-      if (PyLong_Check(py_item) || PyInt_Check(py_item))
+      #ifdef IS_PY3K
+      if (PyLong_Check(py_item))
+      #else
+      if (PyInt_Check(py_item) || PyLong_Check(py_item))
+      #endif
       {
         membership[v] = PyLong_AsLong(py_item);
       }
@@ -1337,7 +1385,11 @@ extern "C"
 
     if (py_res != NULL && py_res != Py_None)
     {
+      #ifdef IS_PY3K
+      if (PyFloat_Check(py_res) || PyLong_Check(py_res))
+      #else
       if (PyFloat_Check(py_res) || PyInt_Check(py_res) || PyLong_Check(py_res))
+      #endif
       {
         resolution_parameter = PyFloat_AsDouble(py_res);
       }

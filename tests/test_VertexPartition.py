@@ -5,6 +5,8 @@ import random
 
 from ddt import ddt, data, unpack
 
+import sys
+PY3 = (sys.version > '3');
 #%%
 
 def name_object(obj, name):
@@ -59,7 +61,10 @@ graphs = [
 
 def make_weighted(G):
   m = G.ecount();
-  G.es['weight'] = [random.random() for i in xrange(G.ecount())];
+  if PY3: 
+    G.es['weight'] = [random.random() for i in range(G.ecount())];
+  else:
+    G.es['weight'] = [random.random() for i in xrange(G.ecount())];
   G.__name__ += '_weighted';
   return G;
 
