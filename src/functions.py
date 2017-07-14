@@ -315,7 +315,7 @@ def slices_to_layers(G_coupling,
   This function converts a graph of slices to layers so that they can be used
   with this package. This function assumes that the slices are represented by
   nodes in ``G_coupling``, and stored in the attribute ``slice_attr``. In other
-  words, ``G_coupling.vs[slice_attr]`` should contain :class:`ig.Graph`s. The
+  words, ``G_coupling.vs[slice_attr]`` should contain :class:`ig.Graph` s . The
   slices will be converted to layers, and nodes in different slices will be
   coupled if the two slices are connected in ``G_coupling``. Nodes in two
   connected slices are identified on the basis of the ``vertex_id_attr``, i.e.
