@@ -1,7 +1,7 @@
 MANIFEST
 build/
 dist/
-igraph-*-msvc/
+igraph-*-msvc*/
 louvain.egg-info/
 louvain-0.5/
 wlib/

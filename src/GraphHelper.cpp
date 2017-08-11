@@ -352,12 +352,12 @@ double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* mem
     #endif
     if ((*membership)[u] == comm)
     {
-      #ifdef DEBUG
-        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
-      #endif
       size_t e = VECTOR(incident_edges)[i];
       // Get the weight of the edge
       double w = this->_edge_weights[e];
+      #ifdef DEBUG
+        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+      #endif
       // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
       if (u == v && !this->is_directed())
           w /= 2.0;
@@ -508,6 +508,11 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   size_t n = this->vcount();
   size_t m = this->ecount();
 
+  #ifdef DEBUG
+    cerr << "Current graph has " << n << " nodes and " << m << " edges." << endl;
+    cerr << "Collapsing to graph with " << partition->nb_communities() << " nodes." << endl;
+  #endif
+
   vector< map<size_t, double> > collapsed_edge_weights(partition->nb_communities());
 
   igraph_integer_t v, u;
@@ -537,6 +542,9 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   vector<double> collapsed_weights(m_collapsed, 0.0);
   double total_collapsed_weight = 0.0;
 
+  #ifdef DEBUG
+    cerr << "Creating " << m_collapsed << " new edges." << endl;
+  #endif
   igraph_vector_init(&edges, 2*m_collapsed); // Vector or edges with edges (edge[0], edge[1]), (edge[2], edge[3]), etc...
 
   size_t e_idx = 0;
@@ -557,10 +565,6 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
       e_idx += 1;
     }
   }
-
-  double const eps = 1e-6;
-  if (fabs(total_collapsed_weight - this->total_weight()) > eps)
-    throw Exception("Total collapsed weight is not equal to original weight.");
 
   // Create graph based on edges
   igraph_t* graph = new igraph_t();

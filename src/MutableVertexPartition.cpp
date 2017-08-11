@@ -189,7 +189,15 @@ void MutableVertexPartition::init_admin()
 *****************************************************************************/
 void MutableVertexPartition::renumber_communities()
 {
+  #ifdef DEBUG
+    cerr << "void MutableVertexPartition::renumber_communities()" << endl;
+  #endif
+
   size_t nb_comms = this->nb_communities();
+
+  #ifdef DEBUG
+    cerr << "Renumbering " << nb_comms << " communities." << endl;
+  #endif
 
   // First sort the communities by size
   vector<pair<size_t,size_t> > csizes;
@@ -200,6 +208,7 @@ void MutableVertexPartition::renumber_communities()
   sort(csizes.begin(), csizes.end());
   reverse(csizes.begin(), csizes.end());
 
+
   // Then use the sort order to assign new communities,
   // such that the largest community gets the lowest index.
   vector<size_t> new_comm_id(nb_comms, 0);
@@ -207,13 +216,23 @@ void MutableVertexPartition::renumber_communities()
   {
     size_t comm = csizes[i].second;
     new_comm_id[comm] = i;
+    #ifdef DEBUG
+      cerr << "Community " << comm << " renumbered to " << i << "." << endl;
+    #endif
   }
 
+  #ifdef DEBUG
+    cerr << "Renumbering membership." << endl;
+  #endif
   for (size_t i = 0; i < this->graph->vcount(); i++)
     this->_membership[i] = new_comm_id[this->_membership[i]];
 
   this->clean_mem();
   this->init_admin();
+
+  #ifdef DEBUG
+    cerr << "exit MutableVertexPartition::renumber_communities()" << endl;
+  #endif
 }
 
 /****************************************************************************
