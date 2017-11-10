@@ -540,7 +540,7 @@ pair<size_t, size_t> Graph::get_endpoints(size_t e)
 {
   igraph_integer_t from, to;
   igraph_edge(this->_graph, e,&from, &to);
-  return make_pair<size_t, size_t>(from, to);
+  return make_pair<size_t, size_t>((size_t)from, (size_t)to);
 }
 
 void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
