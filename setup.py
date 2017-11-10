@@ -605,7 +605,7 @@ louvain_ext = Extension('louvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
-version = '0.6.0';
+version = '0.6.1';
 options =  dict(
   name = 'louvain',
   version = version,

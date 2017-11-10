@@ -4,7 +4,8 @@ dist/
 igraph-0.7.0-msvc-py2.7/
 igraph-0.7.0-msvc-py3/
 igraph-0.7.1-msvc-py2.7/
-igraph-0.7.1-msvc-py3/
+igraph-0.7.1-msvc-py34/
+igraph-0.7.1-msvc-py35/
 louvain.egg-info/
 louvain-0.5/
 wlib/
@@ -32,3 +33,5 @@ valgrind-python.supp
 test/
 test_install.sh
 massif*
+.vscode/
+*.code-workspace
