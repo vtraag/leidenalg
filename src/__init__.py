@@ -37,9 +37,6 @@ from .functions import ALL_NEIGH_COMMS
 from .functions import RAND_COMM
 from .functions import RAND_NEIGH_COMM
 
-from .functions import MOVE_NODES
-from .functions import MERGE_NODES
-
 from .functions import find_partition
 from .functions import find_partition_multiplex
 from .functions import find_partition_temporal
