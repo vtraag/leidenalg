@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import versioneer
 
 try:
     from urllib import urlretrieve
@@ -605,10 +606,13 @@ louvain_ext = Extension('louvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
+cmdclass = versioneer.get_cmdclass()
+cmdclass.update(build_ext=buildcfg.build_ext)
+
 version = '0.6.0';
 options =  dict(
   name = 'louvain',
-  version = version,
+  version=versioneer.get_version(),
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
   long_description=read('README.rst'),
   license = 'GPLv3+',
@@ -639,7 +643,7 @@ options =  dict(
       'Topic :: Scientific/Engineering :: Information Analysis',
       'Topic :: Sociology'
     ],
-  cmdclass={"build_ext": buildcfg.build_ext}
+  cmdclass=cmdclass,
 );
 
 if "macosx" in get_platform() and "bdist_mpkg" in sys.argv:
