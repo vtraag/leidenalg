@@ -7,7 +7,7 @@ using std::endl;
 #endif
 
 ModularityVertexPartition::ModularityVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         MutableVertexPartition(graph,
         membership)
 { }
@@ -21,7 +21,12 @@ ModularityVertexPartition::~ModularityVertexPartition()
 
 ModularityVertexPartition* ModularityVertexPartition::create(Graph* graph)
 {
-  return new ModularityVertexPartition(graph);;
+  return new ModularityVertexPartition(graph);
+}
+
+ModularityVertexPartition* ModularityVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new ModularityVertexPartition(graph, membership);
 }
 
 /*****************************************************************************
@@ -106,7 +111,12 @@ double ModularityVertexPartition::diff_move(size_t v, size_t new_comm)
     cerr << "exit double ModularityVertexPartition::diff_move((" << v << ", " << new_comm << ")" << endl;
     cerr << "return " << diff << endl << endl;
   #endif
-  return diff;
+  double m;
+  if (this->graph->is_directed())
+    m = this->graph->total_weight();
+  else
+    m = 2*this->graph->total_weight();
+  return diff/m;
 }
 
 
@@ -134,9 +144,14 @@ double ModularityVertexPartition::quality()
     mod += w - w_out*w_in/((this->graph->is_directed() ? 1.0 : 4.0)*this->graph->total_weight());
   }
   double q = (2.0 - this->graph->is_directed())*mod;
+  double m;
+  if (this->graph->is_directed())
+    m = this->graph->total_weight();
+  else
+    m = 2*this->graph->total_weight();
   #ifdef DEBUG
     cerr << "exit double ModularityVertexPartition::quality()" << endl;
-    cerr << "return " << q << endl << endl;
+    cerr << "return " << q/m << endl << endl;
   #endif
-  return q;
+  return q/m;
 }

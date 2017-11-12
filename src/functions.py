@@ -1,399 +1,456 @@
+import sys
 import igraph as _ig
 from . import _c_louvain
 from ._c_louvain import ALL_COMMS
 from ._c_louvain import ALL_NEIGH_COMMS
 from ._c_louvain import RAND_COMM
 from ._c_louvain import RAND_NEIGH_COMM
-from collections import namedtuple
-from collections import OrderedDict
-import logging
-from math import log, sqrt
 
-import sys
+from collections import Counter
+
 # Check if working with Python 3
 PY3 = (sys.version > '3');
 
-class Layer:
-  """
-  This class makes sure that each layer is properly encoded for use in the
-  ``find_partition_multiplex`` function.
-
-  Keyword arguments:
-
-  graph
-    The graph for this layer.
-
-  method
-    The method used for this layer (see package documentation for details).
-
-  layer_weight
-    The weight used for weighing this layer in the overall quality.
-
-  initial_membership
-    The initial membership to start the optimization with.
-
-  weight
-    The edge attribute from which to use the weight for this layer.
-
-  resolution_parameter
-    The resolution parameter used for this layer.
-
-  """
-  def __init__(self, graph, method, layer_weight=1.0, initial_membership=None, weight=None, resolution_parameter=1.0):
-    self.graph = graph;
-    self.method = method;
-    self.layer_weight = layer_weight;
-    self.initial_membership = initial_membership;
-    self.weight = weight;
-    self.resolution_parameter = resolution_parameter;
-
-def __get_py_capsule(graph):
+def _get_py_capsule(graph):
   if PY3:
     return graph.__graph_as_capsule();
   else:
     return graph.__graph_as_cobject();
 
-def find_partition_multiplex(layers, consider_comms=ALL_NEIGH_COMMS):
+from .VertexPartition import *
+from .Optimiser import *
+
+def set_rng_seed(seed):
+  """ Set seed for internal random number generator. """
+  _c_louvain._set_rng_seed(seed);
+
+def find_partition(graph, partition_type, initial_membership=None, weights=None, **kwargs):
+  """ Detect communities using the default settings.
+
+  This function detects communities given the specified method in the
+  ``partition_type``. This should be type derived from
+  :class:`VertexPartition.MutableVertexPartition`, e.g.
+  :class:`ModularityVertexPartition` or :class:`CPMVertexPartition`. Optionally
+  an initial membership and edge weights can be provided. Remaining
+  ``**kwargs`` are passed on to the constructor of the ``partition_type``,
+  including for example a ``resolution_parameter``.
+
+  Parameters
+  ----------
+  graph : :class:`ig.Graph`
+    The graph for which to detect communities.
+
+  partition_type : type of :class:`
+    The type of partition to use for optimisation.
+
+  initial_membership : list of int
+    Initial membership for the partition. If :obj:`None` then defaults to a
+    singleton partition.
+
+  weights : list of double, or edge attribute
+    Weights of edges. Can be either an iterable or an edge attribute.
+
+  **kwargs
+    Remaining keyword arguments, passed on to constructor of
+    ``partition_type``.
+
+  Returns
+  -------
+  partition
+    The optimised partition.
+
+  See Also
+  --------
+  :func:`Optimiser.optimise_partition`
+
+  Examples
+  --------
+  >>> G = ig.Graph.Famous('Zachary')
+  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
+
   """
-  Method for detecting communities using the Louvain algorithm. This functions
-  finds the optimal partition for all layers given the specified methods. For
-  the various possible methods see package documentation. This considers all
-  graphs in all layers, in which each node may be differently connected, but all
-  nodes must appear in all graphs. Furthermore, they should have identical
-  indices in the graph (i.e. node i is assumed to be the same node in all
-  graphs).  The quality of this partition is simply the sum of the individual
-  qualities for the various partitions, weighted by the layer_weight. If we
-  denote by q_k the quality of layer k and the weight by w_k, the overall
-  quality is then
-  q = sum_k w_k*q_k.
-
-  Notice that this is particularly useful for graphs containing negative links.
-  When separating the graph in two graphs, the one containing only the positive
-  links, and the other only the negative link, by supplying a negative weight to
-  the latter layer, we try to find relatively many positive links within a
-  community and relatively many negative links between communities.
-
-  Keyword arguments:
-
-  layers
-    A list of all layers containing the additional information. See ``Layer``
-    class for more information.
-
-  consider_comms=ALL_NEIGH_COMMS
-    This parameter determines which communities to consider when moving a node.
-
-    ALL_COMMS
-      Consider all communities always.
-
-    ALL_NEIGH_COMMS
-      Consider all communities of the neighbours
-
-    RAND_COMM
-      Consider only a single random community
-
-    ALL_NEIGH_COMMS
-      Consider only a single random community of the neighbours. Notice that
-      this is sampled from the set of all neighbours so that the communities are
-      sampled with respective frequency.
-
-    In ordinary cases it is usually not necessary to alter this parameter. The
-    default choice of considering all communities of the neighbours works
-    relatively well, and is relatively fast. However, in the case of negative
-    weights, it may be better to move a node to a community to which it is not
-    connected, so that one would need to consider all communities.
-    Alternatively, by only selecting a single random community from the
-    neighbours to consider, one can considerably speed up the algorithm, without
-    loosing too much quality.
-
-  returns: membership vector and the quality
-
-  We return the membership vector instead of a partition, because the latter
-  needs an underlying graph.
-  """
-  args = [];
-  for layer in layers:
-    if layer.weight is not None:
-      if isinstance(layer.weight, str):
-        layer.weight = layer.graph.es[layer.weight];
-      else:
-        # Make sure it is a list
-        layer.weight = list(layer.weight);
-    args.append((__get_py_capsule(layer.graph), layer.method,
-           layer.layer_weight, layer.initial_membership, layer.weight,
-           layer.resolution_parameter));
-  membership, quality = _c_louvain._find_partition_multiplex(args, consider_comms);
-  return membership, quality;
-
-def find_partition(graph, method, initial_membership=None, weight=None,
-    resolution_parameter=1.0, consider_comms=ALL_NEIGH_COMMS):
-  """
-  Method for detecting communities using the Louvain algorithm. This functions
-  finds the optimal partition given the specified method. For the various possible
-  methods see package documentation.
-
-  Keyword arguments:
-
-  graph
-    The graph for which to find the optimal partition.
-
-  method
-    The type of partition which will be used during optimisation.
-
-  initial_membership=None
-    If provided, the optimisation will start with this initial membership.
-    Should be a list that contains any unique identified for a community, which
-    is converted to a numeric representation. Since communities can never be
-    split, the number of communities in this initial partition provides an upper
-    bound.
-
-  weight=None
-    If provided, indicates the edge attribute to use as a weight. (N.B. note
-    that Significance is not suited for weighted graphs).
-
-  resolution_parameter=1.0
-    For those methods that use a resolution parameter, this is indicated here.
-
-  consider_comms=ALL_NEIGH_COMMS
-    This parameter determines which communities to consider when moving a node.
-
-    ALL_COMMS
-      Consider all communities always.
-
-    ALL_NEIGH_COMMS
-      Consider all communities of the neighbours
-
-    RAND_COMM
-      Consider only a single random community
-
-    ALL_NEIGH_COMMS
-      Consider only a single random community of the neighbours. Notice that
-      this is sampled from the set of all neighbours so that the communities are
-      sampled with respective frequency.
-
-    In ordinary cases it is usually not necessary to alter this parameter. The
-    default choice of considering all communities of the neighbours works
-    relatively well, and is relatively fast. However, in the case of negative
-    weights, it may be better to move a node to a community to which it is not
-    connected, so that one would need to consider all communities.
-    Alternatively, by only selecting a single random community from the
-    neighbours to consider, one can considerably speed up the algorithm, without
-    loosing too much quality.
-
-  The quality of the partition, as measured by the indicated method is
-  provided in the returned partition as partition.quality.
-
-  returns: optimized partition."""
-  pygraph_t = __get_py_capsule(graph);
-  if weight is not None:
-    if isinstance(weight, str):
-      weight = graph.es[weight];
-    else:
-      # Make sure it is a list
-      weight = list(weight);
-  if initial_membership is not None:
-    gen = _ig.UniqueIdGenerator();
-    initial_membership = [gen[m] for m in initial_membership];
-  membership, quality = _c_louvain._find_partition(pygraph_t, method, initial_membership, weight, resolution_parameter, consider_comms);
-  partition = _ig.VertexClustering(graph, membership);
-  partition.quality = quality;
+  if not weights is None:
+    kwargs['weights'] = weights;
+  partition = partition_type(graph,
+                             initial_membership=initial_membership,
+                             **kwargs);
+  optimiser = Optimiser();
+  optimiser.optimise_partition(partition);
   return partition;
 
-def quality(graph, partition, method, weight=None, resolution_parameter=1.0):
-  """ Returns the quality of the partition as measured by the indicated method.
-  For the various possible methods see package documentation.
-  Keyword arguments:
+def find_partition_multiplex(graphs, partition_type, **kwargs):
+  """ Detect communities for multiplex graphs.
 
-  graph
-    The graph for to use for the calculation of the quality of the partition.
+  Each graph should be defined on the same set of vertices, only the edges may
+  differ for different graphs. See
+  :func:`Optimiser.optimise_partition_multiplex` for a more detailed
+  explanation.
 
-  partition
-    The partition for which to measure the quality.
+  Parameters
+  ----------
+  graphs : list of :class:`ig.Graph`
+    List of :class:`louvain.VertexPartition` layers to optimise.
 
-  method
-    The type of partition which will be used during optimisation.
+  partition_type : type of :class:`MutableVertexPartition`
+    The type of partition to use for optimisation (identical for all graphs).
 
-  initial_membership=None
-    If provided, the optimisation will start with this initial membership.
-    Should be a list that contains any unique identified for a community, which
-    is converted to a numeric representation. Since communities can never be
-    split, the number of communities in this initial partition provides an upper
-    bound.
+  **kwargs
+    Remaining keyword arguments, passed on to constructor of ``partition_type``.
 
-  weight=None
-    If provided, indicates the edge attribute to use as a weight. (N.B. note
-    that Significance is not suited for weighted graphs).
+  Returns
+  -------
+  list of int
+    membership of nodes.
 
-  resolution_parameter=1.0
-    For those methods that use a resolution parameter, this is indicated here.
+  float
+    Improvement in quality of combined partitions, see
+    :func:`Optimiser.optimise_partition_multiplex`.
 
-  returns: quality of the partition.
+  Notes
+  -----
+  We don't return a partition in this case because a partition is always
+  defined on a single graph. We therefore simply return the membership (which
+  is the same for all layers).
+
+  See Also
+  --------
+  :func:`Optimiser.optimise_partition_multiplex`
+
+  :func:`slices_to_layers`
+
+  Examples
+  --------
+  >>> n = 100;
+  >>> G_1 = ig.Graph.Lattice([n], 1);
+  >>> G_2 = ig.Graph.Lattice([n], 1);
+  >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2],
+  ...                                                            louvain.ModularityVertexPartition);
   """
-  pygraph_t = __get_py_capsule(graph);
-  membership = partition.membership;
-  if weight is not None:
-    if isinstance(weight, str):
-      weight = graph.es[weight];
-    else:
-      # Make sure it is a list
-      weight = list(weight);
-  if len(membership) != graph.vcount():
-    raise Exception("Membership length inconsistent with graph.");
-  return _c_louvain._quality(pygraph_t, membership, method, weight, resolution_parameter);
+  n_layers = len(graphs);
+  partitions = [];
+  layer_weights = [1]*n_layers;
+  for graph in graphs:
+    partitions.append(partition_type(graph, **kwargs));
+  optimiser = Optimiser();
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights);
+  return partitions[0].membership, improvement;
 
-def total_internal_edges(partition, weight=None):
-  """ Returns the total number of internal edges (or internal weight in case of
-  a weighted graph). Used for bisectioning on resolution parameters, see ``bisect``. """
-  if weight is None:
-    return sum([H.ecount() for H in partition.subgraphs()]);
-  else:
-    return sum([sum(H.es[weight]) for H in partition.subgraphs()]);
+def find_partition_temporal(graphs, partition_type,
+                            interslice_weight=None,
+                            slice_attr='slice', vertex_id_attr='id',
+                            edge_type_attr='type', weight_attr='weight',
+                            **kwargs):
+  """ Detect communities for temporal graphs.
 
-def bisect(
-      graph,
-      method,
-      resolution_range,
-      weight=None,
-      consider_comms=ALL_NEIGH_COMMS,
-      bisect_func=total_internal_edges,
-      min_diff_bisect_value=1,
-      min_diff_resolution=1e-3,
-      linear_bisection=False,
-      ):
-  """ Use bisectioning on the resolution parameter in order to construct a
-  resolution profile.
+  Each graph is considered to represent a time slice and does not necessarily
+  need to be defined on the same set of vertices. Nodes in two consecutive
+  slices are identified on the basis of the ``vertex_id_attr``, i.e. if two
+  nodes in two consecutive slices have an identical value of the
+  ``vertex_id_attr`` they are coupled.  The ``vertex_id_attr`` should hence be
+  unique in each slice. The nodes are then coupled with a weight of
+  ``interslice_weight`` which is set in the edge attribute ``weight_attr``. No
+  weight is set if the ``interslice_weight`` is None (i.e.  corresponding in
+  practice with a weight of 1). See :func:`time_slices_to_layers` for
+  a more detailed explanation.
 
-  Keyword arguments:
+  Parameters
+  ----------
+  graphs : list of :class:`ig.Graph`
+    List of :class:`louvain.VertexPartition` layers to optimise.
 
-  graph
-    The graph for which to find the optimal partition(s).
+  partition_type : type of :class:`VertexPartition.MutableVertexPartition`
+    The type of partition to use for optimisation (identical for all graphs).
 
-  method
-    The method used to find a partition (must support resolution parameters
-    obviously).
+  interslice_weight : float
+    The weight of the coupling between two consecutive time slices.
 
-  resolution_range
-    The range of resolution values that we would like to scan.
+  slice_attr : string
+    The vertex attribute to use for indicating the slice of a node.
 
-  weight=None
-    If provided, indicates the edge attribute to use as a weight.
+  vertex_id_attr : string
+    The vertex to use to identify nodes.
 
-  consider_comms=ALL_NEIGH_COMMS
-    This parameter determines which communities to consider when moving a node.
-    Please refer to the documentation of `find_partition` for more information
-    on this parameter.
+  edge_type_attr : string
+    The edge attribute to use for indicating the type of link (`interslice` or
+    `intraslice`).
 
-  bisect_func=total_internal_edges
-    The function used for bisectioning. For the methods currently implemented,
-    this should usually not be altered.
+  weight_attr : string
+    The edge attribute used to indicate the weight.
 
-  min_diff_bisect_value=1
-    The difference in the value returned by the bisect_func below which the
-    bisectioning stops (i.e. by default, a difference of a single edge does not
-    trigger further bisectioning).
+  **kwargs
+    Remaining keyword arguments, passed on to constructor of
+    ``partition_type``.
 
-  min_diff_resolution=1e-3
-    The difference in resolution below which the bisectioning stops. For
-    positive differences, the logarithmic difference is used by default, i.e.
-    ``diff = log(res_1) - log(res_2) = log(res_1/res_2)``, for which ``diff >
-    min_diff_resolution`` to continue bisectioning. Set the linear_bisection to
-    true in order to use only linear bisectioning (in the case of negative
-    resolution parameters for example, which can happen with negative weights).
+  Returns
+  -------
+  list of membership
+    list containing for each slice the membership vector.
 
-  linear_bisection=False
-    Whether the bisectioning will be done on a linear or on a logarithmic basis
-    (if possible).
+  float
+    Improvement in quality of combined partitions, see
+    :func:`Optimiser.optimise_partition_multiplex`.
 
-  returns: a list of partitions and resolution values.
-    """
-  # Helper function for cleaning values to be a stepwise function
-  def clean_stepwise(bisect_values):
-    # We only need to keep the changes in the bisection values
-    bisect_list = sorted([(res, part.bisect_value) for res, part in
-      bisect_values.iteritems()], key=lambda x: x[0]);
-    for (res1, v1), (res2, v2) \
-        in zip(bisect_list,
-               bisect_list[1:]):
-      # If two consecutive bisection values are the same, remove the second
-      # resolution parameter
-      if v1 == v2:
-        del bisect_values[res2];
-  # We assume here that the bisection values are
-  # monotonically decreasing with increasing resolution
-  # parameter values
-  def ensure_monotonicity(bisect_values, new_res):
-    for res, bisect_part in bisect_values.iteritems():
-      # If at a lower resolution value there were lower bisection values, we
-      # should update them in order to maintain monotonicity
-      if res < new_res and \
-         bisect_part.bisect_value < bisect_values[new_res].bisect_value:
-        bisect_values[res] = bisect_values[new_res];
-      # If at a higher resolution value there were higher bisection values, we
-      # should update them in order to maintain monotonicity
-      elif res > new_res and \
-         bisect_part.bisect_value > bisect_values[new_res].bisect_value:
-        bisect_values[res] = bisect_values[new_res];
-  # Start actual bisectioning
-  bisect_values = {};
-  stack_res_range = [];
-  # Push first range onto the stack
-  stack_res_range.append(resolution_range);
-  # Make sure the bisection values are calculated
-  # The namedtuple we will use in the bisection function
-  BisectPartition = namedtuple('BisectPartition',
-      ['partition', 'bisect_value']);
-  partition = find_partition(graph=graph, method=method, weight=weight,
-                                 resolution_parameter=resolution_range[0], consider_comms=consider_comms);
-  bisect_values[resolution_range[0]] = BisectPartition(partition=partition,
-                              bisect_value=bisect_func(partition));
-  partition = find_partition(graph=graph, method=method, weight=weight,
-                                 resolution_parameter=resolution_range[1], consider_comms=consider_comms);
-  bisect_values[resolution_range[1]] = BisectPartition(partition=partition,
-                              bisect_value=bisect_func(partition));
-  # While stack of ranges not yet empty
-  while stack_res_range:
-    # Get the current range from the stack
-    current_range = stack_res_range.pop();
-    # Get the difference in bisection values
-    diff_bisect_value = abs(bisect_values[current_range[0]].bisect_value -
-                            bisect_values[current_range[1]].bisect_value);
-    # Get the difference in resolution parameter (in log space if 0 is not in
-    # the interval (assuming only non-negative resolution parameters).
-    if current_range[0] > 0 and current_range[1] > 0 and not linear_bisection:
-      diff_resolution = log(current_range[1]/current_range[0]);
-    else:
-      diff_resolution = abs(current_range[1] - current_range[0]);
-    # Check if we still want to scan a smaller interval
-    logging.info('Range=[{0}, {1}], diff_res={2}, diff_bisect={3}'.format(
-        current_range[0], current_range[1], diff_resolution, diff_bisect_value));
-    # If we would like to bisect this interval
-    if diff_bisect_value > min_diff_bisect_value and \
-       diff_resolution > min_diff_resolution:
-      # Determine new resolution value
-      if current_range[0] > 0 and current_range[1] > 0 and not linear_bisection:
-        new_res = sqrt(current_range[1]*current_range[0]);
-      else:
-        new_res = sum(current_range)/2.0;
-      # Bisect left (push on stack)
-      stack_res_range.append((current_range[0], new_res));
-      # Bisect right (push on stack)
-      stack_res_range.append((new_res, current_range[1]));
-      # If we haven't scanned this resolution value yet,
-      # do so now
-      if not bisect_values.has_key(new_res):
-        partition = find_partition(graph, method=method, weight=weight,
-                                       resolution_parameter=new_res, consider_comms=consider_comms);
-        bisect_values[new_res] = BisectPartition(partition=partition,
-                                    bisect_value=bisect_func(partition));
-        logging.info('Resolution={0}, Resolution Value={1}'.format(new_res,
-          bisect_func(partition)));
-      # Because of stochastic differences in different runs, the monotonicity
-      # of the bisection values might be violated, so check for any
-      # inconsistencies
-      ensure_monotonicity(bisect_values, new_res);
-  # Ensure we only keep those resolution values for which
-  # the bisection values actually changed, instead of all of them
-  clean_stepwise(bisect_values);
-  # Use an ordered dict so that when iterating over it, the results appear in
-  # increasing order based on the resolution value.
-  return OrderedDict(sorted(((res, part) for res, part in
-    bisect_values.iteritems()), key=lambda x: x[0]));
+  See Also
+  --------
+  :func:`time_slices_to_layers`
+
+  :func:`slices_to_layers`
+
+  Examples
+  --------
+  >>> n = 100;
+  >>> G_1 = ig.Graph.Lattice([n], 1);
+  >>> G_1.vs['id'] = range(n);
+  >>> G_2 = ig.Graph.Lattice([n], 1);
+  >>> G_2.vs['id'] = range(n);
+  >>> membership, improvement = louvain.find_partition_temporal([G_1, G_2], 
+  ...                                                           louvain.ModularityVertexPartition, 
+  ...                                                           interslice_weight=1);
+  """
+  # Create layers
+  G_layers, G_interslice, G = time_slices_to_layers(graphs,
+                                                    interslice_weight,
+                                                    slice_attr=slice_attr,
+                                                    vertex_id_attr=vertex_id_attr,
+                                                    edge_type_attr=edge_type_attr,
+                                                    weight_attr=weight_attr);
+  # Optimise partitions
+  arg_dict = {};
+  if 'node_sizes' in partition_type.__init__.__code__.co_varnames:
+    arg_dict['node_sizes'] = 'node_size';
+
+  if 'weights' in partition_type.__init__.__code__.co_varnames:
+    arg_dict['weights'] = 'weight';
+
+  arg_dict.update(kwargs);
+
+  partitions = [];
+  for H in G_layers:
+    arg_dict['graph'] = H;
+    partitions.append(partition_type(**arg_dict));
+
+  # We can always take the same interslice partition, as this should have no
+  # cost in the optimisation.
+  partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0,
+                                            node_sizes='node_size', weights=weight_attr);
+  optimiser = Optimiser();
+  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+  # Transform results back into original form.
+  membership = {(v[slice_attr], v[vertex_id_attr]): m for v, m in zip(G.vs, partitions[0].membership)}
+
+  membership_time_slices = [];
+  for slice_idx, H in enumerate(graphs):
+    membership_slice = [membership[(slice_idx, v[vertex_id_attr])] for v in H.vs];
+    membership_time_slices.append(list(membership_slice));
+  return membership_time_slices, improvement;
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# These are helper functions to create a proper
+# disjoint union in python. The igraph implementation
+# currently does not keep the attributes when creating
+# a disjoint_union.
+def get_attrs_or_nones(seq, attr_name):
+  try:
+    return seq[attr_name]
+  except KeyError:
+    return [None] * len(seq)
+
+def disjoint_union_attrs(graphs):
+  G = _ig.Graph.disjoint_union(graphs[0], graphs[1:]);
+
+  vertex_attributes = set(sum([H.vertex_attributes() for H in graphs], []));
+  edge_attributes = set(sum([H.edge_attributes() for H in graphs], []));
+
+  for attr in vertex_attributes:
+    attr_value = sum([get_attrs_or_nones(H.vs, attr) for H in graphs], []);
+    G.vs[attr] = attr_value;
+  for attr in edge_attributes:
+    attr_value = sum([get_attrs_or_nones(H.es, attr) for H in graphs], []);
+    G.es[attr] = attr_value;
+
+  return G;
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Conversion to layer graphs
+
+def time_slices_to_layers(graphs,
+                          interslice_weight=1,
+                          slice_attr='slice',
+                          vertex_id_attr='id',
+                          edge_type_attr='type',
+                          weight_attr='weight'):
+  """ Convert time slices to layer graphs.
+
+  Each graph is considered to represent a time slice. This function simply
+  connects all the consecutive slices (i.e. the slice graph) with an
+  ``interslice_weight``.  The further conversion is then delegated to
+  :func:`slices_to_layers`, which also provides further details.
+
+  See Also
+  --------
+  :func:`find_partition_temporal`
+
+  :func:`slices_to_layers`
+
+  """
+  G_slices = _ig.Graph.Tree(len(graphs), 1, mode=_ig.TREE_UNDIRECTED);
+  G_slices.es[weight_attr] = interslice_weight;
+  G_slices.vs[slice_attr] = graphs;
+  return slices_to_layers(G_slices,
+                          slice_attr,
+                          vertex_id_attr,
+                          edge_type_attr,
+                          weight_attr);
+
+def slices_to_layers(G_coupling,
+                     slice_attr='slice',
+                     vertex_id_attr='id',
+                     edge_type_attr='type',
+                     weight_attr='weight'):
+  """ Convert a coupling graph of slices to layers of graphs.
+
+  This function converts a graph of slices to layers so that they can be used
+  with this package. This function assumes that the slices are represented by
+  nodes in ``G_coupling``, and stored in the attribute ``slice_attr``. In other
+  words, ``G_coupling.vs[slice_attr]`` should contain :class:`ig.Graph` s . The
+  slices will be converted to layers, and nodes in different slices will be
+  coupled if the two slices are connected in ``G_coupling``. Nodes in two
+  connected slices are identified on the basis of the ``vertex_id_attr``, i.e.
+  if two nodes in two connected slices have an identical value of the
+  ``vertex_id_attr`` they will be coupled. The ``vertex_id_attr`` should hence
+  be unique in each slice.  The weight of the coupling is determined by the
+  weight of this link in ``G_coupling``, as determined by the ``weight_attr``.
+
+  Parameters
+  ----------
+  G_coupling : :class:`ig.Graph`
+    The graph connecting the different slices.
+
+  slice_attr : string
+    The vertex attribute which contains the slices.
+
+  edge_type_attr : string
+    The edge attribute to use for indicating the type of link (``interslice``
+    or ``intraslice``).
+
+  weight_attr : string
+    The edge attribute used to indicate the (coupling) weight.
+
+  Returns
+  -------
+  G_layers : list of :class:`ig.Graph`
+    A list of slices converted to layers.
+
+  G_interslice : :class:`ig.Graph`
+    The interslice coupling layer.
+
+  G : :class:`ig.Graph`
+    The complete graph containing all layers and interslice couplings.
+
+  Notes
+  -----
+  The distinction between slices and layers is not easy to grasp. Slices in
+  this context refer to graphs that somehow represents different aspects of a
+  network. The simplest example is probably slices that represents time: there
+  are different snapshots network across time, and each snapshot is considered
+  a slice. Some nodes may drop out of the network over time, while others enter
+  the network. Edges may change over time, or the weight of the links may
+  change over time. This is just the simplest example of a slice, and there may
+  be different, more complex possibilities. Below an example with three time
+  slices:
+
+  .. image:: figures/slices.png
+
+  Now in order to optimise partitions across these different slices, we
+  represent them slightly differently, namely as layers. The idea of layers is
+  that all graphs always are defined on the same set of nodes, and that only
+  the links differ for different layers. We thus create new nodes as
+  combinations of original nodes and slices. For example, if node 1 existed in
+  both slice 1 and in slice 2, we will thus create two nodes to build the
+  layers: a node 1-1 and a node 1-2. Additionally, if the slices are connected
+  in the slice graph, the two nodes would also be connected, so there would be
+  a linke between node 1-1 and 1-2. Different slices will then correspond to
+  different layers: each layer only contains the link for that particular
+  slice. In addition, for methods such as :class:`CPMVertexPartition`,
+  so-called ``node_sizes`` are required, and for them to properly function,
+  they should be set to 0 (which is handled appropriately in this function, and
+  stored in the vertex attribute ``node_size``). We thus obtain equally many
+  layers as we have slices, and we need one more layer for representing the
+  interslice couplings.  For the example provided above, we thus obtain the
+  following:
+
+  .. image:: figures/layers_separate.png
+
+  The idea of doing community detection with slices is further detailed in [1].
+
+  References
+  ----------
+  .. [1] Mucha, P. J., Richardson, T., Macon, K., Porter, M. A., & Onnela,
+         J.-P. (2010).  Community structure in time-dependent, multiscale, and
+         multiplex networks. Science, 328(5980), 876-8.
+         `10.1126/science.1184819 <http://doi.org/10.1126/science.1184819>`_
+  See Also
+  --------
+  :func:`find_partition_temporal`
+
+  :func:`time_slices_to_layers`
+
+  """
+  if not slice_attr in G_coupling.vertex_attributes():
+    raise ValueError("Could not find the vertex attribute {0} in the coupling graph.".format(slice_attr));
+
+  if not weight_attr in G_coupling.edge_attributes():
+    raise ValueError("Could not find the edge attribute {0} in the coupling graph.".format(weight_attr));
+
+  # Create disjoint union of the time graphs
+  for v_slice in G_coupling.vs:
+    H = v_slice[slice_attr];
+    H.vs[slice_attr] = v_slice.index;
+    if not vertex_id_attr in H.vertex_attributes():
+      raise ValueError("Could not find the vertex attribute {0} to identify nodes in different slices.".format(vertex_id_attr ));
+    if not weight_attr in H.edge_attributes():
+      H.es[weight_attr] = 1;
+
+  G = disjoint_union_attrs(G_coupling.vs[slice_attr]);
+  G.es[edge_type_attr] = 'intraslice';
+
+  for v_slice in G_coupling.vs:
+    for u_slice in v_slice.neighbors(mode=_ig.OUT):
+      if v_slice.index < u_slice.index or G_coupling.is_directed():
+        nodes_v = G.vs.select(lambda v: v[slice_attr]==v_slice.index)[vertex_id_attr];
+        if len(set(nodes_v)) != len(nodes_v):
+          err = '\n'.join(
+            ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_v).items() if count > 1]
+            );
+          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(v_slice.index, err));
+        nodes_u = G.vs.select(lambda v: v[slice_attr]==u_slice.index)[vertex_id_attr];
+        if len(set(nodes_u)) != len(nodes_u):
+          err = '\n'.join(
+            ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_u).items() if count > 1]
+            );
+          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(u_slice.index, err));
+        common_nodes = set(nodes_v).intersection(set(nodes_u));
+        nodes_v = sorted([v for v in G.vs if v[slice_attr] == v_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr]);
+        nodes_u = sorted([v for v in G.vs if v[slice_attr] == u_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr]);
+        edges = zip(nodes_v, nodes_u);
+        e_start = G.ecount();
+        G.add_edges(edges);
+        e_end = G.ecount();
+        e_idx = range(e_start, e_end);
+        interslice_weight = G_coupling.es[G_coupling.get_eid(v_slice, u_slice)][weight_attr];
+        if not interslice_weight is None:
+          G.es[e_idx][weight_attr] = interslice_weight;
+        G.es[e_idx][edge_type_attr] = 'interslice';
+
+  # Convert aggregate graph to individual layers for each time slice.
+  G_layers = [None]*G_coupling.vcount();
+  for v_slice in G_coupling.vs:
+    H = G.subgraph_edges(G.es.select(_within=[v.index for v in G.vs if v[slice_attr] == v_slice.index]), delete_vertices=False);
+    H.vs['node_size'] = [1 if v[slice_attr] == v_slice.index else 0 for v in H.vs];
+    G_layers[v_slice.index] = H;
+
+  # Create one graph for the interslice links.
+  G_interslice = G.subgraph_edges(G.es.select(type_eq='interslice'), delete_vertices=False);
+  G_interslice.vs['node_size'] = 0;
+
+  return G_layers, G_interslice, G;

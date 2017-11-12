@@ -16,28 +16,60 @@
 #include "CPMVertexPartition.h"
 #include "Optimiser.h"
 
+#include "python_partition_interface.h"
+#include "python_optimiser_interface.h"
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-  static PyObject* _find_partition_multiplex(PyObject *self, PyObject *args, PyObject *keywds);
-  static PyObject* _find_partition(PyObject *self, PyObject *args, PyObject *keywds);
-  static PyObject* _quality(PyObject *self, PyObject *args, PyObject *keywds);
 
-  static MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size_t>* initial_membership, double resolution_parameter);
-  static MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, double resolution_parameter);
-
-  static char find_partition_multiplex_docs[] =
-      "find_partition_multiplex( ): Finds an optimal partition for several graphs and methods at the same time.\n";
-  static char find_partition_docs[] =
-      "_find_partition( ): Find a the optimal partition using the louvain algorithm and the specified method for the supplied graph.\n";
-  static char quality_docs[] =
-      "_quality( ): Calculate the quality of the supplied partition using the indicated method.\n";
+  PyObject* _set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds);
 
   static PyMethodDef louvain_funcs[] = {
-      {"_find_partition_multiplex", (PyCFunction)_find_partition_multiplex,  METH_VARARGS | METH_KEYWORDS, find_partition_multiplex_docs},
-      {"_find_partition", (PyCFunction)_find_partition,  METH_VARARGS | METH_KEYWORDS, find_partition_docs},
-      {"_quality", (PyCFunction)_quality,  METH_VARARGS | METH_KEYWORDS, quality_docs},
+
+      {"_new_ModularityVertexPartition",                            (PyCFunction)_new_ModularityVertexPartition,                            METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_SignificanceVertexPartition",                          (PyCFunction)_new_SignificanceVertexPartition,                          METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_SurpriseVertexPartition",                              (PyCFunction)_new_SurpriseVertexPartition,                              METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_CPMVertexPartition",                                   (PyCFunction)_new_CPMVertexPartition,                                   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_RBERVertexPartition",                                  (PyCFunction)_new_RBERVertexPartition,                                  METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_RBConfigurationVertexPartition",                       (PyCFunction)_new_RBConfigurationVertexPartition,                       METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_MutableVertexPartition_diff_move",                         (PyCFunction)_MutableVertexPartition_diff_move,                         METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_move_node",                         (PyCFunction)_MutableVertexPartition_move_node,                         METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_get_py_igraph",                     (PyCFunction)_MutableVertexPartition_get_py_igraph,                     METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_aggregate_partition",               (PyCFunction)_MutableVertexPartition_aggregate_partition,               METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_from_coarse_partition",            (PyCFunction)_MutableVertexPartition_from_coarse_partition,              METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_renumber_communities",              (PyCFunction)_MutableVertexPartition_renumber_communities,              METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_MutableVertexPartition_quality",                           (PyCFunction)_MutableVertexPartition_quality,                           METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_total_weight_in_comm",              (PyCFunction)_MutableVertexPartition_total_weight_in_comm,              METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_total_weight_from_comm",            (PyCFunction)_MutableVertexPartition_total_weight_from_comm,            METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_total_weight_to_comm",              (PyCFunction)_MutableVertexPartition_total_weight_to_comm,              METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_total_weight_in_all_comms",         (PyCFunction)_MutableVertexPartition_total_weight_in_all_comms,         METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_total_possible_edges_in_all_comms", (PyCFunction)_MutableVertexPartition_total_possible_edges_in_all_comms, METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_weight_to_comm",                    (PyCFunction)_MutableVertexPartition_weight_to_comm,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_weight_from_comm",                  (PyCFunction)_MutableVertexPartition_weight_from_comm,                  METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_get_membership",                    (PyCFunction)_MutableVertexPartition_get_membership,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_set_membership",                    (PyCFunction)_MutableVertexPartition_set_membership,                    METH_VARARGS | METH_KEYWORDS, ""},
+      {"_ResolutionParameterVertexPartition_get_resolution",        (PyCFunction)_ResolutionParameterVertexPartition_get_resolution,        METH_VARARGS | METH_KEYWORDS, ""},
+      {"_ResolutionParameterVertexPartition_set_resolution",        (PyCFunction)_ResolutionParameterVertexPartition_set_resolution,        METH_VARARGS | METH_KEYWORDS, ""},
+      {"_ResolutionParameterVertexPartition_quality",               (PyCFunction)_ResolutionParameterVertexPartition_quality,               METH_VARARGS | METH_KEYWORDS, ""},
+
+
+      {"_new_Optimiser",                            (PyCFunction)_new_Optimiser,                            METH_NOARGS,                  ""},
+      {"_Optimiser_optimise_partition",             (PyCFunction)_Optimiser_optimise_partition,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_optimise_partition_multiplex",   (PyCFunction)_Optimiser_optimise_partition_multiplex,   METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_move_nodes",                     (PyCFunction)_Optimiser_move_nodes,                     METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_Optimiser_set_consider_comms",             (PyCFunction)_Optimiser_set_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_consider_empty_community",   (PyCFunction)_Optimiser_set_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_Optimiser_get_consider_comms",             (PyCFunction)_Optimiser_get_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_get_consider_empty_community",   (PyCFunction)_Optimiser_get_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
+
+      {"_set_rng_seed",                             (PyCFunction)_set_rng_seed,                             METH_VARARGS | METH_KEYWORDS, ""},
+
       {NULL}
   };
 

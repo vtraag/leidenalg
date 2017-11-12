@@ -1,13 +1,13 @@
 #include "RBConfigurationVertexPartition.h"
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> membership, double resolution_parameter) :
+      vector<size_t> const& membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
         membership, resolution_parameter)
 { }
 
 RBConfigurationVertexPartition::RBConfigurationVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -27,6 +27,11 @@ RBConfigurationVertexPartition::~RBConfigurationVertexPartition()
 RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph)
 {
   return new RBConfigurationVertexPartition(graph, this->resolution_parameter);
+}
+
+RBConfigurationVertexPartition* RBConfigurationVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new RBConfigurationVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 /*****************************************************************************
@@ -120,7 +125,7 @@ double RBConfigurationVertexPartition::diff_move(size_t v, size_t new_comm)
   We here use the unscaled version of modularity, in other words, we don"t
   normalise by the number of edges.
 ******************************************************************************/
-double RBConfigurationVertexPartition::quality()
+double RBConfigurationVertexPartition::quality(double resolution_parameter)
 {
   #ifdef DEBUG
     cerr << "double ModularityVertexPartition::quality()" << endl;
@@ -135,7 +140,7 @@ double RBConfigurationVertexPartition::quality()
       size_t csize = this->csize(c);
       cerr << "\t" << "Comm: " << c << ", size=" << csize << ", w=" << w << ", w_out=" << w_out << ", w_in=" << w_in << "." << endl;
     #endif
-    mod += w - this->resolution_parameter*w_out*w_in/((this->graph->is_directed() ? 1.0 : 4.0)*this->graph->total_weight());
+    mod += w - resolution_parameter*w_out*w_in/((this->graph->is_directed() ? 1.0 : 4.0)*this->graph->total_weight());
   }
   double q = (2.0 - this->graph->is_directed())*mod;
   #ifdef DEBUG

@@ -3,23 +3,28 @@
 
 #include <igraph.h>
 #include <vector>
+#include <set>
 #include <exception>
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #include <iostream>
   using std::cerr;
   using std::endl;
-#endif
+//#endif
 
 class MutableVertexPartition;
 
 using std::vector;
 using std::pair;
+using std::set;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
 
+bool orderCSize(const size_t* A, const size_t* B);
+
 double KL(double q, double p);
+double KLL(double q, double p);
 
 template <class T> T sum(vector<T> vec)
 {
@@ -31,7 +36,7 @@ template <class T> T sum(vector<T> vec)
   return sum_of_elems;
 };
 
-class Exception : std::exception
+class Exception : public std::exception
 {
   public:
     Exception(const char* str)
@@ -49,47 +54,79 @@ class Exception : std::exception
 
 };
 
+inline igraph_rng_t* init_rng()
+{
+  igraph_rng_t* rng = new igraph_rng_t();
+  igraph_rng_init(rng, &igraph_rngtype_mt19937);
+  return rng;
+}
+
+inline igraph_rng_t* default_rng()
+{
+  static igraph_rng_t* default_rng = init_rng();
+  return default_rng;
+}
+
+inline void set_rng_seed(size_t seed)
+{
+  igraph_rng_seed(default_rng(), seed);
+};
+
+inline size_t get_random_int(size_t from, size_t to)
+{
+  return igraph_rng_get_integer(default_rng(), from, to);
+};
+
+void shuffle(vector<size_t>& v);
+
 class Graph
 {
   public:
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes,
-      vector<double> node_self_weights, int correct_self_loops);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes,
+      vector<double> const& node_self_weights, int correct_self_loops);
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes,
-      vector<double> node_self_weights);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes,
+      vector<double> const& node_self_weights);
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes, int correct_self_loops);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes, int correct_self_loops);
     Graph(igraph_t* graph,
-      vector<double> edge_weights,
-      vector<size_t> node_sizes);
-    Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loops);
-    Graph(igraph_t* graph, vector<double> edge_weights);
+      vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes);
+    Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops);
+    Graph(igraph_t* graph, vector<double> const& edge_weights);
+    Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops);
+    Graph(igraph_t* graph, vector<size_t> const& node_sizes);
     Graph(igraph_t* graph, int correct_self_loops);
     Graph(igraph_t* graph);
     Graph();
     ~Graph();
 
+    int has_self_loops();
+    size_t possible_edges();
+    size_t possible_edges(size_t n);
+
     Graph* collapse_graph(MutableVertexPartition* partition);
 
-    double weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode);
-    vector< pair<size_t, size_t> >*
-      get_neighbour_edges(size_t v, igraph_neimode_t mode);
-    vector< size_t >*
-      get_neighbours(size_t v, igraph_neimode_t mode);
+    double weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode);
+    void cache_neigh_communities(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
+    vector<size_t> const& get_neigh_comms(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
+
+    vector<size_t> const& get_neighbour_edges(size_t v, igraph_neimode_t mode);
+    vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
+
+    pair<size_t, size_t> get_endpoints(size_t e);
+
     inline size_t get_random_node()
     {
-      return this->get_random_int(0, this->vcount() - 1);
+      return get_random_int(0, this->vcount() - 1);
     };
 
-    inline size_t get_random_int(size_t from, size_t to)
-    {
-      return igraph_rng_get_integer(igraph_rng_default(), from, to);
-    };
+    inline igraph_t* get_igraph() { return this->_graph; };
 
     inline size_t vcount() { return igraph_vcount(this->_graph); };
     inline size_t ecount() { return igraph_ecount(this->_graph); };
@@ -109,6 +146,15 @@ class Graph
       #endif
       return this->_edge_weights[e];
     };
+
+    inline vector<size_t> edge(size_t e)
+    {
+      igraph_integer_t v1, v2;
+      igraph_edge(this->_graph, e, &v1, &v2);
+      vector<size_t> edge(2);
+      edge[0] = v1; edge[1] = v2;
+      return edge;
+    }
 
     // Get size of node based on attribute (or 1.0 if there is none).
     inline size_t node_size(size_t v)
@@ -159,6 +205,16 @@ class Graph
     vector<size_t> _node_sizes; // Used for the size of the nodes.
     vector<double> _node_self_weights; // Used for the self weight of the nodes.
 
+    void cache_neighbours(size_t v, igraph_neimode_t mode);
+    vector<size_t> _cached_neighs_from; size_t _current_node_cache_neigh_from;
+    vector<size_t> _cached_neighs_to;   size_t _current_node_cache_neigh_to;
+    vector<size_t> _cached_neighs_all;  size_t _current_node_cache_neigh_all;
+
+    void cache_neighbour_edges(size_t v, igraph_neimode_t mode);
+    vector<size_t> _cached_neigh_edges_from; size_t _current_node_cache_neigh_edges_from;
+    vector<size_t> _cached_neigh_edges_to;   size_t _current_node_cache_neigh_edges_to;
+    vector<size_t> _cached_neigh_edges_all;  size_t _current_node_cache_neigh_edges_all;
+
     double _total_weight;
     size_t _total_size;
     int _is_weighted;
@@ -167,6 +223,7 @@ class Graph
     double _density;
 
     void init_admin();
+    void init_weighted_neigh_selection();
     void set_defaults();
     void set_default_edge_weight();
     void set_default_node_size();
@@ -179,3 +236,4 @@ class Graph
 #include "MutableVertexPartition.h"
 
 #endif // GRAPHHELPER_INCLUDED
+

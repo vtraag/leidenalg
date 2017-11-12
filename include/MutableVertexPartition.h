@@ -46,17 +46,18 @@ class MutableVertexPartition
 {
   public:
     MutableVertexPartition(Graph* graph,
-        vector<size_t> membership);
+        vector<size_t> const& membership);
     MutableVertexPartition(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph);
+    virtual MutableVertexPartition* create(Graph* graph, vector<size_t> const& membership);
 
     virtual ~MutableVertexPartition();
 
     inline size_t membership(size_t v) { return this->_membership[v]; };
-    inline vector<size_t> membership() { return this->_membership; };
+    inline vector<size_t> const& membership() const { return this->_membership; };
 
     size_t csize(size_t comm);
-    set<size_t>* get_community(size_t comm);
+    set<size_t> const& get_community(size_t comm);
     size_t nb_communities();
 
     void move_node(size_t v,size_t new_comm);
@@ -72,8 +73,16 @@ class MutableVertexPartition
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    void renumber_communities(vector<size_t> new_membership);
-    void from_coarser_partition(MutableVertexPartition* partition);
+    void renumber_communities(vector<size_t> const& new_membership);
+    void set_membership(vector<size_t> const& new_membership);
+    vector<size_t> static renumber_communities(vector<MutableVertexPartition*> partitions);
+    size_t get_empty_community();
+    size_t add_empty_community();
+    void from_coarse_partition(vector<size_t> const& coarse_partition_membership);
+    void from_coarse_partition(MutableVertexPartition* partition);
+    void from_coarse_partition(MutableVertexPartition* partition, vector<size_t> const& coarser_membership);
+    void from_coarse_partition(vector<size_t> const& coarse_partition_membership, vector<size_t> const& coarse_node);
+
     void from_partition(MutableVertexPartition* partition);
 
     inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };
@@ -85,7 +94,12 @@ class MutableVertexPartition
     double weight_to_comm(size_t v, size_t comm);
     double weight_from_comm(size_t v, size_t comm);
 
-    set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t);
+    vector<size_t> const& get_neigh_comms(size_t v, igraph_neimode_t);
+    set<size_t>* get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
+
+    // By delegating the responsibility for deleting the graph to the partition,
+    // we no longer have to worry about deleting this graph.
+    int destructor_delete_graph;
 
   protected:
 
@@ -115,6 +129,14 @@ class MutableVertexPartition
     // Keep track of the total internal weight
     double _total_weight_in_all_comms;
     size_t _total_possible_edges_in_all_comms;
+
+    vector<size_t> _empty_communities;
+
+    void cache_neigh_communities(size_t v, igraph_neimode_t mode);
+
+    size_t _current_node_cache_community_from; vector<double> _cached_weight_from_community; vector<size_t> _cached_neigh_comms_from;
+    size_t _current_node_cache_community_to;   vector<double> _cached_weight_to_community;   vector<size_t> _cached_neigh_comms_to;
+    size_t _current_node_cache_community_all;  vector<double> _cached_weight_all_community;  vector<size_t> _cached_neigh_comms_all;
 
     void clean_mem();
     void init_graph_admin();

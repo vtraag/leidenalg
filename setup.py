@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import versioneer
 
 try:
     from urllib import urlretrieve
@@ -30,7 +31,13 @@ except:
 
 from distutils.core import Extension
 from distutils.util import get_platform
-from select import select
+
+if os.name == 'nt':
+  import msvcrt
+  import time
+else:
+  from select import select
+
 from subprocess import Popen, PIPE
 from textwrap import dedent
 
@@ -139,10 +146,17 @@ def preprocess_fallback_config():
     if os.name == 'nt' and distutils.ccompiler.get_default_compiler() == 'msvc':
         # if this setup is run in the source checkout *and* the igraph msvc was build,
         # this code adds the right library and include dir
-        all_msvc_dirs = glob.glob(os.path.join('igraph-*-msvc'))
+        version = '';
+        if sys.version_info == (2, 7):
+          version = '27';
+        elif sys.version_info == (3, 4):
+          version ='34';
+        elif sys.version_info >= (3, 5):
+          version ='35';
+        all_msvc_dirs = glob.glob(os.path.join('igraph-*-msvc-py{0}'.format(version)))
         if len(all_msvc_dirs) > 0:
             if len(all_msvc_dirs) > 1:
-                print("More than one MSVC build directory (..\\..\\igraph-*-msvc) found!")
+                print("More than one MSVC build directory (igraph-*-msvc-py{0}) found!".format(version))
                 print("It could happen that setup.py uses the wrong one! Please remove all but the right one!\n\n")
 
             msvc_builddir = all_msvc_dirs[-1]
@@ -151,8 +165,15 @@ def preprocess_fallback_config():
                 print("Please build the MSVC build first!\n")
             else:
                 print("Using MSVC build dir as a fallback: %s\n\n" % msvc_builddir)
+
+                is_64bits = sys.maxsize > 2**32
                 LIBIGRAPH_FALLBACK_INCLUDE_DIRS = [os.path.join(msvc_builddir, "include")]
-                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
+                if is_64bits:
+                  print("Using x64")
+                  LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "x64")]
+                else:
+                  print("Using win32")
+                  LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "win32")]
 
 def version_variants(version):
     """Given an igraph version number, returns a list of possible version
@@ -527,15 +548,17 @@ class BuildConfiguration(object):
 
         print("WARNING: we were not able to detect where igraph is installed on")
         print("your machine (if it is installed at all). We will use the fallback")
-        print("library and include pathss hardcoded in setup.py and hope that the")
+        print("library and include paths hardcoded in setup.py and hope that the")
         print("C core of igraph is installed there.")
         print("")
         print("If the compilation fails and you are sure that igraph is installed")
         print("on your machine, adjust the following two variables in setup.py")
         print("accordingly and try again:")
         print("")
-        print("- LIBIGRAPH_FALLBACK_INCLUDE_DIRS")
-        print("- LIBIGRAPH_FALLBACK_LIBRARY_DIRS")
+        print("- LIBIGRAPH_FALLBACK_INCLUDE_DIRS",
+            LIBIGRAPH_FALLBACK_INCLUDE_DIRS)
+        print("- LIBIGRAPH_FALLBACK_LIBRARY_DIRS",
+            LIBIGRAPH_FALLBACK_LIBRARY_DIRS)
         print("")
 
         seconds_remaining = 10 if self.wait else 0
@@ -549,10 +572,16 @@ class BuildConfiguration(object):
                     "immediately. " % (seconds_remaining, plural))
             sys.stdout.flush()
 
-            rlist, _, _ = select([sys.stdin], [], [], 1)
-            if rlist:
-                sys.stdin.readline()
-                break
+            if os.name == 'nt':
+              if msvcrt.kbhit():
+                  if msvcrt.getch() == b'\r': # not '\n'
+                      break
+              time.sleep(1)
+            else:
+              rlist, _, _ = select([sys.stdin], [], [], 1)
+              if rlist:
+                  sys.stdin.readline()
+                  break
 
             seconds_remaining -= 1
         sys.stdout.write("\r" + " "*65 + "\r")
@@ -581,16 +610,20 @@ louvain_ext = Extension('louvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
+cmdclass = versioneer.get_cmdclass()
+cmdclass.update(build_ext=buildcfg.build_ext)
+
 options =  dict(
   name = 'louvain',
-  version = '0.5.3',
+  version=versioneer.get_version(),
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
-  long_description=read('README.md'),
+  long_description=read('README.rst'),
   license = 'GPLv3+',
   url = 'https://github.com/vtraag/louvain-igraph',
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
+  test_suite = 'tests',
 
   provides = ['louvain'],
   package_dir = {'louvain': 'src'},
@@ -613,7 +646,8 @@ options =  dict(
       'Topic :: Scientific/Engineering :: Information Analysis',
       'Topic :: Sociology'
     ],
-  cmdclass={"build_ext": buildcfg.build_ext});
+  cmdclass=cmdclass,
+);
 
 if "macosx" in get_platform() and "bdist_mpkg" in sys.argv:
     # OS X specific stuff to build the .mpkg installer

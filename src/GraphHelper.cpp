@@ -13,6 +13,32 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
+bool orderCSize(const size_t* A, const size_t* B)
+{
+
+  if (A[1] == B[1])
+  {
+    if (A[2] == B[2])
+      return A[0] < B[0];
+    else
+      return A[2] > B[2];
+  }
+  else
+    return A[1] > B[1];
+}
+
+void shuffle(vector<size_t>& v)
+{
+  size_t n = v.size();
+  for (size_t idx = n - 1; idx > 0; idx--)
+  {
+    size_t rand_idx = get_random_int(0, idx);
+    size_t tmp = v[idx];
+    v[idx] = v[rand_idx];
+    v[rand_idx] = tmp;
+  }
+}
+
 /****************************************************************************
   The binary Kullback-Leibler divergence.
 ****************************************************************************/
@@ -26,10 +52,22 @@ double KL(double q, double p)
   return KL;
 }
 
+double KLL(double q, double p)
+{
+  double KL = 0.0;
+  if (q > 0.0 && p > 0.0)
+    KL += q*log(q/p);
+  if (q < 1.0 && p < 1.0)
+    KL += (1.0-q)*log((1.0-q)/(1.0-p));
+  if (q < p)
+    KL *= -1;
+  return KL;
+}
+
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes,
-  vector<double> node_self_weights, int correct_self_loops)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes,
+  vector<double> const& node_self_weights, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -52,9 +90,9 @@ Graph::Graph(igraph_t* graph,
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes,
-  vector<double> node_self_weights)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes,
+  vector<double> const& node_self_weights)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -67,14 +105,16 @@ Graph::Graph(igraph_t* graph,
   if (node_sizes.size() != this->vcount())
     throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
   this->_node_sizes = node_sizes;
+
+  this->_correct_self_loops = this->has_self_loops();
 
   this->_node_self_weights = node_self_weights;
   this->init_admin();
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes, int correct_self_loops)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -94,8 +134,8 @@ Graph::Graph(igraph_t* graph,
 }
 
 Graph::Graph(igraph_t* graph,
-  vector<double> edge_weights,
-  vector<size_t> node_sizes)
+  vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -108,11 +148,13 @@ Graph::Graph(igraph_t* graph,
     throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
   this->_node_sizes = node_sizes;
 
+  this->_correct_self_loops = this->has_self_loops();
+
   this->init_admin();
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loops)
+Graph::Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -126,7 +168,7 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights, int correct_self_loop
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<double> edge_weights)
+Graph::Graph(igraph_t* graph, vector<double> const& edge_weights)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -134,7 +176,44 @@ Graph::Graph(igraph_t* graph, vector<double> edge_weights)
     throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
   this->_edge_weights = edge_weights;
   this->_is_weighted = true;
+
+  this->_correct_self_loops = this->has_self_loops();
+
   this->set_default_node_size();
+  this->init_admin();
+  this->set_self_weights();
+}
+
+Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->_correct_self_loops = correct_self_loops;
+
+  if (node_sizes.size() != this->vcount())
+    throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
+  this->_node_sizes = node_sizes;
+
+  this->set_default_edge_weight();
+  this->_is_weighted = false;
+  this->init_admin();
+  this->set_self_weights();
+}
+
+Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->set_defaults();
+  this->_is_weighted = false;
+
+  if (node_sizes.size() != this->vcount())
+    throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
+
+  this->_node_sizes = node_sizes;
+
+  this->_correct_self_loops = this->has_self_loops();
+
   this->init_admin();
   this->set_self_weights();
 }
@@ -156,6 +235,9 @@ Graph::Graph(igraph_t* graph)
   this->_remove_graph = false;
   this->set_defaults();
   this->_is_weighted = false;
+
+  this->_correct_self_loops = this->has_self_loops();
+
   this->init_admin();
   this->set_self_weights();
 }
@@ -166,6 +248,7 @@ Graph::Graph()
   this->_remove_graph = true;
   this->set_defaults();
   this->_is_weighted = false;
+  this->_correct_self_loops = false;
   this->init_admin();
   this->set_self_weights();
 }
@@ -177,6 +260,42 @@ Graph::~Graph()
     igraph_destroy(this->_graph);
     delete this->_graph;
   }
+}
+
+int Graph::has_self_loops()
+{
+  size_t m = this->ecount();
+  igraph_vector_bool_t loop;
+  igraph_vector_bool_init(&loop, m);
+  igraph_is_loop(this->_graph, &loop, igraph_ess_all(IGRAPH_EDGEORDER_ID));
+
+  int has_self_loops = false;
+  for (size_t idx = 0; idx < m; idx++)
+  {
+    if (VECTOR(loop)[idx])
+    {
+      has_self_loops = true;
+      break;
+    }
+  }
+  igraph_vector_bool_destroy(&loop);
+  return has_self_loops;
+}
+
+size_t Graph::possible_edges()
+{
+  return this->possible_edges(this->vcount());
+}
+
+size_t Graph::possible_edges(size_t n)
+{
+  size_t possible_edges = n*(n-1);
+  if (!this->is_directed())
+    possible_edges /= 2;
+  if (this->correct_self_loops())
+    possible_edges += n;
+
+  return possible_edges;
 }
 
 void Graph::set_defaults()
@@ -315,7 +434,7 @@ void Graph::init_admin()
   size_t n_size = this->total_size();
 
   // For now we default to not correcting self loops.
-  this->_correct_self_loops = false;
+  // this->_correct_self_loops = false; (remove this as this is set in the constructor)
 
   double normalise = 0.0;
   if (this->_correct_self_loops)
@@ -327,94 +446,173 @@ void Graph::init_admin()
     this->_density = w/normalise;
   else
     this->_density = 2*w/normalise;
+
+  this->_current_node_cache_neigh_edges_from = n + 1;
+  this->_current_node_cache_neigh_edges_to = n + 1;
+  this->_current_node_cache_neigh_edges_all = n + 1;
+
+  this->_current_node_cache_neigh_from = n + 1;
+  this->_current_node_cache_neigh_to = n + 1;
+  this->_current_node_cache_neigh_all = n + 1;
 }
 
-double Graph::weight_tofrom_community(size_t v, size_t comm, vector<size_t>* membership, igraph_neimode_t mode)
+void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
 {
-  // Weight between vertex and community
   #ifdef DEBUG
-    cerr << "double Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "void Graph::cache_neighbour_edges(" << v << ", " << mode << ");" << endl;
   #endif
-  double total_w = 0.0;
   size_t degree = this->degree(v, mode);
-  igraph_vector_t incident_edges, neighbours;
-  igraph_vector_init(&incident_edges, degree);
-  igraph_vector_init(&neighbours, degree);
-  igraph_incident(this->_graph, &incident_edges, v, mode);
-  igraph_neighbors(this->_graph, &neighbours, v, mode);
-  for (size_t i = 0; i < degree; i++)
-  {
-    size_t u = VECTOR(neighbours)[i];
-
-    // If it is an edge to the requested community
-    #ifdef DEBUG
-      size_t u_comm = (*membership)[u];
-    #endif
-    if ((*membership)[u] == comm)
-    {
-      size_t e = VECTOR(incident_edges)[i];
-      // Get the weight of the edge
-      double w = this->_edge_weights[e];
-      #ifdef DEBUG
-        cerr << "\t" << "Sum edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
-      #endif
-      // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
-      if (u == v && !this->is_directed())
-          w /= 2.0;
-
-      total_w += w;
-    }
-    #ifdef DEBUG
-    else
-    {
-      cerr << "\t" << "Ignore edge (" << v << "-" << u << "), Comm (" << comm << ") weight: " << this->_edge_weights[VECTOR(incident_edges)[i]] << "." << endl;
-    }
-    #endif
-  }
-  igraph_vector_destroy(&incident_edges);
-  igraph_vector_destroy(&neighbours);
   #ifdef DEBUG
-    cerr << "exit Graph::weight_tofrom_vertex_set(" << v << ", " << comm << ", " << mode << ")." << endl;
+    cerr << "Degree: " << degree << endl;
   #endif
-  return total_w;
-}
 
-vector< pair<size_t, size_t> >*
-Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode)
-{
-  size_t degree = this->degree(v, mode);
-  vector< pair<size_t, size_t> >* neigh_edges
-    = new vector< pair<size_t, size_t> >(degree);
-
-  igraph_vector_t incident_edges, neighbours;
+  igraph_vector_t incident_edges;
   igraph_vector_init(&incident_edges, degree);
-  igraph_vector_init(&neighbours, degree);
   igraph_incident(this->_graph, &incident_edges, v, mode);
-  igraph_neighbors(this->_graph, &neighbours, v, mode);
-  for (size_t i = 0; i < degree; i++)
+
+  vector<size_t>* _cached_neigh_edges = NULL;
+  switch (mode)
   {
-    size_t e = VECTOR(incident_edges)[i];
-    size_t u = VECTOR(neighbours)[i];
-    (*neigh_edges)[i] = make_pair(u, e);
+    case IGRAPH_IN:
+      this->_current_node_cache_neigh_edges_from = v;
+      _cached_neigh_edges = &(this->_cached_neigh_edges_from);
+      break;
+    case IGRAPH_OUT:
+      this->_current_node_cache_neigh_edges_to = v;
+      _cached_neigh_edges = &(this->_cached_neigh_edges_to);
+      break;
+    case IGRAPH_ALL:
+      this->_current_node_cache_neigh_edges_all = v;
+      _cached_neigh_edges = &(this->_cached_neigh_edges_all);
+      break;
   }
+  _cached_neigh_edges->assign(igraph_vector_e_ptr(&incident_edges, 0),
+                              igraph_vector_e_ptr(&incident_edges, degree));
+  #ifdef DEBUG
+    cerr << "Number of edges: " << _cached_neigh_edges->size() << endl;
+  #endif
+
+
   igraph_vector_destroy(&incident_edges);
-  igraph_vector_destroy(&neighbours);
-  return neigh_edges;
+  #ifdef DEBUG
+    cerr << "exit void Graph::cache_neighbour_edges(" << v << ", " << mode << ");" << endl;
+  #endif
 }
 
-vector< size_t >*
-Graph::get_neighbours(size_t v, igraph_neimode_t mode)
+vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode)
 {
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      if (this->_current_node_cache_neigh_edges_from != v)
+      {
+        cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_from = v;
+      }
+      return this->_cached_neigh_edges_from;
+    case IGRAPH_OUT:
+      if (this->_current_node_cache_neigh_edges_to != v)
+      {
+        cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_to = v;
+      }
+      return this->_cached_neigh_edges_to;
+    case IGRAPH_ALL:
+      if (this->_current_node_cache_neigh_edges_all != v)
+      {
+        cache_neighbour_edges(v, mode);
+        this->_current_node_cache_neigh_edges_all = v;
+      }
+      return this->_cached_neigh_edges_all;
+  }
+  throw Exception("Incorrect model for getting neighbour edges.");
+}
+
+pair<size_t, size_t> Graph::get_endpoints(size_t e)
+{
+  igraph_integer_t from, to;
+  igraph_edge(this->_graph, e,&from, &to);
+  return make_pair<size_t, size_t>((size_t)from, (size_t)to);
+}
+
+void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
+{
+  #ifdef DEBUG
+    cerr << "void Graph::cache_neighbours(" << v << ", " << mode << ");" << endl;
+  #endif
   size_t degree = this->degree(v, mode);
+  #ifdef DEBUG
+    cerr << "Degree: " << degree << endl;
+  #endif
 
   igraph_vector_t neighbours;
   igraph_vector_init(&neighbours, degree);
   igraph_neighbors(this->_graph, &neighbours, v, mode);
-  vector< size_t >* neighs = new vector< size_t >(
-    igraph_vector_e_ptr(&neighbours, 0),
-    igraph_vector_e_ptr(&neighbours, degree));
+
+  vector<size_t>* _cached_neighs = NULL;
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      this->_current_node_cache_neigh_from = v;
+      _cached_neighs = &(this->_cached_neighs_from);
+      break;
+    case IGRAPH_OUT:
+      this->_current_node_cache_neigh_to = v;
+      _cached_neighs = &(this->_cached_neighs_to);
+      break;
+    case IGRAPH_ALL:
+      this->_current_node_cache_neigh_all = v;
+      _cached_neighs = &(this->_cached_neighs_all);
+      break;
+  }
+  _cached_neighs->assign(igraph_vector_e_ptr(&neighbours, 0),igraph_vector_e_ptr(&neighbours, degree));
   igraph_vector_destroy(&neighbours);
-  return neighs;
+
+  #ifdef DEBUG
+    cerr << "Number of edges: " << _cached_neighs->size() << endl;
+  #endif
+
+  #ifdef DEBUG
+    cerr << "exit void Graph::cache_neighbours(" << v << ", " << mode << ");" << endl;
+  #endif
+}
+
+vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
+{
+  switch (mode)
+  {
+    case IGRAPH_IN:
+      if (this->_current_node_cache_neigh_from != v)
+      {
+        cache_neighbours(v, mode);
+        this -> _current_node_cache_neigh_from = v;
+      }
+      #ifdef DEBUG
+        cerr << "Returning " << this->_cached_neighs_from.size() << " incoming neighbours" << endl;
+      #endif
+      return this->_cached_neighs_from;
+    case IGRAPH_OUT:
+      if (this->_current_node_cache_neigh_to != v)
+      {
+        cache_neighbours(v, mode);
+        this -> _current_node_cache_neigh_to = v;
+      }
+      #ifdef DEBUG
+        cerr << "Returning " << this->_cached_neighs_to.size() << " incoming neighbours" << endl;
+      #endif
+      return this->_cached_neighs_to;
+    case IGRAPH_ALL:
+      if (this->_current_node_cache_neigh_all != v)
+      {
+        cache_neighbours(v, mode);
+        this->_current_node_cache_neigh_all = v;
+      }
+      #ifdef DEBUG
+        cerr << "Returning " << this->_cached_neighs_all.size() << " incoming neighbours" << endl;
+      #endif
+      return this->_cached_neighs_all;
+  }
+  throw Exception("Invalid mode for getting neighbours.");
 }
 
 /********************************************************************************
@@ -436,7 +634,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->os)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->os)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = igraph_rng_get_integer(igraph_rng_default(), cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
       // Return the neighbour at that index
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
@@ -449,7 +647,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->is)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->is)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = igraph_rng_get_integer(igraph_rng_default(), cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
       #endif
@@ -469,7 +667,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
     size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
-    size_t rand_idx = igraph_rng_get_integer(igraph_rng_default(), 0, total_outdegree + total_indegree - 1);
+    size_t rand_idx = get_random_int(0, total_outdegree + total_indegree - 1);
 
     #ifdef DEBUG
       cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;
@@ -505,7 +703,6 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   #ifdef DEBUG
     cerr << "Graph* Graph::collapse_graph(vector<size_t> membership)" << endl;
   #endif
-  size_t n = this->vcount();
   size_t m = this->ecount();
 
   #ifdef DEBUG
@@ -579,7 +776,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   for (size_t c = 0; c < partition->nb_communities(); c++)
     csizes[c] = partition->csize(c);
 
-  Graph* G = new Graph(graph, collapsed_weights, csizes);
+  Graph* G = new Graph(graph, collapsed_weights, csizes, this->_correct_self_loops);
   G->_remove_graph = true;
   #ifdef DEBUG
     cerr << "exit Graph::collapse_graph(vector<size_t> membership)" << endl << endl;

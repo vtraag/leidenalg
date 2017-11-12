@@ -2,16 +2,14 @@
 #define OPTIMISER_H
 #include "GraphHelper.h"
 #include "MutableVertexPartition.h"
-#include <algorithm>
 #include <set>
+#include <map>
 
-#ifdef DEBUG
-  using std::cerr;
-  using std::endl;
-#endif
-
+#include <iostream>
+using std::cerr;
+using std::endl;
 using std::set;
-using std::random_shuffle;
+using std::map;
 
 /****************************************************************************
 Class for doing community detection using the Louvain algorithm.
@@ -25,27 +23,26 @@ aggregated (collapse_graph) and the method is reiterated on that graph.
 class Optimiser
 {
   public:
-    Optimiser(double eps, double delta, size_t max_itr, int random_order, int consider_comms);
     Optimiser();
-    double optimize_partition(MutableVertexPartition* partition);
+    double optimise_partition(MutableVertexPartition* partition);
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
-    double move_nodes(MutableVertexPartition* partition, int consider_comms);
 
-    // The multiplex functions that simultaneously optimize multiple graphs and partitions (i.e. methods)
+    // The multiplex functions that simultaneously optimise multiple graphs and partitions (i.e. methods)
     // Each node will be in the same community in all graphs, and the graphs are expected to have identical nodes
     // Optionally we can loop over all possible communities instead of only the neighbours. In the case of negative
     // layer weights this may be necessary.
-    double optimize_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+    double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
+
+    double move_nodes(MutableVertexPartition* partition);
+    double move_nodes(MutableVertexPartition* partition, int consider_comms);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
 
     virtual ~Optimiser();
 
-    double eps;          // If the improvement falls below this threshold, stop iterating.
-    double delta;        // If the number of nodes that moves falls below this threshold, stop iterating.
-    size_t max_itr;      // Maximum number of iterations to perform.
-    int random_order;    // If True the nodes will be traversed in a random order when optimising a quality function.
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
+    int consider_empty_community; // Determine whether to consider moving nodes to an empty community
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.
@@ -55,6 +52,7 @@ class Optimiser
   protected:
 
   private:
+    void print_settings();
 };
 
 template <class T> T* Optimiser::find_partition(Graph* graph)
@@ -63,7 +61,7 @@ template <class T> T* Optimiser::find_partition(Graph* graph)
   #ifdef DEBUG
     cerr << "Use default partition (all nodes in own community)" << endl;
   #endif
-  this->optimize_partition(partition);
+  this->optimise_partition(partition);
   return partition;
 }
 
@@ -73,7 +71,7 @@ template <class T> T* Optimiser::find_partition(Graph* graph, double resolution_
   #ifdef DEBUG
     cerr << "Use default partition (all nodes in own community)" << endl;
   #endif
-  this->optimize_partition(partition);
+  this->optimise_partition(partition);
   return partition;
 }
 

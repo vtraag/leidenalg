@@ -1,0 +1,102 @@
+\documentclass[tikz]{standalone}
+
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{sansmath} 
+\sansmath
+
+\usepackage{tikz}   %TikZ is required for this to work.  Make sure this exists before the next line
+
+\usepackage{tikz-3dplot} %requires 3dplot.sty to be in same directory, or in your LaTeX installation
+
+\begin{document}
+
+\tdplotsetmaincoords{70}{110} 
+
+\definecolor{c0}{RGB}{228,26,28}
+\definecolor{c1}{RGB}{55,126,184}
+
+\begin{tikzpicture}[tdplot_main_coords,
+  n/.style={circle,draw=black,shading=ball,outer sep=0pt,inner sep=0pt, minimum size=6pt},
+  nc0/.style={n,ball color=c0},
+  nc1/.style={n,ball color=c1},
+  e/.style={}] 
+
+%Network t=1
+\draw[fill=lightgray,opacity=0.9] (-1,0,-1) -- (3,0,-1) node[below]
+  {$\scriptstyle t=1$} -- (3,0,3) -- (-1,0,3) -- (-1,0,-1);
+\node[nc0] (a0) at (0,0,0) {};
+\node[nc0] (b0) at (1,0,0) {};
+\node[nc0] (c0) at (0,0,1) {};
+\node[nc0] (d0) at (1,0,1) {};
+\node[nc1] (e0) at (2,0,1) {};
+\node[nc1] (f0) at (1,0,2) {};
+\node[nc1] (g0) at (2,0,2) {};
+\draw[-] (d0) -- (b0) -- (a0) -- (c0) -- (d0) -- (e0) -- (g0) -- (f0) -- (d0);
+
+%ghost nodes for interslice links
+\node[e] (a1) at (0,2,0) {};
+\node[e] (b1) at (1,2,0) {};
+\node[e] (c1) at (0,2,1) {};
+\node[e] (d1) at (1,2,1) {};
+\node[e] (e1) at (2,2,1) {};
+\node[e] (f1) at (1,2,2) {};
+\node[e] (g1) at (2,2,2) {};
+
+%interslice edge 0 - 1
+\draw[-,gray] (a0) -- (a1)
+                    (b0) -- (b1)
+                    (c0) -- (c1)
+                    (d0) -- (d1)
+                    (e0) -- (e1)
+                    (f0) -- node[] (f01) {} (f1)
+                    (g0) -- (g1);
+
+%Network t=2
+\draw[fill=lightgray,opacity=0.9] (-1,2,-1) -- (3,2,-1)  node[below]
+  {$\scriptstyle t=2$} -- (3,2,3) -- (-1,2,3) -- (-1,2,-1);
+\node[nc0] (a1) at (0,2,0) {};
+\node[nc0] (b1) at (1,2,0) {};
+\node[nc0] (c1) at (0,2,1) {};
+\node[nc0] (d1) at (1,2,1) {};
+\node[nc0] (e1) at (2,2,1) {};
+\node[nc1] (f1) at (1,2,2) {};
+\node[nc1] (g1) at (2,2,2) {};
+\draw[-] (d1) -- (b1) -- (a1) -- (c1) -- (d1) -- (e1) -- (g1) -- (f1) -- node (fd1) {}(d1)
+         (b1) -- (e1);
+
+%ghost nodes for interslice links
+\node[e] (a2) at (0,4,0) {};
+\node[e] (b2) at (1,4,0) {};
+\node[e] (c2) at (0,4,1) {};
+\node[e] (d2) at (1,4,1) {};
+\node[e] (e2) at (2,4,1) {};
+\node[e] (f2) at (1,4,2) {};
+
+%interslice edge 1 - 2
+\draw[-,gray] (a1) -- (a2)
+                    (b1) -- (b2)
+                    (c1) -- (c2)
+                    (d1) -- (d2)
+                    (e1) -- (e2)
+                    (f1) -- (f2);
+%Network t=3
+\draw[fill=lightgray,opacity=0.9] (-1,4,-1) -- (3,4,-1) node[below]
+  {$\scriptstyle t=3$} -- (3,4,3) -- (-1,4,3) -- (-1,4,-1);
+\node[nc0] (a2) at (0,4,0) {};
+\node[nc0] (b2) at (1,4,0) {};
+\node[nc0] (c2) at (0,4,1) {};
+\node[nc1] (d2) at (1,4,1) {};
+\node[nc1] (e2) at (2,4,1) {};
+\node[nc1] (f2) at (1,4,2) {};
+\draw[-] (d2) -- (b2) -- (a2) -- (c2) -- (d2) -- (e2)
+         (f2) -- (d2);
+
+%Create equations
+\node[anchor=base,align=left] (S_irs) at (0,1.2,3) {Interslice\\ coupling};
+\draw[->] (S_irs) .. controls (1,1,2.5) .. (f01);
+\node[anchor=base,align=left] (A_ijs) at (0,3.2,3) {Intraslice\\ link};
+\draw[->] (A_ijs) .. controls (1.5,3,2) .. (fd1);
+
+\end{tikzpicture} 
+
+\end{document}

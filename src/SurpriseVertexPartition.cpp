@@ -1,13 +1,7 @@
 #include "SurpriseVertexPartition.h"
 
-#ifdef DEBUG
-#include <iostream>
-using std::cerr;
-using std::endl;
-#endif
-
 SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         MutableVertexPartition(graph,
         membership)
 { }
@@ -19,6 +13,11 @@ SurpriseVertexPartition::SurpriseVertexPartition(Graph* graph) :
 SurpriseVertexPartition* SurpriseVertexPartition::create(Graph* graph)
 {
   return new SurpriseVertexPartition(graph);
+}
+
+ SurpriseVertexPartition*  SurpriseVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new  SurpriseVertexPartition(graph, membership);
 }
 
 SurpriseVertexPartition::~SurpriseVertexPartition()
@@ -40,12 +39,8 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     double normalise = (2.0 - this->graph->is_directed());
     double m = this->graph->total_weight();
     size_t n = this->graph->total_size();
-    size_t n2 = 0;
+    size_t n2 = this->graph->possible_edges(n);
 
-    if (this->graph->correct_self_loops())
-      n2 = n*n/normalise;
-    else
-      n2 = n*(n-1)/normalise;
     #ifdef DEBUG
       cerr << "\t" << "Community: " << old_comm << " => " << new_comm << "." << endl;
       cerr << "\t" << "m: " << m << ", n2: " << n2 << "." << endl;
@@ -90,15 +85,16 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     #ifdef DEBUG
       cerr << "\t" << "mc - m_old + m_new=" << (mc - m_old + m_new) << endl;
     #endif
-    double s_new = (double)(nc2 + 2*nsize*(n_new - n_old + nsize)/normalise)/(double)n2;
+    double delta_nc2 = 2.0*nsize*(ptrdiff_t)(n_new - n_old + nsize)/normalise;
+    double s_new = (double)(nc2 + delta_nc2)/(double)n2;
     #ifdef DEBUG
-      cerr << "\t" << "nc2 + 2*nsize*(n_new - n_old + nsize)/normalise=" << nc2 + 2*nsize*(n_new - n_old + nsize)/normalise << endl;
+      cerr << "\t" << "delta_nc2=" << delta_nc2 << endl;
     #endif
     #ifdef DEBUG
       cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
       cerr << "\t" << "q_new:\t" << q_new << ", s_new:\t"  << s_new << "." << endl;
     #endif
-    diff = m*(KL(q_new, s_new) - KL(q, s));
+    diff = m*(KLL(q_new, s_new) - KLL(q, s));
 
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
@@ -116,17 +112,13 @@ double SurpriseVertexPartition::quality()
   #ifdef DEBUG
     cerr << "double SurpriseVertexPartition::quality()" << endl;
   #endif
-  double normalise = (2.0 - this->graph->is_directed());
+
   double mc = this->total_weight_in_all_comms();
   size_t nc2 = this->total_possible_edges_in_all_comms();
   double m = this->graph->total_weight();
   size_t n = this->graph->total_size();
 
-  size_t n2 = 0;
-  if (this->graph->correct_self_loops())
-    n2 = n*n/normalise;
-  else
-    n2 = n*(n-1)/normalise;
+  size_t n2 = this->graph->possible_edges(n);
 
   #ifdef DEBUG
     cerr << "\t" << "mc=" << mc << ", m=" << m << ", nc2=" << nc2 << ", n2=" << n2 << "." << endl;
@@ -136,9 +128,9 @@ double SurpriseVertexPartition::quality()
   #ifdef DEBUG
     cerr << "\t" << "q:\t" << q << ", s:\t"  << s << "." << endl;
   #endif
-  double S = m*KL(q,s);
+  double S = m*KLL(q,s);
   #ifdef DEBUG
-    cerr << "exit SignificanceVertexPartition::quality()" << endl;
+    cerr << "exit SurpriseVertexPartition::quality()" << endl;
     cerr << "return " << S << endl << endl;
   #endif
   return S;

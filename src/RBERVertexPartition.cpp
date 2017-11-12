@@ -1,13 +1,13 @@
 #include "RBERVertexPartition.h"
 
 RBERVertexPartition::RBERVertexPartition(Graph* graph,
-      vector<size_t> membership, double resolution_parameter) :
+      vector<size_t> const& membership, double resolution_parameter) :
         LinearResolutionParameterVertexPartition(graph,
         membership, resolution_parameter)
 { }
 
 RBERVertexPartition::RBERVertexPartition(Graph* graph,
-      vector<size_t> membership) :
+      vector<size_t> const& membership) :
         LinearResolutionParameterVertexPartition(graph,
         membership)
 { }
@@ -24,6 +24,11 @@ RBERVertexPartition::RBERVertexPartition(Graph* graph) :
 RBERVertexPartition* RBERVertexPartition::create(Graph* graph)
 {
   return new RBERVertexPartition(graph, this->resolution_parameter);
+}
+
+RBERVertexPartition* RBERVertexPartition::create(Graph* graph, vector<size_t> const& membership)
+{
+  return new RBERVertexPartition(graph, membership, this->resolution_parameter);
 }
 
 RBERVertexPartition::~RBERVertexPartition()
@@ -77,9 +82,9 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     double possible_edge_difference_old = 0.0;
     if (this->graph->correct_self_loops())
-      possible_edge_difference_old = nsize*(2.0*csize_old - nsize);
+      possible_edge_difference_old = nsize*(ptrdiff_t)(2.0*csize_old - nsize);
     else
-      possible_edge_difference_old = nsize*(2.0*csize_old - nsize - 1.0);
+      possible_edge_difference_old = nsize*(ptrdiff_t)(2.0*csize_old - nsize - 1.0);
     #ifdef DEBUG
       cerr << "\t" << "possible_edge_difference_old: " << possible_edge_difference_old << endl;
     #endif
@@ -90,9 +95,9 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
     double possible_edge_difference_new = 0.0;
     if (this->graph->correct_self_loops())
-      possible_edge_difference_new = nsize*(2.0*csize_new + nsize);
+      possible_edge_difference_new = nsize*(ptrdiff_t)(2.0*csize_new + nsize);
     else
-      possible_edge_difference_new = nsize*(2.0*csize_new + nsize - 1.0);
+      possible_edge_difference_new = nsize*(ptrdiff_t)(2.0*csize_new + nsize - 1.0);
     #ifdef DEBUG
       cerr << "\t" << "possible_edge_difference_new: " << possible_edge_difference_new << endl;
     #endif
@@ -113,7 +118,7 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
   return diff;
 }
 
-double RBERVertexPartition::quality()
+double RBERVertexPartition::quality(double resolution_parameter)
 {
   #ifdef DEBUG
     cerr << "double RBERVertexPartition::quality()" << endl;
@@ -123,17 +128,12 @@ double RBERVertexPartition::quality()
   {
     size_t csize = this->csize(c);
     double w = this->total_weight_in_comm(c);
-    size_t comm_possible_edges;
-    if (this->graph->correct_self_loops())
-      comm_possible_edges = csize*csize;
-    else
-      comm_possible_edges = csize*(csize - 1);
-    if (!this->graph->is_directed())
-      comm_possible_edges /= 2;
+    size_t comm_possible_edges = this->graph->possible_edges(csize);
+
     #ifdef DEBUG
       cerr << "\t" << "Comm: " << c << ", w_c=" << w << ", n_c=" << csize << ", comm_possible_edges=" << comm_possible_edges << ", p=" << this->graph->density() << "." << endl;
     #endif
-    mod += w - this->resolution_parameter*this->graph->density()*comm_possible_edges;
+    mod += w - resolution_parameter*this->graph->density()*comm_possible_edges;
   }
   #ifdef DEBUG
     cerr << "exit double RBERVertexPartition::quality()" << endl;
