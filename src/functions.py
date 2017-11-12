@@ -6,6 +6,9 @@ from ._c_louvain import ALL_NEIGH_COMMS
 from ._c_louvain import RAND_COMM
 from ._c_louvain import RAND_NEIGH_COMM
 
+from ._c_louvain import MOVE_NODES
+from ._c_louvain import MERGE_NODES
+
 from collections import Counter
 
 # Check if working with Python 3

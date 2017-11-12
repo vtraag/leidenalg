@@ -63,5 +63,7 @@ pass the ``resolution_parameter``, but we could also pass ``weights`` or
 
 This is the real benefit of using this package: it provides implementations for
 six different methods (see :ref:`Reference`), and works also on directed and
-weighted graphs. Finally, it also allows to work with more complex multiplex
-graphs (see :ref:`Multiplex`).
+weighted graphs. In addition, it also provides flexible functionality for
+customizing to some extent the optimisation routines (see :ref:`Advanced`).
+Finally, it also allows to work with more complex multiplex graphs (see
+:ref:`Multiplex`).

@@ -257,7 +257,6 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
   }
   sort(csizes.begin(), csizes.end(), orderCSize);
 
-
   // Then use the sort order to assign new communities,
   // such that the largest community gets the lowest index.
   vector<size_t> new_comm_id(nb_comms, 0);

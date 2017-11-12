@@ -21,6 +21,18 @@ class OptimiserTest(unittest.TestCase):
         partition.sizes(), [100],
         msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes incorrect.");
 
+  def test_merge_nodes(self):
+    G = ig.Graph.Full(100);
+    partition = louvain.CPMVertexPartition(G, resolution_parameter=0.5);
+    self.optimiser.merge_nodes(partition, consider_comms=louvain.ALL_NEIGH_COMMS);
+    self.assertListEqual(
+        partition.sizes(), [100],
+        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after merge nodes incorrect.");
+    self.assertEqual(
+        partition.total_weight_in_all_comms(),
+        G.ecount(),
+        msg="total_weight_in_all_comms not equal to ecount of graph.");
+
   def test_diff_move_node_optimality(self):
     G = ig.Graph.Erdos_Renyi(100, p=5./100, directed=False, loops=False);
     partition = louvain.CPMVertexPartition(G, resolution_parameter=0.1);
@@ -44,8 +56,8 @@ class OptimiserTest(unittest.TestCase):
 
   def test_neg_weight_bipartite(self):
     G = ig.Graph.Full_Bipartite(50, 50);
-    G.es['weight'] = -0.5;
-    partition = louvain.CPMVertexPartition(G, resolution_parameter=-0.5, weights='weight');
+    G.es['weight'] = -0.1;
+    partition = louvain.CPMVertexPartition(G, resolution_parameter=-0.1, weights='weight');
     self.optimiser.consider_comms=louvain.ALL_COMMS;
     self.optimiser.optimise_partition(partition);
     self.assertListEqual(

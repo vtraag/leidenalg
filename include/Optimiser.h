@@ -39,15 +39,37 @@ class Optimiser
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
 
+    double merge_nodes(MutableVertexPartition* partition);
+    double merge_nodes(MutableVertexPartition* partition, int consider_comms);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+
+    double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
+
+    double merge_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
+
     virtual ~Optimiser();
 
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
+    int refine_partition; // Do smart local move
+    int refine_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
+    int optimise_routine; // What routine to use for optimisation
+    int refine_routine; // What routine to use for optimisation
     int consider_empty_community; // Determine whether to consider moving nodes to an empty community
 
     static const int ALL_COMMS = 1;       // Consider all communities for improvement.
     static const int ALL_NEIGH_COMMS = 2; // Consider all neighbour communities for improvement.
     static const int RAND_COMM = 3;       // Consider a random commmunity for improvement.
     static const int RAND_NEIGH_COMM = 4; // Consider a random community among the neighbours for improvement.
+
+    static const int MOVE_NODES = 10;  // Use move node routine
+    static const int MERGE_NODES = 11; // Use merge node routine
 
   protected:
 

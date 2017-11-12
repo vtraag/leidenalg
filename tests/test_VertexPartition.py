@@ -16,8 +16,8 @@ def name_object(obj, name):
 graphs = [
     ###########################################################################
     # Zachary karate network
-    #name_object(ig.Graph.Famous('Zachary'),
-    #            'Zachary'),
+    name_object(ig.Graph.Famous('Zachary'),
+                'Zachary'),
 
     ###########################################################################
     # ER Networks
@@ -42,7 +42,7 @@ graphs = [
     name_object(ig.Graph.Erdos_Renyi(100, p=5./100, directed=True, loops=True),
                 'ER_k5_directed_loops'),
 
-    ############################################################################
+    ###########################################################################
     # Tree
     name_object(ig.Graph.Tree(100, 3, type=ig.TREE_UNDIRECTED),
                 'Tree_undirected'),
@@ -51,7 +51,7 @@ graphs = [
     name_object(ig.Graph.Tree(100, 3, type=ig.TREE_IN),
                 'Tree_directed_in'),
 
-    ############################################################################
+    ###########################################################################
     # Lattice
     name_object(ig.Graph.Lattice([100], nei=3, directed=False, mutual=True, circular=True),
                 'Lattice_undirected'),

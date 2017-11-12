@@ -12,8 +12,12 @@ class Optimiser(object):
 
   The optimiser class provides a number of different methods for optimising a
   given partition. The overall optimise procedure :func:`optimise_partition`
-  calls :func:`move_nodes` then aggregates the graph and repeats the same
-  procedure. For calculating the actual improvement
+  calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled
+  by :attr:`optimise_routine`) then aggregates the graph and repeats the same
+  procedure. Possible, indicated by :attr:`refine_partition` the partition is
+  refined before aggregating, meaning that subsets of communities are
+  considered for moving around. Which routine is used for the refinement is
+  indicated by :attr:`refine_routine`.  For calculating the actual improvement
   of moving a node (corresponding a subset of nodes in the aggregate graph),
   the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
   which provides different values for different methods (e.g. modularity or
@@ -60,6 +64,98 @@ class Optimiser(object):
   @consider_comms.setter
   def consider_comms(self, value):
     _c_louvain._Optimiser_set_consider_comms(self._optimiser, value);
+
+  #########################################################3
+  # refine consider_comms
+  @property
+  def refine_consider_comms(self):
+    """ Determine how alternative communities are considered for moving
+    a node when *refining* a partition. 
+    
+    Nodes will only move to alternative communities that improve the given
+    quality function.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.ALL_NEIGH_COMMS`
+      Consider all neighbouring communities for moving.
+
+    * :attr:`louvain.ALL_COMMS`
+      Consider all communities for moving. This is especially useful in the
+      case of negative links, in which case it may be better to move a node to
+      a non-neighbouring community.
+
+    * :attr:`louvain.RAND_NEIGH_COMM`
+      Consider a random neighbour community for moving. The probability to
+      choose a community is proportional to the number of neighbours a node has
+      in that community.
+
+    * :attr:`louvain.RAND_COMM`
+      Consider a random community for moving. The probability to choose a
+      community is proportional to the number of nodes in that community.
+    """
+    return _c_louvain._Optimiser_get_refine_consider_comms(self._optimiser);
+
+  @refine_consider_comms.setter
+  def refine_consider_comms(self, value):
+    _c_louvain._Optimiser_set_refine_consider_comms(self._optimiser, value);
+
+  #########################################################3
+  # optimise routine
+  @property
+  def optimise_routine(self):
+    """ Determine the routine to use for *optimising* a partition.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.MOVE_NODES`
+      Use :func:`move_nodes`.
+
+    * :attr:`louvain.MERGE_NODES`
+      Use :func:`merge_nodes`.
+    """
+    return _c_louvain._Optimiser_get_optimise_routine(self._optimiser);
+
+  @optimise_routine.setter
+  def optimise_routine(self, value):
+    _c_louvain._Optimiser_set_optimise_routine(self._optimiser, value);
+
+  #########################################################3
+  # optimise routine
+  @property
+  def refine_routine(self):
+    """ Determine the routine to use for *refining* a partition.
+
+    Notes
+    -------
+    This attribute should be set to one of the following values
+
+    * :attr:`louvain.MOVE_NODES`
+      Use :func:`move_nodes`.
+
+    * :attr:`louvain.MERGE_NODES`
+      Use :func:`merge_nodes`.
+    """
+    return _c_louvain._Optimiser_get_refine_routine(self._optimiser);
+
+  @refine_routine.setter
+  def refine_routine(self, value):
+    _c_louvain._Optimiser_set_refine_routine(self._optimiser, value);
+
+  #########################################################3
+  # refine_partition
+  @property
+  def refine_partition(self):
+    """ boolean: if ``True`` refine partition before aggregation. """
+    return _c_louvain._Optimiser_get_refine_partition(self._optimiser);
+
+  @refine_partition.setter
+  def refine_partition(self, value):
+    _c_louvain._Optimiser_set_refine_partition(self._optimiser, value);
 
   #########################################################3
   # consider_empty_community
@@ -205,6 +301,12 @@ class Optimiser(object):
     ``consider_comms``. The function terminates when no more nodes can be moved
     to an alternative community.
 
+    See Also
+    --------
+    :func:`Optimiser.move_nodes_constrained`
+
+    :func:`Optimiser.merge_nodes`
+
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary');
@@ -216,6 +318,147 @@ class Optimiser(object):
     if (consider_comms is None):
       consider_comms = self.consider_comms;
     diff =  _c_louvain._Optimiser_move_nodes(self._optimiser, partition._partition, consider_comms);
+    partition._update_internal_membership();
+    return diff;
+
+  def move_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
+    """ Move nodes to alternative communities for *refining* the partition.
+
+    Parameters
+    ----------
+    partition
+      The partition for which to move nodes.
+
+    constrained_partition
+      The partition within which we may move nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`refine_consider_comms`, but can be set
+      to something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    The idea is constrain the movement of nodes to alternative communities to
+    another partition. In other words, if there is a partition ``P`` which we
+    want to refine, we can then initialize a new singleton partition, and move
+    nodes in that partition constrained to ``P``.
+
+    See Also
+    --------
+    :func:`Optimiser.move_nodes`
+
+    :func:`Optimiser.merge_nodes_constrained`
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.optimise_partition(partition);
+    >>> refine_partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+
+    """
+    if (consider_comms is None):
+      consider_comms = self.refine_consider_comms;
+    diff =  _c_louvain._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
+    partition._update_internal_membership();
+    return diff;
+
+  def merge_nodes(self, partition, consider_comms=None):
+    """ Merge nodes for *optimising* the partition.
+
+    Parameters
+    ----------
+    partition
+      The partition for which to merge nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`consider_comms`, but can be set to
+      something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    This function loop over all nodes once and tries to merge them with another
+    community.  Merging in this case implies that a node will never be removed
+    from a community, only merged with other communities.
+
+    See Also
+    --------
+    :func:`Optimiser.move_nodes`
+
+    :func:`Optimiser.merge_nodes_constrained`
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.merge_nodes(partition);
+
+    """
+    if (consider_comms is None):
+      consider_comms = self.consider_comms;
+    diff =  _c_louvain._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms);
+    partition._update_internal_membership();
+    return diff;
+
+  def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
+    """ Merge nodes for *refining* the partition.
+
+    Parameters
+    ----------
+    partition
+      The partition for which to merge nodes.
+
+    constrained_partition
+      The partition within which we may merge nodes.
+
+    consider_comms
+      If ``None`` uses :attr:`refine_consider_comms`, but can be set
+      to something else.
+
+    Returns
+    -------
+    float
+      Improvement in quality function.
+
+    Notes
+    -----
+    The idea is constrain the merging of nodes to another partition. In other
+    words, if there is a partition ``P`` which we want to refine, we can then
+    initialize a new singleton partition, and move nodes in that partition
+    constrained to ``P``.
+
+    See Also
+    --------
+    :func:`Optimiser.move_nodes_constrained`
+
+    :func:`Optimiser.merge_nodes`
+
+    Examples
+    --------
+    >>> G = ig.Graph.Famous('Zachary');
+    >>> optimiser = louvain.Optimiser();
+    >>> partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.optimise_partition(partition);
+    >>> refine_partition = louvain.ModularityVertexPartition(G);
+    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+
+    """
+    if (consider_comms is None):
+      consider_comms = self.refine_consider_comms;
+    diff =  _c_louvain._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
     partition._update_internal_membership();
     return diff;
 
