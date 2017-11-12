@@ -67,3 +67,7 @@ except DistributionNotFound:
     __version__ = 'Please install this project with setup.py'
 else:
     __version__ = _dist.version
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
