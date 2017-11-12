@@ -609,7 +609,6 @@ louvain_ext = Extension('louvain._c_louvain',
 cmdclass = versioneer.get_cmdclass()
 cmdclass.update(build_ext=buildcfg.build_ext)
 
-version = '0.6.0';
 options =  dict(
   name = 'louvain',
   version=versioneer.get_version(),
