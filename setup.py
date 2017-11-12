@@ -142,7 +142,7 @@ def preprocess_fallback_config():
     global LIBIGRAPH_FALLBACK_INCLUDE_DIRS
     global LIBIGRAPH_FALLBACK_LIBRARY_DIRS
     global LIBIGRAPH_FALLBACK_LIBRARIES
-
+    
     if os.name == 'nt' and distutils.ccompiler.get_default_compiler() == 'msvc':
         # if this setup is run in the source checkout *and* the igraph msvc was build,
         # this code adds the right library and include dir
@@ -340,7 +340,8 @@ class BuildConfiguration(object):
         self.download_igraph_if_needed = True
         self.use_pkgconfig = True
         self._has_pkgconfig = None
-
+        self.wait = True
+        
     @property
     def has_pkgconfig(self):
         """Returns whether ``pkg-config`` is available on the current system
@@ -489,6 +490,9 @@ class BuildConfiguration(object):
             elif option == "--no-progress-bar":
                 opts_to_remove.append(idx)
                 self.show_progress_bar = False
+            elif option == "--no-wait":
+                opts_to_remove.append(idx)
+                self.wait = False                
             elif option.startswith("--c-core-version"):
                 opts_to_remove.append(idx)
                 if option == "--c-core-version":
@@ -557,7 +561,7 @@ class BuildConfiguration(object):
             LIBIGRAPH_FALLBACK_LIBRARY_DIRS)
         print("")
 
-        seconds_remaining = 10
+        seconds_remaining = 10 if self.wait else 0
         while seconds_remaining > 0:
             if seconds_remaining > 1:
                 plural = "s"
@@ -625,7 +629,7 @@ options =  dict(
   package_dir = {'louvain': 'src'},
   packages = ['louvain'],
   ext_modules = [louvain_ext],
-  install_requires = 'python-igraph >= {0}.0'.format(VERSION),
+  install_requires = ['python-igraph >= {0}.0'.format(VERSION)],
   classifiers=[
       'Development Status :: 4 - Beta',
       'Environment :: Console',
