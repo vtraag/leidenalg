@@ -1,6 +1,6 @@
 0.6.0
 - Major API changes, now exposing actual classes and optimisation routine.
-- Improved algorithm, now runs much faster and finds better solutions.
+- Improved algorithm, now runs faster and finds better solutions.
 - Improved error handling, doing more type checking.
 - Improved documentation throughout, now done using Sphinx and available from
   readthedocs.org.
