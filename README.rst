@@ -15,13 +15,13 @@ allowing community detection on for example negative links [7]_ or multiple
 time slices [8]_. It also provides some support for community detection on
 bipartite graphs. See the documentation for more information.
 
-.. image:: https://readthedocs.org/projects/louvain/badge/?version=develop
-                :target: http://louvain.readthedocs.io/en/latest/?badge=develop
-                :alt: Louvain documentation status (development version)
+.. image:: https://readthedocs.org/projects/louvain-igraph/badge
+                :target: http://louvain-igraph.readthedocs.io/en/latest/
+                :alt: Louvain documentation status
 
-.. image:: https://travis-ci.org/vtraag/louvain-igraph.svg?branch=develop
+.. image:: https://travis-ci.org/vtraag/louvain-igraph.svg
                 :target: https://travis-ci.org/vtraag/louvain-igraph
-                :alt: Louvain build status (development version)
+                :alt: Louvain build status
 
 .. image:: https://zenodo.org/badge/31305324.svg
                 :target: https://zenodo.org/badge/latestdoi/31305324
