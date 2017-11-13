@@ -147,7 +147,7 @@ def preprocess_fallback_config():
         # if this setup is run in the source checkout *and* the igraph msvc was build,
         # this code adds the right library and include dir
         version = '';
-        if sys.version_info >= (2, 7):
+        if sys.version_info >= (2, 7) and sys.version_info < (3, 0):
           version = '27';
         elif sys.version_info >= (3, 4) and sys.version_info < (3, 5):
           version ='34';
