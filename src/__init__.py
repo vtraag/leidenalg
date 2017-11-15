@@ -13,18 +13,18 @@ Examples
 
 The simplest example just finds a partition using modularity
 
-  >>> G = ig.Graph.Tree(100, 3);
-  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
+  >>> G = ig.Graph.Tree(100, 3)
+  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition)
 
 Alternatively, one can access the different optimisation routines individually
 and construct partitions oneself. These partitions can then be optimised by
 constructing an :class:`Optimiser` object and running
 :func:`~Optimiser.optimise_partition`.
 
-  >>> G = ig.Graph.Tree(100, 3);
+  >>> G = ig.Graph.Tree(100, 3)
   >>> partition = louvain.CPMVertexPartition(G, resolution_parameter = 0.1)
-  >>> optimiser = louvain.Optimiser();
-  >>> optimiser.optimise_partition(partition);
+  >>> optimiser = louvain.Optimiser()
+  >>> diff = optimiser.optimise_partition(partition)
 
 The :class:`Optimiser` class contains also the different subroutines that are
 used internally by :func:`~Optimiser.optimise_partition`. In addition, through

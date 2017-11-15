@@ -356,3 +356,7 @@ autoclass_content = 'both'
 #
 # texinfo_no_detailmenu = False
 
+doctest_global_setup = """
+import igraph as ig
+import louvain
+"""

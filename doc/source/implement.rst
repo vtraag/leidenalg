@@ -98,6 +98,6 @@ goes as follows:
 That's it! You're done and should now be able to find communities using your
 new :class:`CoolVertexPartition`:
 
->>> louvain.find_partition(G, louvain.CoolVertexPartition);
+>>> louvain.find_partition(G, louvain.CoolVertexPartition); # doctest: +SKIP
 
 
