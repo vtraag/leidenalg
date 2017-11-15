@@ -20,37 +20,42 @@ The function :func:`~louvain.find_partition` then does nothing else then
 calling :func:`~louvain.Optimiser.optimise_partition` on the provided
 partition.
 
->>> optimiser.optimise_partition(partition)
+.. testsetup::
+   
+   G = ig.Graph.Erdos_Renyi(100, p=5./100)
+   partition = louvain.CPMVertexPartition(G)
+
+>>> diff = optimiser.optimise_partition(partition)
 
 But :func:`~louvain.Optimiser.optimise_partition` simply tries to improve any
 provided partition. We can thus try to repeatedly call
 :func:`~louvain.Optimiser.optimise_partition` to keep on improving the current
 partition:
 
->>> G = ig.Graph.Erdos_Renyi(100, p=5./100); 
->>> partition = louvain.ModularityVertexPartition(G);
->>> improv = 1;
+>>> G = ig.Graph.Erdos_Renyi(100, p=5./100)
+>>> partition = louvain.ModularityVertexPartition(G)
+>>> improv = 1
 >>> while improv > 0: 
-...   improv = optimiser.optimise_partition(partition);
+...   improv = optimiser.optimise_partition(partition)
 
 Even if a call to :func:`~louvain.Optimiser.optimise_partition` did not improve
 the current partition, it is still possible that a next call will improve the
 partition. Of course, if the current partition is already optimal, this will
 never happen, but it is not possible to decide whether a partition is optimal.
 
-The :func:`~louvain.Optimiser.optimise_partition` itself is built on a 
-basic algorithm: :func:`~louvain.Optimiser.move_nodes`. You can also call this function
-yourself. For example:
+The :func:`~louvain.Optimiser.optimise_partition` itself is built on a basic
+algorithm: :func:`~louvain.Optimiser.move_nodes`. You can also call this
+function yourself. For example:
 
->>> optimiser.move_nodes(partition);
+>>> diff = optimiser.move_nodes(partition)
 
 The usual strategy in the Louvain algorithm is then to aggregate the partition
-and repeat the :func:`~louvain.Optimiser.move_nodes` on the aggregated partition. We can easily repeat
-that:
+and repeat the :func:`~louvain.Optimiser.move_nodes` on the aggregated
+partition. We can easily repeat that:
 
->>> partition = louvain.ModularityVertexPartition(G); 
+>>> partition = louvain.ModularityVertexPartition(G)
 >>> while optimiser.move_nodes(partition) > 0: 
-...   partition = partition.aggregate_partition();
+...   partition = partition.aggregate_partition()
 
 This summarises the whole Louvain algorithm in just three lines of code.
 Although this finds the final aggregate partition, this leaves it unclear the
@@ -59,17 +64,18 @@ need to update the membership based on the aggregate partition, for which we
 use the function
 :func:`~louvain.VertexPartition.MutableVertexPartition.from_coarse_partition`.
 
->>> partition = louvain.ModularityVertexPartition(G); 
->>> partition_agg = partition.aggregate_partition();
+>>> partition = louvain.ModularityVertexPartition(G)
+>>> partition_agg = partition.aggregate_partition()
 >>> while optimiser.move_nodes(partition_agg):
-...   partition.from_coarse_partition(partition_agg); 
-...   partition_agg = partition_agg.aggregate_partition();
+...   partition.from_coarse_partition(partition_agg)
+...   partition_agg = partition_agg.aggregate_partition()
 
 Now ``partition_agg`` contains the aggregate partition and ``partition``
 contains the actual partition of the original graph ``G``. Of course,
 ``partition_agg.quality() == partition.quality()`` (save some rounding).
 
-The function :func:`~louvain.Optimiser.move_nodes` in turn relies on two key functions of the partition:
+The function :func:`~louvain.Optimiser.move_nodes` in turn relies on two key
+functions of the partition:
 :func:`~louvain.VertexPartition.MutableVertexPartition.diff_move` and
 :func:`~louvain.VertexPartition.MutableVertexPartition.move_node`. The first
 calculates the difference when moving a node, and the latter actually moves the
@@ -78,8 +84,8 @@ node, and updates all necessary internal administration. The
 
 >>> for v in G.vs:
 ...   best_comm = max(range(len(partition)),
-...                   key=lambda c: partition.diff_move(v.index, c));
-...   partition.move_node(v.index, best_comm);
+...                   key=lambda c: partition.diff_move(v.index, c))
+...   partition.move_node(v.index, best_comm)
 
 The actual implementation is more complicated, but this gives the general idea.
 
@@ -88,15 +94,14 @@ Resolution profile
 
 Some methods accept so-called resolution parameters, such as
 :class:`~louvain.CPMVertexPartition` or
-:class:`~louvain.RBConfigurationVertexPartition`. Although some
-method may seem to have some 'natural' resolution, in reality this is often
-quite arbitrary. However, the methods implemented here (which depend in a
-linear way on resolution parameters) allow for an effective scanning of a full
-range for the resolution parameter. In particular, these methods somehow can be
-formulated as :math:`Q = E - \gamma N` where :math:`E` and :math:`N` are some
-other quantities. In the case for
-:class:`~louvain.CPMVertexPartition` for example, :math:`E =
-\sum_c m_c` is the number of internal edges and :math:`N = \sum_c
+:class:`~louvain.RBConfigurationVertexPartition`. Although some method may seem
+to have some 'natural' resolution, in reality this is often quite arbitrary.
+However, the methods implemented here (which depend in a linear way on
+resolution parameters) allow for an effective scanning of a full range for the
+resolution parameter. In particular, these methods somehow can be formulated as
+:math:`Q = E - \gamma N` where :math:`E` and :math:`N` are some other
+quantities. In the case for :class:`~louvain.CPMVertexPartition` for example,
+:math:`E = \sum_c m_c` is the number of internal edges and :math:`N = \sum_c
 \binom{n_c}{2}` is the sum of the internal possible edges. The essential
 insight for these formulations [1]_ is that if there is an optimal partition
 for both :math:`\gamma_1` and :math:`\gamma_2` then the partition is also
@@ -105,10 +110,10 @@ optimal for all :math:`\gamma_1 \leq \gamma \leq \gamma_2`.
 Such a resolution profile can be constructed using the
 :class:`~louvain.Optimiser` object. 
 
->>> G = ig.Graph.Famous('Zachary'); 
->>> optimiser = louvain.Optimiser(); 
+>>> G = ig.Graph.Famous('Zachary')
+>>> optimiser = louvain.Optimiser()
 >>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
-...                                        resolution_range=(0,1));
+...                                        resolution_range=(0,1))
 
 Plotting the resolution parameter versus the total number of internal edges we
 thus obtain something as follows:
