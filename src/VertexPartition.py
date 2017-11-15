@@ -136,7 +136,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     >>> q1 = partition.quality()
     >>> partition.move_node(v=0, new_comm=0)
     >>> q2 = partition.quality()
-    >>> diff == q1 - q2
+    >>> diff == q2 - q1
     True
 
     .. warning:: Only derived classes provide actual implementations, the base
