@@ -136,7 +136,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   return partitions[0].membership, improvement;
 
 def find_partition_temporal(graphs, partition_type,
-                            interslice_weight=None,
+                            interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
                             **kwargs):
