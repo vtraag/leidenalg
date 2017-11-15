@@ -298,8 +298,8 @@ function is :func:`~louvain.find_partition_temporal`:
 
 >>> membership, improvement = louvain.find_partition_temporal(
 ...                             [G_1, G_2, G_3],
+...                             louvain.CPMVertexPartition,
 ...                             interslice_weight=0.1,
-...                             louvain.CPMVertextPartition,
 ...                             resolution_parameter=gamma)
 
 This function only returns the membership vectors for the different time slices,
@@ -311,8 +311,8 @@ partitions in a slightly more convenient way using
 
 >>> partitions, partition_interslice, G_full = \
 ...               louvain.time_slices_to_layers([G_1, G_2, G_3],
+...                                             louvain.CPMVertexPartition,
 ...                                             interslice_weight=0.1,
-...                                             louvain.CPMVertextPartition,
 ...                                             resolution_parameter=gamma);
 >>> optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
 

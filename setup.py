@@ -147,16 +147,16 @@ def preprocess_fallback_config():
         # if this setup is run in the source checkout *and* the igraph msvc was build,
         # this code adds the right library and include dir
         version = '';
-        if sys.version_info == (2, 7):
+        if sys.version_info >= (2, 7) and sys.version_info < (3, 0):
           version = '27';
-        elif sys.version_info == (3, 4):
+        elif sys.version_info >= (3, 4) and sys.version_info < (3, 5):
           version ='34';
         elif sys.version_info >= (3, 5):
           version ='35';
-        all_msvc_dirs = glob.glob(os.path.join('igraph-*-msvc-py{0}'.format(version)))
+        all_msvc_dirs = glob.glob(os.path.join('..', 'igraph', 'igraph-*-msvc'.format(version)))
         if len(all_msvc_dirs) > 0:
             if len(all_msvc_dirs) > 1:
-                print("More than one MSVC build directory (igraph-*-msvc-py{0}) found!".format(version))
+                print("More than one MSVC build directory (igraph-*-msvc) found!".format(version))
                 print("It could happen that setup.py uses the wrong one! Please remove all but the right one!\n\n")
 
             msvc_builddir = all_msvc_dirs[-1]
@@ -168,12 +168,7 @@ def preprocess_fallback_config():
 
                 is_64bits = sys.maxsize > 2**32
                 LIBIGRAPH_FALLBACK_INCLUDE_DIRS = [os.path.join(msvc_builddir, "include")]
-                if is_64bits:
-                  print("Using x64")
-                  LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "x64")]
-                else:
-                  print("Using win32")
-                  LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "win32")]
+                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
 
 def version_variants(version):
     """Given an igraph version number, returns a list of possible version
