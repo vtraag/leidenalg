@@ -43,15 +43,15 @@ the current partition, it is still possible that a next call will improve the
 partition. Of course, if the current partition is already optimal, this will
 never happen, but it is not possible to decide whether a partition is optimal.
 
-The :func:`~louvain.Optimiser.optimise_partition` itself is built on a 
-basic algorithm: :func:`~louvain.Optimiser.move_nodes`. You can also call this function
-yourself. For example:
+The :func:`~louvain.Optimiser.optimise_partition` itself is built on a basic
+algorithm: :func:`~louvain.Optimiser.move_nodes`. You can also call this
+function yourself. For example:
 
 >>> diff = optimiser.move_nodes(partition)
 
 The usual strategy in the Louvain algorithm is then to aggregate the partition
-and repeat the :func:`~louvain.Optimiser.move_nodes` on the aggregated partition. We can easily repeat
-that:
+and repeat the :func:`~louvain.Optimiser.move_nodes` on the aggregated
+partition. We can easily repeat that:
 
 >>> partition = louvain.ModularityVertexPartition(G)
 >>> while optimiser.move_nodes(partition) > 0: 
@@ -74,7 +74,8 @@ Now ``partition_agg`` contains the aggregate partition and ``partition``
 contains the actual partition of the original graph ``G``. Of course,
 ``partition_agg.quality() == partition.quality()`` (save some rounding).
 
-The function :func:`~louvain.Optimiser.move_nodes` in turn relies on two key functions of the partition:
+The function :func:`~louvain.Optimiser.move_nodes` in turn relies on two key
+functions of the partition:
 :func:`~louvain.VertexPartition.MutableVertexPartition.diff_move` and
 :func:`~louvain.VertexPartition.MutableVertexPartition.move_node`. The first
 calculates the difference when moving a node, and the latter actually moves the
@@ -93,15 +94,14 @@ Resolution profile
 
 Some methods accept so-called resolution parameters, such as
 :class:`~louvain.CPMVertexPartition` or
-:class:`~louvain.RBConfigurationVertexPartition`. Although some
-method may seem to have some 'natural' resolution, in reality this is often
-quite arbitrary. However, the methods implemented here (which depend in a
-linear way on resolution parameters) allow for an effective scanning of a full
-range for the resolution parameter. In particular, these methods somehow can be
-formulated as :math:`Q = E - \gamma N` where :math:`E` and :math:`N` are some
-other quantities. In the case for
-:class:`~louvain.CPMVertexPartition` for example, :math:`E =
-\sum_c m_c` is the number of internal edges and :math:`N = \sum_c
+:class:`~louvain.RBConfigurationVertexPartition`. Although some method may seem
+to have some 'natural' resolution, in reality this is often quite arbitrary.
+However, the methods implemented here (which depend in a linear way on
+resolution parameters) allow for an effective scanning of a full range for the
+resolution parameter. In particular, these methods somehow can be formulated as
+:math:`Q = E - \gamma N` where :math:`E` and :math:`N` are some other
+quantities. In the case for :class:`~louvain.CPMVertexPartition` for example,
+:math:`E = \sum_c m_c` is the number of internal edges and :math:`N = \sum_c
 \binom{n_c}{2}` is the sum of the internal possible edges. The essential
 insight for these formulations [1]_ is that if there is an optimal partition
 for both :math:`\gamma_1` and :math:`\gamma_2` then the partition is also

@@ -2,19 +2,19 @@ Multiplex
 =========
 
 The implementation of multiplex community detection builds on ideas in [1]_.
-The most basic form simply considers two or more graphs which are defined on the
-same vertex set, but which have differing edge sets. In this context, each node
-is identified with a single community, and cannot have different communities for
-different graphs. We call this *layers* of graphs in this context. This format
-is actually more flexible than it looks, but you have to construct the layer
-graphs in a smart way. Instead of having layers of graphs which are always
-identified on the same vertex set, you could define *slices* of graphs which do
-not necessarily have the same vertex set. Using slices we would like to assign a
-node to a community for each slice, so that the community for a node can be
-different for different slices, rather than always being the same for all
-layers. We can translate *slices* into *layers* but it is not an easy
-transformation to grasp fully. But by doing so, we can again rely on the same
-machinery we developed for dealing with layers.
+The most basic form simply considers two or more graphs which are defined on
+the same vertex set, but which have differing edge sets. In this context, each
+node is identified with a single community, and cannot have different
+communities for different graphs. We call this *layers* of graphs in this
+context. This format is actually more flexible than it looks, but you have to
+construct the layer graphs in a smart way. Instead of having layers of graphs
+which are always identified on the same vertex set, you could define *slices*
+of graphs which do not necessarily have the same vertex set. Using slices we
+would like to assign a node to a community for each slice, so that the
+community for a node can be different for different slices, rather than always
+being the same for all layers. We can translate *slices* into *layers* but it
+is not an easy transformation to grasp fully. But by doing so, we can again
+rely on the same machinery we developed for dealing with layers.
 
 Throughout the remained of this section, we assume an optimiser has been
 created:
@@ -30,19 +30,20 @@ the communication between friends over the telephone and that the graph
 ``G_email`` contains the communication between friends via mail. The exact same
 vertex set then means that ``G_telephone.vs[i]`` is identical to the node
 ``G_email.vs[i]``. For each layer we can separately specify the type of
-partition that we look for. In principle they could be different for each layer,
-but for now we will assume the type of partition is the same for all layers.
-The quality of all partitions combined is simply the sum of the individual
-qualities for the various partitions, weighted by the ``layer_weight``. If we
-denote by :math:`q_k` the quality of layer :math:`k` and the weight by
-:math:`w_k`, the overall quality is then
+partition that we look for. In principle they could be different for each
+layer, but for now we will assume the type of partition is the same for all
+layers.  The quality of all partitions combined is simply the sum of the
+individual qualities for the various partitions, weighted by the
+``layer_weight``. If we denote by :math:`q_k` the quality of layer :math:`k`
+and the weight by :math:`w_k`, the overall quality is then
 
 .. math:: q = \sum_k w_k q_k.
 
 The optimisation algorithm is no different from the standard algorithm. We
-simply calculate the overall difference of moving a node to another community as
-the sum of the individual differences in all partitions. The rest (aggregating
-and repeating on the aggregate partition) simple proceeds as usual.
+simply calculate the overall difference of moving a node to another community
+as the sum of the individual differences in all partitions. The rest
+(aggregating and repeating on the aggregate partition) simple proceeds as
+usual.
 
 The most straightforward way to use this is then to use
 :func:`~louvain.find_partition_multiplex`:

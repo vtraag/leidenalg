@@ -60,9 +60,9 @@ split in two using a different method: :class:`~louvain.CPMVertexPartition`:
 
 .. image:: figures/karate_CPM.png
 
-Note that any additional ``**kwargs`` passed to :func:`~louvain.find_partition` is
-passed on to the constructor of the given ``partition_type``. In this case, we can
-pass the ``resolution_parameter``, but we could also pass ``weights`` or
+Note that any additional ``**kwargs`` passed to :func:`~louvain.find_partition`
+is passed on to the constructor of the given ``partition_type``. In this case,
+we can pass the ``resolution_parameter``, but we could also pass ``weights`` or
 ``node_sizes``.
 
 This is the real benefit of using this package: it provides implementations for

@@ -17,18 +17,18 @@ class MutableVertexPartition(_ig.VertexClustering):
   In order to keep the administration up-to-date, all changes in a partition
   should be done through
   :func:`~VertexPartition.MutableVertexPartition.move_node` or
-  :func:`~VertexPartition.MutableVertexPartition.set_membership`.  The
-  first moves a node from one community to another, and updates the
-  administration.  The latter simply updates the membership vector and updates
-  the administration.
+  :func:`~VertexPartition.MutableVertexPartition.set_membership`.  The first
+  moves a node from one community to another, and updates the administration.
+  The latter simply updates the membership vector and updates the
+  administration.
 
   The basic idea is that
-  :func:`~VertexPartition.MutableVertexPartition.diff_move` computes
-  the difference in the quality function if we would call
-  :func:`~VertexPartition.MutableVertexPartition.move_node` for the
-  same move. These functions are overridden in any derived classes to provide
-  an actual implementation. These functions are used by
-  :class:`Optimiser` to optimise the partition.
+  :func:`~VertexPartition.MutableVertexPartition.diff_move` computes the
+  difference in the quality function if we would call
+  :func:`~VertexPartition.MutableVertexPartition.move_node` for the same move.
+  These functions are overridden in any derived classes to provide an actual
+  implementation. These functions are used by :class:`Optimiser` to optimise
+  the partition.
 
   .. warning:: This base class should never be used in practice, since only
                derived classes provide an actual implementation.

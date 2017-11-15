@@ -13,12 +13,13 @@ class Optimiser(object):
   The optimiser class provides a number of different methods for optimising a
   given partition. The overall optimise procedure :func:`optimise_partition`
   calls :func:`move_nodes` then aggregates the graph and repeats the same
-  procedure. For calculating the actual improvement
-  of moving a node (corresponding a subset of nodes in the aggregate graph),
-  the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
-  which provides different values for different methods (e.g. modularity or
-  CPM). Finally, the Optimiser class provides a routine to construct a
-  :func:`resolution_profile` on a resolution parameter.
+  procedure. For calculating the actual improvement of moving a node
+  (corresponding a subset of nodes in the aggregate graph), the code relies on
+  :func:`~VertexPartition.MutableVertexPartition.diff_move` which provides
+  different values for different methods (e.g. modularity or CPM). Finally, the
+  Optimiser class provides a routine to construct a :func:`resolution_profile`
+  on a resolution parameter.
+
   """
   def __init__(self):
     """ Create a new Optimiser object """
@@ -129,7 +130,8 @@ class Optimiser(object):
     the same node in all graphs). The quality of the overall partition is
     simply the sum of the individual qualities for the various partitions,
     weighted by the layer_weight. If we denote by :math:`Q_k` the quality of
-    layer :math:`k` and the weight by :math:`\\lambda_k`, the overall quality is then
+    layer :math:`k` and the weight by :math:`\\lambda_k`, the overall quality
+    is then
 
     .. math:: Q = \sum_k \\lambda_k Q_k.
 
