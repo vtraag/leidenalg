@@ -612,7 +612,16 @@ options =  dict(
   name = 'louvain',
   version=versioneer.get_version(),
   description = 'Louvain is a general algorithm for methods of community detection in large networks.',
-  long_description=read('README.rst'),
+  long_description=
+    """
+ Louvain is a general algorithm for methods of community detection in large networks.
+
+ Please refer to http://louvain-igraph.readthedocs.io/en/latest
+ for more extensive documentation.
+
+ The source code of this package is hosted at https://github.com/vtraag/louvain-igraph.
+ Issues and bug reports are welcome at https://github.com/vtraag/louvain-igraph/issues
+    """,
   license = 'GPLv3+',
   url = 'https://github.com/vtraag/louvain-igraph',
 
