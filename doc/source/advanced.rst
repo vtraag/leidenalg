@@ -20,7 +20,12 @@ The function :func:`~louvain.find_partition` then does nothing else then
 calling :func:`~louvain.Optimiser.optimise_partition` on the provided
 partition.
 
->>> optimiser.optimise_partition(partition)
+.. testsetup::
+   
+   G = ig.Graph.Erdos_Renyi(100, p=5./100); 
+   partition = louvain.CPMVertexPartition(G);
+
+>>> diff = optimiser.optimise_partition(partition)
 
 But :func:`~louvain.Optimiser.optimise_partition` simply tries to improve any
 provided partition. We can thus try to repeatedly call
@@ -42,7 +47,7 @@ The :func:`~louvain.Optimiser.optimise_partition` itself is built on a
 basic algorithm: :func:`~louvain.Optimiser.move_nodes`. You can also call this function
 yourself. For example:
 
->>> optimiser.move_nodes(partition);
+>>> diff = optimiser.move_nodes(partition);
 
 The usual strategy in the Louvain algorithm is then to aggregate the partition
 and repeat the :func:`~louvain.Optimiser.move_nodes` on the aggregated partition. We can easily repeat

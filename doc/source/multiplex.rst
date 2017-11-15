@@ -16,6 +16,11 @@ layers. We can translate *slices* into *layers* but it is not an easy
 transformation to grasp fully. But by doing so, we can again rely on the same
 machinery we developed for dealing with layers.
 
+Throughout the remained of this section, we assume an optimiser has been
+created:
+
+>>> optimiser = louvain.Optimiser()
+
 Layer multiplex
 ---------------
 
@@ -42,6 +47,11 @@ and repeating on the aggregate partition) simple proceeds as usual.
 The most straightforward way to use this is then to use
 :func:`~louvain.find_partition_multiplex`:
 
+.. testsetup::
+
+   G_telephone = ig.Graph.Erdos_Renyi(100, 0.1);
+   G_email = ig.Graph.Erdos_Renyi(100, 0.1);
+
 >>> membership, improv = louvain.find_partition_multiplex(
 ...                        [G_telephone, G_email],
 ...                        louvain.ModularityVertexPartition);
@@ -66,7 +76,8 @@ mail, which may require a higher resolution parameter for the email graph.
 ...                    G_telephone, resolution_parameter=0.01);
 >>> part_email = louvain.CPMVertexPartition(
 ...                    G_email, resolution_parameter=0.3);
->>> optimiser.optimise_partition_multiplex([part_telephone, part_email]);
+>>> diff = optimiser.optimise_partition_multiplex(
+...                    [part_telephone, part_email]);
 
 Note that ``part_telephone`` and ``part_email`` contain exactly the same
 partition, in the sense that ``part_telephone.membership ==
@@ -77,7 +88,7 @@ Some layers may have a more important role in the partition and this can be
 indicated by the ``layer_weight``. Using half the weight for the email layer for
 example would be possible as follows:
 
->>> optimiser.optimise_partition_multiplex(
+>>> diff = optimiser.optimise_partition_multiplex(
 ...   [part_telephone, part_email],
 ...   layer_weights=[1,0.5]);
 
@@ -96,6 +107,12 @@ passing in a negative layer weight. For example, suppose we have a graph ``G``
 with possibly negative weights. We can then separate it into a positive and
 negative graph as follows:
 
+.. testsetup::
+
+   import numpy as np
+   G = ig.Graph.Erdos_Renyi(100, 0.1)
+   G.es['weight'] = np.random.randn(G.ecount());
+
 >>> G_pos = G.subgraph_edges(G.es.select(weight_gt = 0), delete_vertices=False);
 >>> G_neg = G.subgraph_edges(G.es.select(weight_lt = 0), delete_vertices=False);
 >>> G_neg.es['weight'] = [-w for w in G_neg.es['weight']];
@@ -104,7 +121,7 @@ We can then simply detect communities using;
 
 >>> part_pos = louvain.ModularityVertexPartition(G_pos, weights='weight');
 >>> part_neg = louvain.ModularityVertexPartition(G_neg, weights='weight');
->>> optimiser.optimise_partition_multiplex(
+>>> diff = optimiser.optimise_partition_multiplex(
 ...   [part_pos, part_neg],
 ...   layer_weights=[1,-1]);
 
@@ -200,9 +217,14 @@ and if this is not the case it will try to convert it into such categories by
 
 An explicit example of this:
 
+.. testsetup::
+
+   import numpy as np
+   G.vs['type'] = np.random.randint(0, 2, G.vcount())
+
 >>> p_01, p_0, p_1 = louvain.CPMVertexPartition.Bipartite(G,
 ...                    resolution_parameter_01=0.1);
->>> optimiser.optimise_partition_multiplex([p_01, p_0, p_1], 
+>>> diff = optimiser.optimise_partition_multiplex([p_01, p_0, p_1], 
 ...                                        layer_weights=[1, -1, -1]);
 
 Slices to layers
@@ -251,6 +273,16 @@ To transform slices into layers using a coupling graph, this package provides
 as follows.  First create the coupling graph assuming we have three slices
 ``G_1``, ``G_2`` and ``G_3``:
 
+.. testsetup::
+
+   G_1 = ig.Graph.Erdos_Renyi(100, 0.1)
+   G_2 = ig.Graph.Erdos_Renyi(100, 0.1)
+   G_3 = ig.Graph.Erdos_Renyi(100, 0.1)
+
+   G_1.vs['id'] = range(100)
+   G_2.vs['id'] = range(100)
+   G_3.vs['id'] = range(100)
+
 >>> G_coupling = ig.Graph.Formula('1 -- 2 -- 3');
 >>> G_coupling.es['weight'] = 0.1; # Interslice coupling strength
 >>> G_coupling.vs['slice'] = [G_1, G_2, G_3]
@@ -275,16 +307,20 @@ types for different layers.
   :class:`~louvain.RBERVertexPartition`, :class:`~louvain.SurpriseVertexPartition` and
   :class:`~louvain.SignificanceVertexPartition`.
 
+.. testsetup::
+   
+   gamma = 0.5;
+
 >>> partitions = [louvain.CPMVertexPartition(H, node_sizes='node_size', 
-...                                          weight='weight', resolution_parameter=gamma) 
+...                                          weights='weight', resolution_parameter=gamma) 
 ...               for H in layers];
->>> partition_interslice = louvain.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
-...                                                   node_sizes='node_size', weight='weight');
+>>> interslice_partition = louvain.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+...                                                   node_sizes='node_size', weights='weight');
 
 You can then simply optimise these partitions as before using
 :func:`~louvain.Optimiser.optimise_partition_multiplex`:
 
->>> optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+>>> diff = optimiser.optimise_partition_multiplex(partitions + [interslice_partition]);
 
 Temporal community detection
 ----------------------------
@@ -309,12 +345,17 @@ Rather than directly detecting communities, you can also obtain the actual
 partitions in a slightly more convenient way using
 :func:`~louvain.time_slices_to_layers`:
 
->>> partitions, partition_interslice, G_full = \
+>>> layers, interslice_layer, G_full = \
 ...               louvain.time_slices_to_layers([G_1, G_2, G_3],
-...                                             louvain.CPMVertexPartition,
-...                                             interslice_weight=0.1,
-...                                             resolution_parameter=gamma);
->>> optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+...                                             interslice_weight=0.1);
+>>> partitions = [louvain.CPMVertexPartition(H, node_sizes='node_size', 
+...                                          weights='weight', 
+...                                          resolution_parameter=gamma) 
+...               for H in layers];
+>>> interslice_partition = \
+...               louvain.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+...                                          node_sizes='node_size', weights='weight');
+>>> diff = optimiser.optimise_partition_multiplex(partitions + [interslice_partition]);
 
 Both these functions assume that the interslice coupling is always identical for
 all slices. If you want more finegrained control, you will have to use the

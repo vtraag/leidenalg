@@ -24,7 +24,7 @@ constructing an :class:`Optimiser` object and running
   >>> G = ig.Graph.Tree(100, 3);
   >>> partition = louvain.CPMVertexPartition(G, resolution_parameter = 0.1)
   >>> optimiser = louvain.Optimiser();
-  >>> optimiser.optimise_partition(partition);
+  >>> diff = optimiser.optimise_partition(partition);
 
 The :class:`Optimiser` class contains also the different subroutines that are
 used internally by :func:`~Optimiser.optimise_partition`. In addition, through

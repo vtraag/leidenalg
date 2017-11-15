@@ -85,7 +85,9 @@ class MutableVertexPartition(_ig.VertexClustering):
     partition ``p`` and that we want to determine the Significance of that
     partition. We can then simply use
 
-    >>> louvain.SignificanceVertexPartition.FromPartition(p).quality()
+    >>> p = louvain.find_partition(ig.Graph.Famous('Zachary'),
+    ...                            louvain.ModularityVertexPartition);
+    >>> sig = louvain.SignificanceVertexPartition.FromPartition(p).quality()
     """
     new_partition = cls(partition.graph, partition.membership, **kwargs);
     return new_partition;
@@ -128,11 +130,13 @@ class MutableVertexPartition(_ig.VertexClustering):
     determining again the quality of the partition and looking at the
     difference. In other words
 
-    >>> diff = partition.diff_move(v, new_comm);
+    >>> partition = louvain.find_partition(ig.Graph.Famous('Zachary'),
+    ...                            louvain.ModularityVertexPartition);
+    >>> diff = partition.diff_move(v=0, new_comm=0);
     >>> q1 = partition.quality();
-    >>> move_node(v, new_comm);
+    >>> partition.move_node(v=0, new_comm=0);
     >>> q2 = partition.quality();
-    >>> diff == q2 - q1
+    >>> diff == q1 - q2
     True
 
     .. warning:: Only derived classes provide actual implementations, the base
@@ -215,12 +219,12 @@ class MutableVertexPartition(_ig.VertexClustering):
     aggregated graph. In particular, suppose we move nodes and then get an
     aggregate graph.
 
-    >>> optimiser.move_nodes(partition);
+    >>> diff = optimiser.move_nodes(partition);
     >>> aggregate_partition = partition.aggregate_partition();
 
     Now we also move nodes in the aggregate partition
 
-    >>> optimiser.move_nodes(aggregate_partition);
+    >>> diff = optimiser.move_nodes(aggregate_partition);
 
     Now we improved the quality function of ``aggregate_partition``, but this
     is not yet reflected in the original ``partition``. We can thus call
@@ -235,13 +239,13 @@ class MutableVertexPartition(_ig.VertexClustering):
     membership of this partition is defined as follows:
 
     >>> for v in G.vs:
-    ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]]
+    ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]] # doctest: +SKIP
 
     If ``coarse_node`` is :obj:`None` it is assumed the coarse node was defined
     based on the membership of the current partition, so that
 
     >>> for v in G.vs:
-    ...   partition.membership[v] = aggregate_partition.membership[partition.membership[v]]
+    ...   partition.membership[v] = aggregate_partition.membership[partition.membership[v]] # doctest: +SKIP
 
     This can be useful when the aggregate partition is defined on a more
     refined partition.
@@ -859,7 +863,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         initial_membership, weights, node_sizes, resolution_parameter);
     self._update_internal_membership();
 
-  def Bipartite(G, resolution_parameter_01,
+  def Bipartite(graph, resolution_parameter_01,
                 resolution_parameter_0 = 0, resolution_parameter_1 = 0,
                 degree_as_node_size=False, types='type', **kwargs):
     """ Create three layers for bipartite partitions. 
@@ -980,27 +984,27 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
       raise ValueError("More than one type specified.");
 
     if degree_as_node_size:
-      if (G.is_directed()):
+      if (graph.is_directed()):
         raise ValueError("This method is not suitable for directed graphs " +
                          "when using degree as node sizes.");
-      node_sizes = G.degree();
+      node_sizes = graph.degree();
     else:
-      node_sizes = [1]*G.vcount();
+      node_sizes = [1]*graph.vcount();
 
-    partition_01 = louvain.CPMVertexPartition(G,
+    partition_01 = CPMVertexPartition(graph,
                      node_sizes=node_sizes,
                      resolution_parameter=resolution_parameter_01,
                      **kwargs);
-    H_0 = G.subgraph_edges([], delete_vertices=False);
-    partition_0 = louvain.CPMVertexPartition(H_0, weights=None,
-                     node_sizes=[s if v[type_attr] == 0 else 0 
-                                 for v, s in zip(G.vs,node_sizes)],
+    H_0 = graph.subgraph_edges([], delete_vertices=False);
+    partition_0 = CPMVertexPartition(H_0, weights=None,
+                     node_sizes=[s if t == 0 else 0 
+                                 for v, s, t in zip(graph.vs,node_sizes,types)],
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_0,
                      **kwargs);
-    H_1 = G.subgraph_edges([], delete_vertices=False);
-    partition_1 = louvain.CPMVertexPartition(H_1, weights=None,
-                     node_sizes=[s if v[type_attr] == 1 else 0 
-                                 for v, s in zip(G.vs,node_sizes)],
-                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1
+    H_1 = graph.subgraph_edges([], delete_vertices=False);
+    partition_1 = CPMVertexPartition(H_1, weights=None,
+                     node_sizes=[s if t == 1 else 0 
+                                 for v, s, t in zip(graph.vs,node_sizes,types)],
+                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1,
                      **kwargs);
     return partition_01, partition_0, partition_1;

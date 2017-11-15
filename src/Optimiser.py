@@ -92,7 +92,7 @@ class Optimiser(object):
     >>> G = ig.Graph.Famous('Zachary');
     >>> optimiser = louvain.Optimiser();
     >>> partition = louvain.ModularityVertexPartition(G);
-    >>> optimiser.optimise_partition(partition);
+    >>> diff = optimiser.optimise_partition(partition);
 
     """
     # Perhaps we
@@ -167,8 +167,9 @@ class Optimiser(object):
     >>> optimiser = louvain.Optimiser();
     >>> partition_pos = louvain.ModularityVertexPartition(G_pos);
     >>> partition_neg = louvain.ModularityVertexPartition(G_neg);
-    >>> optimiser.optimise_partition_multiplex(partitions=[partition_pos, partition_neg],
-    ...                                        layer_weights=[1,-1]);
+    >>> diff = optimiser.optimise_partition_multiplex(
+    ...                     partitions=[partition_pos, partition_neg],
+    ...                     layer_weights=[1,-1]);
 
     """
     if not layer_weights:
@@ -210,7 +211,7 @@ class Optimiser(object):
     >>> G = ig.Graph.Famous('Zachary');
     >>> optimiser = louvain.Optimiser();
     >>> partition = louvain.ModularityVertexPartition(G);
-    >>> optimiser.move_nodes(partition);
+    >>> diff = optimiser.move_nodes(partition);
 
     """
     if (consider_comms is None):
