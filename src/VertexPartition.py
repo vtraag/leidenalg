@@ -3,7 +3,7 @@ from . import _c_louvain
 from .functions import _get_py_capsule
 import sys
 # Check if working with Python 3
-PY3 = (sys.version > '3');
+PY3 = (sys.version > '3')
 
 class MutableVertexPartition(_ig.VertexClustering):
   """ Contains a partition of graph, derives from :class:`ig.VertexClustering`.
@@ -17,18 +17,18 @@ class MutableVertexPartition(_ig.VertexClustering):
   In order to keep the administration up-to-date, all changes in a partition
   should be done through
   :func:`~VertexPartition.MutableVertexPartition.move_node` or
-  :func:`~VertexPartition.MutableVertexPartition.set_membership`.  The
-  first moves a node from one community to another, and updates the
-  administration.  The latter simply updates the membership vector and updates
-  the administration.
+  :func:`~VertexPartition.MutableVertexPartition.set_membership`.  The first
+  moves a node from one community to another, and updates the administration.
+  The latter simply updates the membership vector and updates the
+  administration.
 
   The basic idea is that
-  :func:`~VertexPartition.MutableVertexPartition.diff_move` computes
-  the difference in the quality function if we would call
-  :func:`~VertexPartition.MutableVertexPartition.move_node` for the
-  same move. These functions are overridden in any derived classes to provide
-  an actual implementation. These functions are used by
-  :class:`Optimiser` to optimise the partition.
+  :func:`~VertexPartition.MutableVertexPartition.diff_move` computes the
+  difference in the quality function if we would call
+  :func:`~VertexPartition.MutableVertexPartition.move_node` for the same move.
+  These functions are overridden in any derived classes to provide an actual
+  implementation. These functions are used by :class:`Optimiser` to optimise
+  the partition.
 
   .. warning:: This base class should never be used in practice, since only
                derived classes provide an actual implementation.
@@ -49,21 +49,21 @@ class MutableVertexPartition(_ig.VertexClustering):
       partition community, i.e. membership[i] = i.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(MutableVertexPartition, self).__init__(graph, initial_membership);
+    super(MutableVertexPartition, self).__init__(graph, initial_membership)
 
   @classmethod
   def _FromCPartition(cls, partition):
-    n, edges, weights, node_sizes = _c_louvain._MutableVertexPartition_get_py_igraph(partition);
+    n, edges, weights, node_sizes = _c_louvain._MutableVertexPartition_get_py_igraph(partition)
     graph = _ig.Graph(n=n,
                       edges=edges,
                       edge_attrs={'weight': weights},
-                      vertex_attrs={'node_size': node_sizes});
-    new_partition = cls(graph);
-    new_partition._partition = partition;
-    new_partition._update_internal_membership();
-    return new_partition;
+                      vertex_attrs={'node_size': node_sizes})
+    new_partition = cls(graph)
+    new_partition._partition = partition
+    new_partition._update_internal_membership()
+    return new_partition
 
   @classmethod
   def FromPartition(cls, partition, **kwargs):
@@ -85,13 +85,15 @@ class MutableVertexPartition(_ig.VertexClustering):
     partition ``p`` and that we want to determine the Significance of that
     partition. We can then simply use
 
-    >>> louvain.SignificanceVertexPartition.FromPartition(p).quality()
+    >>> p = louvain.find_partition(ig.Graph.Famous('Zachary'),
+    ...                            louvain.ModularityVertexPartition)
+    >>> sig = louvain.SignificanceVertexPartition.FromPartition(p).quality()
     """
-    new_partition = cls(partition.graph, partition.membership, **kwargs);
-    return new_partition;
+    new_partition = cls(partition.graph, partition.membership, **kwargs)
+    return new_partition
 
   def _update_internal_membership(self):
-    self._membership = _c_louvain._MutableVertexPartition_get_membership(self._partition);
+    self._membership = _c_louvain._MutableVertexPartition_get_membership(self._partition)
     # Reset the length of the object, i.e. the number of communities
     if len(self._membership)>0:
         self._len = max(m for m in self._membership if m is not None)+1
@@ -100,8 +102,8 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   def set_membership(self, membership):
     """ Set membership. """
-    _c_louvain._MutableVertexPartition_set_membership(self._partition, list(membership));
-    self._update_internal_membership();
+    _c_louvain._MutableVertexPartition_set_membership(self._partition, list(membership))
+    self._update_internal_membership()
 
   # Calculate improvement *if* we move this node
   def diff_move(self,v,new_comm):
@@ -128,10 +130,12 @@ class MutableVertexPartition(_ig.VertexClustering):
     determining again the quality of the partition and looking at the
     difference. In other words
 
-    >>> diff = partition.diff_move(v, new_comm);
-    >>> q1 = partition.quality();
-    >>> move_node(v, new_comm);
-    >>> q2 = partition.quality();
+    >>> partition = louvain.find_partition(ig.Graph.Famous('Zachary'),
+    ...                            louvain.ModularityVertexPartition)
+    >>> diff = partition.diff_move(v=0, new_comm=0)
+    >>> q1 = partition.quality()
+    >>> partition.move_node(v=0, new_comm=0)
+    >>> q2 = partition.quality()
     >>> diff == q2 - q1
     True
 
@@ -139,7 +143,7 @@ class MutableVertexPartition(_ig.VertexClustering):
                  class provides no implementation for this function.
 
     """
-    return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm);
+    return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm)
 
   def aggregate_partition(self, membership_partition=None):
     """ Aggregate the graph according to the current partition and provide a
@@ -159,22 +163,22 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
-    >>> aggregate_partition = partition.aggregate_partition(partition);
-    >>> aggregate_graph = aggregate_partition.graph;
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition)
+    >>> aggregate_partition = partition.aggregate_partition(partition)
+    >>> aggregate_graph = aggregate_partition.graph
     >>> aggregate_partition.quality() == partition.quality()
     True
     """
-    partition_agg = self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition));
+    partition_agg = self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition))
 
     if (not membership_partition is None):
-      membership = partition_agg.membership;
+      membership = partition_agg.membership
       for v in self.graph.vs:
-        membership[self.membership[v.index]] = membership_partition.membership[v.index];
-      partition_agg.set_membership(membership);
+        membership[self.membership[v.index]] = membership_partition.membership[v.index]
+      partition_agg.set_membership(membership)
 
-    return partition_agg;
+    return partition_agg
 
   def move_node(self,v,new_comm):
     """ Move node ``v`` to community ``new_comm``.
@@ -189,14 +193,14 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> partition = louvain.ModularityVertexPartition(G);
-    >>> partition.move_node(0, 1);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> partition = louvain.ModularityVertexPartition(G)
+    >>> partition.move_node(0, 1)
     """
-    _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm);
+    _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm)
     # Make sure this move is also reflected in the membership vector of the python object
-    self._membership[v] = new_comm;
-    self._modularity_dirty = True;
+    self._membership[v] = new_comm
+    self._modularity_dirty = True
 
   def from_coarse_partition(self, partition, coarse_node=None):
     """ Update current partition according to coarser partition.
@@ -215,12 +219,12 @@ class MutableVertexPartition(_ig.VertexClustering):
     aggregated graph. In particular, suppose we move nodes and then get an
     aggregate graph.
 
-    >>> optimiser.move_nodes(partition);
-    >>> aggregate_partition = partition.aggregate_partition();
+    >>> diff = optimiser.move_nodes(partition)
+    >>> aggregate_partition = partition.aggregate_partition()
 
     Now we also move nodes in the aggregate partition
 
-    >>> optimiser.move_nodes(aggregate_partition);
+    >>> diff = optimiser.move_nodes(aggregate_partition)
 
     Now we improved the quality function of ``aggregate_partition``, but this
     is not yet reflected in the original ``partition``. We can thus call
@@ -235,21 +239,21 @@ class MutableVertexPartition(_ig.VertexClustering):
     membership of this partition is defined as follows:
 
     >>> for v in G.vs:
-    ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]]
+    ...   partition.membership[v] = aggregate_partition.membership[coarse_node[v]] # doctest: +SKIP
 
     If ``coarse_node`` is :obj:`None` it is assumed the coarse node was defined
     based on the membership of the current partition, so that
 
     >>> for v in G.vs:
-    ...   partition.membership[v] = aggregate_partition.membership[partition.membership[v]]
+    ...   partition.membership[v] = aggregate_partition.membership[partition.membership[v]] # doctest: +SKIP
 
     This can be useful when the aggregate partition is defined on a more
     refined partition.
     """
     # Read the coarser partition
     _c_louvain._MutableVertexPartition_from_coarse_partition(self._partition,
-                                                             partition.membership, coarse_node);
-    self._update_internal_membership();
+                                                             partition.membership, coarse_node)
+    self._update_internal_membership()
 
   def renumber_communities(self):
     """ Renumber the communities so that they are numbered in decreasing size.
@@ -258,12 +262,12 @@ class MutableVertexPartition(_ig.VertexClustering):
     -----
     The sort is not necessarily stable.
     """
-    _c_louvain._MutableVertexPartition_renumber_communities(self._partition);
-    self._update_internal_membership();
+    _c_louvain._MutableVertexPartition_renumber_communities(self._partition)
+    self._update_internal_membership()
 
   def quality(self):
     """ The current quality of the partition. """
-    return _c_louvain._MutableVertexPartition_quality(self._partition);
+    return _c_louvain._MutableVertexPartition_quality(self._partition)
 
   def total_weight_in_comm(self, comm):
     """ The total weight (i.e. number of edges) within a community.
@@ -281,7 +285,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_in_comm(self._partition, comm);
+    return _c_louvain._MutableVertexPartition_total_weight_in_comm(self._partition, comm)
 
   def total_weight_from_comm(self, comm):
     """ The total weight (i.e. number of edges) from a community.
@@ -304,7 +308,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm);
+    return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm)
 
   def total_weight_to_comm(self, comm):
     """ The total weight (i.e. number of edges) to a community.
@@ -327,7 +331,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_to_comm(self._partition, comm);
+    return _c_louvain._MutableVertexPartition_total_weight_to_comm(self._partition, comm)
 
   def total_weight_in_all_comms(self):
     """ The total weight (i.e. number of edges) within all communities.
@@ -344,7 +348,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_comm`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_in_all_comms(self._partition);
+    return _c_louvain._MutableVertexPartition_total_weight_in_all_comms(self._partition)
 
   def total_possible_edges_in_all_comms(self):
     """ The total possible number of edges in all communities.
@@ -357,7 +361,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     .. math :: \\sum_c \\binom{n_c}{2}
 
     """
-    return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition);
+    return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition)
 
   def weight_to_comm(self, v, comm):
     """ The total number of edges (or sum of weights) from node ``v`` to
@@ -367,7 +371,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     --------
     :func:`~VertexPartition.MutableVertexPartition.weight_from_comm`
     """
-    return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm);
+    return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm)
 
   def weight_from_comm(self, v, comm):
     """ The total number of edges (or sum of weights) to node ``v`` from
@@ -377,7 +381,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     --------
     :func:`~VertexPartition.MutableVertexPartition.weight_to_comm`
     """
-    return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm);
+    return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm)
 
 class ModularityVertexPartition(MutableVertexPartition):
   """ Implements modularity.
@@ -422,21 +426,21 @@ class ModularityVertexPartition(MutableVertexPartition):
       Weights of edges. Can be either an iterable or an edge attribute.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(ModularityVertexPartition, self).__init__(graph, initial_membership);
-    pygraph_t = _get_py_capsule(graph);
+    super(ModularityVertexPartition, self).__init__(graph, initial_membership)
+    pygraph_t = _get_py_capsule(graph)
 
     if weights is not None:
       if isinstance(weights, str):
-        weights = graph.es[weights];
+        weights = graph.es[weights]
       else:
         # Make sure it is a list
-        weights = list(weights);
+        weights = list(weights)
 
     self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t,
-        initial_membership, weights);
-    self._update_internal_membership();
+        initial_membership, weights)
+    self._update_internal_membership()
 
 
 class SurpriseVertexPartition(MutableVertexPartition):
@@ -496,22 +500,22 @@ class SurpriseVertexPartition(MutableVertexPartition):
       this could be changed.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(SurpriseVertexPartition, self).__init__(graph, initial_membership);
+    super(SurpriseVertexPartition, self).__init__(graph, initial_membership)
 
-    pygraph_t = _get_py_capsule(graph);
+    pygraph_t = _get_py_capsule(graph)
 
     if weights is not None:
       if isinstance(weights, str):
-        weights = graph.es[weights];
+        weights = graph.es[weights]
       else:
         # Make sure it is a list
-        weights = list(weights);
+        weights = list(weights)
 
     self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t,
-        initial_membership, weights);
-    self._update_internal_membership();
+        initial_membership, weights)
+    self._update_internal_membership()
 
 class SignificanceVertexPartition(MutableVertexPartition):
   """ Implements Significance.
@@ -564,14 +568,14 @@ class SignificanceVertexPartition(MutableVertexPartition):
       this could be changed.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(SignificanceVertexPartition, self).__init__(graph, initial_membership);
+    super(SignificanceVertexPartition, self).__init__(graph, initial_membership)
 
-    pygraph_t = _get_py_capsule(graph);
+    pygraph_t = _get_py_capsule(graph)
 
-    self._partition = _c_louvain._new_SignificanceVertexPartition(pygraph_t, initial_membership);
-    self._update_internal_membership();
+    self._partition = _c_louvain._new_SignificanceVertexPartition(pygraph_t, initial_membership)
+    self._update_internal_membership()
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """ Some quality functions have a linear resolution parameter, for which the
@@ -592,20 +596,20 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   """
   def __init__(self, graph, initial_membership=None):
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership);
+    super(LinearResolutionParameterVertexPartition, self).__init__(graph, initial_membership)
 
   #########################################################3
   # resolution parameter
   @property
   def resolution_parameter(self):
     """ Resolution parameter. """
-    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition);
+    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition)
 
   @resolution_parameter.setter
   def resolution_parameter(self, value):
-    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value);
+    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value)
 
   def bisect_value(self):
     """ Give the value on which we can perform bisectioning. 
@@ -614,10 +618,10 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     resolution parameters g1 and g2, then if p1.bisect_value() ==
     p2.bisect_value() the two partitions should be optimal for both g1 and g2.
     """
-    return self.total_weight_in_all_comms();
+    return self.total_weight_in_all_comms()
 
   def quality(self, resolution_parameter=None):
-    return _c_louvain._ResolutionParameterVertexPartition_quality(self._partition, resolution_parameter);
+    return _c_louvain._ResolutionParameterVertexPartition_quality(self._partition, resolution_parameter)
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
@@ -675,29 +679,29 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
       Resolution parameter.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(RBERVertexPartition, self).__init__(graph, initial_membership);
+    super(RBERVertexPartition, self).__init__(graph, initial_membership)
 
-    pygraph_t = _get_py_capsule(graph);
+    pygraph_t = _get_py_capsule(graph)
 
     if weights is not None:
       if isinstance(weights, str):
-        weights = graph.es[weights];
+        weights = graph.es[weights]
       else:
         # Make sure it is a list
-        weights = list(weights);
+        weights = list(weights)
 
     if node_sizes is not None:
       if isinstance(node_sizes, str):
-        node_sizes = graph.vs[node_sizes];
+        node_sizes = graph.vs[node_sizes]
       else:
         # Make sure it is a list
-        node_sizes = list(node_sizes);
+        node_sizes = list(node_sizes)
 
     self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter);
-    self._update_internal_membership();
+        initial_membership, weights, node_sizes, resolution_parameter)
+    self._update_internal_membership()
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
@@ -752,22 +756,22 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
       Resolution parameter.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership);
+    super(RBConfigurationVertexPartition, self).__init__(graph, initial_membership)
 
-    pygraph_t = _get_py_capsule(graph);
+    pygraph_t = _get_py_capsule(graph)
 
     if weights is not None:
       if isinstance(weights, str):
-        weights = graph.es[weights];
+        weights = graph.es[weights]
       else:
         # Make sure it is a list
-        weights = list(weights);
+        weights = list(weights)
 
     self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
-        initial_membership, weights, resolution_parameter);
-    self._update_internal_membership();
+        initial_membership, weights, resolution_parameter)
+    self._update_internal_membership()
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements CPM.
@@ -835,31 +839,31 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
       Resolution parameter.
     """
     if initial_membership is not None:
-      initial_membership = list(initial_membership);
+      initial_membership = list(initial_membership)
 
-    super(CPMVertexPartition, self).__init__(graph, initial_membership);
+    super(CPMVertexPartition, self).__init__(graph, initial_membership)
 
-    pygraph_t = _get_py_capsule(graph);
+    pygraph_t = _get_py_capsule(graph)
 
     if weights is not None:
       if isinstance(weights, str):
-        weights = graph.es[weights];
+        weights = graph.es[weights]
       else:
         # Make sure it is a list
-        weights = list(weights);
+        weights = list(weights)
 
     if node_sizes is not None:
       if isinstance(node_sizes, str):
-        node_sizes = graph.vs[node_sizes];
+        node_sizes = graph.vs[node_sizes]
       else:
         # Make sure it is a list
-        node_sizes = list(node_sizes);
+        node_sizes = list(node_sizes)
 
     self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter);
-    self._update_internal_membership();
+        initial_membership, weights, node_sizes, resolution_parameter)
+    self._update_internal_membership()
 
-  def Bipartite(G, resolution_parameter_01,
+  def Bipartite(graph, resolution_parameter_01,
                 resolution_parameter_0 = 0, resolution_parameter_1 = 0,
                 degree_as_node_size=False, types='type', **kwargs):
     """ Create three layers for bipartite partitions. 
@@ -967,40 +971,40 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
 
     if types is not None:
       if isinstance(types, str):
-        types = graph.vs[types];
+        types = graph.vs[types]
       else:
         # Make sure it is a list
-        types = list(types);
+        types = list(types)
 
     if set(types) != set([0, 1]):
-      new_type = ig.UniqueIdGenerator();
-      types = [new_type[t] for t in types];
+      new_type = ig.UniqueIdGenerator()
+      types = [new_type[t] for t in types]
 
     if set(types) != set([0, 1]):
-      raise ValueError("More than one type specified.");
+      raise ValueError("More than one type specified.")
 
     if degree_as_node_size:
-      if (G.is_directed()):
+      if (graph.is_directed()):
         raise ValueError("This method is not suitable for directed graphs " +
-                         "when using degree as node sizes.");
-      node_sizes = G.degree();
+                         "when using degree as node sizes.")
+      node_sizes = graph.degree()
     else:
-      node_sizes = [1]*G.vcount();
+      node_sizes = [1]*graph.vcount()
 
-    partition_01 = louvain.CPMVertexPartition(G,
+    partition_01 = CPMVertexPartition(graph,
                      node_sizes=node_sizes,
                      resolution_parameter=resolution_parameter_01,
-                     **kwargs);
-    H_0 = G.subgraph_edges([], delete_vertices=False);
-    partition_0 = louvain.CPMVertexPartition(H_0, weights=None,
-                     node_sizes=[s if v[type_attr] == 0 else 0 
-                                 for v, s in zip(G.vs,node_sizes)],
+                     **kwargs)
+    H_0 = graph.subgraph_edges([], delete_vertices=False)
+    partition_0 = CPMVertexPartition(H_0, weights=None,
+                     node_sizes=[s if t == 0 else 0 
+                                 for v, s, t in zip(graph.vs,node_sizes,types)],
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_0,
-                     **kwargs);
-    H_1 = G.subgraph_edges([], delete_vertices=False);
-    partition_1 = louvain.CPMVertexPartition(H_1, weights=None,
-                     node_sizes=[s if v[type_attr] == 1 else 0 
-                                 for v, s in zip(G.vs,node_sizes)],
-                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1
-                     **kwargs);
-    return partition_01, partition_0, partition_1;
+                     **kwargs)
+    H_1 = graph.subgraph_edges([], delete_vertices=False)
+    partition_1 = CPMVertexPartition(H_1, weights=None,
+                     node_sizes=[s if t == 1 else 0 
+                                 for v, s, t in zip(graph.vs,node_sizes,types)],
+                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1,
+                     **kwargs)
+    return partition_01, partition_0, partition_1

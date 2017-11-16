@@ -10,6 +10,10 @@ well. This introduction explains how to do that.
 For those without patience (and some prior experience), if you simply want to
 detect communities given a graph ``G`` using modularity, you simply use
 
+.. testsetup::
+   
+   G = ig.Graph.Erdos_Renyi(100, p=5./100); 
+
 >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
 
 That's it.
@@ -38,7 +42,7 @@ earlier:
 
 You can simply plot the results as follows:
 
->>> ig.plot(partition);
+>>> ig.plot(partition) # doctest: +SKIP
 
 .. image:: figures/karate_modularity.png
 
@@ -52,13 +56,13 @@ split in two using a different method: :class:`~louvain.CPMVertexPartition`:
 
 >>> partition = louvain.find_partition(G, louvain.CPMVertexPartition,
 ...                                    resolution_parameter = 0.05);
->>> ig.plot(partition)
+>>> ig.plot(partition) # doctest: +SKIP
 
 .. image:: figures/karate_CPM.png
 
-Note that any additional ``**kwargs`` passed to :func:`~louvain.find_partition` is
-passed on to the constructor of the given ``partition_type``. In this case, we can
-pass the ``resolution_parameter``, but we could also pass ``weights`` or
+Note that any additional ``**kwargs`` passed to :func:`~louvain.find_partition`
+is passed on to the constructor of the given ``partition_type``. In this case,
+we can pass the ``resolution_parameter``, but we could also pass ``weights`` or
 ``node_sizes``.
 
 This is the real benefit of using this package: it provides implementations for

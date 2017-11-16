@@ -9,20 +9,20 @@ from ._c_louvain import RAND_NEIGH_COMM
 from collections import Counter
 
 # Check if working with Python 3
-PY3 = (sys.version > '3');
+PY3 = (sys.version > '3')
 
 def _get_py_capsule(graph):
   if PY3:
-    return graph.__graph_as_capsule();
+    return graph.__graph_as_capsule()
   else:
-    return graph.__graph_as_cobject();
+    return graph.__graph_as_cobject()
 
 from .VertexPartition import *
 from .Optimiser import *
 
 def set_rng_seed(seed):
   """ Set seed for internal random number generator. """
-  _c_louvain._set_rng_seed(seed);
+  _c_louvain._set_rng_seed(seed)
 
 def find_partition(graph, partition_type, initial_membership=None, weights=None, **kwargs):
   """ Detect communities using the default settings.
@@ -66,17 +66,17 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   Examples
   --------
   >>> G = ig.Graph.Famous('Zachary')
-  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition);
+  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition)
 
   """
   if not weights is None:
-    kwargs['weights'] = weights;
+    kwargs['weights'] = weights
   partition = partition_type(graph,
                              initial_membership=initial_membership,
-                             **kwargs);
-  optimiser = Optimiser();
-  optimiser.optimise_partition(partition);
-  return partition;
+                             **kwargs)
+  optimiser = Optimiser()
+  optimiser.optimise_partition(partition)
+  return partition
 
 def find_partition_multiplex(graphs, partition_type, **kwargs):
   """ Detect communities for multiplex graphs.
@@ -120,20 +120,20 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
 
   Examples
   --------
-  >>> n = 100;
-  >>> G_1 = ig.Graph.Lattice([n], 1);
-  >>> G_2 = ig.Graph.Lattice([n], 1);
+  >>> n = 100
+  >>> G_1 = ig.Graph.Lattice([n], 1)
+  >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2],
-  ...                                                            louvain.ModularityVertexPartition);
+  ...                                                            louvain.ModularityVertexPartition)
   """
-  n_layers = len(graphs);
-  partitions = [];
-  layer_weights = [1]*n_layers;
+  n_layers = len(graphs)
+  partitions = []
+  layer_weights = [1]*n_layers
   for graph in graphs:
-    partitions.append(partition_type(graph, **kwargs));
-  optimiser = Optimiser();
-  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights);
-  return partitions[0].membership, improvement;
+    partitions.append(partition_type(graph, **kwargs))
+  optimiser = Optimiser()
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights)
+  return partitions[0].membership, improvement
 
 def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
@@ -198,14 +198,14 @@ def find_partition_temporal(graphs, partition_type,
 
   Examples
   --------
-  >>> n = 100;
-  >>> G_1 = ig.Graph.Lattice([n], 1);
-  >>> G_1.vs['id'] = range(n);
-  >>> G_2 = ig.Graph.Lattice([n], 1);
-  >>> G_2.vs['id'] = range(n);
+  >>> n = 100
+  >>> G_1 = ig.Graph.Lattice([n], 1)
+  >>> G_1.vs['id'] = range(n)
+  >>> G_2 = ig.Graph.Lattice([n], 1)
+  >>> G_2.vs['id'] = range(n)
   >>> membership, improvement = louvain.find_partition_temporal([G_1, G_2], 
   ...                                                           louvain.ModularityVertexPartition, 
-  ...                                                           interslice_weight=1);
+  ...                                                           interslice_weight=1)
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,
@@ -213,36 +213,36 @@ def find_partition_temporal(graphs, partition_type,
                                                     slice_attr=slice_attr,
                                                     vertex_id_attr=vertex_id_attr,
                                                     edge_type_attr=edge_type_attr,
-                                                    weight_attr=weight_attr);
+                                                    weight_attr=weight_attr)
   # Optimise partitions
-  arg_dict = {};
+  arg_dict = {}
   if 'node_sizes' in partition_type.__init__.__code__.co_varnames:
-    arg_dict['node_sizes'] = 'node_size';
+    arg_dict['node_sizes'] = 'node_size'
 
   if 'weights' in partition_type.__init__.__code__.co_varnames:
-    arg_dict['weights'] = 'weight';
+    arg_dict['weights'] = 'weight'
 
-  arg_dict.update(kwargs);
+  arg_dict.update(kwargs)
 
-  partitions = [];
+  partitions = []
   for H in G_layers:
-    arg_dict['graph'] = H;
-    partitions.append(partition_type(**arg_dict));
+    arg_dict['graph'] = H
+    partitions.append(partition_type(**arg_dict))
 
   # We can always take the same interslice partition, as this should have no
   # cost in the optimisation.
   partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0,
-                                            node_sizes='node_size', weights=weight_attr);
-  optimiser = Optimiser();
-  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice]);
+                                            node_sizes='node_size', weights=weight_attr)
+  optimiser = Optimiser()
+  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice])
   # Transform results back into original form.
   membership = {(v[slice_attr], v[vertex_id_attr]): m for v, m in zip(G.vs, partitions[0].membership)}
 
-  membership_time_slices = [];
+  membership_time_slices = []
   for slice_idx, H in enumerate(graphs):
-    membership_slice = [membership[(slice_idx, v[vertex_id_attr])] for v in H.vs];
-    membership_time_slices.append(list(membership_slice));
-  return membership_time_slices, improvement;
+    membership_slice = [membership[(slice_idx, v[vertex_id_attr])] for v in H.vs]
+    membership_time_slices.append(list(membership_slice))
+  return membership_time_slices, improvement
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # These are helper functions to create a proper
@@ -256,19 +256,19 @@ def get_attrs_or_nones(seq, attr_name):
     return [None] * len(seq)
 
 def disjoint_union_attrs(graphs):
-  G = _ig.Graph.disjoint_union(graphs[0], graphs[1:]);
+  G = _ig.Graph.disjoint_union(graphs[0], graphs[1:])
 
-  vertex_attributes = set(sum([H.vertex_attributes() for H in graphs], []));
-  edge_attributes = set(sum([H.edge_attributes() for H in graphs], []));
+  vertex_attributes = set(sum([H.vertex_attributes() for H in graphs], []))
+  edge_attributes = set(sum([H.edge_attributes() for H in graphs], []))
 
   for attr in vertex_attributes:
-    attr_value = sum([get_attrs_or_nones(H.vs, attr) for H in graphs], []);
-    G.vs[attr] = attr_value;
+    attr_value = sum([get_attrs_or_nones(H.vs, attr) for H in graphs], [])
+    G.vs[attr] = attr_value
   for attr in edge_attributes:
-    attr_value = sum([get_attrs_or_nones(H.es, attr) for H in graphs], []);
-    G.es[attr] = attr_value;
+    attr_value = sum([get_attrs_or_nones(H.es, attr) for H in graphs], [])
+    G.es[attr] = attr_value
 
-  return G;
+  return G
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Conversion to layer graphs
@@ -293,14 +293,14 @@ def time_slices_to_layers(graphs,
   :func:`slices_to_layers`
 
   """
-  G_slices = _ig.Graph.Tree(len(graphs), 1, mode=_ig.TREE_UNDIRECTED);
-  G_slices.es[weight_attr] = interslice_weight;
-  G_slices.vs[slice_attr] = graphs;
+  G_slices = _ig.Graph.Tree(len(graphs), 1, mode=_ig.TREE_UNDIRECTED)
+  G_slices.es[weight_attr] = interslice_weight
+  G_slices.vs[slice_attr] = graphs
   return slices_to_layers(G_slices,
                           slice_attr,
                           vertex_id_attr,
                           edge_type_attr,
-                          weight_attr);
+                          weight_attr)
 
 def slices_to_layers(G_coupling,
                      slice_attr='slice',
@@ -397,60 +397,60 @@ def slices_to_layers(G_coupling,
 
   """
   if not slice_attr in G_coupling.vertex_attributes():
-    raise ValueError("Could not find the vertex attribute {0} in the coupling graph.".format(slice_attr));
+    raise ValueError("Could not find the vertex attribute {0} in the coupling graph.".format(slice_attr))
 
   if not weight_attr in G_coupling.edge_attributes():
-    raise ValueError("Could not find the edge attribute {0} in the coupling graph.".format(weight_attr));
+    raise ValueError("Could not find the edge attribute {0} in the coupling graph.".format(weight_attr))
 
   # Create disjoint union of the time graphs
   for v_slice in G_coupling.vs:
-    H = v_slice[slice_attr];
-    H.vs[slice_attr] = v_slice.index;
+    H = v_slice[slice_attr]
+    H.vs[slice_attr] = v_slice.index
     if not vertex_id_attr in H.vertex_attributes():
-      raise ValueError("Could not find the vertex attribute {0} to identify nodes in different slices.".format(vertex_id_attr ));
+      raise ValueError("Could not find the vertex attribute {0} to identify nodes in different slices.".format(vertex_id_attr ))
     if not weight_attr in H.edge_attributes():
-      H.es[weight_attr] = 1;
+      H.es[weight_attr] = 1
 
-  G = disjoint_union_attrs(G_coupling.vs[slice_attr]);
-  G.es[edge_type_attr] = 'intraslice';
+  G = disjoint_union_attrs(G_coupling.vs[slice_attr])
+  G.es[edge_type_attr] = 'intraslice'
 
   for v_slice in G_coupling.vs:
     for u_slice in v_slice.neighbors(mode=_ig.OUT):
       if v_slice.index < u_slice.index or G_coupling.is_directed():
-        nodes_v = G.vs.select(lambda v: v[slice_attr]==v_slice.index)[vertex_id_attr];
+        nodes_v = G.vs.select(lambda v: v[slice_attr]==v_slice.index)[vertex_id_attr]
         if len(set(nodes_v)) != len(nodes_v):
           err = '\n'.join(
             ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_v).items() if count > 1]
-            );
-          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(v_slice.index, err));
-        nodes_u = G.vs.select(lambda v: v[slice_attr]==u_slice.index)[vertex_id_attr];
+            )
+          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(v_slice.index, err))
+        nodes_u = G.vs.select(lambda v: v[slice_attr]==u_slice.index)[vertex_id_attr]
         if len(set(nodes_u)) != len(nodes_u):
           err = '\n'.join(
             ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_u).items() if count > 1]
-            );
-          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(u_slice.index, err));
-        common_nodes = set(nodes_v).intersection(set(nodes_u));
-        nodes_v = sorted([v for v in G.vs if v[slice_attr] == v_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr]);
-        nodes_u = sorted([v for v in G.vs if v[slice_attr] == u_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr]);
-        edges = zip(nodes_v, nodes_u);
-        e_start = G.ecount();
-        G.add_edges(edges);
-        e_end = G.ecount();
-        e_idx = range(e_start, e_end);
-        interslice_weight = G_coupling.es[G_coupling.get_eid(v_slice, u_slice)][weight_attr];
+            )
+          raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(u_slice.index, err))
+        common_nodes = set(nodes_v).intersection(set(nodes_u))
+        nodes_v = sorted([v for v in G.vs if v[slice_attr] == v_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr])
+        nodes_u = sorted([v for v in G.vs if v[slice_attr] == u_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr])
+        edges = zip(nodes_v, nodes_u)
+        e_start = G.ecount()
+        G.add_edges(edges)
+        e_end = G.ecount()
+        e_idx = range(e_start, e_end)
+        interslice_weight = G_coupling.es[G_coupling.get_eid(v_slice, u_slice)][weight_attr]
         if not interslice_weight is None:
-          G.es[e_idx][weight_attr] = interslice_weight;
-        G.es[e_idx][edge_type_attr] = 'interslice';
+          G.es[e_idx][weight_attr] = interslice_weight
+        G.es[e_idx][edge_type_attr] = 'interslice'
 
   # Convert aggregate graph to individual layers for each time slice.
-  G_layers = [None]*G_coupling.vcount();
+  G_layers = [None]*G_coupling.vcount()
   for v_slice in G_coupling.vs:
-    H = G.subgraph_edges(G.es.select(_within=[v.index for v in G.vs if v[slice_attr] == v_slice.index]), delete_vertices=False);
-    H.vs['node_size'] = [1 if v[slice_attr] == v_slice.index else 0 for v in H.vs];
-    G_layers[v_slice.index] = H;
+    H = G.subgraph_edges(G.es.select(_within=[v.index for v in G.vs if v[slice_attr] == v_slice.index]), delete_vertices=False)
+    H.vs['node_size'] = [1 if v[slice_attr] == v_slice.index else 0 for v in H.vs]
+    G_layers[v_slice.index] = H
 
   # Create one graph for the interslice links.
-  G_interslice = G.subgraph_edges(G.es.select(type_eq='interslice'), delete_vertices=False);
-  G_interslice.vs['node_size'] = 0;
+  G_interslice = G.subgraph_edges(G.es.select(type_eq='interslice'), delete_vertices=False)
+  G_interslice.vs['node_size'] = 0
 
-  return G_layers, G_interslice, G;
+  return G_layers, G_interslice, G
