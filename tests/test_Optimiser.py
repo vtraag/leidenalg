@@ -42,7 +42,7 @@ class OptimiserTest(unittest.TestCase):
       neigh_comms = set(partition.membership[u.index] for u in v.neighbors());
       for c in neigh_comms:
         self.assertLessEqual(
-          partition.diff_move(v.index, c), 0,
+          partition.diff_move(v.index, c), 1e-10, # Allow for a small difference up to rounding error.
           msg="Was able to move a node to a better community, violating node optimality.");
 
   def test_optimiser(self):
