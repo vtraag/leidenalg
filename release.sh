@@ -24,7 +24,7 @@ if [ "$1" = "release" ]; then
   python setup.py --no-pkg-config bdist_conda # Conda binary
 
   # Upload using twine
-  twine uploader dist/$PACKAGE* --sign
+  twine uploader dist/$PACKAGE-* --sign
 
   # docs will be built automatically by readthedocs.org
   
@@ -46,7 +46,7 @@ else
 
   # List package
   echo Created following packages
-  ls -1 dist/$PACKAGE*
+  ls -1 dist/$PACKAGE-*
 
   # Install & test
   python setup.py check
