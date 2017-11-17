@@ -40,6 +40,6 @@ IF "%1%"=="release" (
     python setup.py --fullname > PACKAGE.txt
     SET /p PACKAGE=<PACKAGE.txt
     DEL PACKAGE.txt
-    twine upload dist/%PACKAGE%*win*.whl --sign -r pypitest
+    twine upload dist/%PACKAGE%-*win*.whl --sign -r pypitest
 
 )
