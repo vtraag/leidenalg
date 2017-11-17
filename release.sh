@@ -6,10 +6,6 @@ echo Building $PACKAGE
 if [ "$1" = "release" ]; then
   echo "Making release, uploading to PyPi and Anaconda..."
 
-  # Check and test package
-  python setup.py check
-  python setup.py test
-  
   # Python 2
   source ~/anaconda2/bin/activate root
   ~/anaconda2/bin/conda config --set anaconda_upload yes  
@@ -24,7 +20,7 @@ if [ "$1" = "release" ]; then
   python setup.py --no-pkg-config bdist_conda # Conda binary
 
   # Upload using twine
-  twine uploader dist/$PACKAGE-* --sign
+  twine upload dist/$PACKAGE-* --sign
 
   # docs will be built automatically by readthedocs.org
   
@@ -43,6 +39,9 @@ else
   ~/anaconda3/bin/conda config --set anaconda_upload no
   python setup.py bdist_egg                   # Binary
   python setup.py --no-pkg-config bdist_conda # Conda binary
+
+  # Upload using twine
+  twine upload dist/$PACKAGE-* --sign -r pypitest
 
   # List package
   echo Created following packages
