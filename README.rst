@@ -13,7 +13,8 @@ constant Potts model (CPM) [4]_, (4) Significance [5]_, and finally (5)
 Surprise [6]_. In addition, it supports multiplex partition optimisation
 allowing community detection on for example negative links [7]_ or multiple
 time slices [8]_. It also provides some support for community detection on
-bipartite graphs. See the documentation for more information.
+bipartite graphs. See the `documentation
+<http://louvain-igraph.readthedocs.io/en/latest/>`_ for more information.
 
 .. image:: https://readthedocs.org/projects/louvain-igraph/badge
                 :target: http://louvain-igraph.readthedocs.io/en/latest/
@@ -29,8 +30,8 @@ bipartite graphs. See the documentation for more information.
 Installation
 ------------
 
-In short, for Unix: ``sudo pip install louvain``.  For Windows: download the
-binary installers.
+In short, for Unix: ``pip install louvain``. For Windows: download the binary
+installers.
 
 For Unix like systems it is possible to install from source. For Windows this
 is overly complicated, and you are recommended to use the binary installation

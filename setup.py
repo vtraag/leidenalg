@@ -153,10 +153,10 @@ def preprocess_fallback_config():
           version ='34';
         elif sys.version_info >= (3, 5):
           version ='35';
-        all_msvc_dirs = glob.glob(os.path.join('..', 'igraph', 'igraph-*-msvc'.format(version)))
+        all_msvc_dirs = glob.glob(os.path.join('..', 'igraph', 'igraph-*-msvc-py{0}'.format(version)))
         if len(all_msvc_dirs) > 0:
             if len(all_msvc_dirs) > 1:
-                print("More than one MSVC build directory (igraph-*-msvc) found!".format(version))
+                print("More than one MSVC build directory (igraph-*-msvc-py{0}) found!".format(version))
                 print("It could happen that setup.py uses the wrong one! Please remove all but the right one!\n\n")
 
             msvc_builddir = all_msvc_dirs[-1]
@@ -594,13 +594,6 @@ class BuildConfiguration(object):
 buildcfg = BuildConfiguration();
 buildcfg.process_args_from_command_line();
 
-# Utility function to read the README file.
-# Used for the long_description.  It's nice, because now 1) we have a top level
-# README file and 2) it's easier to type in the README file than to put a raw
-# string in below ...
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
-
 louvain_ext = Extension('louvain._c_louvain',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
@@ -616,11 +609,11 @@ options =  dict(
     """
  Louvain is a general algorithm for methods of community detection in large networks.
 
- Please refer to http://louvain-igraph.readthedocs.io/en/latest
- for more extensive documentation.
+ Please refer to the `documentation <http://louvain-igraph.readthedocs.io/en/latest>`_
+ for more details.
 
- The source code of this package is hosted at https://github.com/vtraag/louvain-igraph.
- Issues and bug reports are welcome at https://github.com/vtraag/louvain-igraph/issues
+ The source code of this package is hosted at `GitHub <https://github.com/vtraag/louvain-igraph>`_.
+ Issues and bug reports are welcome at https://github.com/vtraag/louvain-igraph/issues.
     """,
   license = 'GPLv3+',
   url = 'https://github.com/vtraag/louvain-igraph',

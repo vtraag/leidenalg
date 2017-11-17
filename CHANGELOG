@@ -1,3 +1,9 @@
+0.6.1
+- Minor corrections to documentation
+- Added doctest to examples in documentation
+- Removed trailing semicolons throughout code
+- Corrected some errors in CPMVertexPartition.Bipartite
+
 0.6.0
 - Major API changes, now exposing actual classes and optimisation routine.
 - Improved algorithm, now runs faster and finds better solutions.
