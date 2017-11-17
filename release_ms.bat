@@ -19,8 +19,9 @@ IF "%1%"=="release" (
     python setup.py --fullname > PACKAGE.txt
     SET /p PACKAGE=<PACKAGE.txt
     DEL PACKAGE.txt
-    gpg --detach-sign -a dist/%PACKAGE%-*win*.whl
-    twine upload dist/%PACKAGE%-*win*.whl  dist/%PACKAGE%-*win*.whl.asc
+    gpg --detach-sign -a dist\%PACKAGE%-cp27-cp27m-win_amd64.whl
+    gpg --detach-sign -a dist\%PACKAGE%-cp36-cp36m-win_amd64.whl
+    twine upload dist\%PACKAGE%-*win*.whl  dist\%PACKAGE%-*win*.whl.asc
 
 ) ELSE (
     ECHO Performing a dry-run.
@@ -41,7 +42,8 @@ IF "%1%"=="release" (
     python setup.py --fullname > PACKAGE.txt
     SET /p PACKAGE=<PACKAGE.txt
     DEL PACKAGE.txt
-    gpg --detach-sign -a dist/%PACKAGE%-*win*.whl
-    twine upload dist/%PACKAGE%-*win*.whl  dist/%PACKAGE%-*win*.whl.asc -r pypitest
+    gpg --detach-sign -a dist\%PACKAGE%-cp27-cp27m-win_amd64.whl
+    gpg --detach-sign -a dist\%PACKAGE%-cp36-cp36m-win_amd64.whl
+    twine upload dist\%PACKAGE%-*win*.whl  dist\%PACKAGE%-*win*.whl.asc
 
 )
