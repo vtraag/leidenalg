@@ -216,7 +216,7 @@ void MutableVertexPartition::init_admin()
 *****************************************************************************/
 void MutableVertexPartition::renumber_communities()
 {
-  vector<MutableVertexPartition*> partitions(1, NULL);
+  vector<MutableVertexPartition*> partitions(1);
   partitions[0] = this;
   this->renumber_communities(MutableVertexPartition::renumber_communities(partitions));
 }
