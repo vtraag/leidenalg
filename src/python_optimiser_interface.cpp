@@ -105,7 +105,7 @@ extern "C"
 
     // This is all done per layer.
 
-    vector<MutableVertexPartition*> partitions(nb_partitions, NULL);
+    vector<MutableVertexPartition*> partitions(nb_partitions);
     vector<double> layer_weights(nb_partitions, 1.0);
 
     for (size_t layer = 0; layer < nb_partitions; layer++)

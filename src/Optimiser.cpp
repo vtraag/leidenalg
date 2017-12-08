@@ -40,7 +40,7 @@ void Optimiser::print_settings()
 *****************************************************************************/
 double Optimiser::optimise_partition(MutableVertexPartition* partition)
 {
-  vector<MutableVertexPartition*> partitions(1, NULL);
+  vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
   return this->optimise_partition(partitions, layer_weights);
@@ -68,7 +68,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     throw Exception("No partitions provided.");
 
   // Get graphs for all layers
-  vector<Graph*> graphs(nb_layers, NULL);
+  vector<Graph*> graphs(nb_layers);
   for (size_t layer = 0; layer < nb_layers; layer++)
     graphs[layer] = partitions[layer]->get_graph();
 
@@ -84,8 +84,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       throw Exception("Number of nodes are not equal for all graphs.");
 
   // Initialize the vector of the collapsed graphs for all layers
-  vector<Graph*> collapsed_graphs(nb_layers, NULL);
-  vector<MutableVertexPartition*> collapsed_partitions(nb_layers, NULL);
+  vector<Graph*> collapsed_graphs(nb_layers);
+  vector<MutableVertexPartition*> collapsed_partitions(nb_layers);
 
   // Declare the collapsed_graph variable which will contain the graph
   // collapsed by its communities. We will use this variables at each
@@ -146,8 +146,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     #endif
 
     // Collapse graph (i.e. community graph)
-    vector<Graph*> new_collapsed_graphs(nb_layers, NULL);
-    vector<MutableVertexPartition*> new_collapsed_partitions(nb_layers, NULL);
+    vector<Graph*> new_collapsed_graphs(nb_layers);
+    vector<MutableVertexPartition*> new_collapsed_partitions(nb_layers);
 
     for (size_t layer = 0; layer < nb_layers; layer++)
     {
@@ -249,7 +249,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
 
 double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_comms)
 {
-  vector<MutableVertexPartition*> partitions(1, NULL);
+  vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
   return this->move_nodes(partitions, layer_weights, consider_comms, this->consider_empty_community);
@@ -283,7 +283,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   if (nb_layers == 0)
     return -1.0;
   // Get graphs
-  vector<Graph*> graphs(nb_layers, NULL);
+  vector<Graph*> graphs(nb_layers);
   for (size_t layer = 0; layer < nb_layers; layer++)
     graphs[layer] = partitions[layer]->get_graph();
   // Number of nodes in the graph
