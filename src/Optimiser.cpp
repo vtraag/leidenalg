@@ -314,7 +314,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     partitions[layer]->renumber_communities(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
   }
-  return improv;
+  return total_improv;
 }
 
 /*****************************************************************************
