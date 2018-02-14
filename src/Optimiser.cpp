@@ -732,7 +732,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       }
 
       #ifdef DEBUG
-        cerr << "Consider " << comms.size() << " communities for moving." << endl;
+        cerr << "Consider " << comms.size() << " communities for moving node " << v << "." << endl;
       #endif
 
       size_t max_comm = v_comm;
@@ -751,6 +751,9 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
           // Make sure to multiply it by the weight per layer
           possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
         }
+        #ifdef DEBUG
+          cerr << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
+        #endif
 
         if (possible_improv >= max_improv)
         {
