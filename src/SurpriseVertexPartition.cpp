@@ -34,10 +34,14 @@ double SurpriseVertexPartition::diff_move(size_t v, size_t new_comm)
     cerr << "\t" << "nsize: " << nsize << endl;
   #endif
   double diff = 0.0;
+  double m = this->graph->total_weight();
+
+  if (m == 0)
+    return 0.0;
+
   if (new_comm != old_comm)
   {
     double normalise = (2.0 - this->graph->is_directed());
-    double m = this->graph->total_weight();
     size_t n = this->graph->total_size();
     size_t n2 = this->graph->possible_edges(n);
 
@@ -117,6 +121,9 @@ double SurpriseVertexPartition::quality()
   size_t nc2 = this->total_possible_edges_in_all_comms();
   double m = this->graph->total_weight();
   size_t n = this->graph->total_size();
+
+  if (m == 0)
+    return 0.0;
 
   size_t n2 = this->graph->possible_edges(n);
 
