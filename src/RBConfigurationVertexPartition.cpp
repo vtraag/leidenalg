@@ -44,6 +44,9 @@ double RBConfigurationVertexPartition::diff_move(size_t v, size_t new_comm)
   #endif
   size_t old_comm = this->_membership[v];
   double diff = 0.0;
+  double total_weight = this->graph->total_weight()*(2.0 - this->graph->is_directed());
+  if (total_weight == 0.0)
+    return 0.0;
   if (new_comm != old_comm)
   {
     #ifdef DEBUG
@@ -92,9 +95,6 @@ double RBConfigurationVertexPartition::diff_move(size_t v, size_t new_comm)
     double K_in_new = this->total_weight_to_comm(new_comm) + k_in;
     #ifdef DEBUG
       cerr << "\t" << "K_in_new: " << K_in_new << endl;
-    #endif
-    double total_weight = this->graph->total_weight()*(2.0 - this->graph->is_directed());
-    #ifdef DEBUG
       cerr << "\t" << "total_weight: " << total_weight << endl;
     #endif
     double diff_old = (w_to_old - this->resolution_parameter*k_out*K_in_old/total_weight) + \
@@ -131,6 +131,16 @@ double RBConfigurationVertexPartition::quality(double resolution_parameter)
     cerr << "double ModularityVertexPartition::quality()" << endl;
   #endif
   double mod = 0.0;
+
+  double m;
+  if (this->graph->is_directed())
+    m = this->graph->total_weight();
+  else
+    m = 2*this->graph->total_weight();
+
+  if (m == 0)
+    return 0.0;
+
   for (size_t c = 0; c < this->nb_communities(); c++)
   {
     double w = this->total_weight_in_comm(c);
