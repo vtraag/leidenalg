@@ -977,7 +977,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         types = list(types)
 
     if set(types) != set([0, 1]):
-      new_type = ig.UniqueIdGenerator()
+      new_type = _ig.UniqueIdGenerator()
       types = [new_type[t] for t in types]
 
     if set(types) != set([0, 1]):
