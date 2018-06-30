@@ -27,6 +27,7 @@ Optimiser::Optimiser()
   this->refine_consider_comms = Optimiser::ALL_NEIGH_COMMS;
   this->refine_routine = Optimiser::MERGE_NODES;
   this->refine_partition = true;
+  this->consider_empty_community = true;
 }
 
 Optimiser::~Optimiser()
