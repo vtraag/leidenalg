@@ -23,6 +23,7 @@
 Optimiser::Optimiser()
 {
   this->consider_comms = Optimiser::ALL_NEIGH_COMMS;
+  this->consider_empty_community = true;
 }
 
 Optimiser::~Optimiser()
