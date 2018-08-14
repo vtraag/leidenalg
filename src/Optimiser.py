@@ -346,8 +346,7 @@ class Optimiser(object):
         n_itr += 1
       return partition
 
-    assert issubclass(partition_type, LinearResolutionParameterVertexPartition),
-        "Bisectioning only works on partitions with a linear resolution parameter."
+    assert issubclass(partition_type, LinearResolutionParameterVertexPartition), "Bisectioning only works on partitions with a linear resolution parameter."
     # Start actual bisectioning
     bisect_values = {}
     stack_res_range = []
