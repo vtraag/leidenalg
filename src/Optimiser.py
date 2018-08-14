@@ -33,8 +33,8 @@ class Optimiser(object):
   @property
   def consider_comms(self):
     """ Determine how alternative communities are considered for moving
-    a node for *optimising* a partition. 
-    
+    a node for *optimising* a partition.
+
     Nodes will only move to alternative communities that improve the given
     quality function.
 
@@ -496,7 +496,7 @@ class Optimiser(object):
 
     Returns
     -------
-    list of :class:`~VertexPartition.MutableVertexPartition` 
+    list of :class:`~VertexPartition.MutableVertexPartition`
       A list of partitions for different resolutions.
 
     Other Parameters
@@ -531,7 +531,7 @@ class Optimiser(object):
     --------
     >>> G = ig.Graph.Famous('Zachary')
     >>> optimiser = louvain.Optimiser()
-    >>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition, 
+    >>> profile = optimiser.resolution_profile(G, louvain.CPMVertexPartition,
     ...                                        resolution_range=(0,1))
     """
 
@@ -588,8 +588,7 @@ class Optimiser(object):
         n_itr += 1
       return partition
 
-    assert(issubclass(partition_type, LinearResolutionParameterVertexPartition),
-        "Bisectioning only works on partitions with a linear resolution parameter.")
+    assert issubclass(partition_type, LinearResolutionParameterVertexPartition), "Bisectioning only works on partitions with a linear resolution parameter."
     # Start actual bisectioning
     bisect_values = {}
     stack_res_range = []

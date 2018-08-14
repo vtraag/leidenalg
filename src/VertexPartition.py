@@ -71,10 +71,10 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     Parameters
     ----------
-    partition 
+    partition
       The :class:`~VertexPartition.MutableVertexPartition` to replicate.
 
-    **kwargs 
+    **kwargs
       Any remaining keyword arguments will be passed on to the constructor of
       the new partition.
 
@@ -442,7 +442,6 @@ class ModularityVertexPartition(MutableVertexPartition):
         initial_membership, weights)
     self._update_internal_membership()
 
-
 class SurpriseVertexPartition(MutableVertexPartition):
   """ Implements (asymptotic) Surprise.
 
@@ -476,7 +475,7 @@ class SurpriseVertexPartition(MutableVertexPartition):
   ----------
   .. [1] Traag, V. A., Aldecoa, R., & Delvenne, J.-C. (2015). Detecting
           communities using asymptotical surprise.  Physical Review E, 92(2),
-          022816. 
+          022816.
           `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`_
   """
 
@@ -612,8 +611,8 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value)
 
   def bisect_value(self):
-    """ Give the value on which we can perform bisectioning. 
-    
+    """ Give the value on which we can perform bisectioning.
+
     If p1 and p2 are two different optimal partitions for two different
     resolution parameters g1 and g2, then if p1.bisect_value() ==
     p2.bisect_value() the two partitions should be optimal for both g1 and g2.
@@ -866,7 +865,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   def Bipartite(graph, resolution_parameter_01,
                 resolution_parameter_0 = 0, resolution_parameter_1 = 0,
                 degree_as_node_size=False, types='type', **kwargs):
-    """ Create three layers for bipartite partitions. 
+    """ Create three layers for bipartite partitions.
 
     This creates three layers for bipartite partition necessary for detecting
     communities in bipartite networks. These three layers should be passed to
@@ -909,17 +908,17 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     \\gamma_1`, and one for the links between classes, :math:`\\gamma_{01}`.
     Then the formulation would be
 
-    .. math:: Q = \\sum_{ij} 
+    .. math:: Q = \\sum_{ij}
        [A_{ij}
-        - (\\gamma_0\\delta(s_i,0) + \\gamma_1\\delta(s_i,1)) \\delta(s_i,s_j) 
-        - \\gamma_{01}(1 - \\delta(s_i, s_j)) 
+        - (\\gamma_0\\delta(s_i,0) + \\gamma_1\\delta(s_i,1)) \\delta(s_i,s_j)
+        - \\gamma_{01}(1 - \\delta(s_i, s_j))
        ]\\delta(\\sigma_i, \\sigma_j)
 
     In terms of communities this is
 
-    .. math:: Q = \\sum_c (e_c 
+    .. math:: Q = \\sum_c (e_c
                           - \\gamma_{01} 2 n_c(0) n_c(1)
-                          - \\gamma_0 n^2_c(0) 
+                          - \\gamma_0 n^2_c(0)
                           - \\gamma_1 n^2_c(1))
 
     where :math:`n_c(0)` is the number of nodes in community :math:`c` of class 0
@@ -946,7 +945,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
                                  + ( \\gamma_{01} - \\gamma_1) n_c(1)^2
                            ] \\\\
                 &=  \\sum_c [e_c - \\gamma_{01} 2 n_c(0) n_c(1)
-                                 - \\gamma_{0} n_c(0)^2 
+                                 - \\gamma_{0} n_c(0)^2
                                  - \\gamma_{1} n_c(1)^2]
 
     Although the derivation above is using :math:`n_c^2`, implicitly assuming a
@@ -957,7 +956,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     If we set node sizes equal to the degree, we get something similar to
     modularity, except that the resolution parameter should still be divided by
     :math:`2m`. In particular, in general (i.e. not specifically for bipartite
-    graph) if ``node_sizes=G.degree()`` we then obtain 
+    graph) if ``node_sizes=G.degree()`` we then obtain
 
     .. math:: Q = \\sum_{ij} A_{ij} - \\gamma k_i k_j
 
@@ -997,13 +996,13 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
                      **kwargs)
     H_0 = graph.subgraph_edges([], delete_vertices=False)
     partition_0 = CPMVertexPartition(H_0, weights=None,
-                     node_sizes=[s if t == 0 else 0 
+                     node_sizes=[s if t == 0 else 0
                                  for v, s, t in zip(graph.vs,node_sizes,types)],
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_0,
                      **kwargs)
     H_1 = graph.subgraph_edges([], delete_vertices=False)
     partition_1 = CPMVertexPartition(H_1, weights=None,
-                     node_sizes=[s if t == 1 else 0 
+                     node_sizes=[s if t == 1 else 0
                                  for v, s, t in zip(graph.vs,node_sizes,types)],
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_1,
                      **kwargs)

@@ -713,6 +713,11 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   #endif
   size_t m = this->ecount();
 
+  #ifdef DEBUG
+    cerr << "Current graph has " << this->vcount() << " nodes and " << this->ecount() << " edges." << endl;
+    cerr << "Collapsing to graph with " << partition->nb_communities() << " nodes." << endl;
+  #endif
+
   vector< map<size_t, double> > collapsed_edge_weights(partition->nb_communities());
 
   igraph_integer_t v, u;

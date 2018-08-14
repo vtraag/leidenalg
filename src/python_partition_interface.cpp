@@ -94,7 +94,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
       PyObject* py_item = PyList_GetItem(py_weights, e);
       #ifdef DEBUG
         PyObject* py_item_repr = PyObject_Repr(py_item);
-        const char* s = PyString_AsString(py_item_repr);
+        const char* s = PyUnicode_AsUTF8(py_item_repr);
         cerr << "Got item " << e << ": " << s << endl;
       #endif
       #ifdef IS_PY3K
@@ -237,7 +237,7 @@ extern "C"
       return NULL;
     }
   }
-  
+
 
   PyObject* _new_SignificanceVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
   {
@@ -1227,7 +1227,7 @@ extern "C"
     PyObject* py_membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
     {
-      #ifdef IS_PY3K 
+      #ifdef IS_PY3K
         PyObject* item = PyLong_FromSize_t(partition->membership(v));
       #else
         PyObject* item = PyInt_FromSize_t(partition->membership(v));
@@ -1315,11 +1315,11 @@ extern "C"
     #endif
 
     #ifdef DEBUG
-      cerr << "Capsule ResolutionParameterVertexPartition at address " << py_ResolutionParameterVertexPartition << endl;
+      cerr << "Capsule ResolutionParameterVertexPartition at address " << py_partition << endl;
     #endif
     ResolutionParameterVertexPartition* partition = (ResolutionParameterVertexPartition*)decapsule_MutableVertexPartition(py_partition);
     #ifdef DEBUG
-      cerr << "Using ResolutionParameterVertexPartition at address " << ResolutionParameterVertexPartition << endl;
+      cerr << "Using ResolutionParameterVertexPartition at address " << partition << endl;
     #endif
 
     return PyFloat_FromDouble(partition->resolution_parameter);
@@ -1340,15 +1340,15 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "set_resolution(" << resolution << ");" << endl;
+      cerr << "set_resolution(" << resolution_parameter << ");" << endl;
     #endif
 
     #ifdef DEBUG
-      cerr << "Capsule ResolutionParameterVertexPartition at address " << py_ResolutionParameterVertexPartition << endl;
+      cerr << "Capsule ResolutionParameterVertexPartition at address " << py_partition << endl;
     #endif
     ResolutionParameterVertexPartition* partition = (ResolutionParameterVertexPartition*)decapsule_MutableVertexPartition(py_partition);
     #ifdef DEBUG
-      cerr << "Using ResolutionParameterVertexPartition at address " << ResolutionParameterVertexPartition << endl;
+      cerr << "Using ResolutionParameterVertexPartition at address " << partition << endl;
     #endif
 
     partition->resolution_parameter = resolution_parameter;
