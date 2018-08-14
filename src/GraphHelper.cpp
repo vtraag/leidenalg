@@ -706,7 +706,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   size_t m = this->ecount();
 
   #ifdef DEBUG
-    cerr << "Current graph has " << n << " nodes and " << m << " edges." << endl;
+    cerr << "Current graph has " << this->vcount() << " nodes and " << this->ecount() << " edges." << endl;
     cerr << "Collapsing to graph with " << partition->nb_communities() << " nodes." << endl;
   #endif
 
