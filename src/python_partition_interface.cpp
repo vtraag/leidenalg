@@ -1381,13 +1381,9 @@ extern "C"
 
     if (py_res != NULL && py_res != Py_None)
     {
-      #ifdef IS_PY3K
-      if (PyFloat_Check(py_res) || PyLong_Check(py_res))
-      #else
-      if (PyFloat_Check(py_res) || PyInt_Check(py_res) || PyLong_Check(py_res))
-      #endif
+      if (PyNumber_Check(py_res))
       {
-        resolution_parameter = PyFloat_AsDouble(py_res);
+        resolution_parameter = PyFloat_AsDouble(PyNumber_Float(py_res));
       }
       else
       {
