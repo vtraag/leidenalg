@@ -200,13 +200,9 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
           }
           else
           {
@@ -271,13 +267,9 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
           }
           else
           {
@@ -342,13 +334,9 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
           }
           else
           {
@@ -418,13 +406,9 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
           }
           else
           {
@@ -491,13 +475,9 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
           }
           else
           {
@@ -563,13 +543,9 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
           }
           else
           {
@@ -689,13 +665,9 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_membership, v);
-      #ifdef IS_PY3K
-      if (PyLong_Check(py_item))
-      #else
-      if (PyInt_Check(py_item) || PyLong_Check(py_item))
-      #endif
+      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        membership[v] = PyLong_AsLong(py_item);
+        membership[v] = PyNumber_AsSsize_t(py_item, NULL);
       }
       else
       {
@@ -723,13 +695,10 @@ extern "C"
       for (size_t v = 0; v < n; v++)
       {
         PyObject* py_item = PyList_GetItem(py_coarse_node, v);
-        #ifdef IS_PY3K
-        if (PyLong_Check(py_item))
-        #else
-        if (PyInt_Check(py_item) || PyLong_Check(py_item))
-        #endif
+
+        if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
         {
-          coarse_node[v] = PyLong_AsLong(py_item);
+          coarse_node[v] = PyNumber_AsSsize_t(py_item, NULL);
         }
         else
         {
@@ -1272,13 +1241,10 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_membership, v);
-      #ifdef IS_PY3K
-      if (PyLong_Check(py_item))
-      #else
-      if (PyInt_Check(py_item) || PyLong_Check(py_item))
-      #endif
+
+      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        membership[v] = PyLong_AsLong(py_item);
+        membership[v] = PyNumber_AsSsize_t(py_item, NULL);
       }
       else
       {
