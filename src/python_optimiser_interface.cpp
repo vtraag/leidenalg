@@ -122,16 +122,11 @@ extern "C"
       PyObject* layer_weight = PyList_GetItem(py_layer_weights, layer);
 
       partitions[layer] = partition;
-      #ifdef IS_PY3K
-      if (PyFloat_Check(layer_weight) || PyLong_Check(layer_weight))
-      #else
-      if (PyFloat_Check(layer_weight) || PyInt_Check(layer_weight) || PyLong_Check(layer_weight))
-      #endif
+
+
+      if (PyNumber_Check(layer_weight))
       {
-        #ifdef DEBUG
-          cerr << "Layer weight " << PyFloat_AsDouble(layer_weight) << endl;
-        #endif
-        layer_weights[layer] = PyFloat_AsDouble(layer_weight);
+        layer_weights[layer] = PyFloat_AsDouble(PyNumber_Float(layer_weight));
       }
       else
       {
