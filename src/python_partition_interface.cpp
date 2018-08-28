@@ -6,15 +6,25 @@
 
 Graph* create_graph_from_py(PyObject* py_obj_graph)
 {
-  return create_graph_from_py(py_obj_graph, NULL, NULL);
+  return create_graph_from_py(py_obj_graph, NULL, NULL, false);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights)
 {
-  return create_graph_from_py(py_obj_graph, py_weights, NULL);
+  return create_graph_from_py(py_obj_graph, py_weights, NULL, true);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, int check_positive_weight)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, NULL, check_positive_weight);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, true);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, int check_positive_weight)
 {
   #ifdef DEBUG
     cerr << "create_graph_from_py" << endl;
@@ -386,7 +396,7 @@ extern "C"
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, false);
 
       CPMVertexPartition* partition = NULL;
 
