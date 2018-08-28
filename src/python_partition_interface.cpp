@@ -77,7 +77,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     #endif
     size_t nb_weights = PyList_Size(py_weights);
     if (nb_weights != m)
-      throw("Weight vector not the same size as the number of edges.");
+      throw Exception("Weight vector not the same size as the number of edges.");
     weights.resize(m);
     for (size_t e = 0; e < m; e++)
     {
