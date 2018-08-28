@@ -1383,6 +1383,9 @@ extern "C"
         PyErr_SetString(PyExc_TypeError, "Expected floating point value for resolution parameter.");
         return NULL;
       }
+
+      if (isnan(resolution_parameter))
+        throw Exception("Cannot accept NaN resolution parameter.");
     }
     else
       resolution_parameter = partition->resolution_parameter;
