@@ -202,7 +202,11 @@ extern "C"
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -269,7 +273,11 @@ extern "C"
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -336,7 +344,11 @@ extern "C"
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -408,7 +420,11 @@ extern "C"
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -477,7 +493,11 @@ extern "C"
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -545,7 +565,11 @@ extern "C"
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -667,7 +691,11 @@ extern "C"
       PyObject* py_item = PyList_GetItem(py_membership, v);
       if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+        Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+        if (m >= 0)
+          membership[v] = m;
+        else
+          throw Exception("Membership cannot be negative");
       }
       else
       {
@@ -698,7 +726,11 @@ extern "C"
 
         if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
         {
-          coarse_node[v] = PyNumber_AsSsize_t(py_item, NULL);
+          Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+          if (m >= 0)
+            coarse_node[v] = m;
+          else
+            throw Exception("Coarse node cannot be negative");
         }
         else
         {
@@ -1244,7 +1276,11 @@ extern "C"
 
       if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        membership[v] = PyNumber_AsSsize_t(py_item, NULL);
+          Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+          if (m >= 0)
+            membership[v] = m;
+          else
+            throw Exception("Membership node cannot be negative");
       }
       else
       {
