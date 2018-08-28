@@ -97,13 +97,9 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
         const char* s = PyUnicode_AsUTF8(py_item_repr);
         cerr << "Got item " << e << ": " << s << endl;
       #endif
-      #ifdef IS_PY3K
-      if (PyFloat_Check(py_item) || PyLong_Check(py_item))
-      #else
-      if (PyFloat_Check(py_item) || PyInt_Check(py_item) || PyLong_Check(py_item))
-      #endif
+      if (PyNumber_Check(py_item))
       {
-        weights[e] = PyFloat_AsDouble(py_item);
+        weights[e] = PyFloat_AsDouble(PyNumber_Float(py_item));
       }
       else
       {
