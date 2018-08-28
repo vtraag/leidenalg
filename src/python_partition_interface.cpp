@@ -6,25 +6,15 @@
 
 Graph* create_graph_from_py(PyObject* py_obj_graph)
 {
-  return create_graph_from_py(py_obj_graph, NULL, NULL, false);
+  return create_graph_from_py(py_obj_graph, NULL, NULL);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights)
 {
-  return create_graph_from_py(py_obj_graph, py_weights, NULL, true);
-}
-
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, int check_positive_weight)
-{
-  return create_graph_from_py(py_obj_graph, py_weights, NULL, check_positive_weight);
+  return create_graph_from_py(py_obj_graph, py_weights, NULL);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes)
-{
-  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, true);
-}
-
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, int check_positive_weight)
 {
   #ifdef DEBUG
     cerr << "create_graph_from_py" << endl;
@@ -106,11 +96,14 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
         throw Exception("Expected floating point value for weight vector.");
       }
 
-      if (check_positive_weight)
-      {
-          if (weights[e] < 0)
-            throw Exception("Cannot accept negative weights.");
-      }
+      if (weights[e] < 0 )
+        throw Exception("Cannot accept negative weights.");
+
+      if (isnan(weights[e]))
+        throw Exception("Cannot accept NaN weights.");
+
+      if (!isfinite(weights[e]))
+        throw Exception("Cannot accept infinite weights.");
     }
   }
 
@@ -393,7 +386,7 @@ extern "C"
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, false);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
 
       CPMVertexPartition* partition = NULL;
 
@@ -1390,6 +1383,9 @@ extern "C"
         PyErr_SetString(PyExc_TypeError, "Expected floating point value for resolution parameter.");
         return NULL;
       }
+
+      if (isnan(resolution_parameter))
+        throw Exception("Cannot accept NaN resolution parameter.");
     }
     else
       resolution_parameter = partition->resolution_parameter;
