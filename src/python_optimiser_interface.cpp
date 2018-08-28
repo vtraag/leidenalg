@@ -133,6 +133,9 @@ extern "C"
         PyErr_SetString(PyExc_TypeError, "Expected floating value for layer weight.");
         return NULL;
       }
+
+      if (isnan(layer_weights[layer]))
+        throw Exception("Cannot accept NaN weights.");
     }
 
     #ifdef DEBUG
