@@ -106,8 +106,9 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
         throw Exception("Expected floating point value for weight vector.");
       }
 
-      if (weights[e] < 0 )
-        throw Exception("Cannot accept negative weights.");
+      if (check_positive_weight)
+        if (weights[e] < 0 )
+          throw Exception("Cannot accept negative weights.");
 
       if (isnan(weights[e]))
         throw Exception("Cannot accept NaN weights.");
