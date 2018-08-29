@@ -39,7 +39,7 @@ extern "C"
       {"_MutableVertexPartition_move_node",                         (PyCFunction)_MutableVertexPartition_move_node,                         METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_get_py_igraph",                     (PyCFunction)_MutableVertexPartition_get_py_igraph,                     METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_aggregate_partition",               (PyCFunction)_MutableVertexPartition_aggregate_partition,               METH_VARARGS | METH_KEYWORDS, ""},
-      {"_MutableVertexPartition_from_coarse_partition",            (PyCFunction)_MutableVertexPartition_from_coarse_partition,              METH_VARARGS | METH_KEYWORDS, ""},
+      {"_MutableVertexPartition_from_coarse_partition",             (PyCFunction)_MutableVertexPartition_from_coarse_partition,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_MutableVertexPartition_renumber_communities",              (PyCFunction)_MutableVertexPartition_renumber_communities,              METH_VARARGS | METH_KEYWORDS, ""},
 
       {"_MutableVertexPartition_quality",                           (PyCFunction)_MutableVertexPartition_quality,                           METH_VARARGS | METH_KEYWORDS, ""},
@@ -68,7 +68,7 @@ extern "C"
       {"_Optimiser_get_consider_comms",             (PyCFunction)_Optimiser_get_consider_comms,             METH_VARARGS | METH_KEYWORDS, ""},
       {"_Optimiser_get_consider_empty_community",   (PyCFunction)_Optimiser_get_consider_empty_community,   METH_VARARGS | METH_KEYWORDS, ""},
 
-      {"_set_rng_seed",                             (PyCFunction)_set_rng_seed,                             METH_VARARGS | METH_KEYWORDS, ""},
+      {"_Optimiser_set_rng_seed",                   (PyCFunction)_Optimiser_set_rng_seed,                   METH_VARARGS | METH_KEYWORDS, ""},
 
       {NULL}
   };

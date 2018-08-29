@@ -1,6 +1,8 @@
 MANIFEST
 build/
 dist/
+lib/
+nbproject/
 igraph-0.7.0-msvc-py27/
 igraph-0.7.0-msvc-py3/
 igraph-0.7.1-msvc-py27/
@@ -36,3 +38,4 @@ massif*
 .vscode/
 *.code-workspace
 PACKAGE.txt
+louvain-igraph.cscope_file_list

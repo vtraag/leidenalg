@@ -342,6 +342,41 @@ extern "C"
     return PyBool_FromLong(optimiser->consider_empty_community);
   }
 
+  PyObject* _Optimiser_set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    int seed = 0;
+    static char* kwlist[] = {"optimiser", "seed", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", kwlist,
+                                     &py_optimiser, &seed))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_rng_seed(" << seed << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Setting seed to " << seed << endl;
+    #endif
+    optimiser->set_rng_seed(seed);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
 #ifdef __cplusplus
 }
 #endif
