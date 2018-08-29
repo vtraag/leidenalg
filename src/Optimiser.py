@@ -62,7 +62,7 @@ class Optimiser(object):
   def consider_comms(self, value):
     _c_louvain._Optimiser_set_consider_comms(self._optimiser, value)
 
-  #########################################################3
+  ##########################################################
   # consider_empty_community
   @property
   def consider_empty_community(self):
@@ -73,6 +73,11 @@ class Optimiser(object):
   @consider_empty_community.setter
   def consider_empty_community(self, value):
     _c_louvain._Optimiser_set_consider_empty_community(self._optimiser, value)
+
+  ##########################################################
+  # Set rng seed
+  def set_rng_seed(self, value):
+    _c_louvain._Optimiser_set_rng_seed(self._optimiser, value)
 
   def optimise_partition(self, partition):
     """ Optimise the given partition.

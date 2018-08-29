@@ -27,12 +27,12 @@ bool orderCSize(const size_t* A, const size_t* B)
     return A[1] > B[1];
 }
 
-void shuffle(vector<size_t>& v)
+void shuffle(vector<size_t>& v, igraph_rng_t* rng)
 {
   size_t n = v.size();
   for (size_t idx = n - 1; idx > 0; idx--)
   {
-    size_t rand_idx = get_random_int(0, idx);
+    size_t rand_idx = get_random_int(0, idx, rng);
     size_t tmp = v[idx];
     v[idx] = v[rand_idx];
     v[rand_idx] = tmp;
@@ -618,7 +618,7 @@ vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
 /********************************************************************************
  * This should return a random neighbour in O(1)
  ********************************************************************************/
-size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
+size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t* rng)
 {
   size_t node=v;
   size_t rand_neigh = -1;
@@ -634,7 +634,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->os)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->os)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1, rng);
       // Return the neighbour at that index
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
@@ -647,7 +647,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
       size_t cum_degree_this_node = (size_t) VECTOR(this->_graph->is)[node];
       size_t cum_degree_next_node = (size_t) VECTOR(this->_graph->is)[node+1];
       // Get a random index from them
-      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1);
+      size_t rand_neigh_idx = get_random_int(cum_degree_this_node, cum_degree_next_node - 1, rng);
       #ifdef DEBUG
         cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << cum_degree_next_node - cum_degree_this_node << endl;
       #endif
@@ -667,7 +667,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode)
     size_t total_outdegree = cum_outdegree_next_node - cum_outdegree_this_node;
     size_t total_indegree = cum_indegree_next_node - cum_indegree_this_node;
 
-    size_t rand_idx = get_random_int(0, total_outdegree + total_indegree - 1);
+    size_t rand_idx = get_random_int(0, total_outdegree + total_indegree - 1, rng);
 
     #ifdef DEBUG
       cerr << "Degree: " << this->degree(node, mode) << " diff in cumulative: " << total_outdegree + total_indegree << endl;

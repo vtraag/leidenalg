@@ -39,6 +39,8 @@ class Optimiser
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
 
+    inline void set_rng_seed(size_t seed) { igraph_rng_seed(&rng, seed); };
+
     virtual ~Optimiser();
 
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
@@ -53,6 +55,8 @@ class Optimiser
 
   private:
     void print_settings();
+
+    igraph_rng_t rng;
 };
 
 template <class T> T* Optimiser::find_partition(Graph* graph)
@@ -74,5 +78,4 @@ template <class T> T* Optimiser::find_partition(Graph* graph, double resolution_
   this->optimise_partition(partition);
   return partition;
 }
-
 #endif // OPTIMISER_H
