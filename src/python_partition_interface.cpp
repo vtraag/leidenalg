@@ -200,13 +200,13 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -271,13 +271,13 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -342,13 +342,13 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -418,13 +418,13 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -491,13 +491,13 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -563,13 +563,13 @@ extern "C"
         for (size_t v = 0; v < n; v++)
         {
           PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          #ifdef IS_PY3K
-          if (PyLong_Check(py_item))
-          #else
-          if (PyInt_Check(py_item) || PyLong_Check(py_item))
-          #endif
+          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
-            initial_membership[v] = PyLong_AsLong(py_item);
+            Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+            if (m >= 0)
+              initial_membership[v] = m;
+            else
+              throw Exception("Membership cannot be negative");
           }
           else
           {
@@ -689,13 +689,13 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_membership, v);
-      #ifdef IS_PY3K
-      if (PyLong_Check(py_item))
-      #else
-      if (PyInt_Check(py_item) || PyLong_Check(py_item))
-      #endif
+      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        membership[v] = PyLong_AsLong(py_item);
+        Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+        if (m >= 0)
+          membership[v] = m;
+        else
+          throw Exception("Membership cannot be negative");
       }
       else
       {
@@ -723,13 +723,14 @@ extern "C"
       for (size_t v = 0; v < n; v++)
       {
         PyObject* py_item = PyList_GetItem(py_coarse_node, v);
-        #ifdef IS_PY3K
-        if (PyLong_Check(py_item))
-        #else
-        if (PyInt_Check(py_item) || PyLong_Check(py_item))
-        #endif
+
+        if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
         {
-          coarse_node[v] = PyLong_AsLong(py_item);
+          Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+          if (m >= 0)
+            coarse_node[v] = m;
+          else
+            throw Exception("Coarse node cannot be negative");
         }
         else
         {
@@ -1272,13 +1273,14 @@ extern "C"
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_membership, v);
-      #ifdef IS_PY3K
-      if (PyLong_Check(py_item))
-      #else
-      if (PyInt_Check(py_item) || PyLong_Check(py_item))
-      #endif
+
+      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        membership[v] = PyLong_AsLong(py_item);
+          Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
+          if (m >= 0)
+            membership[v] = m;
+          else
+            throw Exception("Membership node cannot be negative");
       }
       else
       {
