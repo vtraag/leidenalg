@@ -75,6 +75,8 @@ class Optimiser
 
   private:
     void print_settings();
+
+    igraph_rng_t rng;
 };
 
 template <class T> T* Optimiser::find_partition(Graph* graph)
@@ -96,5 +98,4 @@ template <class T> T* Optimiser::find_partition(Graph* graph, double resolution_
   this->optimise_partition(partition);
   return partition;
 }
-
 #endif // OPTIMISER_H

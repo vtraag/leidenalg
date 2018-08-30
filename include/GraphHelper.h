@@ -57,30 +57,12 @@ class Exception : public std::exception
 
 };
 
-inline igraph_rng_t* init_rng()
+inline size_t get_random_int(size_t from, size_t to, igraph_rng_t* rng)
 {
-  igraph_rng_t* rng = new igraph_rng_t();
-  igraph_rng_init(rng, &igraph_rngtype_mt19937);
-  return rng;
-}
-
-inline igraph_rng_t* default_rng()
-{
-  static igraph_rng_t* default_rng = init_rng();
-  return default_rng;
-}
-
-inline void set_rng_seed(size_t seed)
-{
-  igraph_rng_seed(default_rng(), seed);
+  return igraph_rng_get_integer(rng, from, to);
 };
 
-inline size_t get_random_int(size_t from, size_t to)
-{
-  return igraph_rng_get_integer(default_rng(), from, to);
-};
-
-void shuffle(vector<size_t>& v);
+void shuffle(vector<size_t>& v, igraph_rng_t* rng);
 
 class Graph
 {
@@ -120,13 +102,13 @@ class Graph
 
     vector<size_t> const& get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
-    size_t get_random_neighbour(size_t v, igraph_neimode_t mode);
+    size_t get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t* rng);
 
     pair<size_t, size_t> get_endpoints(size_t e);
 
-    inline size_t get_random_node()
+    inline size_t get_random_node(igraph_rng_t* rng)
     {
-      return get_random_int(0, this->vcount() - 1);
+      return get_random_int(0, this->vcount() - 1, rng);
     };
 
     inline igraph_t* get_igraph() { return this->_graph; };

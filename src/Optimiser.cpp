@@ -28,11 +28,13 @@ Optimiser::Optimiser()
   this->refine_routine = Optimiser::MERGE_NODES;
   this->refine_partition = true;
   this->consider_empty_community = true;
+
+  igraph_rng_init(&rng, &igraph_rngtype_mt19937);
 }
 
 Optimiser::~Optimiser()
 {
-  //dtor
+  igraph_rng_destroy(&rng);
 }
 
 void Optimiser::print_settings()
@@ -717,7 +719,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       else if (consider_comms == RAND_COMM)
       {
         /****************************RAND COMM***********************************/
-        comms.insert( partitions[0]->membership(graphs[0]->get_random_node()) );
+        comms.insert( partitions[0]->membership(graphs[0]->get_random_node(&rng)) );
       }
       else if (consider_comms == RAND_NEIGH_COMM)
       {
