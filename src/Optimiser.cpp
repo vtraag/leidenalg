@@ -429,7 +429,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   vector<int> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
   vector<size_t> nodes = range(n);
-  shuffle(nodes);
+  shuffle(nodes, &rng);
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
        it_node++)
@@ -483,14 +483,14 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     else if (consider_comms == RAND_COMM)
     {
       /****************************RAND COMM***********************************/
-      comms.insert( partitions[0]->membership(graphs[0]->get_random_node()) );
+      comms.insert( partitions[0]->membership(graphs[0]->get_random_node(&rng)) );
     }
     else if (consider_comms == RAND_NEIGH_COMM)
     {
       /****************************RAND NEIGH COMM*****************************/
-      size_t rand_layer = get_random_int(0, nb_layers - 1);
+      size_t rand_layer = get_random_int(0, nb_layers - 1, &rng);
       if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
-        comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL)) );
+        comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
     }
 
     #ifdef DEBUG
@@ -672,7 +672,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   vector<size_t> vertex_order = range(n);
 
   // But if we use a random order, we shuffle this order.
-  shuffle(vertex_order);
+  shuffle(vertex_order, &rng);
 
   // Iterate over all nodes
   for (vector<size_t>::iterator it = vertex_order.begin();
@@ -724,13 +724,13 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       else if (consider_comms == RAND_NEIGH_COMM)
       {
         /****************************RAND NEIGH COMM*****************************/
-        size_t rand_layer = get_random_int(0, nb_layers - 1);
+        size_t rand_layer = get_random_int(0, nb_layers - 1, &rng);
         size_t k = graphs[rand_layer]->degree(v, IGRAPH_ALL);
         if (k > 0)
         {
           // Make sure there is also a probability not to move the node
-          if (get_random_int(0, k) > 0)
-            comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL)) );
+          if (get_random_int(0, k, &rng) > 0)
+            comms.insert( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
         }
       }
 
@@ -860,7 +860,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
   vector<int> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
   vector<size_t> nodes = range(n);
-  shuffle(nodes);
+  shuffle(nodes, &rng);
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
        it_node++)
@@ -917,7 +917,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         size_t v_constrained_comm = constrained_partition->membership(v);
         set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
         vector<size_t> constrained_comm_list(constrained_comm.begin(), constrained_comm.end());
-        size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1);
+        size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1, &rng);
         comms.insert(constrained_comm_list[random_idx]);
     }
     else if (consider_comms == RAND_NEIGH_COMM)
@@ -935,7 +935,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         }
         if (all_neigh_comms_incl_dupes.size() > 0)
         {
-          size_t random_idx = get_random_int(0, all_neigh_comms_incl_dupes.size() - 1);
+          size_t random_idx = get_random_int(0, all_neigh_comms_incl_dupes.size() - 1, &rng);
           comms.insert(all_neigh_comms_incl_dupes[random_idx]);
         }
     }
@@ -1086,7 +1086,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
   vector<size_t> vertex_order = range(n);
 
   // But if we use a random order, we shuffle this order.
-  shuffle(vertex_order);
+  shuffle(vertex_order, &rng);
 
   // For each node
   for (vector<size_t>::iterator it = vertex_order.begin();
@@ -1132,7 +1132,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           size_t v_constrained_comm = constrained_partition->membership(v);
           set<size_t> const& constrained_comm = constrained_partition->get_community(v_constrained_comm);
           vector<size_t> constrained_comm_list(constrained_comm.begin(), constrained_comm.end());
-          size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1);
+          size_t random_idx = get_random_int(0 ,constrained_comm_list.size() - 1, &rng);
           comms.insert(constrained_comm_list[random_idx]);
       }
       else if (consider_comms == RAND_NEIGH_COMM)
@@ -1152,9 +1152,9 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           if (k > 0)
           {
             // Make sure there is also a probability not to move the node
-            if (get_random_int(0, k) > 0)
+            if (get_random_int(0, k, &rng) > 0)
             {
-              size_t random_idx = get_random_int(0, k - 1);
+              size_t random_idx = get_random_int(0, k - 1, &rng);
               comms.insert(all_neigh_comms_incl_dupes[random_idx]);
             }
           }
