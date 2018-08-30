@@ -99,7 +99,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
       #endif
       if (PyNumber_Check(py_item))
       {
-        weights[e] = PyFloat_AsDouble(PyNumber_Float(py_item));
+        weights[e] = PyFloat_AsDouble(py_item);
       }
       else
       {
@@ -1389,7 +1389,7 @@ extern "C"
     {
       if (PyNumber_Check(py_res))
       {
-        resolution_parameter = PyFloat_AsDouble(PyNumber_Float(py_res));
+        resolution_parameter = PyFloat_AsDouble(py_res);
       }
       else
       {

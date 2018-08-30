@@ -126,7 +126,7 @@ extern "C"
 
       if (PyNumber_Check(layer_weight))
       {
-        layer_weights[layer] = PyFloat_AsDouble(PyNumber_Float(layer_weight));
+        layer_weights[layer] = PyFloat_AsDouble(layer_weight);
       }
       else
       {
