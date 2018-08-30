@@ -45,7 +45,6 @@ from .functions import find_partition_multiplex
 from .functions import find_partition_temporal
 from .functions import slices_to_layers
 from .functions import time_slices_to_layers
-from .functions import set_rng_seed
 
 from .Optimiser import Optimiser
 from .VertexPartition import ModularityVertexPartition

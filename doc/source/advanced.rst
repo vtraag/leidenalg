@@ -130,6 +130,9 @@ Note that even if the Leiden algorithm did not find any improvement in this
 iteration, it is always possible that it will find some improvement in the next
 iteration.
 
+By default :func:`~leiden.find_partition` runs the Leiden algorithm for two
+iterations, but you can specify something else.
+
 Resolution profile
 ------------------
 
