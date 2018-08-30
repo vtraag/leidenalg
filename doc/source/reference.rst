@@ -4,13 +4,12 @@ Reference
 Module functions
 ----------------
 
-.. automodule:: louvain 
+.. automodule:: leiden 
     :members: find_partition, 
               find_partition_multiplex, 
               find_partition_temporal,
               slices_to_layers,
               time_slices_to_layers,
-              set_rng_seed
     :undoc-members:
     :show-inheritance:
 
@@ -25,7 +24,7 @@ Optimiser
 MutableVertexPartition
 ----------------------
 
-.. autoclass:: louvain.VertexPartition.MutableVertexPartition
+.. autoclass:: leiden.VertexPartition.MutableVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:

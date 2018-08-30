@@ -1,13 +1,13 @@
 import sys
 import igraph as _ig
-from . import _c_louvain
-from ._c_louvain import ALL_COMMS
-from ._c_louvain import ALL_NEIGH_COMMS
-from ._c_louvain import RAND_COMM
-from ._c_louvain import RAND_NEIGH_COMM
+from . import _c_leiden
+from ._c_leiden import ALL_COMMS
+from ._c_leiden import ALL_NEIGH_COMMS
+from ._c_leiden import RAND_COMM
+from ._c_leiden import RAND_NEIGH_COMM
 
-from ._c_louvain import MOVE_NODES
-from ._c_louvain import MERGE_NODES
+from ._c_leiden import MOVE_NODES
+from ._c_leiden import MERGE_NODES
 
 from collections import Counter
 
@@ -25,7 +25,7 @@ from .Optimiser import *
 
 def set_rng_seed(seed):
   """ Set seed for internal random number generator. """
-  _c_louvain._set_rng_seed(seed)
+  _c_leiden._set_rng_seed(seed)
 
 def find_partition(graph, partition_type, initial_membership=None, weights=None, **kwargs):
   """ Detect communities using the default settings.
@@ -69,7 +69,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   Examples
   --------
   >>> G = ig.Graph.Famous('Zachary')
-  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition)
+  >>> partition = leiden.find_partition(G, leiden.ModularityVertexPartition)
 
   """
   if not weights is None:
@@ -92,7 +92,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`louvain.VertexPartition` layers to optimise.
+    List of :class:`leiden.VertexPartition` layers to optimise.
 
   partition_type : type of :class:`MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
@@ -126,8 +126,8 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   >>> n = 100
   >>> G_1 = ig.Graph.Lattice([n], 1)
   >>> G_2 = ig.Graph.Lattice([n], 1)
-  >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2],
-  ...                                                            louvain.ModularityVertexPartition)
+  >>> membership, improvement = leiden.find_partition_multiplex([G_1, G_2],
+  ...                                                            leiden.ModularityVertexPartition)
   """
   n_layers = len(graphs)
   partitions = []
@@ -159,7 +159,7 @@ def find_partition_temporal(graphs, partition_type,
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`louvain.VertexPartition` layers to optimise.
+    List of :class:`leiden.VertexPartition` layers to optimise.
 
   partition_type : type of :class:`VertexPartition.MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
@@ -206,8 +206,8 @@ def find_partition_temporal(graphs, partition_type,
   >>> G_1.vs['id'] = range(n)
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> G_2.vs['id'] = range(n)
-  >>> membership, improvement = louvain.find_partition_temporal([G_1, G_2], 
-  ...                                                           louvain.ModularityVertexPartition, 
+  >>> membership, improvement = leiden.find_partition_temporal([G_1, G_2], 
+  ...                                                           leiden.ModularityVertexPartition, 
   ...                                                           interslice_weight=1)
   """
   # Create layers

@@ -38,7 +38,7 @@ other variables.
 
 The basic idea is that diff_move computes the difference in the quality
 function if we call move_node for the same move. Using this framework, the
-Louvain method in the optimisation class can call these general functions in
+Leiden method in the optimisation class can call these general functions in
 order to optimise the quality function.
 *****************************************************************************/
 

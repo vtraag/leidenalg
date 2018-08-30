@@ -42,7 +42,7 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "louvain-igraph-"
+    cfg.parentdir_prefix = "leiden-igraph-"
     cfg.versionfile_source = "src/_version.py"
     cfg.verbose = False
     return cfg

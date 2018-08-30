@@ -1,12 +1,12 @@
-louvain-igraph
+leiden-igraph
 ==============
 
-This package implements the louvain algorithm in ``C++`` and exposes it to
+This package implements the leiden algorithm in ``C++`` and exposes it to
 ``python``.  It relies on ``(python-)igraph`` for it to function. Besides the
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
 function is ``find_partition`` which finds the optimal partition using the
-louvain algorithm [1]_ for a number of different methods. The methods currently
+leiden algorithm [1]_ for a number of different methods. The methods currently
 implemented are (1) modularity [2]_, (2) Reichardt and Bornholdt's model using
 the configuration null model and the Erdös-Rényi null model [3]_, (3) the
 constant Potts model (CPM) [4]_, (4) Significance [5]_, and finally (5)
@@ -14,15 +14,15 @@ Surprise [6]_. In addition, it supports multiplex partition optimisation
 allowing community detection on for example negative links [7]_ or multiple
 time slices [8]_. It also provides some support for community detection on
 bipartite graphs. See the `documentation
-<http://louvain-igraph.readthedocs.io/en/latest/>`_ for more information.
+<http://leiden-igraph.readthedocs.io/en/latest/>`_ for more information.
 
-.. image:: https://readthedocs.org/projects/louvain-igraph/badge
-                :target: http://louvain-igraph.readthedocs.io/en/latest/
-                :alt: Louvain documentation status
+.. image:: https://readthedocs.org/projects/leiden-igraph/badge
+                :target: http://leiden-igraph.readthedocs.io/en/latest/
+                :alt: Leiden documentation status
 
-.. image:: https://travis-ci.org/vtraag/louvain-igraph.svg
-                :target: https://travis-ci.org/vtraag/louvain-igraph
-                :alt: Louvain build status
+.. image:: https://travis-ci.org/vtraag/leiden-igraph.svg
+                :target: https://travis-ci.org/vtraag/leiden-igraph
+                :alt: Leiden build status
 
 .. image:: https://zenodo.org/badge/31305324.svg
                 :target: https://zenodo.org/badge/latestdoi/31305324
@@ -30,7 +30,7 @@ bipartite graphs. See the `documentation
 Installation
 ------------
 
-In short, for Unix: ``pip install louvain``. For Windows: download the binary
+In short, for Unix: ``pip install leiden``. For Windows: download the binary
 installers.
 
 For Unix like systems it is possible to install from source. For Windows this
@@ -42,7 +42,7 @@ http://igraph.org.
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential``, please refer to the
 documentation for your specific system.  Make sure that not only ``gcc`` is
-installed, but also ``g++``, as the louvain package is programmed in ``C++``.
+installed, but also ``g++``, as the leiden package is programmed in ``C++``.
 Note that to compile ``igraph`` itself, you also need to install
 ``libxml2-dev``.
 
@@ -74,15 +74,15 @@ Troubleshooting
 
 In case of any problems, best to start over with a clean environment. Make sure
 you remove the python-igraph package completely, remove the ``C`` core library
-and remove the louvain package. Then, do a complete reinstall starting from
-``pip install louvain``. In case you want a dynamic library be sure to then
+and remove the leiden package. Then, do a complete reinstall starting from
+``pip install leiden``. In case you want a dynamic library be sure to then
 install the ``C`` core library from source before. Make sure you **install the
 same versions**.
 
 Usage
 -----
 
-There is no standalone version of louvain-igraph, and you will always need
+There is no standalone version of leiden-igraph, and you will always need
 python to access it. There are no plans for developing a standalone version or
 R support. So, use python. Please refer to the documentation for more details
 on function calls and parameters.
@@ -90,7 +90,7 @@ on function calls and parameters.
 Just to get you started, below the essential parts.
 To start, make sure to import the packages:
 
->>> import louvain
+>>> import leiden
 >>> import igraph as ig
 
 We'll create a random graph for testing purposes:
@@ -99,14 +99,14 @@ We'll create a random graph for testing purposes:
 
 For simply finding a partition use:
 
->>> part = louvain.find_partition(G, louvain.ModularityVertexPartition);
+>>> part = leiden.find_partition(G, leiden.ModularityVertexPartition);
 
 Contribute
 ----------
 
-Source code: https://github.com/vtraag/louvain-igraph
+Source code: https://github.com/vtraag/leiden-igraph
 
-Issue tracking: https://github.com/vtraag/louvain-igraph/issues
+Issue tracking: https://github.com/vtraag/leiden-igraph/issues
 
 See the documentation on `Implementation` for more details on how to
 contribute new methods.

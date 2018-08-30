@@ -12,7 +12,7 @@ using std::set;
 using std::map;
 
 /****************************************************************************
-Class for doing community detection using the Louvain algorithm.
+Class for doing community detection using the Leiden algorithm.
 
 Given a certain partition type is calls diff_move for trying to move a node
 to another community. It moves the node to the community that *maximises*
