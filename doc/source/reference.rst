@@ -10,7 +10,6 @@ Module functions
               find_partition_temporal,
               slices_to_layers,
               time_slices_to_layers,
-              set_rng_seed
     :undoc-members:
     :show-inheritance:
 

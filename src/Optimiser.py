@@ -10,6 +10,39 @@ PY3 = (sys.version > '3')
 class Optimiser(object):
   """ Class for doing community detection using the Leiden algorithm.
 
+  The Leiden algorithm [1] derives from the Louvain algorithm [2]. The Louvain
+  algorithm has an elegant formulation. It consists of two phases: (1) move
+  nodes between communities; (2) aggregate the graph. It then repeats these
+  phases on the aggregate graph. The Leiden algorithm consists of three phases: 
+  (1) move nodes; (2) refine communities; (3) aggregate the graph based on the
+  refinement. The Louvain algorithm can lead to arbitrarily badly connected
+  communities, whereas the Leiden algorithm guarantees communities are
+  well-connected. In fact, it converges towards a partition in which all
+  subsets of all communities are locally optimally assigned. Finally, the
+  Leiden algorithm is also much faster, because it relies on a fast local move
+  routine.
+
+  There is one, rather technical, difference with the original Leiden
+  algorithm. This implementation provides a general optimisation
+  routine for any quality function. There is one aspect of the original Leiden
+  algorithm that cannot be translated well in this framework: when merging
+  subcommunities in the refinement procedure, it does not consider whether they
+  are sufficiently well connected to the rest of the community. This
+  implementation therefore does not guarantee subpartition :math:`\gamma`-density.
+  However, all other guarantees still hold:
+  
+  After each iteration
+    1. :math:`\gamma`-separation 
+    2. :math:`\gamma`-connectivity
+
+  After a stable iteration
+    3. Node optimality
+    4. Some subsets are locally optimally assigned
+
+  Asymptotically
+    5. Uniform :math:`\gamma`-density
+    6. Subset optimality
+
   The optimiser class provides a number of different methods for optimising a
   given partition. The overall optimise procedure :func:`optimise_partition`
   calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled
@@ -17,12 +50,25 @@ class Optimiser(object):
   procedure. Possible, indicated by :attr:`refine_partition` the partition is
   refined before aggregating, meaning that subsets of communities are
   considered for moving around. Which routine is used for the refinement is
-  indicated by :attr:`refine_routine`.  For calculating the actual improvement
+  indicated by :attr:`refine_routine`. For calculating the actual improvement
   of moving a node (corresponding a subset of nodes in the aggregate graph),
   the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
   which provides different values for different methods (e.g. modularity or
-  CPM). Finally, the Optimiser class provides a routine to construct a
+  CPM). The default settings are consistent with the Leiden algorithm. By not
+  doing the refinement, you essentially get the Louvain algorithm with a fast
+  local move. Finally, the Optimiser class provides a routine to construct a
   :func:`resolution_profile` on a resolution parameter.
+
+  References
+  ----------
+
+  .. [1] Traag, V.A., Waltman. L., Van Eck, N.-J. (2018). From Louvain to
+         Leiden: guaranteeing well-connected communities. 
+
+  .. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E.
+         (2008). Fast unfolding of communities in large networks. Journal of
+         Statistical Mechanics: Theory and Experiment, 10008(10), 6.
+         `10.1088/1742-5468/2008/10/P10008 <https://doi.org/10.1088/1742-5468/2008/10/P10008>`_
   """
   def __init__(self):
     """ Create a new Optimiser object """
@@ -172,6 +218,13 @@ class Optimiser(object):
   ##########################################################
   # Set rng seed
   def set_rng_seed(self, value):
+    """ Set the random seed for the random number generator. 
+    
+    Parameters
+    ----------
+    value
+      The integer seed used in the random number generator
+    """
     _c_leiden._Optimiser_set_rng_seed(self._optimiser, value)
 
   def optimise_partition(self, partition):
