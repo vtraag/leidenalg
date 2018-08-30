@@ -1,0 +1,33 @@
+Metadata-Version: 1.1
+Name: leiden
+Version: 0.6.1+71.ge032c95.dirty
+Summary: Leiden is a general algorithm for methods of community detection in large networks.
+Home-page: https://github.com/vtraag/leiden-igraph
+Author: V.A. Traag
+Author-email: vincent@traag.net
+License: GPLv3+
+Description: 
+         Leiden is a general algorithm for methods of community detection in large networks.
+        
+         Please refer to the `documentation <http://leiden-igraph.readthedocs.io/en/latest>`_
+         for more details.
+        
+         The source code of this package is hosted at `GitHub <https://github.com/vtraag/leiden-igraph>`_.
+         Issues and bug reports are welcome at https://github.com/vtraag/leiden-igraph/issues.
+            
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: C++
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
+Classifier: Topic :: Sociology
+Provides: leiden

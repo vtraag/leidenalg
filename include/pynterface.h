@@ -26,7 +26,7 @@ extern "C"
 
   PyObject* _set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds);
 
-  static PyMethodDef louvain_funcs[] = {
+  static PyMethodDef leiden_funcs[] = {
 
       {"_new_ModularityVertexPartition",                            (PyCFunction)_new_ModularityVertexPartition,                            METH_VARARGS | METH_KEYWORDS, ""},
       {"_new_SignificanceVertexPartition",                          (PyCFunction)_new_SignificanceVertexPartition,                          METH_VARARGS | METH_KEYWORDS, ""},
@@ -97,44 +97,44 @@ extern "C"
 
   #if PY_MAJOR_VERSION >= 3
 
-  static int louvain_traverse(PyObject *m, visitproc visit, void *arg) {
+  static int leiden_traverse(PyObject *m, visitproc visit, void *arg) {
       Py_VISIT(GETSTATE(m)->error);
       return 0;
   }
 
-  static int louvain_clear(PyObject *m) {
+  static int leiden_clear(PyObject *m) {
       Py_CLEAR(GETSTATE(m)->error);
       return 0;
   }
 
-  static struct PyModuleDef louvaindef = {
+  static struct PyModuleDef leidendef = {
           PyModuleDef_HEAD_INIT,
-          "_c_louvain",
+          "_c_leiden",
           NULL,
           sizeof(struct module_state),
-          louvain_funcs,
+          leiden_funcs,
           NULL,
-          louvain_traverse,
-          louvain_clear,
+          leiden_traverse,
+          leiden_clear,
           NULL
   };
 
   #define INITERROR return NULL
 
   PyObject *
-  PyInit__c_louvain(void)
+  PyInit__c_leiden(void)
 
   #else
   #define INITERROR return
 
   void
-  init_c_louvain(void)
+  init_c_leiden(void)
   #endif
   {
   #if PY_MAJOR_VERSION >= 3
-      PyObject* module = PyModule_Create(&louvaindef);
+      PyObject* module = PyModule_Create(&leidendef);
   #else
-      PyObject *module = Py_InitModule3("_c_louvain", louvain_funcs, "Louvain extension using igraph.");
+      PyObject *module = Py_InitModule3("_c_leiden", leiden_funcs, "Leiden extension using igraph.");
   #endif
 
       PyModule_AddIntConstant(module, "ALL_COMMS", Optimiser::ALL_COMMS);
@@ -149,7 +149,7 @@ extern "C"
           INITERROR;
       struct module_state *st = GETSTATE(module);
 
-      st->error = PyErr_NewException("louvain.Error", NULL, NULL);
+      st->error = PyErr_NewException("leiden.Error", NULL, NULL);
       if (st->error == NULL) {
           Py_DECREF(module);
           INITERROR;

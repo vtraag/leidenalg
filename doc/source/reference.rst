@@ -4,7 +4,7 @@ Reference
 Module functions
 ----------------
 
-.. automodule:: louvain 
+.. automodule:: leiden 
     :members: find_partition, 
               find_partition_multiplex, 
               find_partition_temporal,
@@ -25,7 +25,7 @@ Optimiser
 MutableVertexPartition
 ----------------------
 
-.. autoclass:: louvain.VertexPartition.MutableVertexPartition
+.. autoclass:: leiden.VertexPartition.MutableVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:

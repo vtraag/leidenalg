@@ -1,7 +1,7 @@
 Installation
 ============
 
-In short, for Unix: ``sudo pip install louvain``.  For Windows: download the
+In short, for Unix: ``sudo pip install leiden``.  For Windows: download the
 binary installers.
 
 For Unix like systems it is possible to install from source. For Windows this
@@ -13,7 +13,7 @@ http://igraph.org.
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential``, please refer to the
 documentation for your specific system.  Make sure that not only ``gcc`` is
-installed, but also ``g++``, as the louvain package is programmed in ``C++``.
+installed, but also ``g++``, as the leiden package is programmed in ``C++``.
 Note that to compile ``igraph`` itself, you also need to install
 ``libxml2-dev``.
 

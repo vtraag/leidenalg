@@ -396,7 +396,7 @@ class BuildConfiguration(object):
                 buildcfg.print_build_info()
 
                 ext = first(extension for extension in self.extensions
-                        if extension.name == "louvain._c_louvain")
+                        if extension.name == "leiden._c_leiden")
                 buildcfg.configure(ext)
 
                 # Run the original build_ext command
@@ -594,7 +594,7 @@ class BuildConfiguration(object):
 buildcfg = BuildConfiguration();
 buildcfg.process_args_from_command_line();
 
-louvain_ext = Extension('louvain._c_louvain',
+leiden_ext = Extension('leiden._c_leiden',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
@@ -602,30 +602,30 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass.update(build_ext=buildcfg.build_ext)
 
 options =  dict(
-  name = 'louvain',
+  name = 'leiden',
   version=versioneer.get_version(),
-  description = 'Louvain is a general algorithm for methods of community detection in large networks.',
+  description = 'Leiden is a general algorithm for methods of community detection in large networks.',
   long_description=
     """
- Louvain is a general algorithm for methods of community detection in large networks.
+ Leiden is a general algorithm for methods of community detection in large networks.
 
- Please refer to the `documentation <http://louvain-igraph.readthedocs.io/en/latest>`_
+ Please refer to the `documentation <http://leiden-igraph.readthedocs.io/en/latest>`_
  for more details.
 
- The source code of this package is hosted at `GitHub <https://github.com/vtraag/louvain-igraph>`_.
- Issues and bug reports are welcome at https://github.com/vtraag/louvain-igraph/issues.
+ The source code of this package is hosted at `GitHub <https://github.com/vtraag/leiden-igraph>`_.
+ Issues and bug reports are welcome at https://github.com/vtraag/leiden-igraph/issues.
     """,
   license = 'GPLv3+',
-  url = 'https://github.com/vtraag/louvain-igraph',
+  url = 'https://github.com/vtraag/leiden-igraph',
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
   test_suite = 'tests',
 
-  provides = ['louvain'],
-  package_dir = {'louvain': 'src'},
-  packages = ['louvain'],
-  ext_modules = [louvain_ext],
+  provides = ['leiden'],
+  package_dir = {'leiden': 'src'},
+  packages = ['leiden'],
+  ext_modules = [leiden_ext],
   install_requires = ['python-igraph >= {0}.0'.format(VERSION)],
   classifiers=[
       'Development Status :: 4 - Beta',
