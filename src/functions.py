@@ -23,10 +23,6 @@ def _get_py_capsule(graph):
 from .VertexPartition import *
 from .Optimiser import *
 
-def set_rng_seed(seed):
-  """ Set seed for internal random number generator. """
-  _c_leiden._set_rng_seed(seed)
-
 def find_partition(graph, partition_type, initial_membership=None, weights=None, **kwargs):
   """ Detect communities using the default settings.
 
@@ -206,8 +202,8 @@ def find_partition_temporal(graphs, partition_type,
   >>> G_1.vs['id'] = range(n)
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> G_2.vs['id'] = range(n)
-  >>> membership, improvement = leiden.find_partition_temporal([G_1, G_2], 
-  ...                                                           leiden.ModularityVertexPartition, 
+  >>> membership, improvement = leiden.find_partition_temporal([G_1, G_2],
+  ...                                                           leiden.ModularityVertexPartition,
   ...                                                           interslice_weight=1)
   """
   # Create layers
