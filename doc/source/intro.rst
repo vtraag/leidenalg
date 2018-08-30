@@ -71,3 +71,11 @@ weighted graphs. In addition, it also provides flexible functionality for
 customizing to some extent the optimisation routines (see :ref:`Advanced`).
 Finally, it also allows to work with more complex multiplex graphs (see
 :ref:`Multiplex`).
+
+The Leiden algorithm extends the Louvain algorithm, which is widely seen as one
+of the best algorithms for detecting communities. However, the Louvain
+algorithm can lead to arbitrarily badly connected communities, whereas the
+Leiden algorithm guarantees communities are well-connected. In fact, it
+converges towards a partition in which all subsets of all communities are
+locally optimally assigned. Finally, the Leiden algorithm is also much faster,
+because it relies on a fast local move routine.

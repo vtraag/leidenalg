@@ -54,19 +54,19 @@ or
 
 >>> optimiser.merge_nodes(partition);
 
-The usual strategy in the Leiden algorithm is then to aggregate the partition
-and repeat the :func:`~leiden.Optimiser.move_nodes` on the aggregated
-partition. We can easily repeat that:
+The simpler Louvain algorithm aggregates the partition and repeat the
+:func:`~leiden.Optimiser.move_nodes` on the aggregated partition. We can easily
+repeat that:
 
 >>> partition = leiden.ModularityVertexPartition(G)
 >>> while optimiser.move_nodes(partition) > 0: 
 ...   partition = partition.aggregate_partition()
 
-This summarises the whole Leiden algorithm in just three lines of code.
-Although this finds the final aggregate partition, this leaves it unclear the
-actual partition on the level of the individual nodes. In order to do that, we
-need to update the membership based on the aggregate partition, for which we
-use the function
+This summarises the whole Louvain algorithm in just three lines of code.
+Although this finds the final aggregate partition, it leaves unclear the actual
+partition on the level of the individual nodes. In order to do that, we need to
+update the membership based on the aggregate partition, for which we use the
+function
 :func:`~leiden.VertexPartition.MutableVertexPartition.from_coarse_partition`.
 
 >>> partition = leiden.ModularityVertexPartition(G)
@@ -86,7 +86,7 @@ more detail.
 
 One possibility is that rather than aggregating the partition based on the
 current partition, you can first refine the partition and then aggregate it.
-This can be done using the functions
+This is what is done in the Leiden algorithm, and can be done using the functions
 :func:`~leiden.Optimiser.move_nodes_constrained` and
 :func:`~leiden.Optimiser.merge_nodes_constrained`.
 
@@ -95,7 +95,7 @@ These functions in turn rely on two key functions of the partition:
 :func:`~leiden.VertexPartition.MutableVertexPartition.move_node`. The first
 calculates the difference when moving a node, and the latter actually moves the
 node, and updates all necessary internal administration. The
-:func:`~leiden.Optimiser.move_nodes` then does some as follows
+:func:`~leiden.Optimiser.move_nodes` then does something as follows
 
 >>> for v in G.vs:
 ...   best_comm = max(range(len(partition)),
@@ -103,6 +103,32 @@ node, and updates all necessary internal administration. The
 ...   partition.move_node(v.index, best_comm)
 
 The actual implementation is more complicated, but this gives the general idea.
+
+The Louvain algorithm was previously implemented in 
+`louvain-igraph <https://github.com/vtraag/louvain-igraph>`_. 
+To illustrate the difference between ``louvain-igraph`` and ``leiden-igraph``,
+we ran both algorithms for 10 iterations on a 
+`Facebook network <http://konect.uni-koblenz.de/networks/facebook-wosn-links>`_. 
+
+.. image:: figures/speed.png
+
+The results are quite clear: Leiden is able to achieve a higher modularity in
+less time. It also points out that it is usually a good idea to run Leiden for
+at least two iterations. That is, you are recommended to do
+
+>>> for idx in range(2):
+...   optimiser.optimise_partition(partition)
+
+Alternatively, you can simply let it run until the Leiden algorithm did not
+find any improvement
+
+>>> improv = 1
+... while improv > 0: 
+...   improv = optimiser.optimise_partition(partition)
+
+Note that even if the Leiden algorithm did not find any improvement in this
+iteration, it is always possible that it will find some improvement in the next
+iteration.
 
 Resolution profile
 ------------------
