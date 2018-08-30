@@ -8,8 +8,7 @@ igraph-0.7.0-msvc-py3/
 igraph-0.7.1-msvc-py27/
 igraph-0.7.1-msvc-py34/
 igraph-0.7.1-msvc-py35/
-louvain.egg-info/
-louvain-0.5/
+leiden.egg-info/
 wlib/
 bin/
 obj/
@@ -22,11 +21,11 @@ files.txt
 files_py3.txt
 callgrind*
 main.cpp
-louvain-dists.zip
-louvain-igraph.cbp
-louvain-igraph.depend
-louvain-igraph.layout
-louvain.log
+leiden-dists.zip
+leiden-igraph.cbp
+leiden-igraph.depend
+leiden-igraph.layout
+leiden.log
 igraph-0.7.0.tar.gz
 igraph-0.7.1.tar.gz
 igraphcore/
@@ -38,4 +37,4 @@ massif*
 .vscode/
 *.code-workspace
 PACKAGE.txt
-louvain-igraph.cscope_file_list
+leiden-igraph.cscope_file_list
