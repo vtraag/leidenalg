@@ -13,7 +13,7 @@ class Optimiser(object):
   The Leiden algorithm [1] derives from the Louvain algorithm [2]. The Louvain
   algorithm has an elegant formulation. It consists of two phases: (1) move
   nodes between communities; (2) aggregate the graph. It then repeats these
-  phases on the aggregate graph. The Leiden algorithm consists of three phases: 
+  phases on the aggregate graph. The Leiden algorithm consists of three phases:
   (1) move nodes; (2) refine communities; (3) aggregate the graph based on the
   refinement. The Louvain algorithm can lead to arbitrarily badly connected
   communities, whereas the Leiden algorithm guarantees communities are
@@ -30,9 +30,9 @@ class Optimiser(object):
   are sufficiently well connected to the rest of the community. This
   implementation therefore does not guarantee subpartition :math:`\gamma`-density.
   However, all other guarantees still hold:
-  
+
   After each iteration
-    1. :math:`\gamma`-separation 
+    1. :math:`\gamma`-separation
     2. :math:`\gamma`-connectivity
 
   After a stable iteration
@@ -63,7 +63,7 @@ class Optimiser(object):
   ----------
 
   .. [1] Traag, V.A., Waltman. L., Van Eck, N.-J. (2018). From Louvain to
-         Leiden: guaranteeing well-connected communities. 
+         Leiden: guaranteeing well-connected communities.
 
   .. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E.
          (2008). Fast unfolding of communities in large networks. Journal of
@@ -116,8 +116,8 @@ class Optimiser(object):
   @property
   def refine_consider_comms(self):
     """ Determine how alternative communities are considered for moving
-    a node when *refining* a partition. 
-    
+    a node when *refining* a partition.
+
     Nodes will only move to alternative communities that improve the given
     quality function.
 
@@ -218,8 +218,8 @@ class Optimiser(object):
   ##########################################################
   # Set rng seed
   def set_rng_seed(self, value):
-    """ Set the random seed for the random number generator. 
-    
+    """ Set the random seed for the random number generator.
+
     Parameters
     ----------
     value
@@ -227,13 +227,18 @@ class Optimiser(object):
     """
     _c_leiden._Optimiser_set_rng_seed(self._optimiser, value)
 
-  def optimise_partition(self, partition):
+  def optimise_partition(self, partition, n_iterations=2):
     """ Optimise the given partition.
 
     Parameters
     ----------
     partition
       The :class:`~VertexPartition.MutableVertexPartition` to optimise.
+
+    n_iterations : int
+      Number of iterations to run the Leiden algorithm. By default, 2 iterations
+      are run. If the number of iterations is negative, the Leiden algorithm is
+      run until an iteration in which there was no improvement.
 
     Returns
     -------
@@ -249,12 +254,23 @@ class Optimiser(object):
     >>> diff = optimiser.optimise_partition(partition)
 
     """
-    # Perhaps we
-    diff = _c_leiden._Optimiser_optimise_partition(self._optimiser, partition._partition)
+
+    itr = 0
+    diff = 0
+    continue_iteration = itr < n_iterations or n_iterations < 0;
+    while continue_iteration:
+      diff_inc = _c_leiden._Optimiser_optimise_partition(self._optimiser, partition._partition)
+      diff += diff_inc
+      itr += 1
+      if n_iterations < 0:
+        continue_iteration = (diff_inc > 0)
+      else:
+        continue_iteration = itr < n_iterations
+
     partition._update_internal_membership()
     return diff
 
-  def optimise_partition_multiplex(self, partitions, layer_weights=None):
+  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2):
     """ Optimise the given partitions simultaneously.
 
     Parameters
@@ -264,6 +280,11 @@ class Optimiser(object):
 
     layer_weights
       List of weights of layers.
+
+    n_iterations : int
+      Number of iterations to run the Leiden algorithm. By default, 2 iterations
+      are run. If the number of iterations is negative, the Leiden algorithm is
+      run until an iteration in which there was no improvement.
 
     Returns
     -------
@@ -329,10 +350,22 @@ class Optimiser(object):
     """
     if not layer_weights:
       layer_weights = [1]*len(partitions)
-    diff = _c_leiden._Optimiser_optimise_partition_multiplex(
-      self._optimiser,
-      [partition._partition for partition in partitions],
-      layer_weights)
+
+    itr = 0
+    diff = 0
+    continue_iteration = itr < n_iterations or n_iterations < 0;
+    while continue_iteration:
+      diff_inc = _c_leiden._Optimiser_optimise_partition_multiplex(
+        self._optimiser,
+        [partition._partition for partition in partitions],
+        layer_weights)
+      diff += diff_inc
+      itr += 1
+      if n_iterations < 0:
+        continue_iteration = (diff_inc > 0)
+      else:
+        continue_iteration = itr < n_iterations
+
     for partition in partitions:
       partition._update_internal_membership()
     return diff

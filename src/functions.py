@@ -87,12 +87,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  if (n_iterations > 0):
-    for itr in range(n_iterations):
-      optimiser.optimise_partition(partition)
-  elif (n_iterations < 0):
-    while optimiser.optimise_partition(partition):
-      pass
+  optimiser.optimise_partition(partition, n_iterations)
 
   return partition
 
@@ -163,22 +158,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  if (n_iterations > 0):
-    for itr in range(n_iterations):
-      optimiser.optimise_partition_multiplex(partitions, layer_weights)
-  elif (n_iterations < 0):
-    while optimiser.optimise_partition_multiplex(partitions, layer_weights):
-      pass;
-
-  improvement = 0.0
-  if (n_iterations > 0):
-    for itr in range(n_iterations):
-      improvement += optimiser.optimise_partition_multiplex(partitions, layer_weights)
-  elif (n_iterations < 0):
-    local_improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights)
-    while local_improvement > 0:
-      improvement += local_improvement
-      local_improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights)
+  improvement += optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
 
   return partitions[0].membership, improvement
 
@@ -294,15 +274,7 @@ def find_partition_temporal(graphs, partition_type,
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  improvement = 0.0
-  if (n_iterations > 0):
-    for itr in range(n_iterations):
-      improvement += optimiser.optimise_partition_multiplex(partitions + [partition_interslice])
-  elif (n_iterations < 0):
-    local_improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice])
-    while local_improvement > 0:
-      improvement += local_improvement
-      local_improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice])
+  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice], n_iterations=n_iterations)
 
   # Transform results back into original form.
   membership = {(v[slice_attr], v[vertex_id_attr]): m for v, m in zip(G.vs, partitions[0].membership)}
