@@ -390,7 +390,7 @@ class BuildConfiguration(object):
                 # Replaces library names with full paths to static libraries
                 # where possible
                 if buildcfg.static_extension:
-                    buildcfg.replace_static_libraries()
+                    buildcfg.replace_static_libraries(exclusions=["m"])
 
                 # Prints basic build information
                 buildcfg.print_build_info()
@@ -508,13 +508,16 @@ class BuildConfiguration(object):
         for idx in reversed(opts_to_remove):
             sys.argv[idx:(idx+1)] = []
 
-    def replace_static_libraries(self):
+    def replace_static_libraries(self, exclusions=None):
         """Replaces references to libraries with full paths to their static
         versions if the static version is to be found on the library path."""
         if "stdc++" not in self.libraries:
             self.libraries.append("stdc++")
 
-        for library_name in self.libraries[:]:
+        if exclusions is None:
+            exclusions = []
+
+        for library_name in set(self.libraries) - set(exclusions):
             static_lib = find_static_library(library_name, self.library_dirs)
             if static_lib:
                 self.libraries.remove(library_name)
