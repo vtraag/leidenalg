@@ -384,7 +384,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     return _c_leiden._MutableVertexPartition_weight_from_comm(self._partition, v, comm)
 
 class ModularityVertexPartition(MutableVertexPartition):
-  """ Implements modularity.
+  """ Implements modularity. This quality function is well-defined only for positive edge weights.
 
   Notes
   -----
@@ -443,7 +443,7 @@ class ModularityVertexPartition(MutableVertexPartition):
     self._update_internal_membership()
 
 class SurpriseVertexPartition(MutableVertexPartition):
-  """ Implements (asymptotic) Surprise.
+  """ Implements (asymptotic) Surprise. This quality function is well-defined only for positive edge weights.
 
   Notes
   -----
@@ -517,7 +517,7 @@ class SurpriseVertexPartition(MutableVertexPartition):
     self._update_internal_membership()
 
 class SignificanceVertexPartition(MutableVertexPartition):
-  """ Implements Significance.
+  """ Implements Significance. This quality function is well-defined only for unweighted graphs.
 
   Notes
   -----
@@ -624,7 +624,7 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
-
+  This quality function is well-defined only for positive edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
@@ -704,7 +704,7 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
-
+  This quality function is well-defined only for positive edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
@@ -774,6 +774,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements CPM.
+  This quality function is well-defined for both positive and negative edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
