@@ -392,24 +392,38 @@ class ModularityVertexPartition(MutableVertexPartition):
 
   .. math:: Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
-  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
-  the community of node :math:`i` and :math:`\\delta(\\sigma_i, \\sigma_j) = 1`
-  if :math:`\\sigma_i = \\sigma_j` and `0` otherwise.
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the (weighted) degree
+  of node :math:`i`, :math:`m` is the total number of edges (or total edge
+  weight), :math:`\\sigma_i` denotes the community of node :math:`i` and
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j`
+  and `0` otherwise.
 
   This can alternatively be formulated as a sum over communities:
 
   .. math:: Q = \\frac{1}{2m} \\sum_{c} \\left(m_c - \\frac{K_c^2}{4m} \\right)
 
-  where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
-  in community :math:`c`.
+  where :math:`m_c` is the number of internal edges (or total internal edge
+  weight) of community :math:`c` and :math:`K_c = \\sum_{i \\mid \\sigma_i = c}
+  k_i` is the total (weighted) degree of nodes in community :math:`c`.
+
+  Note that for directed graphs a slightly different formulation is used, as
+  proposed by Leicht and Newman [2]:
+
+  .. math:: Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
+
+  where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
+  respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
+  refers to an edge from :math:`i` to :math:`j`.
 
   References
   ----------
   .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating
          community structure in networks.  Physical Review E, 69(2), 026113.
          `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+
+  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure 
+         in Directed Networks. Physical Review Letters, 100(11), 118703.
+         `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
    """
   def __init__(self, graph, initial_membership=None, weights=None):
     """
@@ -713,28 +727,42 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
 
   .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
-  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
-  the community of node :math:`i`, :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if
-  :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally :math:`\\gamma`
-  is a resolution parameter.
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the (weighted) degree
+  of node :math:`i`, :math:`m` is the total number of edges (or total edge
+  weight), :math:`\\sigma_i` denotes the community of node :math:`i` and
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j`
+  and `0` otherwise.
 
   This can alternatively be formulated as a sum over communities:
 
-  .. math:: Q = \\sum_{c} \\left(m_c - \\gamma\\frac{K_c^2}{4m} \\right)
+  .. math:: Q = \\sum_{c} \\left(m_c - \\gamma \\frac{K_c^2}{4m} \\right)
 
-  where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
-  in community :math:`c`.
+  where :math:`m_c` is the number of internal edges (or total internal edge
+  weight) of community :math:`c` and :math:`K_c = \\sum_{i \\mid \\sigma_i = c}
+  k_i` is the total (weighted) degree of nodes in community :math:`c`.
 
-  Note that this is the same as :class:`ModularityVertexPartition` for
-  :math:`\\gamma=1` and using the normalisation by :math:`2m`.
+  Note that for directed graphs a slightly different formulation is used, as
+  proposed by Leicht and Newman [2]:
+
+  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
+
+  where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
+  respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
+  refers to an edge from :math:`i` to :math:`j`.
+
+  Note that this is the same as :class:`ModularityVertexPartition` when setting
+  :math:`\\gamma=1` and normalising by :math:`2m`, or :math:`m` for directed
+  graphs.
 
   References
   ----------
   .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
          community detection.  Physical Review E, 74(1), 016110.
          `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+
+  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure 
+         in Directed Networks. Physical Review Letters, 100(11), 118703.
+         `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
 
    """
   def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
