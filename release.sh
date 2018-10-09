@@ -49,7 +49,7 @@ else
 
   # Install & test
   python setup.py check
-  python setup.py install  
+  python setup.py install
   python setup.py test
 
   # docs

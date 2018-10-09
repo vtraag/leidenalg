@@ -91,7 +91,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, seed=None, **kwargs):
+def find_partition_multiplex(graphs, partition_type, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -166,7 +166,6 @@ def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
-                            seed=None,
                             **kwargs):
   """ Detect communities for temporal graphs.
 
@@ -237,9 +236,9 @@ def find_partition_temporal(graphs, partition_type,
   --------
   >>> n = 100
   >>> G_1 = ig.Graph.Lattice([n], 1)
-  >>> G_1.vs['id'] = range(n)
+  >>> G_1.vs['id'] = list(range(n))
   >>> G_2 = ig.Graph.Lattice([n], 1)
-  >>> G_2.vs['id'] = range(n)
+  >>> G_2.vs['id'] = list(range(n))
   >>> membership, improvement = leiden.find_partition_temporal([G_1, G_2],
   ...                                                           leiden.ModularityVertexPartition,
   ...                                                           interslice_weight=1)
@@ -462,23 +461,23 @@ def slices_to_layers(G_coupling,
         nodes_v = G.vs.select(lambda v: v[slice_attr]==v_slice.index)[vertex_id_attr]
         if len(set(nodes_v)) != len(nodes_v):
           err = '\n'.join(
-            ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_v).items() if count > 1]
+            ['\t{0} {1} times'.format(item, count) for item, count in list(Counter(nodes_v).items()) if count > 1]
             )
           raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(v_slice.index, err))
         nodes_u = G.vs.select(lambda v: v[slice_attr]==u_slice.index)[vertex_id_attr]
         if len(set(nodes_u)) != len(nodes_u):
           err = '\n'.join(
-            ['\t{0} {1} times'.format(item, count) for item, count in Counter(nodes_u).items() if count > 1]
+            ['\t{0} {1} times'.format(item, count) for item, count in list(Counter(nodes_u).items()) if count > 1]
             )
           raise ValueError('No unique IDs for slice {0}, require unique IDs:\n{1}'.format(u_slice.index, err))
         common_nodes = set(nodes_v).intersection(set(nodes_u))
         nodes_v = sorted([v for v in G.vs if v[slice_attr] == v_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr])
         nodes_u = sorted([v for v in G.vs if v[slice_attr] == u_slice.index and v[vertex_id_attr] in common_nodes], key=lambda v: v[vertex_id_attr])
-        edges = zip(nodes_v, nodes_u)
+        edges = list(zip(nodes_v, nodes_u))
         e_start = G.ecount()
         G.add_edges(edges)
         e_end = G.ecount()
-        e_idx = range(e_start, e_end)
+        e_idx = list(range(e_start, e_end))
         interslice_weight = G_coupling.es[G_coupling.get_eid(v_slice, u_slice)][weight_attr]
         if not interslice_weight is None:
           G.es[e_idx][weight_attr] = interslice_weight
@@ -496,3 +495,4 @@ def slices_to_layers(G_coupling,
   G_interslice.vs['node_size'] = 0
 
   return G_layers, G_interslice, G
+
