@@ -14,7 +14,7 @@ Examples
 The simplest example just finds a partition using modularity
 
   >>> G = ig.Graph.Tree(100, 3)
-  >>> partition = leidenalg.find_partition(G, leidenalg.ModularityVertexPartition)
+  >>> partition = la.find_partition(G, la.ModularityVertexPartition)
 
 Alternatively, one can access the different optimisation routines individually
 and construct partitions oneself. These partitions can then be optimised by
@@ -22,8 +22,8 @@ constructing an :class:`Optimiser` object and running
 :func:`~Optimiser.optimise_partition`.
 
   >>> G = ig.Graph.Tree(100, 3)
-  >>> partition = leidenalg.CPMVertexPartition(G, resolution_parameter = 0.1)
-  >>> optimiser = leidenalg.Optimiser()
+  >>> partition = la.CPMVertexPartition(G, resolution_parameter = 0.1)
+  >>> optimiser = la.Optimiser()
   >>> diff = optimiser.optimise_partition(partition)
 
 The :class:`Optimiser` class contains also the different subroutines that are

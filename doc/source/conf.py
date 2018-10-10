@@ -360,5 +360,5 @@ autoclass_content = 'both'
 
 doctest_global_setup = """
 import igraph as ig
-import leidenalg
+import leidenalg as la
 """

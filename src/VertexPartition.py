@@ -85,9 +85,9 @@ class MutableVertexPartition(_ig.VertexClustering):
     partition ``p`` and that we want to determine the Significance of that
     partition. We can then simply use
 
-    >>> p = leidenalg.find_partition(ig.Graph.Famous('Zachary'),
+    >>> p = la.find_partition(ig.Graph.Famous('Zachary'),
     ...                            leidenalg.ModularityVertexPartition)
-    >>> sig = leidenalg.SignificanceVertexPartition.FromPartition(p).quality()
+    >>> sig = la.SignificanceVertexPartition.FromPartition(p).quality()
     """
     new_partition = cls(partition.graph, partition.membership, **kwargs)
     return new_partition
@@ -130,7 +130,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     determining again the quality of the partition and looking at the
     difference. In other words
 
-    >>> partition = leidenalg.find_partition(ig.Graph.Famous('Zachary'),
+    >>> partition = la.find_partition(ig.Graph.Famous('Zachary'),
     ...                            leidenalg.ModularityVertexPartition)
     >>> diff = partition.diff_move(v=0, new_comm=0)
     >>> q1 = partition.quality()
@@ -164,7 +164,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> partition = leidenalg.find_partition(G, leidenalg.ModularityVertexPartition)
+    >>> partition = la.find_partition(G, la.ModularityVertexPartition)
     >>> aggregate_partition = partition.aggregate_partition(partition)
     >>> aggregate_graph = aggregate_partition.graph
     >>> aggregate_partition.quality() == partition.quality()
@@ -194,7 +194,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> partition = leidenalg.ModularityVertexPartition(G)
+    >>> partition = la.ModularityVertexPartition(G)
     >>> partition.move_node(0, 1)
     """
     _c_leiden._MutableVertexPartition_move_node(self._partition, v, new_comm)

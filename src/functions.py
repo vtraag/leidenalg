@@ -74,7 +74,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   Examples
   --------
   >>> G = ig.Graph.Famous('Zachary')
-  >>> partition = leidenalg.find_partition(G, leidenalg.ModularityVertexPartition)
+  >>> partition = la.find_partition(G, la.ModularityVertexPartition)
 
   """
   if not weights is None:
@@ -145,7 +145,7 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
   >>> n = 100
   >>> G_1 = ig.Graph.Lattice([n], 1)
   >>> G_2 = ig.Graph.Lattice([n], 1)
-  >>> membership, improvement = leidenalg.find_partition_multiplex([G_1, G_2],
+  >>> membership, improvement = la.find_partition_multiplex([G_1, G_2],
   ...                                                            leidenalg.ModularityVertexPartition)
   """
   n_layers = len(graphs)
@@ -240,7 +240,7 @@ def find_partition_temporal(graphs, partition_type,
   >>> G_1.vs['id'] = range(n)
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> G_2.vs['id'] = range(n)
-  >>> membership, improvement = leidenalg.find_partition_temporal([G_1, G_2],
+  >>> membership, improvement = la.find_partition_temporal([G_1, G_2],
   ...                                                           leidenalg.ModularityVertexPartition,
   ...                                                           interslice_weight=1)
   """

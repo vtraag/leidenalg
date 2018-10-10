@@ -19,7 +19,7 @@ rely on the same machinery we developed for dealing with layers.
 Throughout the remained of this section, we assume an optimiser has been
 created:
 
->>> optimiser = leidenalg.Optimiser()
+>>> optimiser = la.Optimiser()
 
 Layer multiplex
 ---------------
@@ -53,9 +53,9 @@ The most straightforward way to use this is then to use
    G_telephone = ig.Graph.Erdos_Renyi(100, 0.1);
    G_email = ig.Graph.Erdos_Renyi(100, 0.1);
 
->>> membership, improv = leidenalg.find_partition_multiplex(
+>>> membership, improv = la.find_partition_multiplex(
 ...                        [G_telephone, G_email],
-...                        leidenalg.ModularityVertexPartition);
+...                        la.ModularityVertexPartition);
 
 .. note:: You may need to carefully reflect how you want to weigh the importance
   of an individual layer. Since the :class:`~leidenalg.ModularityVertexPartition`
@@ -73,9 +73,9 @@ example for different layers of the graph.  For example, using email creates a
 more connected structure because multiple people can be involved in a single
 mail, which may require a higher resolution parameter for the email graph.
 
->>> part_telephone = leidenalg.CPMVertexPartition(
+>>> part_telephone = la.CPMVertexPartition(
 ...                    G_telephone, resolution_parameter=0.01);
->>> part_email = leidenalg.CPMVertexPartition(
+>>> part_email = la.CPMVertexPartition(
 ...                    G_email, resolution_parameter=0.3);
 >>> diff = optimiser.optimise_partition_multiplex(
 ...                    [part_telephone, part_email]);
@@ -120,8 +120,8 @@ negative graph as follows:
 
 We can then simply detect communities using;
 
->>> part_pos = leidenalg.ModularityVertexPartition(G_pos, weights='weight');
->>> part_neg = leidenalg.ModularityVertexPartition(G_neg, weights='weight');
+>>> part_pos = la.ModularityVertexPartition(G_pos, weights='weight');
+>>> part_neg = la.ModularityVertexPartition(G_neg, weights='weight');
 >>> diff = optimiser.optimise_partition_multiplex(
 ...   [part_pos, part_neg],
 ...   layer_weights=[1,-1]);
@@ -223,7 +223,7 @@ An explicit example of this:
    import numpy as np
    G.vs['type'] = np.random.randint(0, 2, G.vcount())
 
->>> p_01, p_0, p_1 = leidenalg.CPMVertexPartition.Bipartite(G,
+>>> p_01, p_0, p_1 = la.CPMVertexPartition.Bipartite(G,
 ...                    resolution_parameter_01=0.1);
 >>> diff = optimiser.optimise_partition_multiplex([p_01, p_0, p_1], 
 ...                                        layer_weights=[1, -1, -1]);
@@ -290,7 +290,7 @@ as follows.  First create the coupling graph assuming we have three slices
 
 Then we convert them to layers
 
->>> layers, interslice_layer, G_full = leidenalg.slices_to_layers(G_coupling);
+>>> layers, interslice_layer, G_full = la.slices_to_layers(G_coupling);
 
 Now we still have to create partitions for all the layers. We can freely choose
 here to use the same partition types for all partitions, or to use different
@@ -312,10 +312,10 @@ types for different layers.
    
    gamma = 0.5;
 
->>> partitions = [leidenalg.CPMVertexPartition(H, node_sizes='node_size', 
+>>> partitions = [la.CPMVertexPartition(H, node_sizes='node_size', 
 ...                                          weights='weight', resolution_parameter=gamma) 
 ...               for H in layers];
->>> interslice_partition = leidenalg.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+>>> interslice_partition = la.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
 ...                                                   node_sizes='node_size', weights='weight');
 
 You can then simply optimise these partitions as before using
@@ -333,9 +333,9 @@ simplify the above process. Let us assume again that we have three slices
 ``G_1``, ``G_2`` and ``G_3`` as in the example above. The most straightforward
 function is :func:`~leidenalg.find_partition_temporal`:
 
->>> membership, improvement = leidenalg.find_partition_temporal(
+>>> membership, improvement = la.find_partition_temporal(
 ...                             [G_1, G_2, G_3],
-...                             leidenalg.CPMVertexPartition,
+...                             la.CPMVertexPartition,
 ...                             interslice_weight=0.1,
 ...                             resolution_parameter=gamma)
 
@@ -347,14 +347,14 @@ partitions in a slightly more convenient way using
 :func:`~leidenalg.time_slices_to_layers`:
 
 >>> layers, interslice_layer, G_full = \
-...               leidenalg.time_slices_to_layers([G_1, G_2, G_3],
+...               la.time_slices_to_layers([G_1, G_2, G_3],
 ...                                             interslice_weight=0.1);
->>> partitions = [leidenalg.CPMVertexPartition(H, node_sizes='node_size', 
+>>> partitions = [la.CPMVertexPartition(H, node_sizes='node_size', 
 ...                                          weights='weight', 
 ...                                          resolution_parameter=gamma) 
 ...               for H in layers];
 >>> interslice_partition = \
-...               leidenalg.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+...               la.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
 ...                                          node_sizes='node_size', weights='weight');
 >>> diff = optimiser.optimise_partition_multiplex(partitions + [interslice_partition]);
 

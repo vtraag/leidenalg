@@ -14,7 +14,7 @@ Although the package provides simple access to the function
 :class:`~leidenalg.Optimiser` class that is doing the actual work. We can also
 explicitly construct an :class:`~leidenalg.Optimiser` object:
 
->>> optimiser = leidenalg.Optimiser()
+>>> optimiser = la.Optimiser()
 
 The function :func:`~leidenalg.find_partition` then does nothing else then
 calling :func:`~leidenalg.Optimiser.optimise_partition` on the provided
@@ -23,7 +23,7 @@ partition.
 .. testsetup::
    
    G = ig.Graph.Erdos_Renyi(100, p=5./100)
-   partition = leidenalg.CPMVertexPartition(G)
+   partition = la.CPMVertexPartition(G)
 
 >>> diff = optimiser.optimise_partition(partition)
 
@@ -33,7 +33,7 @@ provided partition. We can thus try to repeatedly call
 partition:
 
 >>> G = ig.Graph.Erdos_Renyi(100, p=5./100)
->>> partition = leidenalg.ModularityVertexPartition(G)
+>>> partition = la.ModularityVertexPartition(G)
 >>> diff = 1
 >>> while diff > 0: 
 ...   diff = optimiser.optimise_partition(partition)
@@ -66,7 +66,7 @@ The simpler Louvain algorithm aggregates the partition and repeats the
 :func:`~leidenalg.Optimiser.move_nodes` on the aggregated partition. We can easily
 emulate that:
 
->>> partition = leidenalg.ModularityVertexPartition(G)
+>>> partition = la.ModularityVertexPartition(G)
 >>> while optimiser.move_nodes(partition) > 0: 
 ...   partition = partition.aggregate_partition()
 
@@ -77,7 +77,7 @@ update the membership based on the aggregate partition, for which we use the
 function
 :func:`~leidenalg.VertexPartition.MutableVertexPartition.from_coarse_partition`.
 
->>> partition = leidenalg.ModularityVertexPartition(G)
+>>> partition = la.ModularityVertexPartition(G)
 >>> partition_agg = partition.aggregate_partition()
 >>> while optimiser.move_nodes(partition_agg):
 ...   partition.from_coarse_partition(partition_agg)
@@ -112,11 +112,11 @@ node, and updates all necessary internal administration. The
 
 The actual implementation is more complicated, but this gives the general idea.
 
-The Louvain algorithm was previously implemented in 
-`louvain-igraph <https://github.com/vtraag/louvain-igraph>`_. 
-To illustrate the difference between ``louvain-igraph`` and ``leidenalg``,
-we ran both algorithms for 10 iterations on a 
-`Facebook network <http://konect.uni-koblenz.de/networks/facebook-wosn-links>`_. 
+This package builds on a previous implementation of the Louvain algorithm in
+`louvain-igraph <https://github.com/vtraag/louvain-igraph>`_.  To illustrate
+the difference between ``louvain-igraph`` and ``la``, we ran both algorithms
+for 10 iterations on a `Facebook network
+<http://konect.uni-koblenz.de/networks/facebook-wosn-links>`_. 
 
 .. image:: figures/speed.png
 
@@ -150,8 +150,8 @@ Such a resolution profile can be constructed using the
 :class:`~leidenalg.Optimiser` object. 
 
 >>> G = ig.Graph.Famous('Zachary')
->>> optimiser = leidenalg.Optimiser()
->>> profile = optimiser.resolution_profile(G, leidenalg.CPMVertexPartition, 
+>>> optimiser = la.Optimiser()
+>>> profile = optimiser.resolution_profile(G, la.CPMVertexPartition, 
 ...                                        resolution_range=(0,1))
 
 Plotting the resolution parameter versus the total number of internal edges we

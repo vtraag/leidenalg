@@ -1,11 +1,13 @@
 Introduction
 ============
 
-This package facilitates community detection of networks and builds on the
-package :mod:`igraph`, referred to as ``ig`` throughout this documentation.
-Although the options in this community detection package are extensive, most
-people are presumably simply interested in detecting communities with a robust
-method that works well. This introduction explains how to do that.
+The :mod:`leidenalg` package facilitates community detection of networks and
+builds on the package :mod:`igraph`. We abbreviate the :mod:`leidenalg` package as
+``la`` and the ``igraph`` package as ``ig`` in all ``Python`` code throughout
+this documentation. Although the options in the :mod:`leidenalg` community
+detection package are extensive, most people are presumably simply interested
+in detecting communities with a robust method that works well. This
+introduction explains how to do that.
 
 For those without patience (and some prior experience), if you simply want to
 detect communities given a graph ``G`` using modularity, you simply use
@@ -14,7 +16,7 @@ detect communities given a graph ``G`` using modularity, you simply use
    
    G = ig.Graph.Erdos_Renyi(100, p=5./100); 
 
->>> partition = leidenalg.find_partition(G, leidenalg.ModularityVertexPartition);
+>>> partition = la.find_partition(G, la.ModularityVertexPartition);
 
 That's it.
 
@@ -30,7 +32,7 @@ For those less familiar with :mod:`igraph`, let us work out an example more
 fully. First, we need to import the relevant packages:
 
 >>> import igraph as ig
->>> import leidenalg
+>>> import leidenalg as la
 
 Let us then look at one of the most famous examples of network science: the
 Zachary karate club (it even has a prize named after it):
@@ -40,7 +42,7 @@ Zachary karate club (it even has a prize named after it):
 Now detecting communities with modularity is straightforward, as demonstrated
 earlier: 
 
->>> partition = leidenalg.find_partition(G, leidenalg.ModularityVertexPartition)
+>>> partition = la.find_partition(G, la.ModularityVertexPartition)
 
 You can simply plot the results as follows:
 
@@ -54,9 +56,9 @@ graphs like these you can check this using
 but this is generally not the case (although the algorithm should do well).
 Although this is the optimal partition, it does not correspond to the split in
 two factions that was observed for this particular network. We can uncover that
-split in two using a different method: :class:`~leidenalg.CPMVertexPartition`:
+split in two using a different method, :class:`~leidenalg.CPMVertexPartition`:
 
->>> partition = leidenalg.find_partition(G, leidenalg.CPMVertexPartition,
+>>> partition = la.find_partition(G, la.CPMVertexPartition,
 ...                                    resolution_parameter = 0.05);
 >>> ig.plot(partition) # doctest: +SKIP
 

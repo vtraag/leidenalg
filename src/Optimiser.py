@@ -250,8 +250,8 @@ class Optimiser(object):
     --------
 
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leidenalg.Optimiser()
-    >>> partition = leidenalg.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
 
     """
@@ -341,9 +341,9 @@ class Optimiser(object):
     --------
     >>> G_pos = ig.Graph.SBM(100, pref_matrix=[[0.5, 0.1], [0.1, 0.5]], block_sizes=[50, 50])
     >>> G_neg = ig.Graph.SBM(100, pref_matrix=[[0.1, 0.5], [0.5, 0.1]], block_sizes=[50, 50])
-    >>> optimiser = leidenalg.Optimiser()
-    >>> partition_pos = leidenalg.ModularityVertexPartition(G_pos)
-    >>> partition_neg = leidenalg.ModularityVertexPartition(G_neg)
+    >>> optimiser = la.Optimiser()
+    >>> partition_pos = la.ModularityVertexPartition(G_pos)
+    >>> partition_neg = la.ModularityVertexPartition(G_neg)
     >>> diff = optimiser.optimise_partition_multiplex(
     ...                     partitions=[partition_pos, partition_neg],
     ...                     layer_weights=[1,-1])
@@ -404,8 +404,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leidenalg.Optimiser()
-    >>> partition = leidenalg.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes(partition)
 
     """
@@ -451,10 +451,10 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leidenalg.Optimiser()
-    >>> partition = leidenalg.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
-    >>> refine_partition = leidenalg.ModularityVertexPartition(G)
+    >>> refine_partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
@@ -496,8 +496,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leidenalg.Optimiser()
-    >>> partition = leidenalg.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.merge_nodes(partition)
 
     """
@@ -543,10 +543,10 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leidenalg.Optimiser()
-    >>> partition = leidenalg.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
-    >>> refine_partition = leidenalg.ModularityVertexPartition(G)
+    >>> refine_partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
@@ -622,8 +622,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leidenalg.Optimiser()
-    >>> profile = optimiser.resolution_profile(G, leidenalg.CPMVertexPartition,
+    >>> optimiser = la.Optimiser()
+    >>> profile = optimiser.resolution_profile(G, la.CPMVertexPartition,
     ...                                        resolution_range=(0,1))
     """
 
