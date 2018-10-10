@@ -27,21 +27,29 @@ partition.
 
 >>> diff = optimiser.optimise_partition(partition)
 
-But :func:`~leiden.Optimiser.optimise_partition` simply tries to improve any
+:func:`~leiden.Optimiser.optimise_partition` simply tries to improve any
 provided partition. We can thus try to repeatedly call
 :func:`~leiden.Optimiser.optimise_partition` to keep on improving the current
 partition:
 
 >>> G = ig.Graph.Erdos_Renyi(100, p=5./100)
 >>> partition = leiden.ModularityVertexPartition(G)
->>> improv = 1
->>> while improv > 0: 
-...   improv = optimiser.optimise_partition(partition)
+>>> diff = 1
+>>> while diff > 0: 
+...   diff = optimiser.optimise_partition(partition)
 
 Even if a call to :func:`~leiden.Optimiser.optimise_partition` did not improve
 the current partition, it is still possible that a next call will improve the
 partition. Of course, if the current partition is already optimal, this will
 never happen, but it is not possible to decide whether a partition is optimal.
+
+This functionality of repeating multiple iterations is actually already
+built-in. You can simply call
+
+>>> diff = optimiser.optimise_partition(partition, n_iterations=10)
+
+If ``n_iterations < 0`` the optimiser continues iterating until it encounters
+an iterations that did not improve the partition.
 
 The :func:`~leiden.Optimiser.optimise_partition` itself is built on two other
 basic algorithms: :func:`~leiden.Optimiser.move_nodes` and
@@ -54,9 +62,9 @@ or
 
 >>> diff = optimiser.merge_nodes(partition)
 
-The simpler Louvain algorithm aggregates the partition and repeat the
+The simpler Louvain algorithm aggregates the partition and repeats the
 :func:`~leiden.Optimiser.move_nodes` on the aggregated partition. We can easily
-repeat that:
+emulate that:
 
 >>> partition = leiden.ModularityVertexPartition(G)
 >>> while optimiser.move_nodes(partition) > 0: 
@@ -81,7 +89,7 @@ contains the actual partition of the original graph ``G``. Of course,
 
 Instead of :func:`~leiden.Optimiser.move_nodes`, you could also use
 :func:`~leiden.Optimiser.merge_nodes`. These functions depend on choosing
-particular alternative communities, the documentation of the functions provides
+particular alternative communities: the documentation of the functions provides
 more detail.
 
 One possibility is that rather than aggregating the partition based on the
@@ -114,21 +122,18 @@ we ran both algorithms for 10 iterations on a
 
 The results are quite clear: Leiden is able to achieve a higher modularity in
 less time. It also points out that it is usually a good idea to run Leiden for
-at least two iterations, this is also the default setting.
+at least two iterations; this is also the default setting.
 
 Note that even if the Leiden algorithm did not find any improvement in this
 iteration, it is always possible that it will find some improvement in the next
 iteration.
-
-By default :func:`~leiden.find_partition` runs the Leiden algorithm for two
-iterations, but you can specify something else.
 
 Resolution profile
 ------------------
 
 Some methods accept so-called resolution parameters, such as
 :class:`~leiden.CPMVertexPartition` or
-:class:`~leiden.RBConfigurationVertexPartition`. Although some method may seem
+:class:`~leiden.RBConfigurationVertexPartition`. Although some methods may seem
 to have some 'natural' resolution, in reality this is often quite arbitrary.
 However, the methods implemented here (which depend in a linear way on
 resolution parameters) allow for an effective scanning of a full range for the

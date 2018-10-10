@@ -3,9 +3,9 @@ Introduction
 
 This package facilitates community detection of networks and builds on the
 package :mod:`igraph`, referred to as ``ig`` throughout this documentation.
-Although the options in the package are extensive, most people are presumably
-simply interested in detecting communities with a robust method that works
-well. This introduction explains how to do that.
+Although the options in this community detection package are extensive, most
+people are presumably simply interested in detecting communities with a robust
+method that works well. This introduction explains how to do that.
 
 For those without patience (and some prior experience), if you simply want to
 detect communities given a graph ``G`` using modularity, you simply use
@@ -18,11 +18,13 @@ detect communities given a graph ``G`` using modularity, you simply use
 
 That's it.
 
-Why then should you use this package rather than the Leiden algorithm
-:func:`community_multilevel` built into :mod:`igraph`? If you want to use
-modularity, and you work with a simple undirected, unweighted graph, then
+Why then should you use this package rather than for example the Louvain
+algorithm :func:`community_multilevel` built into :mod:`igraph`? If you want to
+use modularity, and you work with a simple undirected, unweighted graph, then
 indeed you may use the built-in method. For anything else, the functionality is
-not built-in and this package is for you.
+not built-in and this package is for you. Moreover, the Leiden algorithm is
+typically faster than the Louvain algorithm and returns partitions of a higher
+quality.
 
 For those less familiar with :mod:`igraph`, let us work out an example more
 fully. First, we need to import the relevant packages:

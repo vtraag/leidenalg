@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-r""" This package implements the leiden algorithm in ``C++`` and exposes it to
+r""" This package implements the Leiden algorithm in ``C++`` and exposes it to
 python.  It relies on ``(python-)igraph`` for it to function. Besides the
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). Each method

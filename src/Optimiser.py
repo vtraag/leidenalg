@@ -44,19 +44,20 @@ class Optimiser(object):
     6. Subset optimality
 
   The optimiser class provides a number of different methods for optimising a
-  given partition. The overall optimise procedure :func:`optimise_partition`
-  calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled
-  by :attr:`optimise_routine`) then aggregates the graph and repeats the same
-  procedure. Possible, indicated by :attr:`refine_partition` the partition is
-  refined before aggregating, meaning that subsets of communities are
-  considered for moving around. Which routine is used for the refinement is
-  indicated by :attr:`refine_routine`. For calculating the actual improvement
-  of moving a node (corresponding a subset of nodes in the aggregate graph),
-  the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
-  which provides different values for different methods (e.g. modularity or
-  CPM). The default settings are consistent with the Leiden algorithm. By not
-  doing the refinement, you essentially get the Louvain algorithm with a fast
-  local move. Finally, the Optimiser class provides a routine to construct a
+  given partition. The overall optimisation procedure
+  :func:`optimise_partition` calls either :func:`move_nodes` or
+  :func:`merge_nodes` (which is controlled by :attr:`optimise_routine`) then
+  aggregates the graph and repeats the same procedure. Possible, indicated by
+  :attr:`refine_partition` the partition is refined before aggregating, meaning
+  that subsets of communities are considered for moving around. Which routine
+  is used for the refinement is indicated by :attr:`refine_routine`. For
+  calculating the actual improvement of moving a node (corresponding a subset
+  of nodes in the aggregate graph), the code relies on
+  :func:`~VertexPartition.MutableVertexPartition.diff_move` which provides
+  different values for different methods (e.g. modularity or CPM). The default
+  settings are consistent with the Leiden algorithm. By not doing the
+  refinement, you essentially get the Louvain algorithm with a fast local move.
+  Finally, the Optimiser class provides a routine to construct a
   :func:`resolution_profile` on a resolution parameter.
 
   References
