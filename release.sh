@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 PACKAGE=`python setup.py --fullname`
 echo Building $PACKAGE
