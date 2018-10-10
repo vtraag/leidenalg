@@ -52,7 +52,7 @@ yourself. For example:
 
 or
 
->>> optimiser.merge_nodes(partition);
+>>> diff = optimiser.merge_nodes(partition)
 
 The simpler Louvain algorithm aggregates the partition and repeat the
 :func:`~leiden.Optimiser.move_nodes` on the aggregated partition. We can easily
@@ -114,17 +114,7 @@ we ran both algorithms for 10 iterations on a
 
 The results are quite clear: Leiden is able to achieve a higher modularity in
 less time. It also points out that it is usually a good idea to run Leiden for
-at least two iterations. That is, you are recommended to do
-
->>> for idx in range(2):
-...   optimiser.optimise_partition(partition)
-
-Alternatively, you can simply let it run until the Leiden algorithm did not
-find any improvement
-
->>> improv = 1
-... while improv > 0: 
-...   improv = optimiser.optimise_partition(partition)
+at least two iterations, this is also the default setting.
 
 Note that even if the Leiden algorithm did not find any improvement in this
 iteration, it is always possible that it will find some improvement in the next

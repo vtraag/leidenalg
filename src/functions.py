@@ -91,7 +91,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, seed=None, **kwargs):
+def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -158,7 +158,7 @@ def find_partition_multiplex(graphs, partition_type, seed=None, **kwargs):
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  improvement += optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
 
   return partitions[0].membership, improvement
 
@@ -166,7 +166,7 @@ def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
-                            seed=None,
+                            n_iterations=2, seed=None,
                             **kwargs):
   """ Detect communities for temporal graphs.
 

@@ -142,11 +142,11 @@ class Optimiser(object):
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
     """
-    return _c_leiden._Optimiser_get_refine_consider_comms(self._optimiser);
+    return _c_leiden._Optimiser_get_refine_consider_comms(self._optimiser)
 
   @refine_consider_comms.setter
   def refine_consider_comms(self, value):
-    _c_leiden._Optimiser_set_refine_consider_comms(self._optimiser, value);
+    _c_leiden._Optimiser_set_refine_consider_comms(self._optimiser, value)
 
   #########################################################3
   # optimise routine
@@ -164,11 +164,11 @@ class Optimiser(object):
     * :attr:`leiden.MERGE_NODES`
       Use :func:`merge_nodes`.
     """
-    return _c_leiden._Optimiser_get_optimise_routine(self._optimiser);
+    return _c_leiden._Optimiser_get_optimise_routine(self._optimiser)
 
   @optimise_routine.setter
   def optimise_routine(self, value):
-    _c_leiden._Optimiser_set_optimise_routine(self._optimiser, value);
+    _c_leiden._Optimiser_set_optimise_routine(self._optimiser, value)
 
   #########################################################3
   # optimise routine
@@ -186,22 +186,22 @@ class Optimiser(object):
     * :attr:`leiden.MERGE_NODES`
       Use :func:`merge_nodes`.
     """
-    return _c_leiden._Optimiser_get_refine_routine(self._optimiser);
+    return _c_leiden._Optimiser_get_refine_routine(self._optimiser)
 
   @refine_routine.setter
   def refine_routine(self, value):
-    _c_leiden._Optimiser_set_refine_routine(self._optimiser, value);
+    _c_leiden._Optimiser_set_refine_routine(self._optimiser, value)
 
   #########################################################3
   # refine_partition
   @property
   def refine_partition(self):
     """ boolean: if ``True`` refine partition before aggregation. """
-    return _c_leiden._Optimiser_get_refine_partition(self._optimiser);
+    return _c_leiden._Optimiser_get_refine_partition(self._optimiser)
 
   @refine_partition.setter
   def refine_partition(self, value):
-    _c_leiden._Optimiser_set_refine_partition(self._optimiser, value);
+    _c_leiden._Optimiser_set_refine_partition(self._optimiser, value)
 
   #########################################################3
   # consider_empty_community
@@ -257,7 +257,7 @@ class Optimiser(object):
 
     itr = 0
     diff = 0
-    continue_iteration = itr < n_iterations or n_iterations < 0;
+    continue_iteration = itr < n_iterations or n_iterations < 0
     while continue_iteration:
       diff_inc = _c_leiden._Optimiser_optimise_partition(self._optimiser, partition._partition)
       diff += diff_inc
@@ -353,7 +353,7 @@ class Optimiser(object):
 
     itr = 0
     diff = 0
-    continue_iteration = itr < n_iterations or n_iterations < 0;
+    continue_iteration = itr < n_iterations or n_iterations < 0
     while continue_iteration:
       diff_inc = _c_leiden._Optimiser_optimise_partition_multiplex(
         self._optimiser,
@@ -449,19 +449,19 @@ class Optimiser(object):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> optimiser = leiden.Optimiser();
-    >>> partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.optimise_partition(partition);
-    >>> refine_partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> optimiser = leiden.Optimiser()
+    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> diff = optimiser.optimise_partition(partition)
+    >>> refine_partition = leiden.ModularityVertexPartition(G)
+    >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
     if (consider_comms is None):
-      consider_comms = self.refine_consider_comms;
-    diff =  _c_leiden._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
-    partition._update_internal_membership();
-    return diff;
+      consider_comms = self.refine_consider_comms
+    diff =  _c_leiden._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms)
+    partition._update_internal_membership()
+    return diff
 
   def merge_nodes(self, partition, consider_comms=None):
     """ Merge nodes for *optimising* the partition.
@@ -494,17 +494,17 @@ class Optimiser(object):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> optimiser = leiden.Optimiser();
-    >>> partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.merge_nodes(partition);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> optimiser = leiden.Optimiser()
+    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> diff = optimiser.merge_nodes(partition)
 
     """
     if (consider_comms is None):
-      consider_comms = self.consider_comms;
-    diff =  _c_leiden._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms);
-    partition._update_internal_membership();
-    return diff;
+      consider_comms = self.consider_comms
+    diff =  _c_leiden._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms)
+    partition._update_internal_membership()
+    return diff
 
   def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
     """ Merge nodes for *refining* the partition.
@@ -541,19 +541,19 @@ class Optimiser(object):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> optimiser = leiden.Optimiser();
-    >>> partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.optimise_partition(partition);
-    >>> refine_partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> optimiser = leiden.Optimiser()
+    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> diff = optimiser.optimise_partition(partition)
+    >>> refine_partition = leiden.ModularityVertexPartition(G)
+    >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
     if (consider_comms is None):
-      consider_comms = self.refine_consider_comms;
-    diff =  _c_leiden._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
-    partition._update_internal_membership();
-    return diff;
+      consider_comms = self.refine_consider_comms
+    diff =  _c_leiden._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms)
+    partition._update_internal_membership()
+    return diff
 
   def resolution_profile(self,
         graph,
