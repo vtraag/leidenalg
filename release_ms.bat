@@ -5,15 +5,15 @@ IF "%1%"=="release" (
 
     :: Build for Python 2
     call %userprofile%\AppData\Local\Continuum\anaconda2\Scripts\activate
-    python setup.py build bdist_wheel
+    python setup.py build bdist_wheel --no-download
     conda config --set anaconda_upload yes
-    python setup.py build bdist_conda
+    python setup.py build bdist_conda --no-download
 
     :: Build for Python 3
     call %userprofile%\AppData\Local\Continuum\anaconda3\Scripts\activate
-    python setup.py build bdist_wheel
+    python setup.py build bdist_wheel --no-download
     conda config --set anaconda_upload yes
-    python setup.py build bdist_conda
+    python setup.py build bdist_conda --no-download
 
     :: Upload to PyPi using twine
     python setup.py --fullname > PACKAGE.txt
@@ -28,15 +28,15 @@ IF "%1%"=="release" (
 
     :: Build for Python 2
     call %userprofile%\AppData\Local\Continuum\anaconda2\Scripts\activate
-    python setup.py build bdist_wheel
+    python setup.py build bdist_wheel --no-download
     conda config --set anaconda_upload no
-    python setup.py build bdist_conda
+    python setup.py build bdist_conda --no-download
 
     :: Build for Python 3
     call %userprofile%\AppData\Local\Continuum\anaconda3\Scripts\activate
-    python setup.py build bdist_wheel
+    python setup.py build bdist_wheel --no-download
     conda config --set anaconda_upload no
-    python setup.py build bdist_conda
+    python setup.py build bdist_conda --no-download
 
     :: Upload to PyPi using twine
     python setup.py --fullname > PACKAGE.txt

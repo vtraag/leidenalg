@@ -166,9 +166,10 @@ def preprocess_fallback_config():
             else:
                 print("Using MSVC build dir as a fallback: %s\n\n" % msvc_builddir)
 
-                is_64bits = sys.maxsize > 2**32
                 LIBIGRAPH_FALLBACK_INCLUDE_DIRS = [os.path.join(msvc_builddir, "include")]
-                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
+
+                is_64bits = sys.maxsize > 2**32
+                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "x64" if is_64bits else "win32")]
 
 def version_variants(version):
     """Given an igraph version number, returns a list of possible version
@@ -371,7 +372,7 @@ class BuildConfiguration(object):
                 # Check whether we have already compiled igraph in a previous run.
                 # If so, it should be found in igraphcore/include and
                 # igraphcore/lib
-                if os.path.exists("igraphcore"):
+                if buildcfg.download_igraph_if_needed and os.path.exists("igraphcore"):
                     buildcfg.use_built_igraph()
                     detected = True
 
