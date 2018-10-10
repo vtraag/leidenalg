@@ -2,13 +2,13 @@
 
   PyObject* capsule_Optimiser(Optimiser* optimiser)
   {
-    PyObject* py_optimiser = PyCapsule_New(optimiser, "leiden.Optimiser", del_Optimiser);
+    PyObject* py_optimiser = PyCapsule_New(optimiser, "leidenalg.Optimiser", del_Optimiser);
     return py_optimiser;
   }
 
   Optimiser* decapsule_Optimiser(PyObject* py_optimiser)
   {
-    Optimiser* optimiser = (Optimiser*) PyCapsule_GetPointer(py_optimiser, "leiden.Optimiser");
+    Optimiser* optimiser = (Optimiser*) PyCapsule_GetPointer(py_optimiser, "leidenalg.Optimiser");
     return optimiser;
   }
 

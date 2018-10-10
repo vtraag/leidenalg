@@ -147,13 +147,13 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
 
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition)
 {
-  PyObject* py_partition = PyCapsule_New(partition, "leiden.VertexPartition.MutableVertexPartition", del_MutableVertexPartition);
+  PyObject* py_partition = PyCapsule_New(partition, "leidenalg.VertexPartition.MutableVertexPartition", del_MutableVertexPartition);
   return py_partition;
 }
 
 MutableVertexPartition* decapsule_MutableVertexPartition(PyObject* py_partition)
 {
-  MutableVertexPartition* partition = (MutableVertexPartition*) PyCapsule_GetPointer(py_partition, "leiden.VertexPartition.MutableVertexPartition");
+  MutableVertexPartition* partition = (MutableVertexPartition*) PyCapsule_GetPointer(py_partition, "leidenalg.VertexPartition.MutableVertexPartition");
   return partition;
 }
 

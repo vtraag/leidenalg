@@ -149,7 +149,7 @@ extern "C"
           INITERROR;
       struct module_state *st = GETSTATE(module);
 
-      st->error = PyErr_NewException("leiden.Error", NULL, NULL);
+      st->error = PyErr_NewException("leidenalg.Error", NULL, NULL);
       if (st->error == NULL) {
           Py_DECREF(module);
           INITERROR;

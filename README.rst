@@ -1,4 +1,4 @@
-leiden-igraph
+leidenalg
 ==============
 
 This package implements the Leiden algorithm in ``C++`` and exposes it to
@@ -14,15 +14,15 @@ null model and the Erdös-Rényi null model [4]_, (3) the constant Potts model
 it supports multiplex partition optimisation allowing community detection on
 for example negative links [8]_ or multiple time slices [9]_. It also provides
 some support for community detection on bipartite graphs. See the
-`documentation <http://leiden-igraph.readthedocs.io/en/latest/>`_ for more
+`documentation <http://leidenalg.readthedocs.io/en/latest/>`_ for more
 information.
 
-.. image:: https://readthedocs.org/projects/leiden-igraph/badge
-                :target: http://leiden-igraph.readthedocs.io/en/latest/
+.. image:: https://readthedocs.org/projects/leidenalg/badge
+                :target: http://leidenalg.readthedocs.io/en/latest/
                 :alt: Leiden documentation status
 
-.. image:: https://travis-ci.org/vtraag/leiden-igraph.svg
-                :target: https://travis-ci.org/vtraag/leiden-igraph
+.. image:: https://travis-ci.org/vtraag/leidenalg.svg
+                :target: https://travis-ci.org/vtraag/leidenalg
                 :alt: Leiden build status
 
 .. image:: https://zenodo.org/badge/31305324.svg
@@ -31,7 +31,7 @@ information.
 Installation
 ------------
 
-In short, for Unix: ``pip install leiden``. For Windows: download the binary
+In short, for Unix: ``pip install leidenalg``. For Windows: download the binary
 installers.
 
 For Unix like systems it is possible to install from source. For Windows this
@@ -43,8 +43,8 @@ http://igraph.org.
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential``, please refer to the
 documentation for your specific system.  Make sure that not only ``gcc`` is
-installed, but also ``g++``, as the leiden package is programmed in ``C++``.
-Note that to compile ``igraph`` itself, you also need to install
+installed, but also ``g++``, as the ``leidenalg`` package is programmed in
+``C++``.  Note that to compile ``igraph`` itself, you also need to install
 ``libxml2-dev``.
 
 You can check if all went well by running a variety of tests using ``python
@@ -74,16 +74,16 @@ Troubleshooting
 ---------------
 
 In case of any problems, best to start over with a clean environment. Make sure
-you remove the python-igraph package completely, remove the ``C`` core library
-and remove the leiden package. Then, do a complete reinstall starting from
-``pip install leiden``. In case you want a dynamic library be sure to then
-install the ``C`` core library from source before. Make sure you **install the
-same versions**.
+you remove the ``python-igraph`` package completely, remove the ``C`` core
+library and remove the ``leidenalg`` package. Then, do a complete reinstall
+starting from ``pip install leidenalg``. In case you want a dynamic library be
+sure to then install the ``C`` core library from source before. Make sure you
+**install the same versions**.
 
 Usage
 -----
 
-There is no standalone version of leiden-igraph, and you will always need
+There is no standalone version of ``leidenalg``, and you will always need
 python to access it. There are no plans for developing a standalone version or
 R support. So, use python. Please refer to the documentation for more details
 on function calls and parameters.
@@ -91,7 +91,7 @@ on function calls and parameters.
 Just to get you started, below the essential parts.
 To start, make sure to import the packages:
 
->>> import leiden
+>>> import leidenalg
 >>> import igraph as ig
 
 We'll create a random graph for testing purposes:
@@ -100,14 +100,14 @@ We'll create a random graph for testing purposes:
 
 For simply finding a partition use:
 
->>> part = leiden.find_partition(G, leiden.ModularityVertexPartition);
+>>> part = leidenalg.find_partition(G, leidenalg.ModularityVertexPartition);
 
 Contribute
 ----------
 
-Source code: https://github.com/vtraag/leiden-igraph
+Source code: https://github.com/vtraag/leidenalg
 
-Issue tracking: https://github.com/vtraag/leiden-igraph/issues
+Issue tracking: https://github.com/vtraag/leidenalg/issues
 
 See the documentation on `Implementation` for more details on how to
 contribute new methods.

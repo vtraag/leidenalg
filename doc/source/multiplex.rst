@@ -19,7 +19,7 @@ rely on the same machinery we developed for dealing with layers.
 Throughout the remained of this section, we assume an optimiser has been
 created:
 
->>> optimiser = leiden.Optimiser()
+>>> optimiser = leidenalg.Optimiser()
 
 Layer multiplex
 ---------------
@@ -46,36 +46,36 @@ as the sum of the individual differences in all partitions. The rest
 usual.
 
 The most straightforward way to use this is then to use
-:func:`~leiden.find_partition_multiplex`:
+:func:`~leidenalg.find_partition_multiplex`:
 
 .. testsetup::
 
    G_telephone = ig.Graph.Erdos_Renyi(100, 0.1);
    G_email = ig.Graph.Erdos_Renyi(100, 0.1);
 
->>> membership, improv = leiden.find_partition_multiplex(
+>>> membership, improv = leidenalg.find_partition_multiplex(
 ...                        [G_telephone, G_email],
-...                        leiden.ModularityVertexPartition);
+...                        leidenalg.ModularityVertexPartition);
 
 .. note:: You may need to carefully reflect how you want to weigh the importance
-  of an individual layer. Since the :class:`~leiden.ModularityVertexPartition`
+  of an individual layer. Since the :class:`~leidenalg.ModularityVertexPartition`
   is normalised by the number of links, you essentially weigh layers the same,
   independent of the number of links. This may be undesirable, in which case it
   may be better to use :class:`RBConfigurationVertexPartition`, which is
   unnormalised. Alternatively, you may specify different ``layer_weights``.
 
-Similar to the simpler function :func:`~leiden.find_partition`, it is a simple
+Similar to the simpler function :func:`~leidenalg.find_partition`, it is a simple
 helper function. The function returns a membership vector, because the
 membership for all layers is identical. You can also control the partitions and
 optimisation in more detail. Perhaps it is better to use
-:class:`~leiden.CPMVertexPartition` with different resolution parameter for
+:class:`~leidenalg.CPMVertexPartition` with different resolution parameter for
 example for different layers of the graph.  For example, using email creates a
 more connected structure because multiple people can be involved in a single
 mail, which may require a higher resolution parameter for the email graph.
 
->>> part_telephone = leiden.CPMVertexPartition(
+>>> part_telephone = leidenalg.CPMVertexPartition(
 ...                    G_telephone, resolution_parameter=0.01);
->>> part_email = leiden.CPMVertexPartition(
+>>> part_email = leidenalg.CPMVertexPartition(
 ...                    G_email, resolution_parameter=0.3);
 >>> diff = optimiser.optimise_partition_multiplex(
 ...                    [part_telephone, part_email]);
@@ -120,8 +120,8 @@ negative graph as follows:
 
 We can then simply detect communities using;
 
->>> part_pos = leiden.ModularityVertexPartition(G_pos, weights='weight');
->>> part_neg = leiden.ModularityVertexPartition(G_neg, weights='weight');
+>>> part_pos = leidenalg.ModularityVertexPartition(G_pos, weights='weight');
+>>> part_neg = leidenalg.ModularityVertexPartition(G_neg, weights='weight');
 >>> diff = optimiser.optimise_partition_multiplex(
 ...   [part_pos, part_neg],
 ...   layer_weights=[1,-1]);
@@ -210,7 +210,7 @@ graphs. Hence, we can also detect communities in bipartite networks using
 modularity by using this little trick.
 
 All of this has been implemented in the constructor
-:func:`~leiden.CPMVertexPartition.Bipartite`. You can simply pass in a
+:func:`~leidenalg.CPMVertexPartition.Bipartite`. You can simply pass in a
 bipartite network with the classes appropriately defined in ``G.vs['type']`` or
 equivalent. This function assumes the two classes are coded by ``0`` and ``1``,
 and if this is not the case it will try to convert it into such categories by
@@ -223,7 +223,7 @@ An explicit example of this:
    import numpy as np
    G.vs['type'] = np.random.randint(0, 2, G.vcount())
 
->>> p_01, p_0, p_1 = leiden.CPMVertexPartition.Bipartite(G,
+>>> p_01, p_0, p_1 = leidenalg.CPMVertexPartition.Bipartite(G,
 ...                    resolution_parameter_01=0.1);
 >>> diff = optimiser.optimise_partition_multiplex([p_01, p_0, p_1], 
 ...                                        layer_weights=[1, -1, -1]);
@@ -261,7 +261,7 @@ one big network. Each node is thus represented by a tuple ``(node, slice)`` in a
 certain sense. Out of this big network, we then only take those edges that are
 defined between nodes of the same slice, which then constitutes a single layer.
 Finally, we need one more layer for the couplings. In addition, for methods such
-as :class:`~leiden.CPMVertexPartition`, so-called ``node_sizes`` are required, and for
+as :class:`~leidenalg.CPMVertexPartition`, so-called ``node_sizes`` are required, and for
 them to properly function, they should be set to 0 (which is handled
 appropriately by the package). We thus obtain equally many layers as we have
 slices, and we need one more layer for representing the interslice couplings.
@@ -270,7 +270,7 @@ For the example provided above, we thus obtain the following:
 .. image:: figures/layers_separate.png
 
 To transform slices into layers using a coupling graph, this package provides
-:func:`~leiden.layers_to_slices`. For the example above, this would function
+:func:`~leidenalg.layers_to_slices`. For the example above, this would function
 as follows.  First create the coupling graph assuming we have three slices
 ``G_1``, ``G_2`` and ``G_3``:
 
@@ -290,36 +290,36 @@ as follows.  First create the coupling graph assuming we have three slices
 
 Then we convert them to layers
 
->>> layers, interslice_layer, G_full = leiden.slices_to_layers(G_coupling);
+>>> layers, interslice_layer, G_full = leidenalg.slices_to_layers(G_coupling);
 
 Now we still have to create partitions for all the layers. We can freely choose
 here to use the same partition types for all partitions, or to use different
 types for different layers.
 
 .. warning:: The interslice layer should usually be of type
-  :class:`~leiden.CPMVertexPartition` with a ``resolution_parameter=0`` and
+  :class:`~leidenalg.CPMVertexPartition` with a ``resolution_parameter=0`` and
   ``node_sizes`` set to 0. The ``G.vs[node_size]`` is automatically set to 0
-  for all nodes in the interslice layer in :func:`~leiden.slices_to_layers`,
+  for all nodes in the interslice layer in :func:`~leidenalg.slices_to_layers`,
   so you can simply pass in the attribute ``node_size``. Unless you know what
   you are doing, simply use these settings.
 
 .. warning:: When using methods that accept a node_size argument, this should
-  always be used. This is the case for :class:`~leiden.CPMVertexPartition`,
-  :class:`~leiden.RBERVertexPartition`, :class:`~leiden.SurpriseVertexPartition` and
-  :class:`~leiden.SignificanceVertexPartition`.
+  always be used. This is the case for :class:`~leidenalg.CPMVertexPartition`,
+  :class:`~leidenalg.RBERVertexPartition`, :class:`~leidenalg.SurpriseVertexPartition` and
+  :class:`~leidenalg.SignificanceVertexPartition`.
 
 .. testsetup::
    
    gamma = 0.5;
 
->>> partitions = [leiden.CPMVertexPartition(H, node_sizes='node_size', 
+>>> partitions = [leidenalg.CPMVertexPartition(H, node_sizes='node_size', 
 ...                                          weights='weight', resolution_parameter=gamma) 
 ...               for H in layers];
->>> interslice_partition = leiden.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+>>> interslice_partition = leidenalg.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
 ...                                                   node_sizes='node_size', weights='weight');
 
 You can then simply optimise these partitions as before using
-:func:`~leiden.Optimiser.optimise_partition_multiplex`:
+:func:`~leidenalg.Optimiser.optimise_partition_multiplex`:
 
 >>> diff = optimiser.optimise_partition_multiplex(partitions + [interslice_partition]);
 
@@ -331,11 +331,11 @@ slices at different points in time. We call this temporal community detection.
 Because it is such a common task, we provide several helper functions to
 simplify the above process. Let us assume again that we have three slices
 ``G_1``, ``G_2`` and ``G_3`` as in the example above. The most straightforward
-function is :func:`~leiden.find_partition_temporal`:
+function is :func:`~leidenalg.find_partition_temporal`:
 
->>> membership, improvement = leiden.find_partition_temporal(
+>>> membership, improvement = leidenalg.find_partition_temporal(
 ...                             [G_1, G_2, G_3],
-...                             leiden.CPMVertexPartition,
+...                             leidenalg.CPMVertexPartition,
 ...                             interslice_weight=0.1,
 ...                             resolution_parameter=gamma)
 
@@ -344,17 +344,17 @@ rather than actual partitions.
 
 Rather than directly detecting communities, you can also obtain the actual
 partitions in a slightly more convenient way using
-:func:`~leiden.time_slices_to_layers`:
+:func:`~leidenalg.time_slices_to_layers`:
 
 >>> layers, interslice_layer, G_full = \
-...               leiden.time_slices_to_layers([G_1, G_2, G_3],
+...               leidenalg.time_slices_to_layers([G_1, G_2, G_3],
 ...                                             interslice_weight=0.1);
->>> partitions = [leiden.CPMVertexPartition(H, node_sizes='node_size', 
+>>> partitions = [leidenalg.CPMVertexPartition(H, node_sizes='node_size', 
 ...                                          weights='weight', 
 ...                                          resolution_parameter=gamma) 
 ...               for H in layers];
 >>> interslice_partition = \
-...               leiden.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+...               leidenalg.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
 ...                                          node_sizes='node_size', weights='weight');
 >>> diff = optimiser.optimise_partition_multiplex(partitions + [interslice_partition]);
 

@@ -89,20 +89,20 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.ALL_NEIGH_COMMS`
+    * :attr:`leidenalg.ALL_NEIGH_COMMS`
       Consider all neighbouring communities for moving.
 
-    * :attr:`leiden.ALL_COMMS`
+    * :attr:`leidenalg.ALL_COMMS`
       Consider all communities for moving. This is especially useful in the
       case of negative links, in which case it may be better to move a node to
       a non-neighbouring community.
 
-    * :attr:`leiden.RAND_NEIGH_COMM`
+    * :attr:`leidenalg.RAND_NEIGH_COMM`
       Consider a random neighbour community for moving. The probability to
       choose a community is proportional to the number of neighbours a node has
       in that community.
 
-    * :attr:`leiden.RAND_COMM`
+    * :attr:`leidenalg.RAND_COMM`
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
     """
@@ -126,20 +126,20 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.ALL_NEIGH_COMMS`
+    * :attr:`leidenalg.ALL_NEIGH_COMMS`
       Consider all neighbouring communities for moving.
 
-    * :attr:`leiden.ALL_COMMS`
+    * :attr:`leidenalg.ALL_COMMS`
       Consider all communities for moving. This is especially useful in the
       case of negative links, in which case it may be better to move a node to
       a non-neighbouring community.
 
-    * :attr:`leiden.RAND_NEIGH_COMM`
+    * :attr:`leidenalg.RAND_NEIGH_COMM`
       Consider a random neighbour community for moving. The probability to
       choose a community is proportional to the number of neighbours a node has
       in that community.
 
-    * :attr:`leiden.RAND_COMM`
+    * :attr:`leidenalg.RAND_COMM`
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
     """
@@ -159,10 +159,10 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.MOVE_NODES`
+    * :attr:`leidenalg.MOVE_NODES`
       Use :func:`move_nodes`.
 
-    * :attr:`leiden.MERGE_NODES`
+    * :attr:`leidenalg.MERGE_NODES`
       Use :func:`merge_nodes`.
     """
     return _c_leiden._Optimiser_get_optimise_routine(self._optimiser)
@@ -181,10 +181,10 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.MOVE_NODES`
+    * :attr:`leidenalg.MOVE_NODES`
       Use :func:`move_nodes`.
 
-    * :attr:`leiden.MERGE_NODES`
+    * :attr:`leidenalg.MERGE_NODES`
       Use :func:`merge_nodes`.
     """
     return _c_leiden._Optimiser_get_refine_routine(self._optimiser)
@@ -250,8 +250,8 @@ class Optimiser(object):
     --------
 
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = leidenalg.Optimiser()
+    >>> partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
 
     """
@@ -317,7 +317,7 @@ class Optimiser(object):
     community and relatively many negative links between communities. Note that
     in this case it may be better to assign a node to a community to which it
     is not connected so that :attr:`consider_comms` may be better set to
-    :attr:`leiden.ALL_COMMS`.
+    :attr:`leidenalg.ALL_COMMS`.
 
     Besides multiplex graphs where each node is assumed to have a single
     community, it is also useful in the case of for example multiple time
@@ -341,9 +341,9 @@ class Optimiser(object):
     --------
     >>> G_pos = ig.Graph.SBM(100, pref_matrix=[[0.5, 0.1], [0.1, 0.5]], block_sizes=[50, 50])
     >>> G_neg = ig.Graph.SBM(100, pref_matrix=[[0.1, 0.5], [0.5, 0.1]], block_sizes=[50, 50])
-    >>> optimiser = leiden.Optimiser()
-    >>> partition_pos = leiden.ModularityVertexPartition(G_pos)
-    >>> partition_neg = leiden.ModularityVertexPartition(G_neg)
+    >>> optimiser = leidenalg.Optimiser()
+    >>> partition_pos = leidenalg.ModularityVertexPartition(G_pos)
+    >>> partition_neg = leidenalg.ModularityVertexPartition(G_neg)
     >>> diff = optimiser.optimise_partition_multiplex(
     ...                     partitions=[partition_pos, partition_neg],
     ...                     layer_weights=[1,-1])
@@ -404,8 +404,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = leidenalg.Optimiser()
+    >>> partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes(partition)
 
     """
@@ -451,10 +451,10 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = leidenalg.Optimiser()
+    >>> partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
-    >>> refine_partition = leiden.ModularityVertexPartition(G)
+    >>> refine_partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
@@ -496,8 +496,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = leidenalg.Optimiser()
+    >>> partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.merge_nodes(partition)
 
     """
@@ -543,10 +543,10 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = leidenalg.Optimiser()
+    >>> partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
-    >>> refine_partition = leiden.ModularityVertexPartition(G)
+    >>> refine_partition = leidenalg.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
@@ -622,8 +622,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> profile = optimiser.resolution_profile(G, leiden.CPMVertexPartition,
+    >>> optimiser = leidenalg.Optimiser()
+    >>> profile = optimiser.resolution_profile(G, leidenalg.CPMVertexPartition,
     ...                                        resolution_range=(0,1))
     """
 
