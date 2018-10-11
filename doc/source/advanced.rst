@@ -114,9 +114,10 @@ The actual implementation is more complicated, but this gives the general idea.
 
 This package builds on a previous implementation of the Louvain algorithm in
 `louvain-igraph <https://github.com/vtraag/louvain-igraph>`_.  To illustrate
-the difference between ``louvain-igraph`` and ``la``, we ran both algorithms
-for 10 iterations on a `Facebook network
-<http://konect.uni-koblenz.de/networks/facebook-wosn-links>`_. 
+the difference between ``louvain-igraph`` and ``leidenalg``, we ran both
+algorithms for 10 iterations on a `Youtube network
+<https://snap.stanford.edu/data/com-Youtube.html>`_ of more than 1 million
+nodes and almost 3 million edges. 
 
 .. image:: figures/speed.png
 
