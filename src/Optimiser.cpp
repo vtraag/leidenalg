@@ -532,11 +532,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         partition = partitions[layer];
         if ( partition->cnodes(v_comm) > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
         {
+          size_t n_comms = partition->n_communities();
           size_t comm = partition->get_empty_community();
           #ifdef DEBUG
             cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
           #endif
-          if (comm == partition->n_communities())
+          if (partition->n_communities() > n_comms)
           {
             // If the empty community has just been added, we need to make sure
             // that is has also been added to the other layers
@@ -909,9 +910,8 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         /****************************ALL NEIGH COMMS*****************************/
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
-          comms.insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
-          delete neigh_comm_layer;
+          set<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+          comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
     }
     else if (consider_comms == RAND_COMM)
@@ -930,9 +930,8 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         vector<size_t> all_neigh_comms_incl_dupes;
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
-          all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
-          delete neigh_comm_layer;
+          set<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+          all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer.begin(), neigh_comm_layer.end());
         }
         if (all_neigh_comms_incl_dupes.size() > 0)
         {
@@ -1124,9 +1123,8 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           /****************************ALL NEIGH COMMS*****************************/
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
-            comms.insert(neigh_comm_layer->begin(), neigh_comm_layer->end());
-            delete neigh_comm_layer;
+            set<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
           }
       }
       else if (consider_comms == RAND_COMM)
@@ -1145,9 +1143,8 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           vector<size_t> all_neigh_comms_incl_dupes;
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            set<size_t>* neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
-            all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer->begin(), neigh_comm_layer->end());
-            delete neigh_comm_layer;
+            set<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
+            all_neigh_comms_incl_dupes.insert(all_neigh_comms_incl_dupes.end(), neigh_comm_layer.begin(), neigh_comm_layer.end());
           }
           size_t k = all_neigh_comms_incl_dupes.size();
           if (k > 0)

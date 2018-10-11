@@ -353,7 +353,10 @@ size_t MutableVertexPartition::add_empty_community()
   this->_total_weight_in_comm.resize(this->_n_communities);   this->_total_weight_in_comm[new_comm] = 0;
   this->_total_weight_from_comm.resize(this->_n_communities); this->_total_weight_from_comm[new_comm] = 0;
   this->_total_weight_to_comm.resize(this->_n_communities);   this->_total_weight_to_comm[new_comm] = 0;
-  this->_empty_communities.push_back(this->_n_communities);
+  this->_empty_communities.push_back(new_comm);
+  #ifdef DEBUG
+    cerr << "Added empty community " << new_comm << endl;
+  #endif
   return new_comm;
 }
 
@@ -766,16 +769,16 @@ vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_n
   throw Exception("Problem obtaining neighbour communities, invalid mode.");
 }
 
-set<size_t>* MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
+set<size_t> MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
 {
   size_t degree = this->graph->degree(v, mode);
   vector<size_t> const& neigh = this->graph->get_neighbours(v, mode);
-  set<size_t>* neigh_comms = new set<size_t>();
+  set<size_t> neigh_comms;
   for (size_t i=0; i < degree; i++)
   {
     size_t u = neigh[i];
     if (constrained_membership[v] == constrained_membership[u])
-      neigh_comms->insert( this->membership(u) );
+      neigh_comms.insert( this->membership(u) );
   }
   return neigh_comms;
 }
