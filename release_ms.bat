@@ -30,6 +30,6 @@ IF "%1%"=="release" (
     SET /p PACKAGE=<PACKAGE.txt
     DEL PACKAGE.txt
     gpg --detach-sign -a dist\%PACKAGE%-cp36-cp36m-win_amd64.whl
-    twine upload dist\%PACKAGE%-*win*.whl  dist\%PACKAGE%-*win*.whl.asc -r pypitest
+    twine upload dist\%PACKAGE%-cp*win*.whl  dist\%PACKAGE%-cp*win*.whl.asc -r pypitest
 
 )
