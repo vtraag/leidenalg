@@ -86,7 +86,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     partition. We can then simply use
 
     >>> p = la.find_partition(ig.Graph.Famous('Zachary'),
-    ...                            leidenalg.ModularityVertexPartition)
+    ...                       la.ModularityVertexPartition)
     >>> sig = la.SignificanceVertexPartition.FromPartition(p).quality()
     """
     new_partition = cls(partition.graph, partition.membership, **kwargs)
@@ -131,7 +131,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     difference. In other words
 
     >>> partition = la.find_partition(ig.Graph.Famous('Zachary'),
-    ...                            leidenalg.ModularityVertexPartition)
+    ...                               la.ModularityVertexPartition)
     >>> diff = partition.diff_move(v=0, new_comm=0)
     >>> q1 = partition.quality()
     >>> partition.move_node(v=0, new_comm=0)

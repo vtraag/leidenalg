@@ -146,7 +146,7 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
   >>> G_1 = ig.Graph.Lattice([n], 1)
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> membership, improvement = la.find_partition_multiplex([G_1, G_2],
-  ...                                                            leidenalg.ModularityVertexPartition)
+  ...                                                       la.ModularityVertexPartition)
   """
   n_layers = len(graphs)
   partitions = []
@@ -241,8 +241,8 @@ def find_partition_temporal(graphs, partition_type,
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> G_2.vs['id'] = range(n)
   >>> membership, improvement = la.find_partition_temporal([G_1, G_2],
-  ...                                                           leidenalg.ModularityVertexPartition,
-  ...                                                           interslice_weight=1)
+  ...                                                      la.ModularityVertexPartition,
+  ...                                                      interslice_weight=1)
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,
