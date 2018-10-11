@@ -637,7 +637,10 @@ double MutableVertexPartition::weight_to_comm(size_t v, size_t comm)
     this->_current_node_cache_community_to = v;
   }
 
-  return this->_cached_weight_to_community[comm];
+  if (comm < this->_cached_weight_to_community.size())
+    return this->_cached_weight_to_community[comm];
+  else
+    return 0.0;
 }
 
 /****************************************************************************
@@ -655,7 +658,10 @@ double MutableVertexPartition::weight_from_comm(size_t v, size_t comm)
     this->_current_node_cache_community_from = v;
   }
 
-  return this->_cached_weight_from_community[comm];
+  if (comm < this->_cached_weight_from_community.size())
+    return this->_cached_weight_from_community[comm];
+  else
+    return 0.0;
 }
 
 void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t mode)
