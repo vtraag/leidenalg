@@ -57,8 +57,10 @@ class MutableVertexPartition
     inline vector<size_t> const& membership() const { return this->_membership; };
 
     size_t csize(size_t comm);
-    set<size_t> const& get_community(size_t comm);
-    size_t nb_communities();
+    size_t cnodes(size_t comm);
+    vector<size_t> get_community(size_t comm);
+    vector< vector<size_t> > get_communities();
+    size_t n_communities();
 
     void move_node(size_t v,size_t new_comm);
     virtual double diff_move(size_t v, size_t new_comm)
@@ -109,10 +111,11 @@ class MutableVertexPartition
 
     Graph* graph;
 
-    // Keep track of each community (i.e. which community contains which nodes)
-    vector< set<size_t>* > community;
     // Community size
     vector< size_t > _csize;
+
+    // Number of nodes in community
+    vector< size_t > _cnodes;
 
     double weight_vertex_tofrom_comm(size_t v, size_t comm, igraph_neimode_t mode);
 
@@ -129,6 +132,7 @@ class MutableVertexPartition
     // Keep track of the total internal weight
     double _total_weight_in_all_comms;
     size_t _total_possible_edges_in_all_comms;
+    size_t _n_communities;
 
     vector<size_t> _empty_communities;
 
@@ -140,6 +144,8 @@ class MutableVertexPartition
 
     void clean_mem();
     void init_graph_admin();
+
+    void update_n_communities();
 
 };
 
