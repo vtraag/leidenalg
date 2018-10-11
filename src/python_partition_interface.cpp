@@ -93,9 +93,9 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     {
       PyObject* py_item = PyList_GetItem(py_weights, e);
       #ifdef DEBUG
-        PyObject* py_item_repr = PyObject_Repr(py_item);
-        const char* s = PyUnicode_AsUTF8(py_item_repr);
-        cerr << "Got item " << e << ": " << s << endl;
+        //PyObject* py_item_repr = PyObject_Repr(py_item);
+        //const char* s = PyUnicode_AsUTF8(py_item_repr);
+        //cerr << "Got item " << e << ": " << s << endl;
       #endif
       if (PyNumber_Check(py_item))
       {
@@ -953,7 +953,7 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
-    if (comm >= partition->nb_communities())
+    if (comm >= partition->n_communities())
     {
       PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
       return NULL;
@@ -988,7 +988,7 @@ extern "C"
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
 
-    if (comm >= partition->nb_communities())
+    if (comm >= partition->n_communities())
     {
       PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
       return NULL;
@@ -1027,7 +1027,7 @@ extern "C"
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
 
-    if (comm >= partition->nb_communities())
+    if (comm >= partition->n_communities())
     {
       PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
       return NULL;
@@ -1131,7 +1131,7 @@ extern "C"
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
 
-    if (comm >= partition->nb_communities())
+    if (comm >= partition->n_communities())
     {
       PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
       return NULL;
@@ -1177,7 +1177,7 @@ extern "C"
 
     MutableVertexPartition* partition = decapsule_MutableVertexPartition(py_partition);
 
-    if (comm >= partition->nb_communities())
+    if (comm >= partition->n_communities())
     {
       PyErr_SetString(PyExc_IndexError, "Try to index beyond the number of communities.");
       return NULL;

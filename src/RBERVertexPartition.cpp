@@ -124,7 +124,7 @@ double RBERVertexPartition::quality(double resolution_parameter)
     cerr << "double RBERVertexPartition::quality()" << endl;
   #endif
   double mod = 0.0;
-  for (size_t c = 0; c < this->nb_communities(); c++)
+  for (size_t c = 0; c < this->n_communities(); c++)
   {
     size_t csize = this->csize(c);
     double w = this->total_weight_in_comm(c);

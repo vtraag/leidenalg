@@ -59,8 +59,8 @@ class Optimiser
     virtual ~Optimiser();
 
     int consider_comms;  // Indicates how communities will be considered for improvement. Should be one of the parameters below
-    int refine_partition; // Do smart local move
-    int refine_consider_comms; // Indicates how communities will be considered for improvement within the SLM. Should be one of the parameters below
+    int refine_partition; // Refine partition before aggregating
+    int refine_consider_comms; // Indicates how communities will be considered for improvement within the refinement. Should be one of the parameters below
     int optimise_routine; // What routine to use for optimisation
     int refine_routine; // What routine to use for optimisation
     int consider_empty_community; // Determine whether to consider moving nodes to an empty community

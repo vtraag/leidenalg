@@ -141,7 +141,7 @@ double RBConfigurationVertexPartition::quality(double resolution_parameter)
   if (m == 0)
     return 0.0;
 
-  for (size_t c = 0; c < this->nb_communities(); c++)
+  for (size_t c = 0; c < this->n_communities(); c++)
   {
     double w = this->total_weight_in_comm(c);
     double w_out = this->total_weight_from_comm(c);
