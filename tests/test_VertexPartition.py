@@ -1,6 +1,6 @@
 import unittest
 import igraph as ig
-import louvain
+import leidenalg
 import random
 
 from ddt import ddt, data, unpack
@@ -16,8 +16,8 @@ def name_object(obj, name):
 graphs = [
     ###########################################################################
     # Zachary karate network
-    #name_object(ig.Graph.Famous('Zachary'),
-    #            'Zachary'),
+    name_object(ig.Graph.Famous('Zachary'),
+                'Zachary'),
 
     ###########################################################################
     # ER Networks
@@ -42,7 +42,7 @@ graphs = [
     name_object(ig.Graph.Erdos_Renyi(100, p=5./100, directed=True, loops=True),
                 'ER_k5_directed_loops'),
 
-    ############################################################################
+    ###########################################################################
     # Tree
     name_object(ig.Graph.Tree(100, 3, type=ig.TREE_UNDIRECTED),
                 'Tree_undirected'),
@@ -51,7 +51,7 @@ graphs = [
     name_object(ig.Graph.Tree(100, 3, type=ig.TREE_IN),
                 'Tree_directed_in'),
 
-    ############################################################################
+    ###########################################################################
     # Lattice
     name_object(ig.Graph.Lattice([100], nei=3, directed=False, mutual=True, circular=True),
                 'Lattice_undirected'),
@@ -75,11 +75,11 @@ class BaseTest:
   class MutableVertexPartitionTest(unittest.TestCase):
 
     def setUp(self):
-      self.optimiser = louvain.Optimiser();
+      self.optimiser = leidenalg.Optimiser();
 
     @data(*graphs)
     def test_move_nodes(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type == louvain.SignificanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type == leidenalg.SignificanceVertexPartition:
         raise unittest.SkipTest('Significance doesn\'t handle weighted graphs');
 
       if 'weight' in graph.es.attributes():
@@ -102,7 +102,7 @@ class BaseTest:
 
     @data(*graphs)
     def test_aggregate_partition(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignificanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type != leidenalg.SignificanceVertexPartition:
         partition = self.partition_type(graph, weights='weight');
       else:
         partition = self.partition_type(graph);
@@ -123,7 +123,7 @@ class BaseTest:
 
     @data(*graphs)
     def test_total_weight_in_all_comms(self, graph):
-      if 'weight' in graph.es.attributes() and self.partition_type != louvain.SignificanceVertexPartition:
+      if 'weight' in graph.es.attributes() and self.partition_type != leidenalg.SignificanceVertexPartition:
         partition = self.partition_type(graph, weights='weight');
       else:
         partition = self.partition_type(graph);
@@ -140,32 +140,32 @@ class BaseTest:
 #class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 #  def setUp(self):
 #    super(ModularityVertexPartitionTest, self).setUp();
-#    self.partition_type = louvain.ModularityVertexPartition;
+#    self.partition_type = leidenalg.ModularityVertexPartition;
 #
 #class RBERVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 #  def setUp(self):
 #    super(RBERVertexPartitionTest, self).setUp();
-#    self.partition_type = louvain.RBERVertexPartition;
+#    self.partition_type = leidenalg.RBERVertexPartition;
 #
 #class RBConfigurationVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 #  def setUp(self):
 #    super(RBConfigurationVertexPartitionTest, self).setUp();
-#    self.partition_type = louvain.RBConfigurationVertexPartition;
+#    self.partition_type = leidenalg.RBConfigurationVertexPartition;
 #
 #class CPMVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
 #  def setUp(self):
 #    super(CPMVertexPartitionTest, self).setUp();
-#    self.partition_type = louvain.CPMVertexPartition;
+#    self.partition_type = leidenalg.CPMVertexPartition;
 
 class SurpriseVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
     super(SurpriseVertexPartitionTest, self).setUp();
-    self.partition_type = louvain.SurpriseVertexPartition;
+    self.partition_type = leidenalg.SurpriseVertexPartition;
 
 class SignificanceVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
     super(SignificanceVertexPartitionTest, self).setUp();
-    self.partition_type = louvain.SignificanceVertexPartition;
+    self.partition_type = leidenalg.SignificanceVertexPartition;
 
 #%%
 if __name__ == '__main__':

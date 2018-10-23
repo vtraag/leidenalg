@@ -166,9 +166,10 @@ def preprocess_fallback_config():
             else:
                 print("Using MSVC build dir as a fallback: %s\n\n" % msvc_builddir)
 
-                is_64bits = sys.maxsize > 2**32
                 LIBIGRAPH_FALLBACK_INCLUDE_DIRS = [os.path.join(msvc_builddir, "include")]
-                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
+
+                is_64bits = sys.maxsize > 2**32
+                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "x64" if is_64bits else "win32")]
 
 def version_variants(version):
     """Given an igraph version number, returns a list of possible version
@@ -371,7 +372,7 @@ class BuildConfiguration(object):
                 # Check whether we have already compiled igraph in a previous run.
                 # If so, it should be found in igraphcore/include and
                 # igraphcore/lib
-                if os.path.exists("igraphcore"):
+                if buildcfg.download_igraph_if_needed and os.path.exists("igraphcore"):
                     buildcfg.use_built_igraph()
                     detected = True
 
@@ -390,13 +391,13 @@ class BuildConfiguration(object):
                 # Replaces library names with full paths to static libraries
                 # where possible
                 if buildcfg.static_extension:
-                    buildcfg.replace_static_libraries()
+                    buildcfg.replace_static_libraries(exclusions=["m"])
 
                 # Prints basic build information
                 buildcfg.print_build_info()
 
                 ext = first(extension for extension in self.extensions
-                        if extension.name == "louvain._c_louvain")
+                        if extension.name == "leidenalg._c_leiden")
                 buildcfg.configure(ext)
 
                 # Run the original build_ext command
@@ -508,13 +509,16 @@ class BuildConfiguration(object):
         for idx in reversed(opts_to_remove):
             sys.argv[idx:(idx+1)] = []
 
-    def replace_static_libraries(self):
+    def replace_static_libraries(self, exclusions=None):
         """Replaces references to libraries with full paths to their static
         versions if the static version is to be found on the library path."""
         if "stdc++" not in self.libraries:
             self.libraries.append("stdc++")
 
-        for library_name in self.libraries[:]:
+        if exclusions is None:
+            exclusions = []
+
+        for library_name in set(self.libraries) - set(exclusions):
             static_lib = find_static_library(library_name, self.library_dirs)
             if static_lib:
                 self.libraries.remove(library_name)
@@ -594,7 +598,7 @@ class BuildConfiguration(object):
 buildcfg = BuildConfiguration();
 buildcfg.process_args_from_command_line();
 
-louvain_ext = Extension('louvain._c_louvain',
+leiden_ext = Extension('leidenalg._c_leiden',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
@@ -602,30 +606,30 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass.update(build_ext=buildcfg.build_ext)
 
 options =  dict(
-  name = 'louvain',
+  name = 'leidenalg',
   version=versioneer.get_version(),
-  description = 'Louvain is a general algorithm for methods of community detection in large networks.',
+  description = 'Leiden is a general algorithm for methods of community detection in large networks.',
   long_description=
     """
- Louvain is a general algorithm for methods of community detection in large networks.
+ Leiden is a general algorithm for methods of community detection in large networks.
 
- Please refer to the `documentation <http://louvain-igraph.readthedocs.io/en/latest>`_
+ Please refer to the `documentation <http://leidenalg.readthedocs.io/en/latest>`_
  for more details.
 
- The source code of this package is hosted at `GitHub <https://github.com/vtraag/louvain-igraph>`_.
- Issues and bug reports are welcome at https://github.com/vtraag/louvain-igraph/issues.
+ The source code of this package is hosted at `GitHub <https://github.com/vtraag/leidenalg>`_.
+ Issues and bug reports are welcome at https://github.com/vtraag/leidenalg/issues.
     """,
   license = 'GPLv3+',
-  url = 'https://github.com/vtraag/louvain-igraph',
+  url = 'https://github.com/vtraag/leidenalg',
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
   test_suite = 'tests',
 
-  provides = ['louvain'],
-  package_dir = {'louvain': 'src'},
-  packages = ['louvain'],
-  ext_modules = [louvain_ext],
+  provides = ['leidenalg'],
+  package_dir = {'leidenalg': 'src'},
+  packages = ['leidenalg'],
+  ext_modules = [leiden_ext],
   install_requires = ['python-igraph >= {0}.0'.format(VERSION)],
   classifiers=[
       'Development Status :: 4 - Beta',

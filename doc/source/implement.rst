@@ -73,7 +73,7 @@ goes as follows:
    own needs.
 
 3. These methods need to be exposed in ``pynterface.h``. In particular, you
-   need to add the method you created in step (2) to ``louvain_funcs[]``.
+   need to add the method you created in step (2) to ``leiden_funcs[]``.
    Again, you should be able to simply copy an existing line.
 
 4. You can then finally create the Python class in ``VertexPartition.py``. The
@@ -98,6 +98,6 @@ goes as follows:
 That's it! You're done and should now be able to find communities using your
 new :class:`CoolVertexPartition`:
 
->>> louvain.find_partition(G, louvain.CoolVertexPartition); # doctest: +SKIP
+>>> la.find_partition(G, la.CoolVertexPartition); # doctest: +SKIP
 
 

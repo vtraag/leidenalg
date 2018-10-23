@@ -13,6 +13,14 @@ vector<size_t> range(size_t n)
   return range_vec;
 }
 
+queue<size_t> queue_range(size_t n)
+{
+  queue<size_t> range_vec;
+  for(size_t i = 0; i<n; i++)
+    range_vec.push(i);
+  return range_vec;
+}
+
 bool orderCSize(const size_t* A, const size_t* B)
 {
 
@@ -707,10 +715,10 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
 
   #ifdef DEBUG
     cerr << "Current graph has " << this->vcount() << " nodes and " << this->ecount() << " edges." << endl;
-    cerr << "Collapsing to graph with " << partition->nb_communities() << " nodes." << endl;
+    cerr << "Collapsing to graph with " << partition->n_communities() << " nodes." << endl;
   #endif
 
-  vector< map<size_t, double> > collapsed_edge_weights(partition->nb_communities());
+  vector< map<size_t, double> > collapsed_edge_weights(partition->n_communities());
 
   igraph_integer_t v, u;
   for (size_t e = 0; e < m; e++)
@@ -727,7 +735,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
 
   // Now create vector for edges, first determined the number of edges
   size_t m_collapsed = 0;
-  size_t n_collapsed = partition->nb_communities();
+  size_t n_collapsed = partition->n_communities();
 
   for (vector< map<size_t, double> >::iterator itr = collapsed_edge_weights.begin();
        itr != collapsed_edge_weights.end(); itr++)
@@ -739,9 +747,6 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   vector<double> collapsed_weights(m_collapsed, 0.0);
   double total_collapsed_weight = 0.0;
 
-  #ifdef DEBUG
-    cerr << "Creating " << m_collapsed << " new edges." << endl;
-  #endif
   igraph_vector_init(&edges, 2*m_collapsed); // Vector or edges with edges (edge[0], edge[1]), (edge[2], edge[3]), etc...
 
   size_t e_idx = 0;
@@ -768,12 +773,12 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   igraph_create(graph, &edges, n_collapsed, this->is_directed());
   igraph_vector_destroy(&edges);
 
-  if ((size_t) igraph_vcount(graph) != partition->nb_communities())
+  if ((size_t) igraph_vcount(graph) != partition->n_communities())
     throw Exception("Something went wrong with collapsing the graph.");
 
   // Calculate new node sizes
   vector<size_t> csizes(n_collapsed, 0);
-  for (size_t c = 0; c < partition->nb_communities(); c++)
+  for (size_t c = 0; c < partition->n_communities(); c++)
     csizes[c] = partition->csize(c);
 
   Graph* G = new Graph(graph, collapsed_weights, csizes, this->_correct_self_loops);

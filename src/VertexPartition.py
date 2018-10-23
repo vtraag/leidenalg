@@ -1,5 +1,5 @@
 import igraph as _ig
-from . import _c_louvain
+from . import _c_leiden
 from .functions import _get_py_capsule
 import sys
 # Check if working with Python 3
@@ -55,7 +55,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   @classmethod
   def _FromCPartition(cls, partition):
-    n, edges, weights, node_sizes = _c_louvain._MutableVertexPartition_get_py_igraph(partition)
+    n, edges, weights, node_sizes = _c_leiden._MutableVertexPartition_get_py_igraph(partition)
     graph = _ig.Graph(n=n,
                       edges=edges,
                       edge_attrs={'weight': weights},
@@ -85,15 +85,15 @@ class MutableVertexPartition(_ig.VertexClustering):
     partition ``p`` and that we want to determine the Significance of that
     partition. We can then simply use
 
-    >>> p = louvain.find_partition(ig.Graph.Famous('Zachary'),
-    ...                            louvain.ModularityVertexPartition)
-    >>> sig = louvain.SignificanceVertexPartition.FromPartition(p).quality()
+    >>> p = la.find_partition(ig.Graph.Famous('Zachary'),
+    ...                       la.ModularityVertexPartition)
+    >>> sig = la.SignificanceVertexPartition.FromPartition(p).quality()
     """
     new_partition = cls(partition.graph, partition.membership, **kwargs)
     return new_partition
 
   def _update_internal_membership(self):
-    self._membership = _c_louvain._MutableVertexPartition_get_membership(self._partition)
+    self._membership = _c_leiden._MutableVertexPartition_get_membership(self._partition)
     # Reset the length of the object, i.e. the number of communities
     if len(self._membership)>0:
         self._len = max(m for m in self._membership if m is not None)+1
@@ -102,7 +102,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   def set_membership(self, membership):
     """ Set membership. """
-    _c_louvain._MutableVertexPartition_set_membership(self._partition, list(membership))
+    _c_leiden._MutableVertexPartition_set_membership(self._partition, list(membership))
     self._update_internal_membership()
 
   # Calculate improvement *if* we move this node
@@ -130,8 +130,8 @@ class MutableVertexPartition(_ig.VertexClustering):
     determining again the quality of the partition and looking at the
     difference. In other words
 
-    >>> partition = louvain.find_partition(ig.Graph.Famous('Zachary'),
-    ...                            louvain.ModularityVertexPartition)
+    >>> partition = la.find_partition(ig.Graph.Famous('Zachary'),
+    ...                               la.ModularityVertexPartition)
     >>> diff = partition.diff_move(v=0, new_comm=0)
     >>> q1 = partition.quality()
     >>> partition.move_node(v=0, new_comm=0)
@@ -143,7 +143,7 @@ class MutableVertexPartition(_ig.VertexClustering):
                  class provides no implementation for this function.
 
     """
-    return _c_louvain._MutableVertexPartition_diff_move(self._partition, v, new_comm)
+    return _c_leiden._MutableVertexPartition_diff_move(self._partition, v, new_comm)
 
   def aggregate_partition(self, membership_partition=None):
     """ Aggregate the graph according to the current partition and provide a
@@ -164,13 +164,13 @@ class MutableVertexPartition(_ig.VertexClustering):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition)
+    >>> partition = la.find_partition(G, la.ModularityVertexPartition)
     >>> aggregate_partition = partition.aggregate_partition(partition)
     >>> aggregate_graph = aggregate_partition.graph
     >>> aggregate_partition.quality() == partition.quality()
     True
     """
-    partition_agg = self._FromCPartition(_c_louvain._MutableVertexPartition_aggregate_partition(self._partition))
+    partition_agg = self._FromCPartition(_c_leiden._MutableVertexPartition_aggregate_partition(self._partition))
 
     if (not membership_partition is None):
       membership = partition_agg.membership
@@ -194,10 +194,10 @@ class MutableVertexPartition(_ig.VertexClustering):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> partition = louvain.ModularityVertexPartition(G)
+    >>> partition = la.ModularityVertexPartition(G)
     >>> partition.move_node(0, 1)
     """
-    _c_louvain._MutableVertexPartition_move_node(self._partition, v, new_comm)
+    _c_leiden._MutableVertexPartition_move_node(self._partition, v, new_comm)
     # Make sure this move is also reflected in the membership vector of the python object
     self._membership[v] = new_comm
     self._modularity_dirty = True
@@ -251,7 +251,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     refined partition.
     """
     # Read the coarser partition
-    _c_louvain._MutableVertexPartition_from_coarse_partition(self._partition,
+    _c_leiden._MutableVertexPartition_from_coarse_partition(self._partition,
                                                              partition.membership, coarse_node)
     self._update_internal_membership()
 
@@ -262,12 +262,12 @@ class MutableVertexPartition(_ig.VertexClustering):
     -----
     The sort is not necessarily stable.
     """
-    _c_louvain._MutableVertexPartition_renumber_communities(self._partition)
+    _c_leiden._MutableVertexPartition_renumber_communities(self._partition)
     self._update_internal_membership()
 
   def quality(self):
     """ The current quality of the partition. """
-    return _c_louvain._MutableVertexPartition_quality(self._partition)
+    return _c_leiden._MutableVertexPartition_quality(self._partition)
 
   def total_weight_in_comm(self, comm):
     """ The total weight (i.e. number of edges) within a community.
@@ -285,7 +285,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_in_comm(self._partition, comm)
+    return _c_leiden._MutableVertexPartition_total_weight_in_comm(self._partition, comm)
 
   def total_weight_from_comm(self, comm):
     """ The total weight (i.e. number of edges) from a community.
@@ -308,7 +308,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_from_comm(self._partition, comm)
+    return _c_leiden._MutableVertexPartition_total_weight_from_comm(self._partition, comm)
 
   def total_weight_to_comm(self, comm):
     """ The total weight (i.e. number of edges) to a community.
@@ -331,7 +331,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_all_comms`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_to_comm(self._partition, comm)
+    return _c_leiden._MutableVertexPartition_total_weight_to_comm(self._partition, comm)
 
   def total_weight_in_all_comms(self):
     """ The total weight (i.e. number of edges) within all communities.
@@ -348,7 +348,7 @@ class MutableVertexPartition(_ig.VertexClustering):
 
     :func:`~VertexPartition.MutableVertexPartition.total_weight_in_comm`
     """
-    return _c_louvain._MutableVertexPartition_total_weight_in_all_comms(self._partition)
+    return _c_leiden._MutableVertexPartition_total_weight_in_all_comms(self._partition)
 
   def total_possible_edges_in_all_comms(self):
     """ The total possible number of edges in all communities.
@@ -361,7 +361,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     .. math :: \\sum_c \\binom{n_c}{2}
 
     """
-    return _c_louvain._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition)
+    return _c_leiden._MutableVertexPartition_total_possible_edges_in_all_comms(self._partition)
 
   def weight_to_comm(self, v, comm):
     """ The total number of edges (or sum of weights) from node ``v`` to
@@ -371,7 +371,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     --------
     :func:`~VertexPartition.MutableVertexPartition.weight_from_comm`
     """
-    return _c_louvain._MutableVertexPartition_weight_to_comm(self._partition, v, comm)
+    return _c_leiden._MutableVertexPartition_weight_to_comm(self._partition, v, comm)
 
   def weight_from_comm(self, v, comm):
     """ The total number of edges (or sum of weights) to node ``v`` from
@@ -381,10 +381,10 @@ class MutableVertexPartition(_ig.VertexClustering):
     --------
     :func:`~VertexPartition.MutableVertexPartition.weight_to_comm`
     """
-    return _c_louvain._MutableVertexPartition_weight_from_comm(self._partition, v, comm)
+    return _c_leiden._MutableVertexPartition_weight_from_comm(self._partition, v, comm)
 
 class ModularityVertexPartition(MutableVertexPartition):
-  """ Implements modularity.
+  """ Implements modularity. This quality function is well-defined only for positive edge weights.
 
   Notes
   -----
@@ -392,24 +392,38 @@ class ModularityVertexPartition(MutableVertexPartition):
 
   .. math:: Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
-  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
-  the community of node :math:`i` and :math:`\\delta(\\sigma_i, \\sigma_j) = 1`
-  if :math:`\\sigma_i = \\sigma_j` and `0` otherwise.
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the (weighted) degree
+  of node :math:`i`, :math:`m` is the total number of edges (or total edge
+  weight), :math:`\\sigma_i` denotes the community of node :math:`i` and
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j`
+  and `0` otherwise.
 
   This can alternatively be formulated as a sum over communities:
 
   .. math:: Q = \\frac{1}{2m} \\sum_{c} \\left(m_c - \\frac{K_c^2}{4m} \\right)
 
-  where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
-  in community :math:`c`.
+  where :math:`m_c` is the number of internal edges (or total internal edge
+  weight) of community :math:`c` and :math:`K_c = \\sum_{i \\mid \\sigma_i = c}
+  k_i` is the total (weighted) degree of nodes in community :math:`c`.
+
+  Note that for directed graphs a slightly different formulation is used, as
+  proposed by Leicht and Newman [2]:
+
+  .. math:: Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
+
+  where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
+  respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
+  refers to an edge from :math:`i` to :math:`j`.
 
   References
   ----------
   .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating
          community structure in networks.  Physical Review E, 69(2), 026113.
          `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+
+  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure 
+         in Directed Networks. Physical Review Letters, 100(11), 118703.
+         `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
    """
   def __init__(self, graph, initial_membership=None, weights=None):
     """
@@ -438,12 +452,12 @@ class ModularityVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
-    self._partition = _c_louvain._new_ModularityVertexPartition(pygraph_t,
+    self._partition = _c_leiden._new_ModularityVertexPartition(pygraph_t,
         initial_membership, weights)
     self._update_internal_membership()
 
 class SurpriseVertexPartition(MutableVertexPartition):
-  """ Implements (asymptotic) Surprise.
+  """ Implements (asymptotic) Surprise. This quality function is well-defined only for positive edge weights.
 
   Notes
   -----
@@ -512,12 +526,12 @@ class SurpriseVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
-    self._partition = _c_louvain._new_SurpriseVertexPartition(pygraph_t,
+    self._partition = _c_leiden._new_SurpriseVertexPartition(pygraph_t,
         initial_membership, weights)
     self._update_internal_membership()
 
 class SignificanceVertexPartition(MutableVertexPartition):
-  """ Implements Significance.
+  """ Implements Significance. This quality function is well-defined only for unweighted graphs.
 
   Notes
   -----
@@ -573,7 +587,7 @@ class SignificanceVertexPartition(MutableVertexPartition):
 
     pygraph_t = _get_py_capsule(graph)
 
-    self._partition = _c_louvain._new_SignificanceVertexPartition(pygraph_t, initial_membership)
+    self._partition = _c_leiden._new_SignificanceVertexPartition(pygraph_t, initial_membership)
     self._update_internal_membership()
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
@@ -604,11 +618,11 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
   @property
   def resolution_parameter(self):
     """ Resolution parameter. """
-    return _c_louvain._ResolutionParameterVertexPartition_get_resolution(self._partition)
+    return _c_leiden._ResolutionParameterVertexPartition_get_resolution(self._partition)
 
   @resolution_parameter.setter
   def resolution_parameter(self, value):
-    return _c_louvain._ResolutionParameterVertexPartition_set_resolution(self._partition, value)
+    return _c_leiden._ResolutionParameterVertexPartition_set_resolution(self._partition, value)
 
   def bisect_value(self):
     """ Give the value on which we can perform bisectioning.
@@ -620,11 +634,11 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     return self.total_weight_in_all_comms()
 
   def quality(self, resolution_parameter=None):
-    return _c_louvain._ResolutionParameterVertexPartition_quality(self._partition, resolution_parameter)
+    return _c_leiden._ResolutionParameterVertexPartition_quality(self._partition, resolution_parameter)
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
-
+  This quality function is well-defined only for positive edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
@@ -698,13 +712,13 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes)
 
-    self._partition = _c_louvain._new_RBERVertexPartition(pygraph_t,
+    self._partition = _c_leiden._new_RBERVertexPartition(pygraph_t,
         initial_membership, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
-
+  This quality function is well-defined only for positive edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
@@ -713,28 +727,42 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
 
   .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the degree of node
-  :math:`i`, :math:`m` is the total number of edges, :math:`\\sigma_i` denotes
-  the community of node :math:`i`, :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if
-  :math:`\\sigma_i = \\sigma_j` and `0` otherwise, and, finally :math:`\\gamma`
-  is a resolution parameter.
+  where :math:`A` is the adjacency matrix, :math:`k_i` is the (weighted) degree
+  of node :math:`i`, :math:`m` is the total number of edges (or total edge
+  weight), :math:`\\sigma_i` denotes the community of node :math:`i` and
+  :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j`
+  and `0` otherwise.
 
   This can alternatively be formulated as a sum over communities:
 
-  .. math:: Q = \\sum_{c} \\left(m_c - \\gamma\\frac{K_c^2}{4m} \\right)
+  .. math:: Q = \\sum_{c} \\left(m_c - \\gamma \\frac{K_c^2}{4m} \\right)
 
-  where :math:`m_c` is the number of internal edges of community :math:`c` and
-  :math:`K_c = \\sum_{i \\mid \\sigma_i = c} k_i` is the total degree of nodes
-  in community :math:`c`.
+  where :math:`m_c` is the number of internal edges (or total internal edge
+  weight) of community :math:`c` and :math:`K_c = \\sum_{i \\mid \\sigma_i = c}
+  k_i` is the total (weighted) degree of nodes in community :math:`c`.
 
-  Note that this is the same as :class:`ModularityVertexPartition` for
-  :math:`\\gamma=1` and using the normalisation by :math:`2m`.
+  Note that for directed graphs a slightly different formulation is used, as
+  proposed by Leicht and Newman [2]:
+
+  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
+
+  where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
+  respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
+  refers to an edge from :math:`i` to :math:`j`.
+
+  Note that this is the same as :class:`ModularityVertexPartition` when setting
+  :math:`\\gamma=1` and normalising by :math:`2m`, or :math:`m` for directed
+  graphs.
 
   References
   ----------
   .. [1] Reichardt, J., & Bornholdt, S. (2006). Statistical mechanics of
          community detection.  Physical Review E, 74(1), 016110.
          `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
+
+  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure 
+         in Directed Networks. Physical Review Letters, 100(11), 118703.
+         `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
 
    """
   def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
@@ -768,12 +796,13 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
-    self._partition = _c_louvain._new_RBConfigurationVertexPartition(pygraph_t,
+    self._partition = _c_leiden._new_RBConfigurationVertexPartition(pygraph_t,
         initial_membership, weights, resolution_parameter)
     self._update_internal_membership()
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
   """ Implements CPM.
+  This quality function is well-defined for both positive and negative edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
@@ -858,7 +887,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes)
 
-    self._partition = _c_louvain._new_CPMVertexPartition(pygraph_t,
+    self._partition = _c_leiden._new_CPMVertexPartition(pygraph_t,
         initial_membership, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 

@@ -1,10 +1,13 @@
 import sys
 import igraph as _ig
-from . import _c_louvain
-from ._c_louvain import ALL_COMMS
-from ._c_louvain import ALL_NEIGH_COMMS
-from ._c_louvain import RAND_COMM
-from ._c_louvain import RAND_NEIGH_COMM
+from . import _c_leiden
+from ._c_leiden import ALL_COMMS
+from ._c_leiden import ALL_NEIGH_COMMS
+from ._c_leiden import RAND_COMM
+from ._c_leiden import RAND_NEIGH_COMM
+
+from ._c_leiden import MOVE_NODES
+from ._c_leiden import MERGE_NODES
 
 from collections import Counter
 
@@ -20,11 +23,7 @@ def _get_py_capsule(graph):
 from .VertexPartition import *
 from .Optimiser import *
 
-def set_rng_seed(seed):
-  """ Set seed for internal random number generator. """
-  _c_louvain._set_rng_seed(seed)
-
-def find_partition(graph, partition_type, initial_membership=None, weights=None, **kwargs):
+def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, seed=None, **kwargs):
   """ Detect communities using the default settings.
 
   This function detects communities given the specified method in the
@@ -50,6 +49,15 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   weights : list of double, or edge attribute
     Weights of edges. Can be either an iterable or an edge attribute.
 
+  n_iterations : int
+    Number of iterations to run the Leiden algorithm. By default, 2 iterations
+    are run. If the number of iterations is negative, the Leiden algorithm is
+    run until an iteration in which there was no improvement.
+
+  seed : int
+    Seed for the random number generator. By default uses a random seed
+    if nothing is specified.
+
   **kwargs
     Remaining keyword arguments, passed on to constructor of
     ``partition_type``.
@@ -66,7 +74,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   Examples
   --------
   >>> G = ig.Graph.Famous('Zachary')
-  >>> partition = louvain.find_partition(G, louvain.ModularityVertexPartition)
+  >>> partition = la.find_partition(G, la.ModularityVertexPartition)
 
   """
   if not weights is None:
@@ -75,10 +83,15 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
                              initial_membership=initial_membership,
                              **kwargs)
   optimiser = Optimiser()
-  optimiser.optimise_partition(partition)
+
+  if (not seed is None):
+    optimiser.set_rng_seed(seed)
+
+  optimiser.optimise_partition(partition, n_iterations)
+
   return partition
 
-def find_partition_multiplex(graphs, partition_type, **kwargs):
+def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -89,10 +102,19 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`louvain.VertexPartition` layers to optimise.
+    List of :class:`leidenalg.VertexPartition` layers to optimise.
 
   partition_type : type of :class:`MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
+
+  n_iterations : int
+    Number of iterations to run the Leiden algorithm. By default, 2 iterations
+    are run. If the number of iterations is negative, the Leiden algorithm is
+    run until an iteration in which there was no improvement.
+
+  seed : int
+    Seed for the random number generator. By default uses a random seed
+    if nothing is specified.
 
   **kwargs
     Remaining keyword arguments, passed on to constructor of ``partition_type``.
@@ -123,8 +145,8 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   >>> n = 100
   >>> G_1 = ig.Graph.Lattice([n], 1)
   >>> G_2 = ig.Graph.Lattice([n], 1)
-  >>> membership, improvement = louvain.find_partition_multiplex([G_1, G_2],
-  ...                                                            louvain.ModularityVertexPartition)
+  >>> membership, improvement = la.find_partition_multiplex([G_1, G_2],
+  ...                                                       la.ModularityVertexPartition)
   """
   n_layers = len(graphs)
   partitions = []
@@ -132,13 +154,19 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   for graph in graphs:
     partitions.append(partition_type(graph, **kwargs))
   optimiser = Optimiser()
-  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights)
+
+  if (not seed is None):
+    optimiser.set_rng_seed(seed)
+
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
+
   return partitions[0].membership, improvement
 
 def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
+                            n_iterations=2, seed=None,
                             **kwargs):
   """ Detect communities for temporal graphs.
 
@@ -156,7 +184,7 @@ def find_partition_temporal(graphs, partition_type,
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`louvain.VertexPartition` layers to optimise.
+    List of :class:`leidenalg.VertexPartition` layers to optimise.
 
   partition_type : type of :class:`VertexPartition.MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
@@ -176,6 +204,15 @@ def find_partition_temporal(graphs, partition_type,
 
   weight_attr : string
     The edge attribute used to indicate the weight.
+
+  n_iterations : int
+    Number of iterations to run the Leiden algorithm. By default, 2 iterations
+    are run. If the number of iterations is negative, the Leiden algorithm is
+    run until an iteration in which there was no improvement.
+
+  seed : int
+    Seed for the random number generator. By default uses a random seed
+    if nothing is specified.
 
   **kwargs
     Remaining keyword arguments, passed on to constructor of
@@ -203,9 +240,9 @@ def find_partition_temporal(graphs, partition_type,
   >>> G_1.vs['id'] = range(n)
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> G_2.vs['id'] = range(n)
-  >>> membership, improvement = louvain.find_partition_temporal([G_1, G_2], 
-  ...                                                           louvain.ModularityVertexPartition, 
-  ...                                                           interslice_weight=1)
+  >>> membership, improvement = la.find_partition_temporal([G_1, G_2],
+  ...                                                      la.ModularityVertexPartition,
+  ...                                                      interslice_weight=1)
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,
@@ -234,7 +271,12 @@ def find_partition_temporal(graphs, partition_type,
   partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0,
                                             node_sizes='node_size', weights=weight_attr)
   optimiser = Optimiser()
-  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice])
+
+  if (not seed is None):
+    optimiser.set_rng_seed(seed)
+
+  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice], n_iterations=n_iterations)
+
   # Transform results back into original form.
   membership = {(v[slice_attr], v[vertex_id_attr]): m for v, m in zip(G.vs, partitions[0].membership)}
 
