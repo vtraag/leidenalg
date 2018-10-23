@@ -76,10 +76,26 @@ customizing to some extent the optimisation routines (see :ref:`Advanced`).
 Finally, it also allows to work with more complex multiplex graphs (see
 :ref:`Multiplex`).
 
-The Leiden algorithm extends the Louvain algorithm, which is widely seen as one
-of the best algorithms for detecting communities. However, the Louvain
-algorithm can lead to arbitrarily badly connected communities, whereas the
-Leiden algorithm guarantees communities are well-connected. In fact, it
+The Leiden algorithm [1] extends the Louvain algorithm [2], which is widely
+seen as one of the best algorithms for detecting communities. However, the
+Louvain algorithm can lead to arbitrarily badly connected communities, whereas
+the Leiden algorithm guarantees communities are well-connected. In fact, it
 converges towards a partition in which all subsets of all communities are
 locally optimally assigned. Finally, the Leiden algorithm is also much faster,
-because it relies on a fast local move routine.
+because it relies on a fast local move routine. The 
+`"canonical" <https://github.com/CWTSLeiden/networkanalysis>`_
+Leiden algorithm is implemented
+in ``Java`` and is faster than this implementation, but less extensive.
+
+References
+----------
+
+.. [1] Traag, V.A., Waltman. L., Van Eck, N.-J. (2018). From Louvain to
+       Leiden: guaranteeing well-connected communities.
+       `arXiv:1810.08473 <https://arxiv.org/abs/1810.08473>`_
+
+.. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E.
+       (2008). Fast unfolding of communities in large networks. Journal of
+       Statistical Mechanics: Theory and Experiment, 10008(10), 6.
+       `10.1088/1742-5468/2008/10/P10008 <https://doi.org/10.1088/1742-5468/2008/10/P10008>`_
+

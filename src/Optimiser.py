@@ -65,6 +65,7 @@ class Optimiser(object):
 
   .. [1] Traag, V.A., Waltman. L., Van Eck, N.-J. (2018). From Louvain to
          Leiden: guaranteeing well-connected communities.
+         `arXiv:1810.08473 <https://arxiv.org/abs/1810.08473>`_
 
   .. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E.
          (2008). Fast unfolding of communities in large networks. Journal of
