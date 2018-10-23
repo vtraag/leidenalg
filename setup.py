@@ -166,9 +166,10 @@ def preprocess_fallback_config():
             else:
                 print("Using MSVC build dir as a fallback: %s\n\n" % msvc_builddir)
 
-                is_64bits = sys.maxsize > 2**32
                 LIBIGRAPH_FALLBACK_INCLUDE_DIRS = [os.path.join(msvc_builddir, "include")]
-                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
+
+                is_64bits = sys.maxsize > 2**32
+                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "x64" if is_64bits else "win32")]
 
 def version_variants(version):
     """Given an igraph version number, returns a list of possible version
@@ -371,7 +372,7 @@ class BuildConfiguration(object):
                 # Check whether we have already compiled igraph in a previous run.
                 # If so, it should be found in igraphcore/include and
                 # igraphcore/lib
-                if os.path.exists("igraphcore"):
+                if buildcfg.download_igraph_if_needed and os.path.exists("igraphcore"):
                     buildcfg.use_built_igraph()
                     detected = True
 
@@ -396,7 +397,7 @@ class BuildConfiguration(object):
                 buildcfg.print_build_info()
 
                 ext = first(extension for extension in self.extensions
-                        if extension.name == "leiden._c_leiden")
+                        if extension.name == "leidenalg._c_leiden")
                 buildcfg.configure(ext)
 
                 # Run the original build_ext command
@@ -597,7 +598,7 @@ class BuildConfiguration(object):
 buildcfg = BuildConfiguration();
 buildcfg.process_args_from_command_line();
 
-leiden_ext = Extension('leiden._c_leiden',
+leiden_ext = Extension('leidenalg._c_leiden',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
@@ -605,29 +606,29 @@ cmdclass = versioneer.get_cmdclass()
 cmdclass.update(build_ext=buildcfg.build_ext)
 
 options =  dict(
-  name = 'leiden',
+  name = 'leidenalg',
   version=versioneer.get_version(),
   description = 'Leiden is a general algorithm for methods of community detection in large networks.',
   long_description=
     """
  Leiden is a general algorithm for methods of community detection in large networks.
 
- Please refer to the `documentation <http://leiden-igraph.readthedocs.io/en/latest>`_
+ Please refer to the `documentation <http://leidenalg.readthedocs.io/en/latest>`_
  for more details.
 
- The source code of this package is hosted at `GitHub <https://github.com/vtraag/leiden-igraph>`_.
- Issues and bug reports are welcome at https://github.com/vtraag/leiden-igraph/issues.
+ The source code of this package is hosted at `GitHub <https://github.com/vtraag/leidenalg>`_.
+ Issues and bug reports are welcome at https://github.com/vtraag/leidenalg/issues.
     """,
   license = 'GPLv3+',
-  url = 'https://github.com/vtraag/leiden-igraph',
+  url = 'https://github.com/vtraag/leidenalg',
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
   test_suite = 'tests',
 
-  provides = ['leiden'],
-  package_dir = {'leiden': 'src'},
-  packages = ['leiden'],
+  provides = ['leidenalg'],
+  package_dir = {'leidenalg': 'src'},
+  packages = ['leidenalg'],
   ext_modules = [leiden_ext],
   install_requires = ['python-igraph >= {0}.0'.format(VERSION)],
   classifiers=[

@@ -3,12 +3,7 @@ build/
 dist/
 lib/
 nbproject/
-igraph-0.7.0-msvc-py27/
-igraph-0.7.0-msvc-py3/
-igraph-0.7.1-msvc-py27/
-igraph-0.7.1-msvc-py34/
-igraph-0.7.1-msvc-py35/
-leiden.egg-info/
+leidenalg.egg-info/
 wlib/
 bin/
 obj/
@@ -22,12 +17,10 @@ files_py3.txt
 callgrind*
 main.cpp
 leiden-dists.zip
-leiden-igraph.cbp
-leiden-igraph.depend
-leiden-igraph.layout
+leidenalg.cbp
+leidenalg.depend
+leidenalg.layout
 leiden.log
-igraph-0.7.0.tar.gz
-igraph-0.7.1.tar.gz
 igraphcore/
 **/*.swp
 valgrind-python.supp
@@ -37,4 +30,3 @@ massif*
 .vscode/
 *.code-workspace
 PACKAGE.txt
-leiden-igraph.cscope_file_list

@@ -4,7 +4,7 @@ Reference
 Module functions
 ----------------
 
-.. automodule:: leiden 
+.. automodule:: leidenalg 
     :members: find_partition, 
               find_partition_multiplex, 
               find_partition_temporal,
@@ -24,7 +24,7 @@ Optimiser
 MutableVertexPartition
 ----------------------
 
-.. autoclass:: leiden.VertexPartition.MutableVertexPartition
+.. autoclass:: leidenalg.VertexPartition.MutableVertexPartition
     :members:
     :undoc-members:
     :show-inheritance:

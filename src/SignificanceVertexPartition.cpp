@@ -137,7 +137,7 @@ double SignificanceVertexPartition::quality()
   #ifdef DEBUG
     cerr << "\t" << "n=" << n << ", m=" << this->graph->total_weight() << ", p=" << p << "." << endl;
   #endif
-  for (size_t c = 0; c < this->nb_communities(); c++)
+  for (size_t c = 0; c < this->n_communities(); c++)
   {
     size_t n_c = this->csize(c);
     double m_c = this->total_weight_in_comm(c);

@@ -1,15 +1,12 @@
 Installation
 ============
 
-In short, for Unix: ``sudo pip install leiden``.  For Windows: download the
-binary installers from `PyPi <https://pypi.org/project/leiden/>`_.
+In short, for Unix: ``sudo pip install la``.  For Windows: download the
+binary installers from `PyPi <https://pypi.org/project/la/>`_.
 Alternatively, use `Anaconda <https://www.anaconda.com/distribution/>`_ and get
 the conda packages from the `vtraag channel
-<https://anaconda.org/vtraag/leiden>`_, which supports both Unix, Mac OS and
-Windows. In due time, the package may possibly also become available from
-`Christoph Gohlke
-<https://www.lfd.uci.edu/~gohlke/pythonlibs/#leiden-igraph>`_, who kindly
-provides pre-compiled binary wheels for Windows.
+<https://anaconda.org/vtraag/la>`_, which supports both Unix, Mac OS and
+Windows.
 
 For Unix like systems it is possible to install from source. For Windows this
 is overly complicated, and you are recommended to use the binary installation
@@ -20,7 +17,7 @@ http://igraph.org.
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential``, please refer to the
 documentation for your specific system.  Make sure that not only ``gcc`` is
-installed, but also ``g++``, as the leiden package is programmed in ``C++``.
+installed, but also ``g++``, as the la package is programmed in ``C++``.
 Note that to compile ``igraph`` itself, you also need to install
 ``libxml2-dev``.
 

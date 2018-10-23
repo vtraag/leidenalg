@@ -98,6 +98,6 @@ goes as follows:
 That's it! You're done and should now be able to find communities using your
 new :class:`CoolVertexPartition`:
 
->>> leiden.find_partition(G, leiden.CoolVertexPartition); # doctest: +SKIP
+>>> la.find_partition(G, la.CoolVertexPartition); # doctest: +SKIP
 
 

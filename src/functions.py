@@ -74,7 +74,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   Examples
   --------
   >>> G = ig.Graph.Famous('Zachary')
-  >>> partition = leiden.find_partition(G, leiden.ModularityVertexPartition)
+  >>> partition = la.find_partition(G, la.ModularityVertexPartition)
 
   """
   if not weights is None:
@@ -91,7 +91,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, **kwargs):
+def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -102,7 +102,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`leiden.VertexPartition` layers to optimise.
+    List of :class:`leidenalg.VertexPartition` layers to optimise.
 
   partition_type : type of :class:`MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
@@ -145,8 +145,8 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   >>> n = 100
   >>> G_1 = ig.Graph.Lattice([n], 1)
   >>> G_2 = ig.Graph.Lattice([n], 1)
-  >>> membership, improvement = leiden.find_partition_multiplex([G_1, G_2],
-  ...                                                            leiden.ModularityVertexPartition)
+  >>> membership, improvement = la.find_partition_multiplex([G_1, G_2],
+  ...                                                       la.ModularityVertexPartition)
   """
   n_layers = len(graphs)
   partitions = []
@@ -158,7 +158,7 @@ def find_partition_multiplex(graphs, partition_type, **kwargs):
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  improvement += optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
 
   return partitions[0].membership, improvement
 
@@ -166,6 +166,7 @@ def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
+                            n_iterations=2, seed=None,
                             **kwargs):
   """ Detect communities for temporal graphs.
 
@@ -183,7 +184,7 @@ def find_partition_temporal(graphs, partition_type,
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`leiden.VertexPartition` layers to optimise.
+    List of :class:`leidenalg.VertexPartition` layers to optimise.
 
   partition_type : type of :class:`VertexPartition.MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
@@ -239,9 +240,9 @@ def find_partition_temporal(graphs, partition_type,
   >>> G_1.vs['id'] = range(n)
   >>> G_2 = ig.Graph.Lattice([n], 1)
   >>> G_2.vs['id'] = range(n)
-  >>> membership, improvement = leiden.find_partition_temporal([G_1, G_2],
-  ...                                                           leiden.ModularityVertexPartition,
-  ...                                                           interslice_weight=1)
+  >>> membership, improvement = la.find_partition_temporal([G_1, G_2],
+  ...                                                      la.ModularityVertexPartition,
+  ...                                                      interslice_weight=1)
   """
   # Create layers
   G_layers, G_interslice, G = time_slices_to_layers(graphs,

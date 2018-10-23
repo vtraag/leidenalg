@@ -44,19 +44,20 @@ class Optimiser(object):
     6. Subset optimality
 
   The optimiser class provides a number of different methods for optimising a
-  given partition. The overall optimise procedure :func:`optimise_partition`
-  calls either :func:`move_nodes` or :func:`merge_nodes` (which is controlled
-  by :attr:`optimise_routine`) then aggregates the graph and repeats the same
-  procedure. Possible, indicated by :attr:`refine_partition` the partition is
-  refined before aggregating, meaning that subsets of communities are
-  considered for moving around. Which routine is used for the refinement is
-  indicated by :attr:`refine_routine`. For calculating the actual improvement
-  of moving a node (corresponding a subset of nodes in the aggregate graph),
-  the code relies on :func:`~VertexPartition.MutableVertexPartition.diff_move`
-  which provides different values for different methods (e.g. modularity or
-  CPM). The default settings are consistent with the Leiden algorithm. By not
-  doing the refinement, you essentially get the Louvain algorithm with a fast
-  local move. Finally, the Optimiser class provides a routine to construct a
+  given partition. The overall optimisation procedure
+  :func:`optimise_partition` calls either :func:`move_nodes` or
+  :func:`merge_nodes` (which is controlled by :attr:`optimise_routine`) then
+  aggregates the graph and repeats the same procedure. Possible, indicated by
+  :attr:`refine_partition` the partition is refined before aggregating, meaning
+  that subsets of communities are considered for moving around. Which routine
+  is used for the refinement is indicated by :attr:`refine_routine`. For
+  calculating the actual improvement of moving a node (corresponding a subset
+  of nodes in the aggregate graph), the code relies on
+  :func:`~VertexPartition.MutableVertexPartition.diff_move` which provides
+  different values for different methods (e.g. modularity or CPM). The default
+  settings are consistent with the Leiden algorithm. By not doing the
+  refinement, you essentially get the Louvain algorithm with a fast local move.
+  Finally, the Optimiser class provides a routine to construct a
   :func:`resolution_profile` on a resolution parameter.
 
   References
@@ -64,6 +65,7 @@ class Optimiser(object):
 
   .. [1] Traag, V.A., Waltman. L., Van Eck, N.-J. (2018). From Louvain to
          Leiden: guaranteeing well-connected communities.
+         `arXiv:1810.08473 <https://arxiv.org/abs/1810.08473>`_
 
   .. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E.
          (2008). Fast unfolding of communities in large networks. Journal of
@@ -88,20 +90,20 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.ALL_NEIGH_COMMS`
+    * :attr:`leidenalg.ALL_NEIGH_COMMS`
       Consider all neighbouring communities for moving.
 
-    * :attr:`leiden.ALL_COMMS`
+    * :attr:`leidenalg.ALL_COMMS`
       Consider all communities for moving. This is especially useful in the
       case of negative links, in which case it may be better to move a node to
       a non-neighbouring community.
 
-    * :attr:`leiden.RAND_NEIGH_COMM`
+    * :attr:`leidenalg.RAND_NEIGH_COMM`
       Consider a random neighbour community for moving. The probability to
       choose a community is proportional to the number of neighbours a node has
       in that community.
 
-    * :attr:`leiden.RAND_COMM`
+    * :attr:`leidenalg.RAND_COMM`
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
     """
@@ -125,28 +127,28 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.ALL_NEIGH_COMMS`
+    * :attr:`leidenalg.ALL_NEIGH_COMMS`
       Consider all neighbouring communities for moving.
 
-    * :attr:`leiden.ALL_COMMS`
+    * :attr:`leidenalg.ALL_COMMS`
       Consider all communities for moving. This is especially useful in the
       case of negative links, in which case it may be better to move a node to
       a non-neighbouring community.
 
-    * :attr:`leiden.RAND_NEIGH_COMM`
+    * :attr:`leidenalg.RAND_NEIGH_COMM`
       Consider a random neighbour community for moving. The probability to
       choose a community is proportional to the number of neighbours a node has
       in that community.
 
-    * :attr:`leiden.RAND_COMM`
+    * :attr:`leidenalg.RAND_COMM`
       Consider a random community for moving. The probability to choose a
       community is proportional to the number of nodes in that community.
     """
-    return _c_leiden._Optimiser_get_refine_consider_comms(self._optimiser);
+    return _c_leiden._Optimiser_get_refine_consider_comms(self._optimiser)
 
   @refine_consider_comms.setter
   def refine_consider_comms(self, value):
-    _c_leiden._Optimiser_set_refine_consider_comms(self._optimiser, value);
+    _c_leiden._Optimiser_set_refine_consider_comms(self._optimiser, value)
 
   #########################################################3
   # optimise routine
@@ -158,17 +160,17 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.MOVE_NODES`
+    * :attr:`leidenalg.MOVE_NODES`
       Use :func:`move_nodes`.
 
-    * :attr:`leiden.MERGE_NODES`
+    * :attr:`leidenalg.MERGE_NODES`
       Use :func:`merge_nodes`.
     """
-    return _c_leiden._Optimiser_get_optimise_routine(self._optimiser);
+    return _c_leiden._Optimiser_get_optimise_routine(self._optimiser)
 
   @optimise_routine.setter
   def optimise_routine(self, value):
-    _c_leiden._Optimiser_set_optimise_routine(self._optimiser, value);
+    _c_leiden._Optimiser_set_optimise_routine(self._optimiser, value)
 
   #########################################################3
   # optimise routine
@@ -180,28 +182,28 @@ class Optimiser(object):
     -------
     This attribute should be set to one of the following values
 
-    * :attr:`leiden.MOVE_NODES`
+    * :attr:`leidenalg.MOVE_NODES`
       Use :func:`move_nodes`.
 
-    * :attr:`leiden.MERGE_NODES`
+    * :attr:`leidenalg.MERGE_NODES`
       Use :func:`merge_nodes`.
     """
-    return _c_leiden._Optimiser_get_refine_routine(self._optimiser);
+    return _c_leiden._Optimiser_get_refine_routine(self._optimiser)
 
   @refine_routine.setter
   def refine_routine(self, value):
-    _c_leiden._Optimiser_set_refine_routine(self._optimiser, value);
+    _c_leiden._Optimiser_set_refine_routine(self._optimiser, value)
 
   #########################################################3
   # refine_partition
   @property
   def refine_partition(self):
     """ boolean: if ``True`` refine partition before aggregation. """
-    return _c_leiden._Optimiser_get_refine_partition(self._optimiser);
+    return _c_leiden._Optimiser_get_refine_partition(self._optimiser)
 
   @refine_partition.setter
   def refine_partition(self, value):
-    _c_leiden._Optimiser_set_refine_partition(self._optimiser, value);
+    _c_leiden._Optimiser_set_refine_partition(self._optimiser, value)
 
   #########################################################3
   # consider_empty_community
@@ -249,15 +251,15 @@ class Optimiser(object):
     --------
 
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
 
     """
 
     itr = 0
     diff = 0
-    continue_iteration = itr < n_iterations or n_iterations < 0;
+    continue_iteration = itr < n_iterations or n_iterations < 0
     while continue_iteration:
       diff_inc = _c_leiden._Optimiser_optimise_partition(self._optimiser, partition._partition)
       diff += diff_inc
@@ -316,7 +318,7 @@ class Optimiser(object):
     community and relatively many negative links between communities. Note that
     in this case it may be better to assign a node to a community to which it
     is not connected so that :attr:`consider_comms` may be better set to
-    :attr:`leiden.ALL_COMMS`.
+    :attr:`leidenalg.ALL_COMMS`.
 
     Besides multiplex graphs where each node is assumed to have a single
     community, it is also useful in the case of for example multiple time
@@ -340,9 +342,9 @@ class Optimiser(object):
     --------
     >>> G_pos = ig.Graph.SBM(100, pref_matrix=[[0.5, 0.1], [0.1, 0.5]], block_sizes=[50, 50])
     >>> G_neg = ig.Graph.SBM(100, pref_matrix=[[0.1, 0.5], [0.5, 0.1]], block_sizes=[50, 50])
-    >>> optimiser = leiden.Optimiser()
-    >>> partition_pos = leiden.ModularityVertexPartition(G_pos)
-    >>> partition_neg = leiden.ModularityVertexPartition(G_neg)
+    >>> optimiser = la.Optimiser()
+    >>> partition_pos = la.ModularityVertexPartition(G_pos)
+    >>> partition_neg = la.ModularityVertexPartition(G_neg)
     >>> diff = optimiser.optimise_partition_multiplex(
     ...                     partitions=[partition_pos, partition_neg],
     ...                     layer_weights=[1,-1])
@@ -353,7 +355,7 @@ class Optimiser(object):
 
     itr = 0
     diff = 0
-    continue_iteration = itr < n_iterations or n_iterations < 0;
+    continue_iteration = itr < n_iterations or n_iterations < 0
     while continue_iteration:
       diff_inc = _c_leiden._Optimiser_optimise_partition_multiplex(
         self._optimiser,
@@ -403,8 +405,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> partition = leiden.ModularityVertexPartition(G)
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.move_nodes(partition)
 
     """
@@ -449,19 +451,19 @@ class Optimiser(object):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> optimiser = leiden.Optimiser();
-    >>> partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.optimise_partition(partition);
-    >>> refine_partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
+    >>> diff = optimiser.optimise_partition(partition)
+    >>> refine_partition = la.ModularityVertexPartition(G)
+    >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
     if (consider_comms is None):
-      consider_comms = self.refine_consider_comms;
-    diff =  _c_leiden._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
-    partition._update_internal_membership();
-    return diff;
+      consider_comms = self.refine_consider_comms
+    diff =  _c_leiden._Optimiser_move_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms)
+    partition._update_internal_membership()
+    return diff
 
   def merge_nodes(self, partition, consider_comms=None):
     """ Merge nodes for *optimising* the partition.
@@ -494,17 +496,17 @@ class Optimiser(object):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> optimiser = leiden.Optimiser();
-    >>> partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.merge_nodes(partition);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
+    >>> diff = optimiser.merge_nodes(partition)
 
     """
     if (consider_comms is None):
-      consider_comms = self.consider_comms;
-    diff =  _c_leiden._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms);
-    partition._update_internal_membership();
-    return diff;
+      consider_comms = self.consider_comms
+    diff =  _c_leiden._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms)
+    partition._update_internal_membership()
+    return diff
 
   def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
     """ Merge nodes for *refining* the partition.
@@ -541,19 +543,19 @@ class Optimiser(object):
 
     Examples
     --------
-    >>> G = ig.Graph.Famous('Zachary');
-    >>> optimiser = leiden.Optimiser();
-    >>> partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.optimise_partition(partition);
-    >>> refine_partition = leiden.ModularityVertexPartition(G);
-    >>> optimiser.move_nodes_constrained(refine_partition, partition);
+    >>> G = ig.Graph.Famous('Zachary')
+    >>> optimiser = la.Optimiser()
+    >>> partition = la.ModularityVertexPartition(G)
+    >>> diff = optimiser.optimise_partition(partition)
+    >>> refine_partition = la.ModularityVertexPartition(G)
+    >>> diff = optimiser.move_nodes_constrained(refine_partition, partition)
 
     """
     if (consider_comms is None):
-      consider_comms = self.refine_consider_comms;
-    diff =  _c_leiden._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms);
-    partition._update_internal_membership();
-    return diff;
+      consider_comms = self.refine_consider_comms
+    diff =  _c_leiden._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms)
+    partition._update_internal_membership()
+    return diff
 
   def resolution_profile(self,
         graph,
@@ -621,8 +623,8 @@ class Optimiser(object):
     Examples
     --------
     >>> G = ig.Graph.Famous('Zachary')
-    >>> optimiser = leiden.Optimiser()
-    >>> profile = optimiser.resolution_profile(G, leiden.CPMVertexPartition,
+    >>> optimiser = la.Optimiser()
+    >>> profile = optimiser.resolution_profile(G, la.CPMVertexPartition,
     ...                                        resolution_range=(0,1))
     """
 
