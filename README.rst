@@ -25,9 +25,10 @@ information.
                 :target: https://travis-ci.org/vtraag/leidenalg
                 :alt: Leiden build status
 
-.. image:: https://zenodo.org/badge/31305324.svg
-                :target: https://zenodo.org/badge/latestdoi/31305324
+.. image:: https://zenodo.org/badge/146722095.svg
+                :target: https://zenodo.org/badge/latestdoi/146722095
                 :alt: DOI 
+
 Installation
 ------------
 
