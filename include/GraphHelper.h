@@ -96,10 +96,6 @@ class Graph
 
     Graph* collapse_graph(MutableVertexPartition* partition);
 
-    double weight_tofrom_community(size_t v, size_t comm, vector<size_t> const& membership, igraph_neimode_t mode);
-    void cache_neigh_communities(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
-    vector<size_t> const& get_neigh_comms(size_t v, vector<size_t> const& membership, igraph_neimode_t mode);
-
     vector<size_t> const& get_neighbour_edges(size_t v, igraph_neimode_t mode);
     vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t* rng);
