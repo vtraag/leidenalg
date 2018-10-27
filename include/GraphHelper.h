@@ -204,7 +204,6 @@ class Graph
     double _density;
 
     void init_admin();
-    void init_weighted_neigh_selection();
     void set_defaults();
     void set_default_edge_weight();
     void set_default_node_size();
