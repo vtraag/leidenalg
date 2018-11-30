@@ -20,6 +20,7 @@ import sys
 import tarfile
 import tempfile
 import versioneer
+import platform
 
 try:
     from urllib import urlretrieve
@@ -512,7 +513,13 @@ class BuildConfiguration(object):
     def replace_static_libraries(self, exclusions=None):
         """Replaces references to libraries with full paths to their static
         versions if the static version is to be found on the library path."""
-        if "stdc++" not in self.libraries:
+
+        if platform.system()=='Darwin':
+          if platform.release()=='18.0.0':
+            if "c++" not in self.libraries:
+              self.libraries.append("c++")
+        else:
+          if "stdc++" not in self.libraries:
             self.libraries.append("stdc++")
 
         if exclusions is None:
@@ -587,7 +594,14 @@ class BuildConfiguration(object):
 
         self.libraries = LIBIGRAPH_FALLBACK_LIBRARIES[:]
         if self.static_extension:
-            self.libraries.extend(["xml2", "z", "m", "stdc++"])
+          self.libraries.extend(["xml2", "z", "m"])
+          if platform.system()=='Darwin':
+            if platform.release()=='18.0.0':
+              if "c++" not in self.libraries:
+                self.libraries.append("c++")
+          else:
+            if "stdc++" not in self.libraries:
+              self.libraries.append("stdc++")
         self.include_dirs = LIBIGRAPH_FALLBACK_INCLUDE_DIRS[:]
         self.library_dirs = LIBIGRAPH_FALLBACK_LIBRARY_DIRS[:]
 
