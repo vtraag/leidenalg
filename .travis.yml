@@ -15,6 +15,14 @@ os:
 osx_image:
   xcode10.1
 
+before_install: |
+  if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+     brew update
+     brew install python
+     sudo -H easy_install pip
+     sudo -H easy_install virtualenv
+   fi
+
 install:
   - pip install ddt
   - python setup.py install
