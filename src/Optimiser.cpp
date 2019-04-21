@@ -423,6 +423,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Number of moved nodes during one loop
   size_t nb_moves = 0;
 
+  // FABIO TODO: exclude fixed nodes from the following queue
+
   // Establish vertex order
   // We normally initialize the normal vertex order
   // of considering node 0,1,...
