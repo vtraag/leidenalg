@@ -6,25 +6,35 @@
 
 Graph* create_graph_from_py(PyObject* py_obj_graph)
 {
-  return create_graph_from_py(py_obj_graph, NULL, NULL, false);
+  return create_graph_from_py(py_obj_graph, NULL, NULL, false, NULL);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights)
 {
-  return create_graph_from_py(py_obj_graph, py_weights, NULL, true);
+  return create_graph_from_py(py_obj_graph, py_weights, NULL, true, NULL);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, int check_positive_weight)
 {
-  return create_graph_from_py(py_obj_graph, py_weights, NULL, check_positive_weight);
+  return create_graph_from_py(py_obj_graph, py_weights, NULL, check_positive_weight, NULL);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes)
 {
-  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, true);
+  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, true, NULL);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, PyObject* py_fixed_nodes)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, true, py_fixed_nodes);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, int check_positive_weight)
+{
+  return create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, check_positive_weight, NULL);
+}
+
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, int check_positive_weight, PyObject* py_fixed_nodes)
 {
   #ifdef DEBUG
     cerr << "create_graph_from_py" << endl;
@@ -172,17 +182,19 @@ extern "C"
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
+    PyObject* py_fixed_nodes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "fixed_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights,
+                                     &py_fixed_nodes))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, NULL, py_fixed_nodes);
 
       ModularityVertexPartition* partition = NULL;
 
@@ -243,17 +255,18 @@ extern "C"
   {
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
+    PyObject* py_fixed_nodes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "fixed_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|O", kwlist,
-                                     &py_obj_graph, &py_initial_membership))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_fixed_nodes))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph);
+      Graph* graph = create_graph_from_py(py_obj_graph, NULL, NULL, py_fixed_nodes);
 
       SignificanceVertexPartition* partition = NULL;
 
@@ -314,17 +327,19 @@ extern "C"
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
+    PyObject* py_fixed_nodes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "fixed_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights,
+                                     &py_fixed_nodes))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, NULL, py_fixed_nodes);
 
       SurpriseVertexPartition* partition = NULL;
 
@@ -386,18 +401,20 @@ extern "C"
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
+    PyObject* py_fixed_nodes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", "fixed_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOdO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter,
+                                     &py_fixed_nodes))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, false);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, false, py_fixed_nodes);
 
       CPMVertexPartition* partition = NULL;
 
@@ -462,18 +479,20 @@ extern "C"
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
+    PyObject* py_fixed_nodes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", "fixed_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOdO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter,
+                                     &py_fixed_nodes))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, py_node_sizes, py_fixed_nodes);
 
       RBERVertexPartition* partition = NULL;
 
@@ -534,18 +553,20 @@ extern "C"
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
+    PyObject* py_fixed_nodes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "resolution_parameter", NULL};
+    static char* kwlist[] = {"graph", "initial_membership", "weights", "resolution_parameter", "fixed_nodes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOd", kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOdO", kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &resolution_parameter,
+                                     &py_fixed_nodes))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_weights);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_weights, NULL, py_fixed_nodes);
 
       RBConfigurationVertexPartition* partition = NULL;
 

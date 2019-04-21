@@ -23,7 +23,7 @@ def _get_py_capsule(graph):
 from .VertexPartition import *
 from .Optimiser import *
 
-def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, seed=None, **kwargs):
+def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, seed=None, fixed_nodes=None, **kwargs):
   """ Detect communities using the default settings.
 
   This function detects communities given the specified method in the
@@ -58,6 +58,11 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
     Seed for the random number generator. By default uses a random seed
     if nothing is specified.
 
+  fixed_nodes : list of bool
+    Which nodes are fixed (True) and which are free to switch community
+    (False). If :obj:`None` then defaults to all False, i.e. all nodes are
+    free.
+
   **kwargs
     Remaining keyword arguments, passed on to constructor of
     ``partition_type``.
@@ -79,6 +84,8 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   """
   if not weights is None:
     kwargs['weights'] = weights
+  if not fixed_nodes is None:
+    kwargs['fixed_nodes'] = fixed_nodes
   partition = partition_type(graph,
                              initial_membership=initial_membership,
                              **kwargs)

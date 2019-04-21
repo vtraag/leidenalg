@@ -26,6 +26,8 @@
                      -- What node attribute should be used for the self
                         weight? If None, the self_weight is
                         recalculated each time."""
+    fixed_nodes=None -- Nodes to fix so their community membership never
+                        changes. If None, no nodes are fixed.
 *****************************************************************************/
 
 MutableVertexPartition::MutableVertexPartition(Graph* graph,
