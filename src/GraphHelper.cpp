@@ -122,6 +122,32 @@ Graph::Graph(igraph_t* graph,
 
 Graph::Graph(igraph_t* graph,
   vector<double> const& edge_weights,
+  vector<size_t> const& node_sizes,
+  vector<bool> const& fixed_nodes, int correct_self_loops)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+
+  if (edge_weights.size() != this->ecount())
+    throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
+  this->_edge_weights = edge_weights;
+  this->_is_weighted = true;
+
+  if (node_sizes.size() != this->vcount())
+    throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
+  this->_node_sizes = node_sizes;
+
+  if (fixed_nodes.size() != this->vcount())
+    throw Exception("Fixed nodes vector inconsistent length with the vertex count of the graph.");
+  this->_fixed_nodes = fixed_nodes;
+
+  this->_correct_self_loops = correct_self_loops;
+  this->init_admin();
+  this->set_self_weights();
+}
+
+Graph::Graph(igraph_t* graph,
+  vector<double> const& edge_weights,
   vector<size_t> const& node_sizes, int correct_self_loops)
 {
   this->_graph = graph;
@@ -162,6 +188,27 @@ Graph::Graph(igraph_t* graph,
   this->set_self_weights();
 }
 
+Graph::Graph(igraph_t* graph,
+  vector<double> const& edge_weights,
+  vector<bool> const& fixed_nodes, int correct_self_loops)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->_correct_self_loops = correct_self_loops;
+  if (edge_weights.size() != this->ecount())
+    throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
+  this->_edge_weights = edge_weights;
+  this->_is_weighted = true;
+  this->set_default_node_size();
+
+  if (fixed_nodes.size() != this->vcount())
+    throw Exception("Fixed nodes vector inconsistent length with the vertex count of the graph.");
+  this->_fixed_nodes = fixed_nodes;
+
+  this->init_admin();
+  this->set_self_weights();
+}
+
 Graph::Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops)
 {
   this->_graph = graph;
@@ -172,6 +219,7 @@ Graph::Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_se
   this->_edge_weights = edge_weights;
   this->_is_weighted = true;
   this->set_default_node_size();
+  this->set_default_fixed_nodes();
   this->init_admin();
   this->set_self_weights();
 }
@@ -188,6 +236,29 @@ Graph::Graph(igraph_t* graph, vector<double> const& edge_weights)
   this->_correct_self_loops = this->has_self_loops();
 
   this->set_default_node_size();
+  this->set_default_fixed_nodes();
+  this->init_admin();
+  this->set_self_weights();
+}
+
+Graph::Graph(igraph_t* graph,
+  vector<size_t> const& node_sizes,
+  vector<bool> const& fixed_nodes, int correct_self_loops)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->_correct_self_loops = correct_self_loops;
+
+  if (node_sizes.size() != this->vcount())
+    throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
+  this->_node_sizes = node_sizes;
+
+  if (fixed_nodes.size() != this->vcount())
+    throw Exception("Fixed nodes vector inconsistent length with the vertex count of the graph.");
+  this->_fixed_nodes = fixed_nodes;
+
+  this->set_default_edge_weight();
+  this->_is_weighted = false;
   this->init_admin();
   this->set_self_weights();
 }
@@ -203,6 +274,7 @@ Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self
   this->_node_sizes = node_sizes;
 
   this->set_default_edge_weight();
+  this->set_default_fixed_nodes();
   this->_is_weighted = false;
   this->init_admin();
   this->set_self_weights();
@@ -221,6 +293,23 @@ Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes)
   this->_node_sizes = node_sizes;
 
   this->_correct_self_loops = this->has_self_loops();
+
+  this->init_admin();
+  this->set_self_weights();
+}
+
+Graph::Graph(igraph_t* graph, vector<bool> const& fixed_nodes, int correct_self_loops)
+{
+  this->_graph = graph;
+  this->_remove_graph = false;
+  this->_correct_self_loops = correct_self_loops;
+  this->set_default_edge_weight();
+  this->set_default_node_size();
+  this->_is_weighted = false;
+
+  if (fixed_nodes.size() != this->vcount())
+    throw Exception("Fixed nodes vector inconsistent length with the vertex count of the graph.");
+  this->_fixed_nodes = fixed_nodes;
 
   this->init_admin();
   this->set_self_weights();
@@ -310,6 +399,7 @@ void Graph::set_defaults()
 {
   this->set_default_edge_weight();
   this->set_default_node_size();
+  this->set_default_fixed_nodes();
 }
 
 void Graph::set_default_edge_weight()
@@ -329,6 +419,14 @@ void Graph::set_default_node_size()
   // Set default node size of 1
   this->_node_sizes.clear(); this->_node_sizes.resize(n);
   fill(this->_node_sizes.begin(), this->_node_sizes.end(), 1);
+}
+
+void Graph::set_default_fixed_nodes()
+{
+  size_t n = this->vcount();
+  // Set default fixed nodes to false, all nodes are free to move
+  this->_fixed_nodes.clear(); this->_fixed_nodes.resize(n);
+  fill(this->_fixed_nodes.begin(), this->_fixed_nodes.end(), false);
 }
 
 void Graph::set_self_weights()

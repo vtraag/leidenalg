@@ -196,6 +196,7 @@ class Graph
     vector<double> _edge_weights; // Used for the weight of the edges.
     vector<size_t> _node_sizes; // Used for the size of the nodes.
     vector<double> _node_self_weights; // Used for the self weight of the nodes.
+    vector<bool> _fixed_nodes; // Used for fixed nodes.
 
     void cache_neighbours(size_t v, igraph_neimode_t mode);
     vector<size_t> _cached_neighs_from; size_t _current_node_cache_neigh_from;
