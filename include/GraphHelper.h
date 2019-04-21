@@ -77,14 +77,25 @@ class Graph
       vector<double> const& node_self_weights);
     Graph(igraph_t* graph,
       vector<double> const& edge_weights,
+      vector<size_t> const& node_sizes,
+      vector<bool> const& fixed_nodes, int correct_self_loops);
+    Graph(igraph_t* graph,
+      vector<double> const& edge_weights,
       vector<size_t> const& node_sizes, int correct_self_loops);
     Graph(igraph_t* graph,
       vector<double> const& edge_weights,
       vector<size_t> const& node_sizes);
+    Graph(igraph_t* graph,
+      vector<double> const& edge_weights,
+      vector<bool> const& fixed_nodes, int correct_self_loops);
     Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops);
     Graph(igraph_t* graph, vector<double> const& edge_weights);
+    Graph(igraph_t* graph,
+      vector<size_t> const& node_sizes,
+      vector<bool> const& fixed_nodes, int correct_self_loops);
     Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops);
     Graph(igraph_t* graph, vector<size_t> const& node_sizes);
+    Graph(igraph_t* graph, vector<bool> const& fixed_nodes, int correct_self_loops);
     Graph(igraph_t* graph, int correct_self_loops);
     Graph(igraph_t* graph);
     Graph();

@@ -60,6 +60,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
 
   vector<size_t> node_sizes;
   vector<double> weights;
+  vector<bool> fixed_nodes;
   if (py_node_sizes != NULL && py_node_sizes != Py_None)
   {
     #ifdef DEBUG
@@ -87,6 +88,25 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
       {
         throw Exception("Expected integer value for node sizes vector.");
       }
+    }
+  }
+
+  if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+  {
+    #ifdef DEBUG
+      cerr << "Reading fixed_nodes." << endl;
+    #endif
+
+    bool nb_fixed_node = PyList_Size(py_fixed_nodes);
+    if (nb_node_size != n)
+    {
+      throw Exception("Fixed nodes vector not the same size as the number of nodes.");
+    }
+    fixed_nodes.resize(n);
+    for (size_t v = 0; v < n; v++)
+    {
+      PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+      fixed_nodes[v] = PyObject_IsTrue(py_item);
     }
   }
 
@@ -133,16 +153,36 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
   if (node_sizes.size() == n)
   {
     if (weights.size() == m)
-      graph = new Graph(py_graph, weights, node_sizes, correct_self_loops);
+    {
+      if (fixed_nodes.size() == n)
+        graph = new Graph(py_graph, weights, node_sizes, fixed_nodes, correct_self_loops);
+      else
+        graph = new Graph(py_graph, weights, node_sizes, correct_self_loops);
+    }
     else
-      graph = new Graph(py_graph, node_sizes, correct_self_loops);
+    {
+      if (fixed_nodes.size() == n)
+        graph = new Graph(py_graph, node_sizes, fixed_nodes, correct_self_loops);
+      else
+        graph = new Graph(py_graph, node_sizes, correct_self_loops);
+    }
   }
   else
   {
     if (weights.size() == m)
-      graph = new Graph(py_graph, weights, correct_self_loops);
+    {
+      if (fixed_nodes.size() == n)
+        graph = new Graph(py_graph, weights, fixed_nodes, correct_self_loops);
+      else
+        graph = new Graph(py_graph, weights, correct_self_loops);
+    }
     else
-      graph = new Graph(py_graph, correct_self_loops);
+    {
+      if (fixed_nodes.size() == n)
+        graph = new Graph(py_graph, fixed_nodes, correct_self_loops);
+      else
+        graph = new Graph(py_graph, correct_self_loops);
+    }
   }
 
   #ifdef DEBUG
