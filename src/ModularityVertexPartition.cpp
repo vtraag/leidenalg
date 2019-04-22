@@ -1,4 +1,4 @@
-#include "ModularityVertexPartition.h"
+#include <ModularityVertexPartition.h>
 
 #ifdef DEBUG
 #include <iostream>
