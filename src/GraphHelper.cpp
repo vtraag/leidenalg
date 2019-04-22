@@ -93,6 +93,7 @@ Graph::Graph(igraph_t* graph,
     throw Exception("Node self weights vector inconsistent length with the vertex count of the graph.");
   this->_node_self_weights = node_self_weights;
 
+  this->set_default_fixed_nodes();
   this->_correct_self_loops = correct_self_loops;
   this->init_admin();
 }
@@ -117,6 +118,7 @@ Graph::Graph(igraph_t* graph,
   this->_correct_self_loops = this->has_self_loops();
 
   this->_node_self_weights = node_self_weights;
+  this->set_default_fixed_nodes();
   this->init_admin();
 }
 
@@ -163,6 +165,7 @@ Graph::Graph(igraph_t* graph,
   this->_node_sizes = node_sizes;
 
   this->_correct_self_loops = correct_self_loops;
+  this->set_default_fixed_nodes();
   this->init_admin();
   this->set_self_weights();
 }
@@ -184,6 +187,7 @@ Graph::Graph(igraph_t* graph,
 
   this->_correct_self_loops = this->has_self_loops();
 
+  this->set_default_fixed_nodes();
   this->init_admin();
   this->set_self_weights();
 }
@@ -294,6 +298,7 @@ Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes)
 
   this->_correct_self_loops = this->has_self_loops();
 
+  this->set_default_fixed_nodes();
   this->init_admin();
   this->set_self_weights();
 }
