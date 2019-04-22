@@ -152,6 +152,10 @@ class Graph
     inline size_t node_size(size_t v)
     { return this->_node_sizes[v]; };
 
+    // Get fixed node based on attribute
+    inline size_t fixed_node(size_t v)
+    { return this->_fixed_nodes[v]; };
+
     // Get self weight of node based on attribute (or set to 0.0 if there is none)
     inline double node_self_weight(size_t v)
     { return this->_node_self_weights[v]; };
@@ -177,6 +181,28 @@ class Graph
       else
         throw Exception("Incorrect mode specified.");
     };
+
+    inline size_t vcount_nonfixed()
+    {
+      size_t n = 0;
+      for (size_t v = 0; v != vcount(); v++)
+      {
+        if (!fixed_node(v))
+          n++;
+      }
+      return n;
+    };
+
+    inline vector<size_t> nonfixed_nodes()
+    {
+      vector<size_t> nnf;
+      for (size_t v = 0; v != vcount(); v++)
+      {
+        if (!fixed_node(v))
+          nnf.push_back(v);
+      }
+      return nnf;
+    }
 
   protected:
 

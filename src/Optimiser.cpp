@@ -423,15 +423,15 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Number of moved nodes during one loop
   size_t nb_moves = 0;
 
-  // FABIO TODO: exclude fixed nodes from the following queue
-
   // Establish vertex order
   // We normally initialize the normal vertex order
   // of considering node 0,1,...
   queue<size_t> vertex_order;
   vector<int> is_node_stable(n, false);
-  // But if we use a random order, we shuffle this order.
-  vector<size_t> nodes = range(n);
+
+  // Only nonfixed nodes can move
+  vector<size_t> nodes = graphs[0]->nonfixed_nodes();
+  // If we use a random order, we shuffle this order.
   shuffle(nodes, &rng);
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
