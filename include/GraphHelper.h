@@ -219,6 +219,7 @@ class Graph
     void set_defaults();
     void set_default_edge_weight();
     void set_default_node_size();
+    void set_default_fixed_nodes();
     void set_self_weights();
 
 };
