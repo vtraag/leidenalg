@@ -182,27 +182,16 @@ class Graph
         throw Exception("Incorrect mode specified.");
     };
 
-    inline size_t vcount_nonfixed()
-    {
-      size_t n = 0;
-      for (size_t v = 0; v != vcount(); v++)
-      {
-        if (!fixed_node(v))
-          n++;
-      }
-      return n;
-    };
-
     inline vector<size_t> nonfixed_nodes()
     {
       vector<size_t> nnf;
-      for (size_t v = 0; v != vcount(); v++)
+      for (size_t v = 0; v != this->vcount(); v++)
       {
         if (!fixed_node(v))
           nnf.push_back(v);
       }
       return nnf;
-    }
+    };
 
   protected:
 
