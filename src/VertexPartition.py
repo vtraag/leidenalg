@@ -425,7 +425,7 @@ class ModularityVertexPartition(MutableVertexPartition):
          in Directed Networks. Physical Review Letters, 100(11), 118703.
          `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None):
+  def __init__(self, graph, initial_membership=None, weights=None, fixed_nodes=None):
     """
     Parameters
     ----------
@@ -438,6 +438,10 @@ class ModularityVertexPartition(MutableVertexPartition):
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
+
+    fixed_nodes : list of bool
+      Whether each node is fixed or node. If :obj:`None` then defaults to
+      no nodes are fixed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
@@ -452,8 +456,12 @@ class ModularityVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
+    if fixed_nodes is not None:
+        # Make sure it is a list
+        fixed_nodes = list(fixed_nodes)
+
     self._partition = _c_leiden._new_ModularityVertexPartition(pygraph_t,
-        initial_membership, weights)
+        initial_membership, weights, fixed_nodes=fixed_nodes)
     self._update_internal_membership()
 
 class SurpriseVertexPartition(MutableVertexPartition):
@@ -493,7 +501,8 @@ class SurpriseVertexPartition(MutableVertexPartition):
           `10.1103/PhysRevE.92.022816 <http://doi.org/10.1103/PhysRevE.92.022816>`_
   """
 
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None,
+          fixed_nodes=None):
     """
     Parameters
     ----------
@@ -511,6 +520,10 @@ class SurpriseVertexPartition(MutableVertexPartition):
       Sizes of nodes are necessary to know the size of communities in aggregate
       graphs. Usually this is set to 1 for all nodes, but in specific cases
       this could be changed.
+
+    fixed_nodes : list of bool
+      Whether each node is fixed or node. If :obj:`None` then defaults to
+      no nodes are fixed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
@@ -526,8 +539,12 @@ class SurpriseVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
+    if fixed_nodes is not None:
+        # Make sure it is a list
+        fixed_nodes = list(fixed_nodes)
+
     self._partition = _c_leiden._new_SurpriseVertexPartition(pygraph_t,
-        initial_membership, weights)
+        initial_membership, weights, fixed_nodes=fixed_nodes)
     self._update_internal_membership()
 
 class SignificanceVertexPartition(MutableVertexPartition):
@@ -564,7 +581,7 @@ class SignificanceVertexPartition(MutableVertexPartition):
   .. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in community structure.
          Scientific Reports, 3, 2930. `10.1038/srep02930 <http://doi.org/10.1038/srep02930>`_
   """
-  def __init__(self, graph, initial_membership=None, node_sizes=None):
+  def __init__(self, graph, initial_membership=None, node_sizes=None, fixed_nodes=None):
     """
     Parameters
     ----------
@@ -579,15 +596,23 @@ class SignificanceVertexPartition(MutableVertexPartition):
       Sizes of nodes are necessary to know the size of communities in aggregate
       graphs. Usually this is set to 1 for all nodes, but in specific cases
       this could be changed.
+
+    fixed_nodes : list of bool
+      Whether each node is fixed or node. If :obj:`None` then defaults to
+      no nodes are fixed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
 
     super(SignificanceVertexPartition, self).__init__(graph, initial_membership)
 
+    if fixed_nodes is not None:
+        # Make sure it is a list
+        fixed_nodes = list(fixed_nodes)
+
     pygraph_t = _get_py_capsule(graph)
 
-    self._partition = _c_leiden._new_SignificanceVertexPartition(pygraph_t, initial_membership)
+    self._partition = _c_leiden._new_SignificanceVertexPartition(pygraph_t, initial_membership, fixed_nodes=fixed_nodes)
     self._update_internal_membership()
 
 class LinearResolutionParameterVertexPartition(MutableVertexPartition):
@@ -669,7 +694,7 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
          community detection.  Physical Review E, 74(1), 016110.
          `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0, fixed_nodes=None):
     """
     Parameters
     ----------
@@ -690,6 +715,10 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
 
     resolution_parameter : double
       Resolution parameter.
+
+    fixed_nodes : list of bool
+      Whether each node is fixed or node. If :obj:`None` then defaults to
+      no nodes are fixed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
@@ -712,8 +741,13 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes)
 
+    if fixed_nodes is not None:
+        # Make sure it is a list
+        fixed_nodes = list(fixed_nodes)
+
     self._partition = _c_leiden._new_RBERVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter)
+        initial_membership, weights, node_sizes, resolution_parameter,
+        fixed_nodes=fixed_nodes)
     self._update_internal_membership()
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
@@ -765,7 +799,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
          `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
 
    """
-  def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0, fixed_nodes=None):
     """
     Parameters
     ----------
@@ -781,6 +815,10 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
 
     resolution_parameter : double
       Resolution parameter.
+
+    fixed_nodes : list of bool
+      Whether each node is fixed or node. If :obj:`None` then defaults to
+      no nodes are fixed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
@@ -796,8 +834,13 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
+    if fixed_nodes is not None:
+        # Make sure it is a list
+        fixed_nodes = list(fixed_nodes)
+
     self._partition = _c_leiden._new_RBConfigurationVertexPartition(pygraph_t,
-        initial_membership, weights, resolution_parameter)
+        initial_membership, weights, resolution_parameter,
+        fixed_nodes=fixed_nodes)
     self._update_internal_membership()
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
@@ -844,7 +887,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
          resolution-limit-free community detection.  Physical Review E, 84(1),
          016114.  `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0, fixed_nodes=None):
     """
     Parameters
     ----------
@@ -865,6 +908,10 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
 
     resolution_parameter : double
       Resolution parameter.
+
+    fixed_nodes : list of bool
+      Whether each node is fixed or node. If :obj:`None` then defaults to
+      no nodes are fixed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
@@ -887,8 +934,13 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes)
 
+    if fixed_nodes is not None:
+        # Make sure it is a list
+        fixed_nodes = list(fixed_nodes)
+
     self._partition = _c_leiden._new_CPMVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter)
+        initial_membership, weights, node_sizes, resolution_parameter,
+        fixed_nodes=fixed_nodes)
     self._update_internal_membership()
 
   def Bipartite(graph, resolution_parameter_01,
