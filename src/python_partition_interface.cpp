@@ -98,7 +98,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObje
     #endif
 
     bool nb_fixed_node = PyList_Size(py_fixed_nodes);
-    if (nb_node_size != n)
+    if (nb_fixed_node != n)
     {
       throw Exception("Fixed nodes vector not the same size as the number of nodes.");
     }
