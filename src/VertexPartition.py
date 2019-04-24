@@ -421,7 +421,7 @@ class ModularityVertexPartition(MutableVertexPartition):
          community structure in networks.  Physical Review E, 69(2), 026113.
          `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
 
-  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure 
+  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure
          in Directed Networks. Physical Review Letters, 100(11), 118703.
          `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
    """
@@ -760,7 +760,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
          community detection.  Physical Review E, 74(1), 016110.
          `10.1103/PhysRevE.74.016110 <http://doi.org/10.1103/PhysRevE.74.016110>`_
 
-  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure 
+  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure
          in Directed Networks. Physical Review Letters, 100(11), 118703.
          `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
 
@@ -1027,12 +1027,10 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     partition_0 = CPMVertexPartition(H_0, weights=None,
                      node_sizes=[s if t == 0 else 0
                                  for v, s, t in zip(graph.vs,node_sizes,types)],
-                     resolution_parameter=resolution_parameter_01 - resolution_parameter_0,
-                     **kwargs)
+                     resolution_parameter=resolution_parameter_01 - resolution_parameter_0)
     H_1 = graph.subgraph_edges([], delete_vertices=False)
     partition_1 = CPMVertexPartition(H_1, weights=None,
                      node_sizes=[s if t == 1 else 0
                                  for v, s, t in zip(graph.vs,node_sizes,types)],
-                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1,
-                     **kwargs)
+                     resolution_parameter=resolution_parameter_01 - resolution_parameter_1)
     return partition_01, partition_0, partition_1

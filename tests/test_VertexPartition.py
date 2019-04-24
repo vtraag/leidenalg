@@ -59,6 +59,20 @@ graphs = [
                 'Lattice_directed')
     ];
 
+bipartite_graph = name_object(
+    ig.Graph.Bipartite([0, 0, 0, 0, 1, 1, 1, 1],
+                       [[0, 4],
+                        [0, 5],
+                        [0, 6],
+                        [1, 4],
+                        [1, 5],
+                        [2, 6],
+                        [2, 7],
+                        [3, 6],
+                        [3, 7],
+                        [3, 5]]),
+              'bipartite_example')
+
 def make_weighted(G):
   m = G.ecount();
   if PY3: 
@@ -137,25 +151,33 @@ class BaseTest:
           s, partition.total_weight_in_all_comms())
         );
 
-#class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
-#  def setUp(self):
-#    super(ModularityVertexPartitionTest, self).setUp();
-#    self.partition_type = leidenalg.ModularityVertexPartition;
-#
-#class RBERVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
-#  def setUp(self):
-#    super(RBERVertexPartitionTest, self).setUp();
-#    self.partition_type = leidenalg.RBERVertexPartition;
-#
-#class RBConfigurationVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
-#  def setUp(self):
-#    super(RBConfigurationVertexPartitionTest, self).setUp();
-#    self.partition_type = leidenalg.RBConfigurationVertexPartition;
-#
-#class CPMVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
-#  def setUp(self):
-#    super(CPMVertexPartitionTest, self).setUp();
-#    self.partition_type = leidenalg.CPMVertexPartition;
+class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
+  def setUp(self):
+    super(ModularityVertexPartitionTest, self).setUp();
+    self.partition_type = leidenalg.ModularityVertexPartition;
+
+class RBERVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
+  def setUp(self):
+    super(RBERVertexPartitionTest, self).setUp();
+    self.partition_type = leidenalg.RBERVertexPartition;
+
+class RBConfigurationVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
+  def setUp(self):
+    super(RBConfigurationVertexPartitionTest, self).setUp();
+    self.partition_type = leidenalg.RBConfigurationVertexPartition;
+
+class CPMVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
+  def setUp(self):
+    super(CPMVertexPartitionTest, self).setUp();
+    self.partition_type = leidenalg.CPMVertexPartition;
+
+  def test_Bipartite(self):
+    graph = bipartite_graph
+    partition, partition_0, partition_1 = \
+        leidenalg.CPMVertexPartition.Bipartite(graph, resolution_parameter_01=0.2)
+    self.optimiser.optimise_partition_multiplex([partition, partition_0, partition_1],
+                                     layer_weights=[1, -1, -1])
+    self.assertEqual(len(partition), 1)
 
 class SurpriseVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
