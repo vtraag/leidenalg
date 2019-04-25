@@ -891,8 +891,8 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         initial_membership, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 
-  @staticmethod
-  def Bipartite(graph, resolution_parameter_01,
+  @classmethod
+  def Bipartite(cls, graph, resolution_parameter_01,
                 resolution_parameter_0 = 0, resolution_parameter_1 = 0,
                 degree_as_node_size=False, types='type', **kwargs):
     """ Create three layers for bipartite partitions.
@@ -1020,17 +1020,17 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     else:
       node_sizes = [1]*graph.vcount()
 
-    partition_01 = CPMVertexPartition(graph,
+    partition_01 = cls(graph,
                      node_sizes=node_sizes,
                      resolution_parameter=resolution_parameter_01,
                      **kwargs)
     H_0 = graph.subgraph_edges([], delete_vertices=False)
-    partition_0 = CPMVertexPartition(H_0, weights=None,
+    partition_0 = cls(H_0, weights=None,
                      node_sizes=[s if t == 0 else 0
                                  for v, s, t in zip(graph.vs,node_sizes,types)],
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_0)
     H_1 = graph.subgraph_edges([], delete_vertices=False)
-    partition_1 = CPMVertexPartition(H_1, weights=None,
+    partition_1 = cls(H_1, weights=None,
                      node_sizes=[s if t == 1 else 0
                                  for v, s, t in zip(graph.vs,node_sizes,types)],
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_1)
