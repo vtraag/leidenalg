@@ -29,11 +29,19 @@ information.
                 :target: https://zenodo.org/badge/latestdoi/146722095
                 :alt: DOI 
 
+.. image:: https://anaconda.org/vtraag/leidenalg/badges/version.svg
+                :target: https://anaconda.org/vtraag/leidenalg
+                :alt: Anaconda (vtraag)
+
+.. image:: https://anaconda.org/conda-forge/leidenalg/badges/version.svg
+                :target: https://anaconda.org/conda-forge/leidenalg
+                :alt: Anaconda (conda-forge)
+
 Installation
 ------------
 
 In short, for Unix: ``pip install leidenalg``. For Windows: download the binary
-installers.
+installers. Alternatively, you can install from Anaconda (channels ``conda-forge`` or ``vtraag``).
 
 For Unix like systems it is possible to install from source. For Windows this
 is overly complicated, and you are recommended to use the binary installation
