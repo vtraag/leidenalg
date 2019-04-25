@@ -891,6 +891,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         initial_membership, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 
+  @staticmethod
   def Bipartite(graph, resolution_parameter_01,
                 resolution_parameter_0 = 0, resolution_parameter_1 = 0,
                 degree_as_node_size=False, types='type', **kwargs):
