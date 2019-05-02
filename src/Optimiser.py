@@ -229,7 +229,7 @@ class Optimiser(object):
     """
     _c_leiden._Optimiser_set_rng_seed(self._optimiser, value)
 
-  def optimise_partition(self, partition, n_iterations=2):
+  def optimise_partition(self, partition, n_iterations=2, fixed_nodes=None):
     """ Optimise the given partition.
 
     Parameters
@@ -241,6 +241,10 @@ class Optimiser(object):
       Number of iterations to run the Leiden algorithm. By default, 2 iterations
       are run. If the number of iterations is negative, the Leiden algorithm is
       run until an iteration in which there was no improvement.
+
+    fixed_nodes: list or None
+      List of nodes that are not allowed to change community. By default (None)
+      all nodes can change community during the optimization.
 
     Returns
     -------
@@ -255,13 +259,20 @@ class Optimiser(object):
     >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
 
+    or, fixing some nodes:
+
+    >>> diff = optimiser.optimise_partition(partition, fixed_nodes=[0, 1])
     """
 
     itr = 0
     diff = 0
     continue_iteration = itr < n_iterations or n_iterations < 0
     while continue_iteration:
-      diff_inc = _c_leiden._Optimiser_optimise_partition(self._optimiser, partition._partition)
+      diff_inc = _c_leiden._Optimiser_optimise_partition(
+              self._optimiser,
+              partition._partition,
+              fixed_nodes=fixed_nodes,
+              )
       diff += diff_inc
       itr += 1
       if n_iterations < 0:
