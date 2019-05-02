@@ -47,12 +47,12 @@ void Optimiser::print_settings()
 /*****************************************************************************
   optimise the provided partition.
 *****************************************************************************/
-double Optimiser::optimise_partition(MutableVertexPartition* partition)
+double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<size_t> fixed_nodes)
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->optimise_partition(partitions, layer_weights);
+  return this->optimise_partition(partitions, layer_weights, fixed_nodes);
 }
 
 /*****************************************************************************
@@ -63,10 +63,10 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
 /*****************************************************************************
   optimise the provided partition.
 *****************************************************************************/
-double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)
+double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> fixed_nodes)
 {
   #ifdef DEBUG
-    cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights)" << endl;
+    cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> fixed_nodes)" << endl;
   #endif
 
   double q = 0.0;

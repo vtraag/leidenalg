@@ -40,18 +40,19 @@ extern "C"
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"optimiser", "partition", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
-                                     &py_optimiser, &py_partition))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO", kwlist,
+                                     &py_optimiser, &py_partition,
+                                     &py_fixed_nodes))
         return NULL;
 
     #ifdef DEBUG
-      cerr << "optimise_partition(" << py_partition << ");" << endl;
+      cerr << "optimise_partition(" << py_partition << ", fixed_nodes=" << py_fixed_nodes << ");" << endl;
     #endif
 
     #ifdef DEBUG
@@ -70,10 +71,37 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    vector<size_t> fixed_nodes;
+    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading fixed_nodes." << endl;
+      #endif
+
+      size_t nb_fixed_nodes = PyList_Size(py_node_sizes);
+      node_sizes.resize(nb_fixed_nodes);
+      for (size_t v = 0; v < n; v++)
+      {
+        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+        #ifdef IS_PY3K
+        if (PyLong_Check(py_item))
+        #else
+        if (PyInt_Check(py_item) || PyLong_Check(py_item))
+        #endif
+        {
+          fixed_nodes[v] = PyLong_AsLong(py_item);
+        }
+        else
+        {
+          throw Exception("Expected integer value for fixed nodes vector.");
+        }
+      }
+    }
+
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partition);
+      q = optimiser->optimise_partition(partition, fixed_nodes);
     }
     catch (std::exception e)
     {
