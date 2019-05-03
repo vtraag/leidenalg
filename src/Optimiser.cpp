@@ -111,6 +111,10 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     collapsed_partitions[layer] = partitions[layer];
   }
 
+  // Declare which nodes in the collapsed graph are fixed, which to start is
+  // simply equal to fixed_nodes_bool
+  vector<bool> collapsed_fixed_nodes_bool(fixed_nodes_bool);
+
   // This reflects the aggregate node, which to start with is simply equal to the graph.
   vector<size_t> aggregate_node_per_individual_node = range(n);
   int aggregate_further = true;
@@ -127,9 +131,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Quality before moving " <<  q << endl;
     #endif
     if (this->optimise_routine == Optimiser::MOVE_NODES)
-      improv += this->move_nodes(collapsed_partitions, layer_weights, fixed_nodes_bool);
+      improv += this->move_nodes(collapsed_partitions, layer_weights, collapsed_fixed_nodes_bool);
     else if (this->optimise_routine == Optimiser::MERGE_NODES)
-      improv += this->merge_nodes(collapsed_partitions, layer_weights, fixed_nodes_bool);
+      improv += this->merge_nodes(collapsed_partitions, layer_weights, collapsed_fixed_nodes_bool);
 
     #ifdef DEBUG
       cerr << "Found " << collapsed_partitions[0]->n_communities() << " communities, improved " << improv << endl;
@@ -230,6 +234,13 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
           //cerr << sub_collapsed_partition->membership(v) << "\t" << sub_collapsed_partition->membership(v) << endl;
         #endif // DEBUG
       }
+
+      // Determine which collapsed nodes are fixed
+      collapsed_fixed_nodes_bool.clear();
+      collapsed_fixed_nodes_bool.resize(new_collapsed_graphs[0]->vcount(), false);
+      for (size_t v = 0; v < n; v++)
+        if (fixed_nodes_bool[v])
+          collapsed_fixed_nodes_bool[aggregate_node_per_individual_node[v]] = true;
 
       // Create new collapsed partition
       for (size_t layer = 0; layer < nb_layers; layer++)
