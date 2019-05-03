@@ -85,12 +85,6 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // all graphs, so we only take the first one.
   size_t n = graphs[0]->vcount();
 
-  // Set fixed nodes as a boolean vector here
-  vector<bool> fixed_nodes_bool(n, false);
-  for(size_t v = 0; v != fixed_nodes.size(); v++)
-    if (fixed_nodes[v])
-      fixed_nodes_bool[v] = true;
-
   // Make sure that all graphs contain the exact same number of nodes.
   // We assume the index of each vertex in the graph points to the
   // same node (but then in a different layer).
@@ -112,8 +106,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   }
 
   // Declare which nodes in the collapsed graph are fixed, which to start is
-  // simply equal to fixed_nodes_bool
-  vector<bool> collapsed_fixed_nodes_bool(fixed_nodes_bool);
+  // simply equal to fixed_nodes
+  vector<bool> collapsed_fixed_nodes(fixed_nodes);
 
   // This reflects the aggregate node, which to start with is simply equal to the graph.
   vector<size_t> aggregate_node_per_individual_node = range(n);
@@ -131,9 +125,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Quality before moving " <<  q << endl;
     #endif
     if (this->optimise_routine == Optimiser::MOVE_NODES)
-      improv += this->move_nodes(collapsed_partitions, layer_weights, collapsed_fixed_nodes_bool);
+      improv += this->move_nodes(collapsed_partitions, layer_weights, collapsed_fixed_nodes);
     else if (this->optimise_routine == Optimiser::MERGE_NODES)
-      improv += this->merge_nodes(collapsed_partitions, layer_weights, collapsed_fixed_nodes_bool);
+      improv += this->merge_nodes(collapsed_partitions, layer_weights, collapsed_fixed_nodes);
 
     #ifdef DEBUG
       cerr << "Found " << collapsed_partitions[0]->n_communities() << " communities, improved " << improv << endl;
@@ -236,11 +230,11 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       }
 
       // Determine which collapsed nodes are fixed
-      collapsed_fixed_nodes_bool.clear();
-      collapsed_fixed_nodes_bool.resize(new_collapsed_graphs[0]->vcount(), false);
+      collapsed_fixed_nodes.clear();
+      collapsed_fixed_nodes.resize(new_collapsed_graphs[0]->vcount(), false);
       for (size_t v = 0; v < n; v++)
-        if (fixed_nodes_bool[v])
-          collapsed_fixed_nodes_bool[aggregate_node_per_individual_node[v]] = true;
+        if (fixed_nodes[v])
+          collapsed_fixed_nodes[aggregate_node_per_individual_node[v]] = true;
 
       // Create new collapsed partition
       for (size_t layer = 0; layer < nb_layers; layer++)
@@ -352,11 +346,16 @@ double Optimiser::move_nodes(MutableVertexPartition* partition)
 
 double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_comms)
 {
+  vector<bool> fixed_nodes(partition->get_graph()->vcount());
+  return this->move_nodes(partition, fixed_nodes, consider_comms);
+}
+
+double Optimiser::move_nodes(MutableVertexPartition* partition, vector<bool> fixed_nodes, int consider_comms)
+{
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  vector<bool> fixed_nodes_bool;
-  return this->move_nodes(partitions, layer_weights, fixed_nodes_bool, consider_comms, this->consider_empty_community);
+  return this->move_nodes(partitions, layer_weights, fixed_nodes, consider_comms, this->consider_empty_community);
 }
 
 double Optimiser::merge_nodes(MutableVertexPartition* partition)
@@ -366,11 +365,16 @@ double Optimiser::merge_nodes(MutableVertexPartition* partition)
 
 double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_comms)
 {
+  vector<bool> fixed_nodes(partition->get_graph()->vcount());
+  return this->merge_nodes(partition, fixed_nodes, consider_comms);
+}
+
+double Optimiser::merge_nodes(MutableVertexPartition* partition, vector<bool> fixed_nodes, int consider_comms)
+{
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  vector<bool> fixed_nodes_bool;
-  return this->merge_nodes(partitions, layer_weights, fixed_nodes_bool, consider_comms);
+  return this->merge_nodes(partitions, layer_weights, fixed_nodes, consider_comms);
 }
 
 double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
@@ -412,12 +416,12 @@ double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int
     partitions -- The partitions to optimise.
     layer_weights -- The weights used for the different layers.
 ******************************************************************************/
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes)
 {
-  return this->move_nodes(partitions, layer_weights, fixed_nodes_bool, this->consider_comms, this->consider_empty_community);
+  return this->move_nodes(partitions, layer_weights, fixed_nodes, this->consider_comms, this->consider_empty_community);
 }
 
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool, int consider_comms, int consider_empty_community)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes, int consider_comms, int consider_empty_community)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -445,7 +449,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Fixed nodes are also stable nodes
   vector<int> is_node_stable(n, false);
   for (size_t v = 0; v != n; v++)
-    if (fixed_nodes_bool[v])
+    if (fixed_nodes[v])
       is_node_stable[v] = true;
 
   // Establish vertex order
@@ -460,7 +464,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
        it_node++)
-    if (!fixed_nodes_bool[*it_node])
+    if (!fixed_nodes[*it_node])
       vertex_order.push(*it_node);
 
   // Initialize the degree vector
@@ -642,7 +646,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           // If the neighbour was stable and is not in the new community, we
           // should mark it as unstable, and add it to the queue, skipping
           // fixed nodes
-          if (is_node_stable[u] && partition->membership(v) != max_comm && !fixed_nodes_bool[u])
+          if (is_node_stable[u] && partition->membership(v) != max_comm && !fixed_nodes[u])
           {
             vertex_order.push(u);
             is_node_stable[u] = false;
@@ -665,12 +669,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return total_improv;
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes)
 {
-  return this->merge_nodes(partitions, layer_weights, fixed_nodes_bool, this->consider_comms);
+  return this->merge_nodes(partitions, layer_weights, fixed_nodes, this->consider_comms);
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool, int consider_comms)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes, int consider_comms)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -700,7 +704,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   // of considering node 0,1,...
   vector<size_t> vertex_order;
   for (size_t v = 0; v != n; v++)
-    if (!fixed_nodes_bool[v])
+    if (!fixed_nodes[v])
       vertex_order.push_back(v);
 
   // But if we use a random order, we shuffle this order.

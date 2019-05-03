@@ -242,9 +242,10 @@ class Optimiser(object):
       are run. If the number of iterations is negative, the Leiden algorithm is
       run until an iteration in which there was no improvement.
 
-    fixed_nodes: list or None
-      List of nodes that are not allowed to change community. By default (None)
-      all nodes can change community during the optimization.
+    fixed_nodes: list of bools or None
+      Boolean list of nodes that are not allowed to change community. The
+      length of this list must be equal to the number of nodes. By default
+      (None) all nodes can change community during the optimization.
 
     Returns
     -------
@@ -261,7 +262,10 @@ class Optimiser(object):
 
     or, fixing some nodes:
 
-    >>> diff = optimiser.optimise_partition(partition, fixed_nodes=[0, 1])
+    >>> fixed_nodes = [False for v in G.vs]
+    >>> fixed_nodes[4] = True
+    >>> fixed_nodes[6] = True
+    >>> diff = optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
     """
 
     itr = 0
@@ -283,7 +287,7 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2):
+  def optimise_partition_multiplex(self, partitions, layer_weights=None, fixed_nodes=None, n_iterations=2):
     """ Optimise the given partitions simultaneously.
 
     Parameters
@@ -293,6 +297,11 @@ class Optimiser(object):
 
     layer_weights
       List of weights of layers.
+
+    fixed_nodes: list of bools or None
+      Boolean list of nodes that are not allowed to change community. The
+      length of this list must be equal to the number of nodes. By default
+      (None) all nodes can change community during the optimization.
 
     n_iterations : int
       Number of iterations to run the Leiden algorithm. By default, 2 iterations
@@ -371,7 +380,8 @@ class Optimiser(object):
       diff_inc = _c_leiden._Optimiser_optimise_partition_multiplex(
         self._optimiser,
         [partition._partition for partition in partitions],
-        layer_weights)
+        layer_weights,
+        fixed_nodes)
       diff += diff_inc
       itr += 1
       if n_iterations < 0:
@@ -383,13 +393,18 @@ class Optimiser(object):
       partition._update_internal_membership()
     return diff
 
-  def move_nodes(self, partition, consider_comms=None):
+  def move_nodes(self, partition, fixed_nodes=None, consider_comms=None):
     """ Move nodes to alternative communities for *optimising* the partition.
 
     Parameters
     ----------
     partition
       The partition for which to move nodes.
+
+    fixed_nodes: list of bools or None
+      Boolean list of nodes that are not allowed to change community. The
+      length of this list must be equal to the number of nodes. By default
+      (None) all nodes can change community during the optimization.
 
     consider_comms
       If ``None`` uses :attr:`consider_comms`, but can be set to
@@ -423,7 +438,8 @@ class Optimiser(object):
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms
-    diff =  _c_leiden._Optimiser_move_nodes(self._optimiser, partition._partition, consider_comms)
+    diff = _c_leiden._Optimiser_move_nodes(
+            self._optimiser, partition._partition, fixed_nodes, consider_comms)
     partition._update_internal_membership()
     return diff
 
@@ -476,13 +492,18 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def merge_nodes(self, partition, consider_comms=None):
+  def merge_nodes(self, partition, fixed_nodes=None, consider_comms=None):
     """ Merge nodes for *optimising* the partition.
 
     Parameters
     ----------
     partition
       The partition for which to merge nodes.
+
+    fixed_nodes: list of bools or None
+      Boolean list of nodes that are not allowed to change community. The
+      length of this list must be equal to the number of nodes. By default
+      (None) all nodes can change community during the optimization.
 
     consider_comms
       If ``None`` uses :attr:`consider_comms`, but can be set to
@@ -515,7 +536,8 @@ class Optimiser(object):
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms
-    diff =  _c_leiden._Optimiser_merge_nodes(self._optimiser, partition._partition, consider_comms)
+    diff = _c_leiden._Optimiser_merge_nodes(
+            self._optimiser, partition._partition, fixed_nodes, consider_comms)
     partition._update_internal_membership()
     return diff
 
