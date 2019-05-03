@@ -79,7 +79,6 @@ class Optimiser
     void print_settings();
 
     igraph_rng_t rng;
-    vector<size_t> fixed_nodes;
 };
 
 template <class T> T* Optimiser::find_partition(Graph* graph)
