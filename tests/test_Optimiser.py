@@ -21,6 +21,18 @@ class OptimiserTest(unittest.TestCase):
         partition.sizes(), [100],
         msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes incorrect.");
 
+  def test_move_nodes_with_fixed(self):
+    # One edge plus singleton, but the two connected nodes are fixed
+    G = ig.Graph([(0, 2)])
+    fixed_nodes = [True, False, True]
+    partition = leidenalg.CPMVertexPartition(
+            G,
+            resolution_parameter=0.1);
+    self.optimiser.move_nodes(partition, fixed_nodes=fixed_nodes, consider_comms=leidenalg.ALL_NEIGH_COMMS);
+    self.assertListEqual(
+        partition.sizes(), [1, 1, 1],
+        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes incorrect.");
+
   def test_merge_nodes(self):
     G = ig.Graph.Full(100);
     partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0.5);
