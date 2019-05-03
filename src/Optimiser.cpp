@@ -695,10 +695,13 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
     if (graphs[layer]->vcount() != n)
       throw Exception("Number of nodes are not equal for all graphs.");
 
-  // Establish vertex order
+  // Establish vertex order, skipping fixed nodes
   // We normally initialize the normal vertex order
   // of considering node 0,1,...
-  vector<size_t> vertex_order = range(n);
+  vector<size_t> vertex_order;
+  for (size_t v = 0; v != n; v++)
+    if (!fixed_nodes_bool[v])
+      vertex_order.push_back(v);
 
   // But if we use a random order, we shuffle this order.
   shuffle(vertex_order, &rng);
