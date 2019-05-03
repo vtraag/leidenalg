@@ -442,20 +442,26 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Number of moved nodes during one loop
   size_t nb_moves = 0;
 
+  // Fixed nodes are also stable nodes
+  vector<int> is_node_stable(n, false);
+  for (size_t v = 0; v != n; v++)
+    if (fixed_nodes_bool[v])
+      is_node_stable[v] = true;
+
   // Establish vertex order
   // We normally initialize the normal vertex order
   // of considering node 0,1,...
   queue<size_t> vertex_order;
-  vector<int> is_node_stable(n, false);
+
   // But if we use a random order, we shuffle this order.
+  // Also, we skip fixed nodes from the queue for efficiency reasons
   vector<size_t> nodes = range(n);
   shuffle(nodes, &rng);
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
        it_node++)
-  {
-    vertex_order.push(*it_node);
-  }
+    if (!fixed_nodes_bool[*it_node])
+      vertex_order.push(*it_node);
 
   // Initialize the degree vector
   // If we want to debug the function, we will calculate some additional values.
@@ -627,15 +633,16 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
           }
         #endif
 
-        // Mark neighbours as unstable (if not in new community)
+        // Mark neighbours as unstable (if not in new community and not fixed)
         vector<size_t> const& neighs = graph->get_neighbours(v, IGRAPH_ALL);
         for (vector<size_t>::const_iterator it_neigh = neighs.begin();
              it_neigh != neighs.end(); it_neigh++)
         {
           size_t u = *it_neigh;
           // If the neighbour was stable and is not in the new community, we
-          // should mark it as unstable, and add it to the queue
-          if (is_node_stable[u] && partition->membership(v) != max_comm)
+          // should mark it as unstable, and add it to the queue, skipping
+          // fixed nodes
+          if (is_node_stable[u] && partition->membership(v) != max_comm && !fixed_nodes_bool[u])
           {
             vertex_order.push(u);
             is_node_stable[u] = false;
