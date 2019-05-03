@@ -113,7 +113,7 @@ extern "C"
     PyObject* py_layer_weights = NULL;
     PyObject* py_fixed_nodes = NULL;
 
-    if (!PyArg_ParseTuple(args, "OOO", &py_optimiser, &py_partitions,
+    if (!PyArg_ParseTuple(args, "OOOO", &py_optimiser, &py_partitions,
                                        &py_layer_weights, &py_fixed_nodes))
         return NULL;
 
@@ -274,7 +274,7 @@ extern "C"
     double q  = 0.0;
     try
     {
-      q = optimiser->move_nodes(partition, consider_comms);
+      q = optimiser->move_nodes(partition, fixed_nodes, consider_comms);
     }
     catch (std::exception e)
     {
@@ -349,7 +349,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      q = optimiser->merge_nodes(partition, consider_comms);
+      q = optimiser->merge_nodes(partition, fixed_nodes, consider_comms);
     }
     catch (std::exception e)
     {
