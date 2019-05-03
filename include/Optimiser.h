@@ -36,13 +36,13 @@ class Optimiser
 
     double move_nodes(MutableVertexPartition* partition);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, int consider_empty_community);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool, int consider_comms, int consider_empty_community);
 
     double merge_nodes(MutableVertexPartition* partition);
     double merge_nodes(MutableVertexPartition* partition, int consider_comms);
-    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights);
-    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes_bool, int consider_comms);
 
     double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);

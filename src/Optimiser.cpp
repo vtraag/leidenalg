@@ -355,7 +355,8 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->move_nodes(partitions, layer_weights, consider_comms, this->consider_empty_community);
+  vector<bool> fixed_nodes_bool;
+  return this->move_nodes(partitions, layer_weights, fixed_nodes_bool, consider_comms, this->consider_empty_community);
 }
 
 double Optimiser::merge_nodes(MutableVertexPartition* partition)
@@ -368,7 +369,8 @@ double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_co
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->merge_nodes(partitions, layer_weights, consider_comms);
+  vector<bool> fixed_nodes_bool;
+  return this->merge_nodes(partitions, layer_weights, fixed_nodes_bool, consider_comms);
 }
 
 double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
