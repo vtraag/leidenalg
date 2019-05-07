@@ -177,8 +177,7 @@ class CPMVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
         leidenalg.CPMVertexPartition.Bipartite(graph, resolution_parameter_01=0.2)
     self.optimiser.optimise_partition_multiplex(
             [partition, partition_0, partition_1],
-            layer_weights=[1, -1, -1],
-            fixed_nodes=None)
+            layer_weights=[1, -1, -1])
     self.assertEqual(len(partition), 1)
 
 class SurpriseVertexPartitionTest(BaseTest.MutableVertexPartitionTest):

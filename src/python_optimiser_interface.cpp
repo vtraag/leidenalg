@@ -113,8 +113,15 @@ extern "C"
     PyObject* py_layer_weights = NULL;
     PyObject* py_fixed_nodes = NULL;
 
-    if (!PyArg_ParseTuple(args, "OOOO", &py_optimiser, &py_partitions,
-                                       &py_layer_weights, &py_fixed_nodes))
+    static char* kwlist[] = {"optimiser", "partitions", "layer_weights", "fixed_nodes", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|O", kwlist,
+                                     &py_optimiser, &py_partitions,
+                                     &py_layer_weights, &py_fixed_nodes))
         return NULL;
 
     size_t nb_partitions = PyList_Size(py_partitions);
