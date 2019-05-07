@@ -245,7 +245,7 @@ void MutableVertexPartition::renumber_communities()
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = this;
-  this->renumber_communities(MutableVertexPartition::renumber_communities(partitions));
+  this->set_membership(MutableVertexPartition::renumber_communities(partitions));
 }
 
 vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertexPartition*> partitions)
@@ -303,11 +303,12 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
 
 
 /****************************************************************************
- Renumber the communities using the provided membership vector. Notice that this
- doesn't ensure any property of the community numbers.
+ Renumber the communities using the original fixed membership vector. Notice
+ that this doesn't ensure any property of the community numbers.
 *****************************************************************************/
 void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)
 {
+  cerr << "This function is deprecated, use MutableVertexPartition::set_membership(vector<size_t> const& membership)" << endl;
   this->set_membership(membership);
 }
 
