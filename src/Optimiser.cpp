@@ -47,7 +47,7 @@ void Optimiser::print_settings()
 /*****************************************************************************
   optimise the provided partition.
 *****************************************************************************/
-double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<bool> fixed_nodes)
+double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<bool> const& fixed_nodes)
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
@@ -63,10 +63,10 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<b
 /*****************************************************************************
   optimise the provided partition.
 *****************************************************************************/
-double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes)
+double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes)
 {
   #ifdef DEBUG
-    cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<size_t> fixed_nodes)" << endl;
+    cerr << "void Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes)" << endl;
   #endif
 
   double q = 0.0;
@@ -350,7 +350,7 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
   return this->move_nodes(partition, fixed_nodes, consider_comms);
 }
 
-double Optimiser::move_nodes(MutableVertexPartition* partition, vector<bool> fixed_nodes, int consider_comms)
+double Optimiser::move_nodes(MutableVertexPartition* partition, vector<bool> const& fixed_nodes, int consider_comms)
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
@@ -369,7 +369,7 @@ double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_co
   return this->merge_nodes(partition, fixed_nodes, consider_comms);
 }
 
-double Optimiser::merge_nodes(MutableVertexPartition* partition, vector<bool> fixed_nodes, int consider_comms)
+double Optimiser::merge_nodes(MutableVertexPartition* partition, vector<bool> const& fixed_nodes, int consider_comms)
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
@@ -416,12 +416,12 @@ double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int
     partitions -- The partitions to optimise.
     layer_weights -- The weights used for the different layers.
 ******************************************************************************/
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes)
 {
   return this->move_nodes(partitions, layer_weights, fixed_nodes, this->consider_comms, this->consider_empty_community);
 }
 
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes, int consider_comms, int consider_empty_community)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes, int consider_comms, int consider_empty_community)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -669,12 +669,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return total_improv;
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes)
 {
   return this->merge_nodes(partitions, layer_weights, fixed_nodes, this->consider_comms);
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes, int consider_comms)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes, int consider_comms)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;

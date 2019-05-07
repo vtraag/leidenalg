@@ -24,7 +24,7 @@ class Optimiser
 {
   public:
     Optimiser();
-    double optimise_partition(MutableVertexPartition* partition, const vector<bool> fixed_nodes);
+    double optimise_partition(MutableVertexPartition* partition, vector<bool> const& fixed_nodes);
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
 
@@ -32,19 +32,19 @@ class Optimiser
     // Each node will be in the same community in all graphs, and the graphs are expected to have identical nodes
     // Optionally we can loop over all possible communities instead of only the neighbours. In the case of negative
     // layer weights this may be necessary.
-    double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, const vector<bool> fixed_nodes);
+    double optimise_partition(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes);
 
     double move_nodes(MutableVertexPartition* partition);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
-    double move_nodes(MutableVertexPartition* partition, vector<bool> fixed_nodes, int consider_comms);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes, int consider_comms, int consider_empty_community);
+    double move_nodes(MutableVertexPartition* partition, vector<bool> const& fixed_nodes, int consider_comms);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes, int consider_comms, int consider_empty_community);
 
     double merge_nodes(MutableVertexPartition* partition);
     double merge_nodes(MutableVertexPartition* partition, int consider_comms);
-    double merge_nodes(MutableVertexPartition* partition, vector<bool> fixed_nodes, int consider_comms);
-    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes);
-    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> fixed_nodes, int consider_comms);
+    double merge_nodes(MutableVertexPartition* partition, vector<bool> const& fixed_nodes, int consider_comms);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes, int consider_comms);
 
     double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
