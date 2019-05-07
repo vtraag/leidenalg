@@ -459,17 +459,21 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Establish vertex order
   // We normally initialize the normal vertex order
   // of considering node 0,1,...
-  queue<size_t> vertex_order;
-
   // But if we use a random order, we shuffle this order.
   // Also, we skip fixed nodes from the queue for efficiency reasons
-  vector<size_t> nodes = range(n);
+  vector<size_t> nodes;
+  for (size_t v = 0; v != fixed_nodes.size(); v++) {
+    if (!fixed_nodes[v])
+      nodes.push_back(v);
+  }
   shuffle(nodes, &rng);
+
+  queue<size_t> vertex_order;
   for (vector<size_t>::iterator it_node = nodes.begin();
        it_node != nodes.end();
-       it_node++)
-    if (!fixed_nodes[*it_node])
+       it_node++) {
       vertex_order.push(*it_node);
+  }
 
   // Initialize the degree vector
   // If we want to debug the function, we will calculate some additional values.
