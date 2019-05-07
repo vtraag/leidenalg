@@ -24,6 +24,7 @@ class Optimiser
 {
   public:
     Optimiser();
+    double optimise_partition(MutableVertexPartition* partition);
     double optimise_partition(MutableVertexPartition* partition, vector<bool> const& fixed_nodes);
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);

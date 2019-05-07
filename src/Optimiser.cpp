@@ -47,6 +47,13 @@ void Optimiser::print_settings()
 /*****************************************************************************
   optimise the provided partition.
 *****************************************************************************/
+double Optimiser::optimise_partition(MutableVertexPartition* partition)
+{
+ size_t n = partition->get_graph()->vcount();
+ vector<bool> fixed_nodes(n, false);
+ return this->optimize_partition(partition, fixed_nodes);
+}
+
 double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<bool> const& fixed_nodes)
 {
   vector<MutableVertexPartition*> partitions(1);
