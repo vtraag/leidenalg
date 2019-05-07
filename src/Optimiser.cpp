@@ -454,10 +454,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   size_t nb_moves = 0;
 
   // Fixed nodes are also stable nodes
-  vector<int> is_node_stable(n, false);
-  for (size_t v = 0; v != n; v++)
-    if (fixed_nodes[v])
-      is_node_stable[v] = true;
+  vector<bool> is_node_stable(fixed_nodes);
 
   // Establish vertex order
   // We normally initialize the normal vertex order
@@ -900,7 +897,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
   // We normally initialize the normal vertex order
   // of considering node 0,1,...
   queue<size_t> vertex_order;
-  vector<int> is_node_stable(n, false);
+  vector<bool> is_node_stable(n, false);
   // But if we use a random order, we shuffle this order.
   vector<size_t> nodes = range(n);
   shuffle(nodes, &rng);
