@@ -306,6 +306,48 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
  Renumber the communities using the original fixed membership vector. Notice
  that this doesn't ensure any property of the community numbers.
 *****************************************************************************/
+void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
+{
+  // Skip whole thing if there are no fixed nodes for efficiency
+  if (membership.size() == 0)
+    return;
+
+  // The number of communities does not depend on whether some are fixed
+  size_t nb_comms = n_communities();
+
+  // Fill the community map with the original communities
+  vector<size_t> comm_map(nb_comms);
+  vector<bool> comm_assigned_bool(nb_comms);
+  set<size_t> comm_assigned;
+  for (map<size_t, size_t>::const_iterator m = membership.begin();
+       m != membership.end();
+       m++) {
+    comm_map[_membership[m->first]] = m->second;
+    comm_assigned_bool[_membership[m->first]] = true;
+    comm_assigned.insert(m->second);
+  }
+
+  // Index of the most recently added community
+  size_t cc = 0;
+  for (size_t c = 0; c != nb_comms; c++) {
+    if(!comm_assigned_bool[c]) {
+      // Look for the first free integer
+      while(comm_assigned.find(cc) != comm_assigned.end()) {
+        // cc is strictly increasing, so we can delete it once we pass it
+        comm_assigned.erase(cc++);
+      }
+      // Assign the community
+      comm_map[c] = cc++;
+    }
+  }
+
+  // Set the new communities
+  for (size_t i = 0; i < this->graph->vcount(); i++)
+  {
+    _membership[i] = comm_map[_membership[i]];
+  }
+}
+
 void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)
 {
   cerr << "This function is deprecated, use MutableVertexPartition::set_membership(vector<size_t> const& membership)" << endl;

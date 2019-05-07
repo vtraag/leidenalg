@@ -99,6 +99,16 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     if (graphs[layer]->vcount() != n)
       throw Exception("Number of nodes are not equal for all graphs.");
 
+  // Get the map of original communities for fixed nodes
+  vector< map<size_t, size_t> > original_fixed_memberships(nb_layers);
+  for (size_t v = 0; v != n; v++) {
+    if (fixed_nodes[v]) {
+      for (size_t layer = 0; layer < nb_layers; layer++) {
+        original_fixed_memberships[layer][v] = partitions[layer]->membership(v);
+      }
+    }
+  }
+
   // Initialize the vector of the collapsed graphs for all layers
   vector<Graph*> collapsed_graphs(nb_layers);
   vector<MutableVertexPartition*> collapsed_partitions(nb_layers);
@@ -325,7 +335,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   }
 
   // Make sure the resulting communities are called 0,...,r-1
-  // where r is the number of communities.
+  // where r is the number of communities. The exception is fixed
+  // nodes which should keep the numbers of the original communities
   q = 0.0;
   vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
   // We only renumber the communities for the first graph,
@@ -333,8 +344,12 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // to the membership of the first graph.
   for (size_t layer = 0; layer < nb_layers; layer++)
   {
+    // Renumber communities forgetting the fixed nodes for now
     partitions[layer]->set_membership(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
+
+    // Restore partition numbers for fixed_nodes
+    partitions[layer]->renumber_communities(original_fixed_memberships[layer]);
   }
   return improv;
 }
