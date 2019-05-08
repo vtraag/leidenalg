@@ -308,6 +308,11 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
 *****************************************************************************/
 void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
 {
+
+  #ifdef DEBUG
+    cerr << "void MutableVertexPartition::renumber_communities(" << &membership << ")" << endl;
+  #endif
+
   // Skip whole thing if there are no fixed nodes for efficiency
   if (membership.size() == 0)
     return;
@@ -322,6 +327,9 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
   for (map<size_t, size_t>::const_iterator m = membership.begin();
        m != membership.end();
        m++) {
+    #ifdef DEBUG
+      cerr << "Setting map for fixed community " << m->second << endl;
+    #endif
     comm_map[_membership[m->first]] = m->second;
     comm_assigned_bool[_membership[m->first]] = true;
     comm_assigned.insert(m->second);
@@ -337,6 +345,9 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
         comm_assigned.erase(cc++);
       }
       // Assign the community
+      #ifdef DEBUG
+        cerr << "Setting map for free community " << cc << endl;
+      #endif
       comm_map[c] = cc++;
     }
   }
@@ -344,6 +355,9 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
   // Set the new communities
   for (size_t i = 0; i < this->graph->vcount(); i++)
   {
+    #ifdef DEBUG
+      cerr << "Setting membership of node " << i << " from" << _membership[i] << " to " << comm_map[_membership[i]] << endl;
+    #endif
     _membership[i] = comm_map[_membership[i]];
   }
 }
