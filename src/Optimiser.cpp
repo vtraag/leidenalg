@@ -342,7 +342,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
-  for (size_t layer = 1; layer < nb_layers; layer++)
+  for (size_t layer = 0; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
@@ -688,7 +688,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
   partitions[0]->renumber_communities();
   vector<size_t> const& membership = partitions[0]->renumber_communities(original_fixed_memberships);
-  for (size_t layer = 1; layer < nb_layers; layer++)
+  for (size_t layer = 0; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
@@ -888,7 +888,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
   partitions[0]->renumber_communities();
   vector<size_t> const& membership = partitions[0]->renumber_communities(original_fixed_memberships);
-  for (size_t layer = 1; layer < nb_layers; layer++)
+  for (size_t layer = 0; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
