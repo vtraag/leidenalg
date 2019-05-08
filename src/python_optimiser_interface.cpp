@@ -281,7 +281,7 @@ extern "C"
     double q  = 0.0;
     try
     {
-      q = optimiser->move_nodes(partition, fixed_nodes, consider_comms);
+      q = optimiser->move_nodes(partition, fixed_nodes, consider_comms, true);
     }
     catch (std::exception e)
     {
@@ -356,7 +356,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      q = optimiser->merge_nodes(partition, fixed_nodes, consider_comms);
+      q = optimiser->merge_nodes(partition, fixed_nodes, consider_comms, true);
     }
     catch (std::exception e)
     {
