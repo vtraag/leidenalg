@@ -306,7 +306,7 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
  Renumber the communities using the original fixed membership vector. Notice
  that this doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
+vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
 {
 
   #ifdef DEBUG
@@ -315,7 +315,7 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
 
   // Skip whole thing if there are no fixed nodes for efficiency
   if (membership.size() == 0)
-    return;
+    return _membership;
 
   // The number of communities does not depend on whether some are fixed
   size_t nb_comms = n_communities();
@@ -353,13 +353,16 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
   }
 
   // Set the new communities
+  vector<size_t> new_membership(this->graph->vcount());
   for (size_t i = 0; i < this->graph->vcount(); i++)
   {
     #ifdef DEBUG
       cerr << "Setting membership of node " << i << " from" << _membership[i] << " to " << new_comm_id[_membership[i]] << endl;
     #endif
-    _membership[i] = new_comm_id[_membership[i]];
+    new_membership[i] = new_comm_id[_membership[i]];
   }
+
+  return new_membership;
 }
 
 void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)

@@ -338,8 +338,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   q = 0.0;
   vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
   partitions[0]->set_membership(membership);
-  partitions[0]->renumber_communities(original_fixed_memberships);
-  membership = partitions[0]->membership();
+  membership = partitions[0]->renumber_communities(original_fixed_memberships);
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
@@ -688,18 +687,13 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   }
 
   partitions[0]->renumber_communities();
-  vector<size_t> const& membership = partitions[0]->membership();
+  vector<size_t> const& membership = partitions[0]->renumber_communities(original_fixed_memberships);
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif DEBUG
-
-    // Restore partition numbers for fixed_nodes
-    if (renumber_fixed_nodes)
-      partitions[layer]->renumber_communities(original_fixed_memberships);
-
   }
   return total_improv;
 }
@@ -893,18 +887,13 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   }
 
   partitions[0]->renumber_communities();
-  vector<size_t> const& membership = partitions[0]->membership();
+  vector<size_t> const& membership = partitions[0]->renumber_communities(original_fixed_memberships);
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif DEBUG
-
-    // Restore partition numbers for fixed_nodes
-    if (renumber_fixed_nodes)
-      partitions[layer]->renumber_communities(original_fixed_memberships);
-
   }
   return total_improv;
 }
