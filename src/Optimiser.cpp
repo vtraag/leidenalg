@@ -337,17 +337,16 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // nodes which should keep the numbers of the original communities
   q = 0.0;
   vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
+  partitions[0]->set_membership(membership);
+  partitions[0]->renumber_communities(original_fixed_memberships);
+  membership = partitions[0]->membership();
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
-  for (size_t layer = 0; layer < nb_layers; layer++)
+  for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    // Renumber communities forgetting the fixed nodes for now
     partitions[layer]->set_membership(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
-
-    // Restore partition numbers for fixed_nodes
-    partitions[layer]->renumber_communities(original_fixed_memberships);
   }
   return improv;
 }
