@@ -100,12 +100,10 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       throw Exception("Number of nodes are not equal for all graphs.");
 
   // Get the map of original communities for fixed nodes
-  vector< map<size_t, size_t> > original_fixed_memberships(nb_layers);
+  map<size_t, size_t> original_fixed_memberships;
   for (size_t v = 0; v != n; v++) {
     if (fixed_nodes[v]) {
-      for (size_t layer = 0; layer < nb_layers; layer++) {
-        original_fixed_memberships[layer][v] = partitions[layer]->membership(v);
-      }
+      original_fixed_memberships[v] = partitions[0]->membership(v);
     }
   }
 
@@ -349,7 +347,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     q += partitions[layer]->quality()*layer_weights[layer];
 
     // Restore partition numbers for fixed_nodes
-    partitions[layer]->renumber_communities(original_fixed_memberships[layer]);
+    partitions[layer]->renumber_communities(original_fixed_memberships);
   }
   return improv;
 }
@@ -460,13 +458,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   size_t n = graphs[0]->vcount();
 
   // Get the map of original communities for fixed nodes
-  vector< map<size_t, size_t> > original_fixed_memberships(nb_layers);
+  map<size_t, size_t> original_fixed_memberships;
   if (renumber_fixed_nodes) {
     for (size_t v = 0; v != n; v++) {
       if (fixed_nodes[v]) {
-        for (size_t layer = 0; layer < nb_layers; layer++) {
-          original_fixed_memberships[layer][v] = partitions[layer]->membership(v);
-        }
+        original_fixed_memberships[v] = partitions[0]->membership(v);
       }
     }
   }
@@ -703,7 +699,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
     // Restore partition numbers for fixed_nodes
     if (renumber_fixed_nodes)
-      partitions[layer]->renumber_communities(original_fixed_memberships[layer]);
+      partitions[layer]->renumber_communities(original_fixed_memberships);
 
   }
   return total_improv;
@@ -733,13 +729,11 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   size_t n = graphs[0]->vcount();
 
   // Get the map of original communities for fixed nodes
-  vector< map<size_t, size_t> > original_fixed_memberships(nb_layers);
+  map<size_t, size_t> original_fixed_memberships;
   if (renumber_fixed_nodes) {
     for (size_t v = 0; v != n; v++) {
       if (fixed_nodes[v]) {
-        for (size_t layer = 0; layer < nb_layers; layer++) {
-          original_fixed_memberships[layer][v] = partitions[layer]->membership(v);
-        }
+        original_fixed_memberships[v] = partitions[0]->membership(v);
       }
     }
   }
@@ -910,7 +904,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
     // Restore partition numbers for fixed_nodes
     if (renumber_fixed_nodes)
-      partitions[layer]->renumber_communities(original_fixed_memberships[layer]);
+      partitions[layer]->renumber_communities(original_fixed_memberships);
 
   }
   return total_improv;
