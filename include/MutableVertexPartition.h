@@ -75,6 +75,7 @@ class MutableVertexPartition
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
+    vector<size_t> renumber_communities(map<size_t, size_t> const& original_fixed_membership);
     void renumber_communities(vector<size_t> const& new_membership);
     void set_membership(vector<size_t> const& new_membership);
     vector<size_t> static renumber_communities(vector<MutableVertexPartition*> partitions);

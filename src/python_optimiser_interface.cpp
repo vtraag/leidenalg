@@ -39,19 +39,21 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
+    PyObject* py_fixed_nodes = NULL;
 
-    static char* kwlist[] = {"optimiser", "partition", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
-                                     &py_optimiser, &py_partition))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", kwlist,
+                                     &py_optimiser, &py_partition,
+                                     &py_fixed_nodes))
         return NULL;
 
     #ifdef DEBUG
-      cerr << "optimise_partition(" << py_partition << ");" << endl;
+      cerr << "optimise_partition(" << py_partition << ", fixed_nodes=" << py_fixed_nodes << ");" << endl;
     #endif
 
     #ifdef DEBUG
@@ -70,10 +72,31 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    size_t n = partition->get_graph()->vcount();
+    vector<bool> fixed_nodes(n, false);
+    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading fixed_nodes." << endl;
+      #endif
+
+      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
+      if (nb_fixed_nodes != n)
+      {
+        throw Exception("Node size vector not the same size as the number of nodes.");
+      }
+
+      for (size_t v = 0; v < n; v++)
+      {
+        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+        fixed_nodes[v] = PyObject_IsTrue(py_item);
+      }
+    }
+
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partition);
+      q = optimiser->optimise_partition(partition, fixed_nodes);
     }
     catch (std::exception e)
     {
@@ -88,8 +111,17 @@ extern "C"
     PyObject* py_optimiser = NULL;
     PyObject* py_partitions = NULL;
     PyObject* py_layer_weights = NULL;
+    PyObject* py_fixed_nodes = NULL;
 
-    if (!PyArg_ParseTuple(args, "OOO", &py_optimiser, &py_partitions, &py_layer_weights))
+    static char* kwlist[] = {"optimiser", "partitions", "layer_weights", "fixed_nodes", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|O", kwlist,
+                                     &py_optimiser, &py_partitions,
+                                     &py_layer_weights, &py_fixed_nodes))
         return NULL;
 
     size_t nb_partitions = PyList_Size(py_partitions);
@@ -107,6 +139,7 @@ extern "C"
 
     vector<MutableVertexPartition*> partitions(nb_partitions);
     vector<double> layer_weights(nb_partitions, 1.0);
+    vector<bool> fixed_nodes;
 
     for (size_t layer = 0; layer < nb_partitions; layer++)
     {
@@ -136,6 +169,30 @@ extern "C"
 
       if (isnan(layer_weights[layer]))
         throw Exception("Cannot accept NaN weights.");
+
+      // Fixed nodes are the same for all layers
+      if (layer == 0) {
+        size_t n = partition->get_graph()->vcount();
+        fixed_nodes.resize(n, false);
+        if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+        {
+          #ifdef DEBUG
+            cerr << "Reading fixed_nodes." << endl;
+          #endif
+
+          size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
+          if (nb_fixed_nodes != n)
+          {
+            throw Exception("Node size vector not the same size as the number of nodes.");
+          }
+
+          for (size_t v = 0; v < n; v++)
+          {
+            PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+            fixed_nodes[v] = PyObject_IsTrue(py_item);
+          }
+        }
+      }
     }
 
     #ifdef DEBUG
@@ -149,7 +206,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partitions, layer_weights);
+      q = optimiser->optimise_partition(partitions, layer_weights, fixed_nodes);
     }
     catch (std::exception e)
     {
@@ -163,16 +220,18 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
+    PyObject* py_fixed_nodes = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "consider_comms", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist,
-                                     &py_optimiser, &py_partition, &consider_comms))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oi", kwlist,
+                                     &py_optimiser, &py_partition,
+                                     &py_fixed_nodes, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -195,13 +254,34 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    size_t n = partition->get_graph()->vcount();
+    vector<bool> fixed_nodes(n, false);
+    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading fixed_nodes." << endl;
+      #endif
+
+      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
+      if (nb_fixed_nodes != n)
+      {
+        throw Exception("Node size vector not the same size as the number of nodes.");
+      }
+
+      for (size_t v = 0; v < n; v++)
+      {
+        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+        fixed_nodes[v] = PyObject_IsTrue(py_item);
+      }
+    }
+
     if (consider_comms < 0)
       consider_comms = optimiser->consider_comms;
 
     double q  = 0.0;
     try
     {
-      q = optimiser->move_nodes(partition, consider_comms);
+      q = optimiser->move_nodes(partition, fixed_nodes, consider_comms, true);
     }
     catch (std::exception e)
     {
@@ -215,16 +295,18 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
+    PyObject* py_fixed_nodes = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "consider_comms", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|i", kwlist,
-                                     &py_optimiser, &py_partition, &consider_comms))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oi", kwlist,
+                                     &py_optimiser, &py_partition,
+                                     &py_fixed_nodes, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -247,13 +329,34 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
+    size_t n = partition->get_graph()->vcount();
+    vector<bool> fixed_nodes(n, false);
+    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading fixed_nodes." << endl;
+      #endif
+
+      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
+      if (nb_fixed_nodes != n)
+      {
+        throw Exception("Node size vector not the same size as the number of nodes.");
+      }
+
+      for (size_t v = 0; v < n; v++)
+      {
+        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+        fixed_nodes[v] = PyObject_IsTrue(py_item);
+      }
+    }
+
     if (consider_comms < 0)
       consider_comms = optimiser->consider_comms;
 
     double q = 0.0;
     try
     {
-      q = optimiser->merge_nodes(partition, consider_comms);
+      q = optimiser->merge_nodes(partition, fixed_nodes, consider_comms, true);
     }
     catch (std::exception e)
     {
