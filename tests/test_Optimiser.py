@@ -68,8 +68,12 @@ class OptimiserTest(unittest.TestCase):
 
   def test_optimiser_with_fixed_nodes(self):
       G = ig.Graph.Full(3)
-      partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0.01)
-      partition.membership[0] = 2
+      partition = leidenalg.CPMVertexPartition(
+              G,
+              resolution_parameter=0.01,
+              initial_membership=[2, 1, 2])
+      # Equivalent to setting initial membership
+      #partition.set_membership([2, 1, 2])
       print(partition.membership)
       opt = leidenalg.Optimiser()
       fixed_nodes = [True, False, False]
