@@ -66,6 +66,19 @@ class OptimiserTest(unittest.TestCase):
         partition.sizes(), 10*[10],
         msg="After optimising partition failed to find different components with CPMVertexPartition(resolution_parameter=0)");
 
+  def test_optimiser_with_fixed_nodes(self):
+      G = ig.Graph.Full(3)
+      partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0.01)
+      partition.membership[0] = 2
+      print(partition.membership)
+      opt = leidenalg.Optimiser()
+      fixed_nodes = [True, False, False]
+      opt.optimise_partition(partition, fixed_nodes=fixed_nodes)
+      self.assertListEqual(
+            partition.membership, [2, 2, 2],
+            msg="After optimising partition with fixed nodes failed to recover initial fixed memberships"
+            )
+
   def test_neg_weight_bipartite(self):
     G = ig.Graph.Full_Bipartite(50, 50);
     G.es['weight'] = -0.1;
