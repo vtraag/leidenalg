@@ -126,7 +126,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
   // This reflects the aggregate node, which to start with is simply equal to the graph.
   vector<size_t> aggregate_node_per_individual_node = range(n);
-  int aggregate_further = true;
+  bool aggregate_further = true;
   // As long as there remains improvement iterate
   double improv = 0.0;
   do
@@ -273,8 +273,21 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       }
     }
 
-    aggregate_further = (new_collapsed_graphs[0]->vcount() < collapsed_graphs[0]->vcount()) &&
-                        (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->n_communities());
+    // Determine whether to aggregate further
+    // If all is fixed, no need to aggregate
+    aggregate_further = false;
+    for (vector<bool>::iterator it_node = collapsed_fixed_nodes.begin();
+         it_node != collapsed_fixed_nodes.end();
+         it_node++)
+    {
+      if(!(*it_node)) {
+        aggregate_further = true;
+        break;
+      }
+    }
+    // else, check whether anything has stirred since last time
+    aggregate_further &= (new_collapsed_graphs[0]->vcount() < collapsed_graphs[0]->vcount()) &&
+                         (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->n_communities());
 
     #ifdef DEBUG
       cerr << "Aggregate further " << aggregate_further << endl;
