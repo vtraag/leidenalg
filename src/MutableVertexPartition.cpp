@@ -392,13 +392,7 @@ void MutableVertexPartition::set_membership(vector<size_t> const& membership)
   #ifdef DEBUG
     cerr << "void MutableVertexPartition::set_membership(" << &membership << ")" << endl;
   #endif
-  for (size_t i = 0; i < this->graph->vcount(); i++)
-  {
-    this->_membership[i] = membership[i];
-    #ifdef DEBUG
-      cerr << "Setting membership[" << i << "] = " << membership[i] << "." << endl;
-    #endif
-  }
+  this->_membership = membership;
 
   this->clean_mem();
   this->init_admin();
