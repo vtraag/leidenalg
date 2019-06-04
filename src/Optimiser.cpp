@@ -101,7 +101,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
   // Get the map of original communities for fixed nodes
   map<size_t, size_t> original_fixed_memberships;
-  for (size_t v = 0; v != n; v++) {
+  for (size_t v = 0; v < n; v++) {
     if (fixed_nodes[v]) {
       original_fixed_memberships[v] = partitions[0]->membership(v);
     }
