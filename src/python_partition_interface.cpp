@@ -203,10 +203,18 @@ extern "C"
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
+            if (m < 0)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+              return NULL;
+            }
+            else if (m >= n)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+              return NULL;
+            }
             else
-              throw Exception("Membership cannot be negative");
+              initial_membership[v] = m;
           }
           else
           {
@@ -274,10 +282,18 @@ extern "C"
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
+            if (m < 0)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+              return NULL;
+            }
+            else if (m >= n)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+              return NULL;
+            }
             else
-              throw Exception("Membership cannot be negative");
+              initial_membership[v] = m;
           }
           else
           {
@@ -345,10 +361,18 @@ extern "C"
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
+            if (m < 0)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+              return NULL;
+            }
+            else if (m >= n)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+              return NULL;
+            }
             else
-              throw Exception("Membership cannot be negative");
+              initial_membership[v] = m;
           }
           else
           {
@@ -421,10 +445,18 @@ extern "C"
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
+            if (m < 0)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+              return NULL;
+            }
+            else if (m >= n)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+              return NULL;
+            }
             else
-              throw Exception("Membership cannot be negative");
+              initial_membership[v] = m;
           }
           else
           {
@@ -494,10 +526,18 @@ extern "C"
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
+            if (m < 0)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+              return NULL;
+            }
+            else if (m >= n)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+              return NULL;
+            }
             else
-              throw Exception("Membership cannot be negative");
+              initial_membership[v] = m;
           }
           else
           {
@@ -566,10 +606,18 @@ extern "C"
           if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
           {
             Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-            if (m >= 0)
-              initial_membership[v] = m;
+            if (m < 0)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+              return NULL;
+            }
+            else if (m >= n)
+            {
+              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+              return NULL;
+            }
             else
-              throw Exception("Membership cannot be negative");
+              initial_membership[v] = m;
           }
           else
           {
@@ -692,10 +740,18 @@ extern "C"
       if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
         Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-        if (m >= 0)
-          membership[v] = m;
+        if (m < 0)
+        {
+          PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+          return NULL;
+        }
+        else if (m >= n)
+        {
+          PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+          return NULL;
+        }
         else
-          throw Exception("Membership cannot be negative");
+          membership[v] = m;
       }
       else
       {
@@ -727,10 +783,18 @@ extern "C"
         if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
         {
           Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-          if (m >= 0)
-            coarse_node[v] = m;
+          if (m < 0)
+          {
+            PyErr_SetString(PyExc_TypeError, "Coarse node cannot be negative");
+            return NULL;
+          }
+          else if (m >= n)
+          {
+            PyErr_SetString(PyExc_TypeError, "Coarse node cannot exceed number of nodes.");
+            return NULL;
+          }
           else
-            throw Exception("Coarse node cannot be negative");
+            coarse_node[v] = m;
         }
         else
         {
@@ -846,6 +910,17 @@ extern "C"
     #ifdef DEBUG
       cerr << "Using partition at address " << partition << endl;
     #endif
+
+    if (new_comm >= partition->get_graph()->vcount())
+    {
+      PyErr_SetString(PyExc_TypeError, "Community membership cannot exceed number of nodes.");
+      return NULL;
+    }
+    else if (new_comm < 0)
+    {
+      PyErr_SetString(PyExc_TypeError, "Community membership cannot be negative");
+      return NULL;
+    }
 
     partition->move_node(v, new_comm);
 
@@ -1277,10 +1352,18 @@ extern "C"
       if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
           Py_ssize_t m = PyNumber_AsSsize_t(py_item, NULL);
-          if (m >= 0)
-            membership[v] = m;
+          if (m < 0)
+          {
+            PyErr_SetString(PyExc_TypeError, "Membership cannot be negative");
+            return NULL;
+          }
+          else if (m >= n)
+          {
+            PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
+            return NULL;
+          }
           else
-            throw Exception("Membership node cannot be negative");
+            membership[v] = m;
       }
       else
       {
@@ -1398,7 +1481,10 @@ extern "C"
       }
 
       if (isnan(resolution_parameter))
-        throw Exception("Cannot accept NaN resolution parameter.");
+      {
+        PyErr_SetString(PyExc_TypeError, "Cannot accept NaN resolution parameter.");
+        return NULL;
+      }
     }
     else
       resolution_parameter = partition->resolution_parameter;
