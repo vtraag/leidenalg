@@ -139,7 +139,6 @@ extern "C"
 
     vector<MutableVertexPartition*> partitions(nb_partitions);
     vector<double> layer_weights(nb_partitions, 1.0);
-    vector<bool> fixed_nodes;
 
     for (size_t layer = 0; layer < nb_partitions; layer++)
     {
@@ -169,31 +168,32 @@ extern "C"
 
       if (isnan(layer_weights[layer]))
         throw Exception("Cannot accept NaN weights.");
+    }
 
-      // Fixed nodes are the same for all layers
-      if (layer == 0) {
-        size_t n = partition->get_graph()->vcount();
-        fixed_nodes.resize(n, false);
-        if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
-        {
-          #ifdef DEBUG
-            cerr << "Reading fixed_nodes." << endl;
-          #endif
+    if (nb_partitions == 0)
+      return NULL;
 
-          size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
-          if (nb_fixed_nodes != n)
-          {
-            throw Exception("Node size vector not the same size as the number of nodes.");
-          }
+    size_t n = partitions[0]->get_graph()->vcount();
+    vector<bool> fixed_nodes(n, false);
+    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    {
+      #ifdef DEBUG
+        cerr << "Reading fixed_nodes." << endl;
+      #endif
 
-          for (size_t v = 0; v < n; v++)
-          {
-            PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
-            fixed_nodes[v] = PyObject_IsTrue(py_item);
-          }
-        }
+      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
+      if (nb_fixed_nodes != n)
+      {
+        throw Exception("Node size vector not the same size as the number of nodes.");
+      }
+
+      for (size_t v = 0; v < n; v++)
+      {
+        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
+        fixed_nodes[v] = PyObject_IsTrue(py_item);
       }
     }
+
 
     #ifdef DEBUG
       cerr << "Capsule optimiser at address " << py_optimiser << endl;
