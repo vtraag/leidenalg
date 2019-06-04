@@ -452,6 +452,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return this->move_nodes(partitions, layer_weights, fixed_nodes, this->consider_comms, this->consider_empty_community, renumber_fixed_nodes);
 }
 
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes, int consider_comms, int consider_empty_community)
+{
+  return this->move_nodes(partitions, layer_weights, fixed_nodes, consider_comms, consider_empty_community, true);
+}
+
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& fixed_nodes, int consider_comms, int consider_empty_community, bool renumber_fixed_nodes)
 {
   #ifdef DEBUG
