@@ -323,16 +323,19 @@ vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> 
   // Fill the community map with the original communities
   vector<size_t> new_comm_id(nb_comms);
   vector<bool> comm_assigned_bool(nb_comms);
-  set<size_t> comm_assigned;
+  priority_queue<size_t, vector<size_t>, std::greater<size_t> > new_comm_assigned;
   for (map<size_t, size_t>::const_iterator m = membership.begin();
        m != membership.end();
        m++) {
     #ifdef DEBUG
       cerr << "Setting map for fixed community " << m->second << endl;
     #endif
-    new_comm_id[_membership[m->first]] = m->second;
-    comm_assigned_bool[_membership[m->first]] = true;
-    comm_assigned.insert(m->second);
+    if (!comm_assigned_bool[_membership[m->first]])
+    {
+      new_comm_id[_membership[m->first]] = m->second;
+      comm_assigned_bool[_membership[m->first]] = true;
+      new_comm_assigned.push(m->second);
+    }
   }
 
   // Index of the most recently added community
@@ -340,9 +343,10 @@ vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> 
   for (size_t c = 0; c != nb_comms; c++) {
     if(!comm_assigned_bool[c]) {
       // Look for the first free integer
-      while(comm_assigned.find(cc) != comm_assigned.end()) {
-        // cc is strictly increasing, so we can delete it once we pass it
-        comm_assigned.erase(cc++);
+      while (!new_comm_assigned.empty() && cc == new_comm_assigned.top())
+      {
+          new_comm_assigned.pop();
+          cc++;
       }
       // Assign the community
       #ifdef DEBUG

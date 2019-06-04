@@ -5,6 +5,7 @@
 #include "GraphHelper.h"
 #include <map>
 #include <set>
+#include <queue>
 #include <utility>
 #include <algorithm>
 
@@ -15,6 +16,7 @@ using std::make_pair;
 using std::pair;
 using std::sort;
 using std::reverse;
+using std::priority_queue;
 
 /****************************************************************************
 Contains a partition of graph.
