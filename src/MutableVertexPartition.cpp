@@ -245,7 +245,7 @@ void MutableVertexPartition::renumber_communities()
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = this;
-  this->renumber_communities(MutableVertexPartition::renumber_communities(partitions));
+  this->set_membership(MutableVertexPartition::renumber_communities(partitions));
 }
 
 vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertexPartition*> partitions)
@@ -303,11 +303,75 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
 
 
 /****************************************************************************
- Renumber the communities using the provided membership vector. Notice that this
- doesn't ensure any property of the community numbers.
+ Renumber the communities using the original fixed membership vector. Notice
+ that this doesn't ensure any property of the community numbers.
 *****************************************************************************/
+vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
+{
+
+  #ifdef DEBUG
+    cerr << "void MutableVertexPartition::renumber_communities(" << &membership << ")" << endl;
+  #endif
+
+  // Skip whole thing if there are no fixed nodes for efficiency
+  if (membership.size() == 0)
+    return _membership;
+
+  // The number of communities does not depend on whether some are fixed
+  size_t nb_comms = n_communities();
+
+  // Fill the community map with the original communities
+  vector<size_t> new_comm_id(nb_comms);
+  vector<bool> comm_assigned_bool(nb_comms);
+  priority_queue<size_t, vector<size_t>, std::greater<size_t> > new_comm_assigned;
+  for (map<size_t, size_t>::const_iterator m = membership.begin();
+       m != membership.end();
+       m++) {
+    #ifdef DEBUG
+      cerr << "Setting map for fixed community " << m->second << endl;
+    #endif
+    if (!comm_assigned_bool[_membership[m->first]])
+    {
+      new_comm_id[_membership[m->first]] = m->second;
+      comm_assigned_bool[_membership[m->first]] = true;
+      new_comm_assigned.push(m->second);
+    }
+  }
+
+  // Index of the most recently added community
+  size_t cc = 0;
+  for (size_t c = 0; c != nb_comms; c++) {
+    if(!comm_assigned_bool[c]) {
+      // Look for the first free integer
+      while (!new_comm_assigned.empty() && cc == new_comm_assigned.top())
+      {
+          new_comm_assigned.pop();
+          cc++;
+      }
+      // Assign the community
+      #ifdef DEBUG
+        cerr << "Setting map for free community " << cc << endl;
+      #endif
+      new_comm_id[c] = cc++;
+    }
+  }
+
+  // Set the new communities
+  vector<size_t> new_membership(this->graph->vcount());
+  for (size_t i = 0; i < this->graph->vcount(); i++)
+  {
+    #ifdef DEBUG
+      cerr << "Setting membership of node " << i << " from" << _membership[i] << " to " << new_comm_id[_membership[i]] << endl;
+    #endif
+    new_membership[i] = new_comm_id[_membership[i]];
+  }
+
+  return new_membership;
+}
+
 void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)
 {
+  cerr << "This function is deprecated, use MutableVertexPartition::set_membership(vector<size_t> const& membership)" << endl;
   this->set_membership(membership);
 }
 
