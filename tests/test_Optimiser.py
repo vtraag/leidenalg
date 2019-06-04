@@ -31,7 +31,7 @@ class OptimiserTest(unittest.TestCase):
     self.optimiser.move_nodes(partition, fixed_nodes=fixed_nodes, consider_comms=leidenalg.ALL_NEIGH_COMMS);
     self.assertListEqual(
         partition.sizes(), [1, 1, 1],
-        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes incorrect.");
+        msg="CPMVertexPartition(resolution_parameter=0.1) of one edge plus singleton after move nodes with fixed nodes is incorrect.");
 
   def test_merge_nodes(self):
     G = ig.Graph.Full(100);
@@ -71,10 +71,9 @@ class OptimiserTest(unittest.TestCase):
       partition = leidenalg.CPMVertexPartition(
               G,
               resolution_parameter=0.01,
-              initial_membership=[2, 1, 2])
+              initial_membership=[2, 1, 0])
       # Equivalent to setting initial membership
       #partition.set_membership([2, 1, 2])
-      print(partition.membership)
       opt = leidenalg.Optimiser()
       fixed_nodes = [True, False, False]
       opt.optimise_partition(partition, fixed_nodes=fixed_nodes)
