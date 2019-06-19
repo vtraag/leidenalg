@@ -145,9 +145,9 @@ void MutableVertexPartition::init_admin()
   this->_cnodes.clear();
   this->_cnodes.resize(this->_n_communities);
 
-  this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(n, 0);
-  this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(n, 0);
-  this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(n, 0);
+  this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(this->_n_communities, 0);
+  this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(this->_n_communities, 0);
+  this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(this->_n_communities, 0);
 
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
@@ -357,6 +357,10 @@ size_t MutableVertexPartition::add_empty_community()
   this->_total_weight_in_comm.resize(this->_n_communities);   this->_total_weight_in_comm[new_comm] = 0;
   this->_total_weight_from_comm.resize(this->_n_communities); this->_total_weight_from_comm[new_comm] = 0;
   this->_total_weight_to_comm.resize(this->_n_communities);   this->_total_weight_to_comm[new_comm] = 0;
+  
+  this->_cached_weight_all_community.resize(this->_n_communities);
+  this->_cached_weight_from_community.resize(this->_n_communities);
+  this->_cached_weight_to_community.resize(this->_n_communities);
 
   this->_empty_communities.push_back(new_comm);
   #ifdef DEBUG
