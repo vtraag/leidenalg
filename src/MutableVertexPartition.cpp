@@ -706,10 +706,7 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
   }
 
   // Reset cached communities
-  for (vector<size_t>::iterator it = _cached_neighs->begin();
-       it != _cached_neighs->end();
-       it++)
-       (*_cached_weight_tofrom_community)[*it] = 0;
+  std::fill(_cached_weight_tofrom_community->begin(), _cached_weight_tofrom_community->end(), 0);
 
   // Loop over all incident edges
   vector<size_t> const& neighbours = this->graph->get_neighbours(v, mode);
