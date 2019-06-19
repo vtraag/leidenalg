@@ -526,39 +526,35 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     // Check if we should move to an empty community
     if (consider_empty_community)
     {
-      for (size_t layer = 0; layer < nb_layers; layer++)
+      graph = graphs[0];
+      partition = partitions[0];
+      if ( partition->cnodes(v_comm) > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
       {
-        graph = graphs[layer];
-        partition = partitions[layer];
-        if ( partition->cnodes(v_comm) > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+        size_t n_comms = partition->n_communities();
+        size_t comm = partition->get_empty_community();
+        #ifdef DEBUG
+          cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
+        #endif
+        if (partition->n_communities() > n_comms)
         {
-          size_t n_comms = partition->n_communities();
-          size_t comm = partition->get_empty_community();
-          #ifdef DEBUG
-            cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
-          #endif
-          if (partition->n_communities() > n_comms)
-          {
-            // If the empty community has just been added, we need to make sure
-            // that is has also been added to the other layers
-            for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
-              if (layer_2 != layer)
-                partitions[layer_2]->add_empty_community();
-          }
+          // If the empty community has just been added, we need to make sure
+          // that is has also been added to the other layers
+          for (size_t layer = 1; layer < nb_layers; layer++)
+              partitions[layer]->add_empty_community();
+        }
 
-          double possible_improv = 0.0;
-          for (size_t layer_2 = 0; layer_2 < nb_layers; layer_2++)
-          {
-            possible_improv += layer_weights[layer_2]*partitions[layer_2]->diff_move(v, comm);
-          }
-          #ifdef DEBUG
-            cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
-          #endif
-          if (possible_improv > max_improv)
-          {
-            max_improv = possible_improv;
-            max_comm = comm;
-          }
+        double possible_improv = 0.0;
+        for (size_t layer = 0; layer < nb_layers; layer++)
+        {
+          possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
+        }
+        #ifdef DEBUG
+          cerr << "Improvement to empty community: " << possible_improv << ", maximum improvement: " << max_improv << endl;
+        #endif
+        if (possible_improv > max_improv)
+        {
+          max_improv = possible_improv;
+          max_comm = comm;
         }
       }
     }

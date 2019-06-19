@@ -87,10 +87,11 @@ class MutableVertexPartition
 
     void from_partition(MutableVertexPartition* partition);
 
-    inline double total_weight_in_comm(size_t comm) { return this->_total_weight_in_comm[comm]; };
-    inline double total_weight_from_comm(size_t comm) { return this->_total_weight_from_comm[comm]; };
-    inline double total_weight_to_comm(size_t comm) { return this->_total_weight_to_comm[comm]; };
-    inline double total_weight_in_all_comms() { return this->_total_weight_in_all_comms; };
+    inline double total_weight_in_comm(size_t comm)   { return comm < _n_communities ? this->_total_weight_in_comm[comm] : 0.0; };
+    inline double total_weight_from_comm(size_t comm) { return comm < _n_communities ? this->_total_weight_from_comm[comm] : 0.0; };
+    inline double total_weight_to_comm(size_t comm)   { return comm < _n_communities ? this->_total_weight_to_comm[comm] : 0.0; };
+    
+    inline double total_weight_in_all_comms()         { return this->_total_weight_in_all_comms; };
     inline size_t total_possible_edges_in_all_comms() { return this->_total_possible_edges_in_all_comms; };
 
     double weight_to_comm(size_t v, size_t comm);
