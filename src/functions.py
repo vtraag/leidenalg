@@ -102,7 +102,7 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
   Parameters
   ----------
   graphs : list of :class:`ig.Graph`
-    List of :class:`leidenalg.VertexPartition` layers to optimise.
+    List of :class:`ig.Graph` graphs to optimise.
 
   partition_type : type of :class:`MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
