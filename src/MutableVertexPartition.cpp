@@ -724,7 +724,7 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
 
     // If it is an edge to the requested community
     #ifdef DEBUG
-      size_t u_comm = this->_membership[u];
+      size_t v_comm = this->_membership[v];
     #endif
     size_t comm = this->_membership[u];
     // Get the weight of the edge
@@ -733,7 +733,7 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
     if (u == v && !this->graph->is_directed())
         w /= 2.0;
     #ifdef DEBUG
-      cerr << "\t" << "Edge (" << v << "-" << u << "), Comm (" << comm << "-" << u_comm << ") weight: " << w << "." << endl;
+      cerr << "\t" << "Edge (" << v << "-" << u << "), Comm (" << v_comm << "-" << comm << ") weight: " << w << "." << endl;
     #endif
     (*_cached_weight_tofrom_community)[comm] += w;
     // REMARK: Notice in the rare case of negative weights, being exactly equal
