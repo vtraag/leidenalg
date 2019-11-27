@@ -55,8 +55,9 @@ class MutableVertexPartition(_ig.VertexClustering):
 
   @classmethod
   def _FromCPartition(cls, partition):
-    n, edges, weights, node_sizes = _c_leiden._MutableVertexPartition_get_py_igraph(partition)
+    n, directed, edges, weights, node_sizes = _c_leiden._MutableVertexPartition_get_py_igraph(partition)
     graph = _ig.Graph(n=n,
+                      directed=directed,
                       edges=edges,
                       edge_attrs={'weight': weights},
                       vertex_attrs={'node_size': node_sizes})

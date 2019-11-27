@@ -707,7 +707,7 @@ extern "C"
       PyList_SetItem(node_sizes, v, item);
     }
 
-    return Py_BuildValue("lOOO", n, edges, weights, node_sizes);
+    return Py_BuildValue("lOOOO", n, graph->is_directed() ? Py_True : Py_False, edges, weights, node_sizes);
   }
 
   PyObject* _MutableVertexPartition_from_coarse_partition(PyObject *self, PyObject *args, PyObject *keywds)
