@@ -653,7 +653,7 @@ class LinearResolutionParameterVertexPartition(MutableVertexPartition):
     return _c_leiden._ResolutionParameterVertexPartition_quality(self._partition, resolution_parameter)
 
 class RBERVertexPartition(LinearResolutionParameterVertexPartition):
-  """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
+  """ Implements Reichardt and Bornholdt’s Potts model with an Erdős-Rényi null model.
   This quality function is well-defined only for positive edge weights.
   This quality function uses a linear resolution parameter.
 
