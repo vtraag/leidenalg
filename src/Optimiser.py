@@ -734,6 +734,12 @@ class Optimiser(object):
     bisect_values[resolution_range[1]] = BisectPartition(partition=partition,
                                 bisect_value=bisect_func(partition))
     # While stack of ranges not yet empty
+    try:
+      from tqdm import tqdm
+      progress = tqdm(total=float('inf'))
+    except:
+      progress = None
+
     while stack_res_range:
       # Get the current range from the stack
       current_range = stack_res_range.pop()
@@ -766,10 +772,17 @@ class Optimiser(object):
               weights=weights, resolution_parameter=new_res, **kwargs)
           bisect_values[new_res] = BisectPartition(partition=partition,
                                       bisect_value=bisect_func(partition))
+          if progress is not None:
+            progress.update(1)
+            progress.set_postfix(resolution_parameter=new_res, refresh=False)
+
           # Because of stochastic differences in different runs, the monotonicity
           # of the bisection values might be violated, so check for any
           # inconsistencies
           ensure_monotonicity(bisect_values, new_res)
+
+    if progress is not None:
+      progress.close()
 
     # Ensure we only keep those resolution values for which
     # the bisection values actually changed, instead of all of them
