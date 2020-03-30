@@ -127,8 +127,8 @@ References
 Please cite the references appropriately in case they are used.
 
 .. [1] Traag, V.A., Waltman. L., Van Eck, N.-J. (2018). From Louvain to
-       Leiden: guaranteeing well-connected communities.
-       `arXiv:1810.08473 <https://arxiv.org/abs/1810.08473>`_
+       Leiden: guaranteeing well-connected communities. Scientific reports, 9(1), 5233.
+       `10.1038/s41598-019-41695-z <http://dx.doi.org/10.1038/s41598-019-41695-z>`_
 
 .. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008).
        Fast unfolding of communities in large networks. Journal of Statistical
