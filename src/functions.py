@@ -371,6 +371,10 @@ def slices_to_layers(G_coupling,
   slice_attr : string
     The vertex attribute which contains the slices.
 
+  vertex_id_attr : string
+    The vertex attribute which is used to identify whether two nodes in two
+    slices represent the same node, and hence, should be coupled.
+
   edge_type_attr : string
     The edge attribute to use for indicating the type of link (``interslice``
     or ``intraslice``).
