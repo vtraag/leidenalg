@@ -1,7 +1,6 @@
 dist: bionic
 language: python
 python:
-- '2.7'
 - '3.5'
 - '3.6'
 - '3.7'
@@ -17,6 +16,8 @@ addons:
     - gfortran
     - flex
     - bison
+install:
+- pip install ddt
 script:
 - python setup.py test
 jobs:
