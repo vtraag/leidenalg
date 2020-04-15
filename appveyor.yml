@@ -4,6 +4,7 @@ image:
 environment:
   global:
     CIBW_BEFORE_BUILD: python setup.py build_c_core
+    CIBW_BEFORE_TEST: pip install ddt
     CIBW_TEST_COMMAND: "cd {project} && python setup.py test"
     IGRAPH_EXTRA_CONFIGURE_ARGS: "--disable-graphml"
 
@@ -26,7 +27,7 @@ install:
   - bash -lc "pacman --needed --noconfirm -Sy pacman-mirrors"
   - bash -lc "pacman --noconfirm -Sy"
   - bash -lc "pacman --noconfirm -S autoconf automake bison flex libtool mingw-w64-x86_64-libtool mingw-w64-i686-libxml2 mingw-w64-x86_64-libxml2 zip"
-  - pip install ddt cibuildwheel==1.1.0
+  - pip install cibuildwheel==1.1.0
 
 before_build:
   - git submodule update --init --recursive

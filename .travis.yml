@@ -17,6 +17,8 @@ addons:
     - gfortran
     - flex
     - bison
+script:
+- python setup.py test
 jobs:
   include:
   - stage: test
