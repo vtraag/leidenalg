@@ -28,9 +28,10 @@ jobs:
     language: shell
     env:
     - CIBW_BEFORE_BUILD="yum install -y flex bison libxml2-devel zlib-devel && python setup.py build_c_core"
+    - CIBW_BEFORE_TEST="pip install ddt"
     - CIBW_TEST_COMMAND="cd {project} && python setup.py test"
     install:
-    - sudo python -m pip install ddt cibuildwheel==1.1.0
+    - sudo python -m pip install cibuildwheel==1.1.0
     script:
     - python setup.py sdist
     - python -m cibuildwheel --output-dir wheelhouse
