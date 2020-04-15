@@ -4,8 +4,6 @@ image:
 environment:
   global:
     CIBW_BEFORE_BUILD: python setup.py build_c_core
-    CIBW_BEFORE_TEST: pip install ddt
-    CIBW_TEST_COMMAND: "cd {project} && python setup.py test"
     IGRAPH_EXTRA_CONFIGURE_ARGS: "--disable-graphml"
 
   matrix:
