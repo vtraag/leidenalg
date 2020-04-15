@@ -57,7 +57,6 @@ jobs:
     language: shell
     env:
     - CIBW_BEFORE_BUILD="python setup.py build_c_core"
-    - CIBW_TEST_COMMAND="cd {project} && python -m unittest"
     install:
     - python -m pip install cibuildwheel==1.1.0
     script:

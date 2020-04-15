@@ -1,6 +1,11 @@
 image:
   - Visual Studio 2017
 
+branches:
+  only:
+  - master
+  - develop
+
 environment:
   global:
     CIBW_BEFORE_BUILD: python setup.py build_c_core
