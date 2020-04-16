@@ -1,5 +1,8 @@
 dist: bionic
 language: python
+stages:
+  - wheels
+  - test
 python:
 - '3.5'
 - '3.6'
