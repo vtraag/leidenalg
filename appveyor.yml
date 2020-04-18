@@ -21,6 +21,7 @@ environment:
       PYTHON: C:\Python38
 
     - CIBW_BUILD: "*-win_amd64"
+      CIBW_SKIP: "cp27-*"
       MSYSTEM: MINGW64
       PATH: C:\Python38-x64;C:\Python38-x64\Scripts;C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\Windows\System32;C:\Windows;%PATH%
       TARGET_ARCH: "x64"
