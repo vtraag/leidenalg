@@ -2,6 +2,7 @@ include LICENSE
 include INSTALL
 include CHANGELOG
 include README.md
+include pyproject.toml
 recursive-include include *.h
 
 graft vendor/source/igraph
