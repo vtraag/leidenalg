@@ -3,8 +3,6 @@ include INSTALL
 include CHANGELOG
 include README.md
 recursive-include include *.h
-include versioneer.py
-include src/_version.py
 
 graft vendor/source/igraph
 prune vendor/source/igraph/doc/abstracts

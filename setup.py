@@ -3,7 +3,6 @@
 import os
 import platform
 import sys
-import versioneer
 
 ###########################################################################
 
@@ -767,14 +766,8 @@ leiden_ext = Extension('leidenalg._c_leiden',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
-cmdclass = versioneer.get_cmdclass()
-cmdclass.update(build_ext=buildcfg.build_ext,
-		build_c_core=buildcfg.build_c_core,  # used by CI
-		sdist=buildcfg.sdist)
-
 options =  dict(
   name = 'leidenalg',
-  version=versioneer.get_version(),
   description = 'Leiden is a general algorithm for methods of community detection in large networks.',
   long_description=
     """
@@ -788,6 +781,9 @@ options =  dict(
     """,
   license = 'GPLv3+',
   url = 'https://github.com/vtraag/leidenalg',
+
+  use_scm_version=True,
+  setup_requires=['setuptools_scm'],
 
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
@@ -804,7 +800,7 @@ options =  dict(
     'network',
     'community detection',
     'clustering'
-    ],
+    ],    
   classifiers=[
       'Development Status :: 4 - Beta',
       'Environment :: Console',
@@ -821,7 +817,11 @@ options =  dict(
       'Topic :: Scientific/Engineering :: Information Analysis',
       'Topic :: Sociology'
     ],
-  cmdclass=cmdclass,
+    cmdclass={
+        "build_c_core": buildcfg.build_c_core,  # used by CI
+        "build_ext": buildcfg.build_ext,
+        "sdist": buildcfg.sdist
+    },  
 )
 
 if sys.version_info > (3, 0):
