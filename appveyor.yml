@@ -8,6 +8,7 @@ branches:
 
 environment:
   global:
+    CIBW_SKIP: cp27-*
     CIBW_BEFORE_BUILD: "%PYTHON%\\python.exe setup.py build_c_core"
     IGRAPH_EXTRA_CONFIGURE_ARGS: "--disable-graphml"
 
