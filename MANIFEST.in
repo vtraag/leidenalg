@@ -1,7 +1,6 @@
 include LICENSE
-include INSTALL
 include CHANGELOG
-include README.md
+include README.rst
 include pyproject.toml
 recursive-include include *.h
 
