@@ -8,20 +8,18 @@ branches:
 
 environment:
   global:
-    CIBW_SKIP: cp27-*
     CIBW_BEFORE_BUILD: "%PYTHON%\\python.exe setup.py build_c_core"
     IGRAPH_EXTRA_CONFIGURE_ARGS: "--disable-graphml"
 
   matrix:
-    - CIBW_BUILD: "*-win32"
+    - CIBW_BUILD: "cp3?*-win32"
       CIBW_SKIP: "*27-*"
       MSYSTEM: MINGW32
       PATH: C:\Python38;C:\Python38\Scripts;C:\msys64\usr\bin;C:\msys64\mingw32\bin;C:\Windows\System32;C:\Windows;%PATH%
       TARGET_ARCH: "x86"
       PYTHON: C:\Python38
 
-    - CIBW_BUILD: "*-win_amd64"
-      CIBW_SKIP: "*27-*"
+    - CIBW_BUILD: "cp3?*-win_amd64"
       MSYSTEM: MINGW64
       PATH: C:\Python38-x64;C:\Python38-x64\Scripts;C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\Windows\System32;C:\Windows;%PATH%
       TARGET_ARCH: "x64"
