@@ -34,7 +34,7 @@ install:
   - bash -lc "pacman --needed --noconfirm -Sy pacman-mirrors"
   - bash -lc "pacman --noconfirm -Sy"
   - bash -lc "pacman --noconfirm -S autoconf automake bison flex libtool mingw-w64-x86_64-libtool mingw-w64-i686-libxml2 mingw-w64-x86_64-libxml2 zip"
-  - bash -lc "pacman -Rs git" # Must be removed in order to use Windows git
+  - bash -lc "pacman --noconfirm -Rs git" # Must be removed in order to use Windows git
   - "%PYTHON%\\python.exe -m pip install cibuildwheel==1.3.0"
 
 before_build:
