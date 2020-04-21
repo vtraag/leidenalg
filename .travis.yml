@@ -11,9 +11,10 @@ addons:
     - bison
 
 env:
-- CIBW_BUILD: cp3?-*
-- CIBW_TEST_COMMAND: python3 -m unittest discover tests
-- CIBW_TEST_REQUIRES: ddt
+  global:
+  - CIBW_BUILD: cp3?-*
+  - CIBW_TEST_COMMAND: python3 -m unittest discover tests
+  - CIBW_TEST_REQUIRES: ddt
 
 jobs:
   include:
