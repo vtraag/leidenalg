@@ -1,13 +1,4 @@
 language: python
-stages:
-  - wheels
-  - test
-python:
-- '3.5'
-- '3.6'
-- '3.7'
-- '3.8'
-- pypy3
 branches:
   only:
   - develop
@@ -18,63 +9,31 @@ addons:
     - gfortran
     - flex
     - bison
-install:
-- python3 -m pip install ddt
-script:
-- python3 setup.py test
+
+env:
+- CIBW_BUILD: cp3?-*
+- CIBW_TEST_COMMAND: python3 -m unittest discover tests
+- CIBW_TEST_REQUIRES: ddt
+
 jobs:
   include:
-  - stage: test
-    services: docker
-  - stage: wheels
-    services: docker
+  - services: docker
     language: shell
     env:
-    - CIBW_BUILD: cp3?-*
-    - CIBW_BEFORE_BUILD="yum install -y flex bison libxml2-devel zlib-devel && python3 setup.py build_c_core"
+    - CIBW_BEFORE_BUILD: "yum install -y flex bison libxml2-devel zlib-devel && python3 setup.py build_c_core && python3 setup.py sdist"
     before_install:
     - sudo apt-get update
     - sudo apt-get -y install python3 python3-pip
     - python3 -m pip install --upgrade pip
-    install:
-    - python3 --version
     - python3 -m pip install setuptools
-    - python3 -m pip install cibuildwheel==1.3.0
-    script:
-    - python3 setup.py sdist
-    - python3 -m cibuildwheel --output-dir wheelhouse
-    before_deploy: &1
-    - git config --local user.name "vtraag"
-    - git config --local user.email "v.a.traag@cwts.leidenuniv.nl"
-    deploy: &2
-      provider: releases
-      api_key:
-        secure: FKFvgXA4BC8tZ5UwM+2Uqai5ljliJVq6SikMYaaK5PmiZ0mzgEsYw4S795mol3Rl6ePsKUA3Awe4LoYvSDryDNwOpx225rwxGDFVaJ+UAnkl7zdHXd+PHNlqIKojWmRSqxLFeR3rIxtzIuZCslbVgQwDtxe1qPq3y3F9WUtTbsp3iBaYStq3e4pkRBascd10RIoDwYx9SpfM9FBWlIYKjfhySluHizpqhSfYfNQj3bkeunTzfIc+g3+ez8fSjayNc6MISdkoZfO/7KhcUmLXo3USJlf2Hi7hE8J20SfxeUtCQcypry3lPaCHw+apPbH6zvlKuKvVia1IdpQWJfJgqgJtj7MCZ7Ka/cpaUGluhHvbf0tC8xpMqLRCDZe1TuiUhnmoXGR4wGzyx/HfHBIzEX4UGpkEJZDIS+5qArqhmT+3Vdhkwd5D2aCjkyiEEdkPeM1g4yIeYaNowPJ7bq8Rlf+6CatqcjkYaEm+kJ0JKaAZoAGyxUzCf7gRhWBxTyU4Phkc5wq+fMbjUv2ykaNXfhnjJJre38+cheBCVu+MxvIaRD8j8TKKf+ehis30u+lF66nr5k2kWCi7Hk3gC9QzE78FaCT2Qz7tlrlG4TFFZastkiO1wMqnRNmtFcHuniOlO4GxWlUe6NzcBBl2i2E21F7VKTWHs+Enl02JBrG3GfI=
-      file:
-      - wheelhouse/*.whl
-      - dist/leidenalg-${TRAVIS_TAG}.tar.gz
-      file_glob: true
-      draft: true
-      edge: true
-      overwrite: true
-      cleanup: false
-      on:
-        repo: vtraag/leidenalg
-        tags: true
-  - stage: wheels
-    os: osx
+  - os: osx
     language: shell
     env:
-    - CIBW_BUILD: cp3?-*
     - CIBW_BEFORE_BUILD="python3 setup.py build_c_core"
-    install:
-    - python3 -m pip install cibuildwheel==1.3.0
-    script:
-    - python3 -m cibuildwheel --output-dir wheelhouse
-    before_deploy: *1
-    deploy: *2
 notifications:
   email:
     on_success: change
     on_failure: always
 
+install:
+    - python3 -m pip install cibuildwheel==1.3.0
