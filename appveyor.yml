@@ -9,6 +9,8 @@ branches:
 environment:
   global:
     CIBW_BEFORE_BUILD: "%PYTHON%\\python.exe setup.py build_c_core"
+    CIBW_TEST_REQUIRES: ddt
+    CIBW_TEST_COMMAND: "cd {project} && python3 -m unittest discover tests"
     IGRAPH_EXTRA_CONFIGURE_ARGS: "--disable-graphml"
 
   matrix:
