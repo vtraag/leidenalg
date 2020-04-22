@@ -45,4 +45,5 @@ script:
   - python3 -m cibuildwheel --output-dir wheelhouse
 
 after_success:
-  - if [[ $TRAVIS_TAG ]]; then python3 -m twine upload wheelhouse/*.whl; fi
+  # - if [[ $TRAVIS_TAG ]]; then python3 -m twine upload wheelhouse/*.whl; fi
+  - python3 -m twine upload --repository testpypi wheelhouse/*.whl

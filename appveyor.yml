@@ -15,7 +15,6 @@ environment:
 
   matrix:
     - CIBW_BUILD: "cp3?*-win32"
-      CIBW_SKIP: "*27-*"
       MSYSTEM: MINGW32
       PATH: C:\Python38;C:\Python38\Scripts;C:\msys64\usr\bin;C:\msys64\mingw32\bin;C:\Windows\System32;C:\Windows;%PATH%
       TARGET_ARCH: "x86"
