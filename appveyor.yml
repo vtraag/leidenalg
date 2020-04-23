@@ -84,7 +84,7 @@ for:
     build_script:
       # build the source distribution
       - python setup.py sdist
-    on_succes:
+    on_success:
       - >
         IF "%APPVEYOR_REPO_TAG%" == "true"
         (
@@ -93,7 +93,7 @@ for:
         python -m twine upload --repository testpyi dist/*.tar.gz
         )
 
-on_succes:
+on_success:
   - >
     IF "%APPVEYOR_REPO_TAG%" == "true"
     (
