@@ -175,8 +175,42 @@ and can therefore require a lot of time. Especially for resolution parameters
 right around a change point there may be many possible partitions, thus
 requiring a lot of runs.
 
+Fixed nodes
+-----------
+
+For some purposes, it might be beneficial to only update part of a partition.
+For example, perhaps we previously already ran the Leiden algorithm on some
+dataset, and did some analysis on the resulting partition. If we then gather new
+data, and in particular new nodes, it might be useful to keep the previous
+community assignments fixed, while only updating the community assignments for
+the new nodes. This can be done using the ``fixed_nodes`` argument of
+:func:`~leidenalg.Optimiser.find_partition`, see [2]_ for some details.
+
+For example, suppose we previously detected ``partition`` for graph ``G``, which
+was extended to graph ``G2``. Assuming that the previously exiting nodes are
+identical, we could create a new partition by doing
+
+>>> new_membership = list(range(G2.vcount()))
+... new_membership[:G.vcount()] = partition.membership
+
+We can then only update the community assignments for the new nodes as follows
+
+>>> new_partition = la.CPMVertexPartition(G2, new_membership,
+...                                       resolution_parameter=partition.resolution_parameter)
+... fixed_nodes = [i < G.vcount() for i in range(G2.vcount())]
+>>> diff = optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+
+In this example we used :class:`~leidenalg.CPMVertexPartition`. but any other
+``VertexPartition`` would work as well.
+
 References
 ----------
 .. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in
        community structure. Scientific Reports, 3, 2930.  `10.1038/srep02930
        <http://doi.org/10.1038/srep02930>`_
+
+.. [2] Zanini, F., Berghuis, B. A., Jones, R. C., Robilant, B. N. di,
+       Nong, R. Y., Norton, J., Clarke, Michael F., Quake, S. R. (2019).
+       northstar: leveraging cell atlases to identify healthy and neoplastic
+       cells in transcriptomes from human tumors. BioRxiv, 820928.
+       `10.1101/820928 <https://doi.org/10.1101/820928>`_

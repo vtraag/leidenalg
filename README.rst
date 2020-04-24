@@ -12,7 +12,7 @@ modularity [3]_, (2) Reichardt and Bornholdt's model using the configuration
 null model and the Erdös-Rényi null model [4]_, (3) the constant Potts model
 (CPM) [5]_, (4) Significance [6]_, and finally (5) Surprise [7]_. In addition,
 it supports multiplex partition optimisation allowing community detection on
-for example negative links [8]_ or multiple time slices [9]_. It also provides
+for example negative links [8]_ or multiple time slices [9]_. There is the possibility of only partially optimising a partition, so that some community assignments remain fixed [10]_. It also provides
 some support for community detection on bipartite graphs. See the
 `documentation <http://leidenalg.readthedocs.io/en/latest/>`_ for more
 information.
@@ -167,6 +167,12 @@ Please cite the references appropriately in case they are used.
        (2010). Community structure in time-dependent, multiscale, and multiplex
        networks. Science, 328(5980), 876–8. `10.1126/science.1184819
        <http://doi.org/10.1126/science.1184819>`_
+
+.. [10] Zanini, F., Berghuis, B. A., Jones, R. C., Robilant, B. N. di,
+        Nong, R. Y., Norton, J., Clarke, Michael F., Quake, S. R. (2019).
+        northstar: leveraging cell atlases to identify healthy and neoplastic
+        cells in transcriptomes from human tumors. BioRxiv, 820928.
+        `10.1101/820928 <https://doi.org/10.1101/820928>`_
 
 Licence
 -------
