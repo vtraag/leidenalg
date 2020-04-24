@@ -18,6 +18,10 @@ python:
     - method: pip
       path: .
 
+submodules:
+  include: all
+  recursive: true
+
 # Build documentation in the doc/source directory with Sphinx
 sphinx:
   configuration: doc/source/conf.py
