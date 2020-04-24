@@ -30,3 +30,6 @@ massif*
 .vscode/
 *.code-workspace
 PACKAGE.txt
+vendor/source/igraph
+src/version.py
+pip-wheel-metadata

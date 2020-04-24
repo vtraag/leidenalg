@@ -21,6 +21,18 @@ class OptimiserTest(unittest.TestCase):
         partition.sizes(), [100],
         msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes incorrect.");
 
+  def test_move_nodes_with_fixed(self):
+    # One edge plus singleton, but the two connected nodes are fixed
+    G = ig.Graph([(0, 2)])
+    fixed_nodes = [True, False, True]
+    partition = leidenalg.CPMVertexPartition(
+            G,
+            resolution_parameter=0.1);
+    self.optimiser.move_nodes(partition, fixed_nodes=fixed_nodes, consider_comms=leidenalg.ALL_NEIGH_COMMS);
+    self.assertListEqual(
+        partition.sizes(), [1, 1, 1],
+        msg="CPMVertexPartition(resolution_parameter=0.1) of one edge plus singleton after move nodes with fixed nodes is incorrect.");
+
   def test_merge_nodes(self):
     G = ig.Graph.Full(100);
     partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0.5);
@@ -53,6 +65,22 @@ class OptimiserTest(unittest.TestCase):
     self.assertListEqual(
         partition.sizes(), 10*[10],
         msg="After optimising partition failed to find different components with CPMVertexPartition(resolution_parameter=0)");
+
+  def test_optimiser_with_fixed_nodes(self):
+      G = ig.Graph.Full(3)
+      partition = leidenalg.CPMVertexPartition(
+              G,
+              resolution_parameter=0.01,
+              initial_membership=[2, 1, 0])
+      # Equivalent to setting initial membership
+      #partition.set_membership([2, 1, 2])
+      opt = leidenalg.Optimiser()
+      fixed_nodes = [True, False, False]
+      opt.optimise_partition(partition, fixed_nodes=fixed_nodes)
+      self.assertListEqual(
+            partition.membership, [2, 2, 2],
+            msg="After optimising partition with fixed nodes failed to recover initial fixed memberships"
+            )
 
   def test_neg_weight_bipartite(self):
     G = ig.Graph.Full_Bipartite(50, 50);

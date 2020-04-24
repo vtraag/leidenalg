@@ -2,6 +2,7 @@ import unittest
 import igraph as ig
 import leidenalg
 import random
+from copy import deepcopy
 
 from ddt import ddt, data, unpack
 
@@ -75,7 +76,7 @@ bipartite_graph = name_object(
 
 def make_weighted(G):
   m = G.ecount();
-  if PY3: 
+  if PY3:
     G.es['weight'] = [random.random() for i in range(G.ecount())];
   else:
     G.es['weight'] = [random.random() for i in xrange(G.ecount())];
@@ -151,6 +152,38 @@ class BaseTest:
           s, partition.total_weight_in_all_comms())
         );
 
+    @data(*graphs)
+    def test_copy(self, graph):
+      if 'weight' in graph.es.attributes() and self.partition_type != leidenalg.SignificanceVertexPartition:
+        partition = self.partition_type(graph, weights='weight');
+      else:
+        partition = self.partition_type(graph);
+
+      self.optimiser.optimise_partition(partition);
+
+      partition2 = deepcopy(partition)
+
+      self.assertAlmostEqual(
+        partition.quality(),
+        partition2.quality(),
+        places=5,
+        msg='Quality of deepcopy ({0}) not equal to quality of original partition ({1}).'.format(
+          partition.quality(), partition2.quality())
+        )
+
+      if (partition2.membership[0] == 0):
+        partition2.move_node(0, 1)
+      else:
+        partition2.move_node(0, 0)
+
+      self.assertNotEqual(
+        partition.membership[0],
+        partition2.membership[0],
+        msg='Moving node 0 in the deepcopy to community {0} results in community membership {1} for node 0 also in original partition.'.format(
+          partition.membership[0], partition2.membership[0])
+        )
+
+
 class ModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
   def setUp(self):
     super(ModularityVertexPartitionTest, self).setUp();
@@ -175,8 +208,9 @@ class CPMVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
     graph = bipartite_graph
     partition, partition_0, partition_1 = \
         leidenalg.CPMVertexPartition.Bipartite(graph, resolution_parameter_01=0.2)
-    self.optimiser.optimise_partition_multiplex([partition, partition_0, partition_1],
-                                     layer_weights=[1, -1, -1])
+    self.optimiser.optimise_partition_multiplex(
+            [partition, partition_0, partition_1],
+            layer_weights=[1, -1, -1])
     self.assertEqual(len(partition), 1)
 
 class SurpriseVertexPartitionTest(BaseTest.MutableVertexPartitionTest):

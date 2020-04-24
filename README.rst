@@ -23,7 +23,11 @@ information.
 
 .. image:: https://travis-ci.org/vtraag/leidenalg.svg
                 :target: https://travis-ci.org/vtraag/leidenalg
-                :alt: Leiden build status
+                :alt: Leiden build status (Travis)
+
+.. image:: https://ci.appveyor.com/api/projects/status/26au75vj8iwq32qp?svg=true
+                :target: https://ci.appveyor.com/project/vtraag/leidenalg
+                :alt: Leiden build status (AppVeyor)
 
 .. image:: https://zenodo.org/badge/146722095.svg
                 :target: https://zenodo.org/badge/latestdoi/146722095
