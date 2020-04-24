@@ -61,7 +61,7 @@ on_success:
     (
     python -m pip install twine
     &&
-    python -m twine upload --repository-url https://test.pypi.org/legacy/ wheelhouse/*.whl
+    python -m twine upload --repository-url https://upload.pypi.org/legacy/ wheelhouse/*.whl
     )
 
 for:
@@ -89,7 +89,7 @@ for:
     on_success:
       - >
         if [ "$APPVEYOR_REPO_TAG" == "true" ]; then
-          python -m pip install twine && python -m twine upload --repository-url https://test.pypi.org/legacy/ testpyi wheelhouse/*.whl
+          python -m pip install twine && python -m twine upload --repository-url https://upload.pypi.org/legacy/ testpyi wheelhouse/*.whl
         fi
   - matrix:
       only:
@@ -102,7 +102,7 @@ for:
     on_success:
       - >
         if [ "$APPVEYOR_REPO_TAG" == "true" ]; then
-          python -m pip install twine && python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*.tar.gz
+          python -m pip install twine && python -m twine upload --repository-url https://upload.pypi.org/legacy/ dist/*.tar.gz
         fi
 
 artifacts:
