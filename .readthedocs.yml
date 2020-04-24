@@ -16,5 +16,5 @@ formats: htmlzip
 python:
   version: 3.7
 
-install:
-  - apt-get -y install build-essential autoconf automake flex bison
+conda:
+  environment: build-doc.yml

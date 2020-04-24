@@ -1,0 +1,14 @@
+name: build-doc
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - python-igraph>=0.8.0
+  - ddt
+  - sphinx
+  - sphinx_rtd_theme
+  - autoconf
+  - automake
+  - flex
+  - bison
+  - libtool
