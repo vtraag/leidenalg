@@ -21,10 +21,6 @@ information.
                 :target: http://leidenalg.readthedocs.io/en/latest/
                 :alt: Leiden documentation status
 
-.. image:: https://travis-ci.org/vtraag/leidenalg.svg
-                :target: https://travis-ci.org/vtraag/leidenalg
-                :alt: Leiden build status (Travis)
-
 .. image:: https://ci.appveyor.com/api/projects/status/26au75vj8iwq32qp?svg=true
                 :target: https://ci.appveyor.com/project/vtraag/leidenalg
                 :alt: Leiden build status (AppVeyor)
@@ -44,44 +40,39 @@ information.
 Installation
 ------------
 
-In short, for Unix: ``pip install leidenalg``. For Windows: download the binary
-installers. Alternatively, you can install from Anaconda (channels ``conda-forge`` or ``vtraag``).
+In short: ``pip install leidenalg``. All major platforms are supported on
+Python>=3.5, earlier versions of Python are no longer supported. Alternatively,
+you can install from Anaconda (channels ``conda-forge`` or ``vtraag``).
 
-For Unix like systems it is possible to install from source. For Windows this
-is overly complicated, and you are recommended to use the binary installation
-files.  There are two things that are needed by this package: the igraph ``C``
-core library and the python-igraph python package. For both, please see
+For Unix like systems it is possible to install from source. For Windows this is
+overly complicated, and you are recommended to use the binary installation
+files. The igraph ``C`` core library is provided within this package, and is
+automatically compiled. If you encounter any issue with compilation, please see
 http://igraph.org. 
 
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
-installed using ``sudo apt-get install build-essential``, please refer to the
-documentation for your specific system.  Make sure that not only ``gcc`` is
-installed, but also ``g++``, as the ``leidenalg`` package is programmed in
-``C++``.  Note that to compile ``igraph`` itself, you also need to install
-``libxml2-dev``.
+installed using ``sudo apt-get install build-essential autoconf automake flex
+bison``, please refer to the documentation for your specific system.  Make sure
+that not only ``gcc`` is installed, but also ``g++``, as the ``leidenalg``
+package is programmed in ``C++``.
 
 You can check if all went well by running a variety of tests using ``python
 setup.py test``.
 
-There are basically two installation modes, similar to the python-igraph
-package itself (from which most of the setup.py comes).
+There are basically two installation modes, similar to the python-igraph package
+itself (from which most of the setup.py comes).
 
-1. No ``C`` core library is installed yet. The packages will be compiled and
-   linked statically to an automatically downloaded version of the ``C`` core
-   library of igraph.
-2. A ``C`` core library is already installed. In this case, the package will
-   link dynamically to the already installed version. This is probably also the
-   version that is used by the igraph package, but you may want to double check
-   this.
+1. No ``C`` core library is installed yet. The ``C`` core
+   library of igraph that is provided within the ``leidenalg`` package is
+   compiled.
+2. A ``C`` core library is already installed. In this case, you may link
+   dynamically to the already installed version by specifying
+   ``--no-pkg-config``. This is probably also the version that is used by the
+   igraph package, but you may want to double check this.
 
 In case the python-igraph package is already installed before, make sure that
-both use the **same versions**.
-
-The cleanest setup it to install and compile the ``C`` core library yourself
-(make sure that the header files are also included, e.g. install also the
-development package from igraph). Then both the python-igraph package, as well
-as this package are compiled and (dynamically) linked to the same ``C`` core
-library.
+both use the **same versions** (at least the same minor version, which should be
+API compatible).
 
 Troubleshooting
 ---------------
@@ -100,6 +91,12 @@ There is no standalone version of ``leidenalg``, and you will always need
 python to access it. There are no plans for developing a standalone version or
 R support. So, use python. Please refer to the documentation for more details
 on function calls and parameters.
+
+This implementation is made for flexibility, but ``igraph`` nowadays also
+includes an implementation of the Leiden algorithm internally. That
+implementation is less flexible: the implementation only works on undirected
+graphs, and only CPM and modularity are supported. It is likely to be
+substantially faster though.
 
 Just to get you started, below the essential parts.
 To start, make sure to import the packages:
@@ -174,7 +171,7 @@ Please cite the references appropriately in case they are used.
 Licence
 -------
 
-Copyright (C) 2016 V.A. Traag
+Copyright (C) 2020 V.A. Traag
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
