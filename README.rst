@@ -42,12 +42,12 @@ Installation
 
 In short: ``pip install leidenalg``. All major platforms are supported on
 Python>=3.5, earlier versions of Python are no longer supported. Alternatively,
-you can install from Anaconda (channels ``conda-forge`` or ``vtraag``).
+you can install from Anaconda (channels ``conda-forge``).
 
 For Unix like systems it is possible to install from source. For Windows this is
-overly complicated, and you are recommended to use the binary installation
-files. The igraph ``C`` core library is provided within this package, and is
-automatically compiled. If you encounter any issue with compilation, please see
+overly complicated, and you are recommended to use the binary wheels. The igraph
+``C`` core library is provided within this package, and is automatically
+compiled. If you encounter any issue with compilation, please see
 http://igraph.org. 
 
 Make sure you have all necessary tools for compilation. In Ubuntu this can be

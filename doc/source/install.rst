@@ -1,18 +1,16 @@
 Installation
 ============
 
-In short, for Unix: ``sudo pip install leidenalg``.  For Windows: download the
-binary installers from `PyPi <https://pypi.org/project/leidenalg/>`_.
+In short: ``pip install leidenalg``.
 Alternatively, use `Anaconda <https://www.anaconda.com/distribution/>`_ and get
-the conda packages from the `vtraag channel
-<https://anaconda.org/vtraag/leidenalg>`_, which supports both Unix, Mac OS and
+the conda packages from the `conda-forge channel
+<https://anaconda.org/conda-forge/leidenalg>`_, which supports both Unix, Mac OS and
 Windows.
 
-For Unix like systems it is possible to install from source. For Windows this
-is overly complicated, and you are recommended to use the binary installation
-files.  There are two things that are needed by this package: the igraph ``C``
-core library and the python-igraph python package. For both, please see
-http://igraph.org. 
+For Unix like systems it is possible to install from source. For Windows this is
+overly complicated, and you are recommended to use the binary wheels. There are
+two things that are needed by this package: the igraph ``C`` core library and
+the python-igraph python package. For both, please see http://igraph.org. 
 
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential``, please refer to the
