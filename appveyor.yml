@@ -102,7 +102,7 @@ for:
       - python setup.py sdist
     on_success:
       - >
-        echo $APPVEYOR_REPO_TAG
+        echo $APPVEYOR_REPO_TAG;
         if [ "$APPVEYOR_REPO_TAG" == "true" ]; then
           python -m pip install twine && python -m twine upload --repository testpyi dist/*.tar.gz
         fi
