@@ -89,7 +89,7 @@ for:
     on_success:
       - >
         if [ "$APPVEYOR_REPO_TAG" == "true" ]; then
-          python -m pip install twine && python -m twine upload --repository-url https://upload.pypi.org/legacy/ testpyi wheelhouse/*.whl
+          python -m pip install twine && python -m twine upload --repository-url https://upload.pypi.org/legacy/ wheelhouse/*.whl
         fi
   - matrix:
       only:
