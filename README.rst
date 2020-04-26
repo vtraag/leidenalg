@@ -70,7 +70,7 @@ itself (from which most of the setup.py comes).
    ``--no-pkg-config``. This is probably also the version that is used by the
    igraph package, but you may want to double check this.
 
-In case the python-igraph package is already installed before, make sure that
+In case the ``python-igraph`` package is already installed before, make sure that
 both use the **same versions** (at least the same minor version, which should be
 API compatible).
 

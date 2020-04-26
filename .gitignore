@@ -33,3 +33,5 @@ PACKAGE.txt
 vendor/source/igraph
 src/version.py
 pip-wheel-metadata
+vendor/source/install
+.eggs/
