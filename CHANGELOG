@@ -1,3 +1,9 @@
+0.8.0
+- New option to keep some nodes "fixed"
+- Corrected bipartite clustering
+- Corrected some documentation
+- Several minor bugfixes
+
 0.6.1
 - Minor corrections to documentation
 - Added doctest to examples in documentation
