@@ -29,10 +29,6 @@ information.
                 :target: https://zenodo.org/badge/latestdoi/146722095
                 :alt: DOI 
 
-.. image:: https://anaconda.org/vtraag/leidenalg/badges/version.svg
-                :target: https://anaconda.org/vtraag/leidenalg
-                :alt: Anaconda (vtraag)
-
 .. image:: https://anaconda.org/conda-forge/leidenalg/badges/version.svg
                 :target: https://anaconda.org/conda-forge/leidenalg
                 :alt: Anaconda (conda-forge)
