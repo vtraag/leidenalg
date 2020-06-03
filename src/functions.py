@@ -409,21 +409,22 @@ def slices_to_layers(G_coupling,
 
   Now in order to optimise partitions across these different slices, we
   represent them slightly differently, namely as layers. The idea of layers is
-  that all graphs always are defined on the same set of nodes, and that only
-  the links differ for different layers. We thus create new nodes as
-  combinations of original nodes and slices. For example, if node 1 existed in
-  both slice 1 and in slice 2, we will thus create two nodes to build the
-  layers: a node 1-1 and a node 1-2. Additionally, if the slices are connected
-  in the slice graph, the two nodes would also be connected, so there would be
-  a linke between node 1-1 and 1-2. Different slices will then correspond to
-  different layers: each layer only contains the link for that particular
-  slice. In addition, for methods such as :class:`CPMVertexPartition`,
-  so-called ``node_sizes`` are required, and for them to properly function,
-  they should be set to 0 (which is handled appropriately in this function, and
-  stored in the vertex attribute ``node_size``). We thus obtain equally many
-  layers as we have slices, and we need one more layer for representing the
-  interslice couplings.  For the example provided above, we thus obtain the
-  following:
+  that all graphs always are defined on the same set of nodes, and that only the
+  links differ for different layers. We thus create new nodes as combinations of
+  original nodes and slices. For example, if node 1 existed in both slice 1 and
+  in slice 2, we will thus create two nodes to build the layers: a node 1-1 and
+  a node 1-2. Additionally, if the slices are connected in the slice graph, the
+  two nodes would also be connected, so there would be a linke between node 1-1
+  and 1-2. Different slices will then correspond to different layers: each layer
+  only contains the link for that particular slice. In addition, for methods
+  such as :class:`CPMVertexPartition`, so-called ``node_sizes`` are required,
+  and for them to properly function, they should be set to 1 only for nodes of a
+  layer that represent nodes of the corresponding slice and 0 for the other
+  nodes (which is handled appropriately in this function, and stored in the
+  vertex attribute ``node_size``). Additionally, ``node_sizes`` should be set to
+  0 for the interslice coupling layer. We thus obtain equally many layers as we
+  have slices, and we need one more layer for representing the interslice
+  couplings.  For the example provided above, we thus obtain the following:
 
   .. image:: figures/layers_separate.png
 
