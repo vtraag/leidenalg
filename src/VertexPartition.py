@@ -931,7 +931,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     This creates three layers for bipartite partition necessary for detecting
     communities in bipartite networks. These three layers should be passed to
     :func:`Optimiser.optimise_partition_multiplex` with
-    ``layer_weights=[1,-1,-1]``.
+    ``layer_weights=[1,-1,-1]``. See `Notes <#notes-bipartite>`_ for more details.
 
     Parameters
     ----------
@@ -958,6 +958,18 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
     **kwargs
       Additional arguments passed on to default constructor of
       :class:`CPMVertexPartition`.
+
+    Returns
+    -------
+    :class:`ig.CPMVertexPartition`
+      partition containing the bipartite graph and correct node sizes.
+
+    :class:`ig.CPMVertexPartition`
+      partition for type 0, containing the correct node sizes for type 0.
+
+    :class:`ig.CPMVertexPartition`
+      partition for type 1, containing the correct node sizes for type 1.
+
 
     .. _notes-bipartite:
 

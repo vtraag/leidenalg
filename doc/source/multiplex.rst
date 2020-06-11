@@ -147,19 +147,19 @@ like to be able to set three different resolution parameters: one for within
 each class :math:`\gamma_0, \gamma_1`, and one for the links between classes,
 :math:`\gamma_{01}`. Then the formulation would be
 
-.. math:: Q = \sum_{ij} 
+.. math:: Q = \sum_{ij}
    [A_{ij}
-    - (\gamma_0\delta(s_i,0) + \gamma_1\delta(s_i,1)) \delta(s_i,s_j) 
-    - \gamma_{01}(1 - \delta(s_i, s_j)) 
+    - (\gamma_0\delta(s_i,0) + \gamma_1\delta(s_i,1)) \delta(s_i,s_j)
+    - \gamma_{01}(1 - \delta(s_i, s_j))
    ]\delta(\sigma_i, \sigma_j)
 
 where :math:`s_i` denotes the bipartite class of a node and :math:`\sigma_i`
 the community of the node as elsewhere in the documentation. Rewriting as a sum
 over communities gives a bit more insight
 
-.. math:: Q = \sum_c (e_c 
+.. math:: Q = \sum_c (e_c
                       - \gamma_{01} 2 n_c(0) n_c(1)
-                      - \gamma_0 n^2_c(0) 
+                      - \gamma_0 n^2_c(0)
                       - \gamma_1 n^2_c(1))
 
 where :math:`n_c(0)` is the number of nodes in community :math:`c` of class 0
@@ -188,7 +188,7 @@ layer has layer weight 1, we obtain the following:
                             + ( \gamma_{01} - \gamma_1) n_c(1)^2
                       ] \\
             &=  \sum_c (e_c - \gamma_{01} 2 n_c(0) n_c(1)
-                          - \gamma_{0} n_c(0)^2 
+                          - \gamma_{0} n_c(0)^2
                           - \gamma_{1} n_c(1)^2) \\
 
 Hence detecting communities with these three layers corresponds to detecting
@@ -199,7 +199,7 @@ corresponds to the CPM method. However, using a little additional trick, we can
 also make this work for modularity. Essentially, modularity is nothing else
 than CPM with the ``node_size`` set to the degree, and the resolution parameter
 set to :math:`\gamma = \frac{1}{2m}`. In particular, in general (i.e. not
-specifically for bipartite graph) if ``node_sizes=G.degree()`` we then obtain 
+specifically for bipartite graph) if ``node_sizes=G.degree()`` we then obtain
 
 .. math:: Q = \sum_{ij} A_{ij} - \gamma k_i k_j
 
@@ -207,7 +207,9 @@ In the case of bipartite graphs something similar is obtained, but then
 correctly adapted (as long as the resolution parameter is also appropriately
 rescaled). Note that this is only possible for modularity for undirected
 graphs. Hence, we can also detect communities in bipartite networks using
-modularity by using this little trick.
+modularity by using this little trick. The definition of modularity for
+bipartite graphs is identical to the formulation of bipartite modularity
+provided in [3]_.
 
 All of this has been implemented in the constructor
 :func:`~leidenalg.CPMVertexPartition.Bipartite`. You can simply pass in a
@@ -225,7 +227,7 @@ An explicit example of this:
 
 >>> p_01, p_0, p_1 = la.CPMVertexPartition.Bipartite(G,
 ...                    resolution_parameter_01=0.1);
->>> diff = optimiser.optimise_partition_multiplex([p_01, p_0, p_1], 
+>>> diff = optimiser.optimise_partition_multiplex([p_01, p_0, p_1],
 ...                                        layer_weights=[1, -1, -1]);
 
 Slices to layers
@@ -309,13 +311,13 @@ types for different layers.
   :class:`~leidenalg.SignificanceVertexPartition`.
 
 .. testsetup::
-   
+
    gamma = 0.5;
 
->>> partitions = [la.CPMVertexPartition(H, node_sizes='node_size', 
-...                                          weights='weight', resolution_parameter=gamma) 
+>>> partitions = [la.CPMVertexPartition(H, node_sizes='node_size',
+...                                          weights='weight', resolution_parameter=gamma)
 ...               for H in layers];
->>> interslice_partition = la.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+>>> interslice_partition = la.CPMVertexPartition(interslice_layer, resolution_parameter=0,
 ...                                                   node_sizes='node_size', weights='weight');
 
 You can then simply optimise these partitions as before using
@@ -349,12 +351,12 @@ partitions in a slightly more convenient way using
 >>> layers, interslice_layer, G_full = \
 ...               la.time_slices_to_layers([G_1, G_2, G_3],
 ...                                             interslice_weight=0.1);
->>> partitions = [la.CPMVertexPartition(H, node_sizes='node_size', 
-...                                          weights='weight', 
-...                                          resolution_parameter=gamma) 
+>>> partitions = [la.CPMVertexPartition(H, node_sizes='node_size',
+...                                          weights='weight',
+...                                          resolution_parameter=gamma)
 ...               for H in layers];
 >>> interslice_partition = \
-...               la.CPMVertexPartition(interslice_layer, resolution_parameter=0, 
+...               la.CPMVertexPartition(interslice_layer, resolution_parameter=0,
 ...                                          node_sizes='node_size', weights='weight');
 >>> diff = optimiser.optimise_partition_multiplex(partitions + [interslice_partition]);
 
@@ -371,3 +373,6 @@ References
 .. [2] Traag, V. A., & Bruggeman, J. (2009). Community detection in networks
        with positive and negative links. Physical Review E, 80(3), 036115.
        `10.1103/PhysRevE.80.036115 <http://doi.org/10.1103/PhysRevE.80.036115>`_
+.. [3] Barber, M. J. (2007). Modularity and community detection in bipartite
+       networks. Physical Review E, 76(6), 066102. `10.1103/PhysRevE.76.066102
+       <https://doi.org/10.1103/PhysRevE.76.066102>`_
