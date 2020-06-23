@@ -746,25 +746,28 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
     cerr << "double MutableVertexPartition::cache_neigh_communities(" << v << ", " << mode << ")." << endl;
   #endif
   vector<double>* _cached_weight_tofrom_community = NULL;
-  vector<size_t>* _cached_neighs = NULL;
+  vector<size_t>* _cached_neighs_comms = NULL;
   switch (mode)
   {
     case IGRAPH_IN:
       _cached_weight_tofrom_community = &(this->_cached_weight_from_community);
-      _cached_neighs = &(this->_cached_neigh_comms_from);
+      _cached_neighs_comms = &(this->_cached_neigh_comms_from);
       break;
     case IGRAPH_OUT:
       _cached_weight_tofrom_community = &(this->_cached_weight_to_community);
-      _cached_neighs = &(this->_cached_neigh_comms_to);
+      _cached_neighs_comms = &(this->_cached_neigh_comms_to);
       break;
     case IGRAPH_ALL:
       _cached_weight_tofrom_community = &(this->_cached_weight_all_community);
-      _cached_neighs = &(this->_cached_neigh_comms_all);
+      _cached_neighs_comms = &(this->_cached_neigh_comms_all);
       break;
   }
 
   // Reset cached communities
-  std::fill(_cached_weight_tofrom_community->begin(), _cached_weight_tofrom_community->end(), 0);
+  for (vector<size_t>::iterator it = _cached_neighs_comms->begin();
+       it != _cached_neighs_comms->end();
+       it++)
+       (*_cached_weight_tofrom_community)[*it] = 0;
 
   // Loop over all incident edges
   vector<size_t> const& neighbours = this->graph->get_neighbours(v, mode);
@@ -773,8 +776,8 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
   size_t degree = neighbours.size();
 
   // Reset cached neighbours
-  _cached_neighs->clear();
-  _cached_neighs->reserve(degree);
+  _cached_neighs_comms->clear();
+  _cached_neighs_comms->reserve(degree);
   for (size_t idx = 0; idx < degree; idx++)
   {
     size_t u = neighbours[idx];
@@ -799,7 +802,7 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
     // times to the _cached_neighs. However, I don' believe this causes any further issue,
     // so that's why I leave this here as is.
     if ((*_cached_weight_tofrom_community)[comm] != 0)
-      _cached_neighs->push_back(comm);
+      _cached_neighs_comms->push_back(comm);
   }
   #ifdef DEBUG
     cerr << "exit Graph::cache_neigh_communities(" << v << ", " << mode << ")." << endl;
