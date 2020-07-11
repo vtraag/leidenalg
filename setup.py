@@ -264,6 +264,8 @@ class IgraphCCoreBuilder(object):
         source_folder = os.path.abspath(source_folder)
         build_folder = os.path.abspath(build_folder)
 
+        build_to_source_folder = os.path.relpath(source_folder, build_folder)
+
         cwd = os.getcwd()
         try:
             os.chdir(source_folder)
@@ -297,7 +299,7 @@ class IgraphCCoreBuilder(object):
                 configure_args.extend(os.environ["IGRAPH_EXTRA_CONFIGURE_ARGS"].split(" "))
             retcode = subprocess.call(
                 "sh {0} {1}".format(
-                    quote_path_for_shell(os.path.join(source_folder, "configure")),
+                    quote_path_for_shell(os.path.join(build_to_source_folder, "configure")),
                     " ".join(configure_args)
                 ),
                 env=self.enhanced_env(CFLAGS="-fPIC", CXXFLAGS="-fPIC"),
@@ -485,6 +487,7 @@ class BuildConfiguration(object):
 
                 # Check whether the user asked us to discover a pre-built igraph
                 # with pkg-config
+                detected = False
                 if buildcfg.use_pkgconfig:
                     detected = buildcfg.detect_from_pkgconfig()
                     if not detected:
@@ -610,7 +613,6 @@ class BuildConfiguration(object):
         ext.include_dirs = exclude_from_list(
             ext.include_dirs + self.include_dirs, self.excluded_include_dirs
         )
-        print('ext.include_dirs: {}'.format(ext.include_dirs))
         ext.library_dirs = exclude_from_list(
             self.library_dirs, self.excluded_library_dirs
         )
