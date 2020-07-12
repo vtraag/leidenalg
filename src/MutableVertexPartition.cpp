@@ -729,48 +729,6 @@ void MutableVertexPartition::from_partition(MutableVertexPartition* partition)
   this->init_admin();
 }
 
-/****************************************************************************
- Calculate what is the total weight going from a node to a community.
-
-    Parameters:
-      v      -- The node which to check.
-      comm   -- The community which to check.
-*****************************************************************************/
-double MutableVertexPartition::weight_to_comm(size_t v, size_t comm)
-{
-  if (this->_current_node_cache_community_to != v)
-  {
-    this->cache_neigh_communities(v, IGRAPH_OUT);
-    this->_current_node_cache_community_to = v;
-  }
-
-  if (comm < this->_cached_weight_to_community.size())
-    return this->_cached_weight_to_community[comm];
-  else
-    return 0.0;
-}
-
-/****************************************************************************
- Calculate what is the total weight going from a community to a node.
-
-    Parameters:
-      v      -- The node which to check.
-      comm   -- The community which to check.
-*****************************************************************************/
-double MutableVertexPartition::weight_from_comm(size_t v, size_t comm)
-{
-  if (this->_current_node_cache_community_from != v)
-  {
-    this->cache_neigh_communities(v, IGRAPH_IN);
-    this->_current_node_cache_community_from = v;
-  }
-
-  if (comm < this->_cached_weight_from_community.size())
-    return this->_cached_weight_from_community[comm];
-  else
-    return 0.0;
-}
-
 void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t mode)
 {
   // TODO: We can probably calculate at once the IN, OUT and ALL

@@ -98,8 +98,33 @@ class MutableVertexPartition
     inline double total_weight_in_all_comms()         { return this->_total_weight_in_all_comms; };
     inline size_t total_possible_edges_in_all_comms() { return this->_total_possible_edges_in_all_comms; };
 
-    double weight_to_comm(size_t v, size_t comm);
-    double weight_from_comm(size_t v, size_t comm);
+    inline double weight_to_comm(size_t v, size_t comm)
+    {
+      if (this->_current_node_cache_community_to != v)
+      {
+        this->cache_neigh_communities(v, IGRAPH_OUT);
+        this->_current_node_cache_community_to = v;
+      }
+
+      if (comm < this->_cached_weight_to_community.size())
+        return this->_cached_weight_to_community[comm];
+      else
+        return 0.0;
+    }
+
+    inline double weight_from_comm(size_t v, size_t comm)
+    {
+      if (this->_current_node_cache_community_from != v)
+      {
+        this->cache_neigh_communities(v, IGRAPH_IN);
+        this->_current_node_cache_community_from = v;
+      }
+
+      if (comm < this->_cached_weight_from_community.size())
+        return this->_cached_weight_from_community[comm];
+      else
+        return 0.0;
+    }
 
     vector<size_t> const& get_neigh_comms(size_t v, igraph_neimode_t);
     set<size_t> get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
