@@ -148,6 +148,12 @@ void MutableVertexPartition::init_admin()
   this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(this->_n_communities, 0);
   this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(this->_n_communities, 0);
   this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(this->_n_communities, 0);
+  this->_cached_neigh_comms_all.resize(n);
+
+  if (this->get_graph()->is_directed()) {
+    this->_cached_neigh_comms_from.resize(n);
+    this->_cached_neigh_comms_to.resize(n);
+  }
 
   this->_empty_communities.clear();
 
@@ -806,7 +812,6 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
 
   // Reset cached neighbours
   _cached_neighs_comms->clear();
-  _cached_neighs_comms->reserve(degree);
   for (size_t idx = 0; idx < degree; idx++)
   {
     size_t u = neighbours[idx];
