@@ -271,6 +271,7 @@ Graph::~Graph()
     igraph_destroy(this->_graph);
     delete this->_graph;
   }
+  igraph_vector_destroy(&this->_temp_igraph_vector);
 }
 
 int Graph::has_self_loops()
@@ -382,64 +383,54 @@ void Graph::init_admin()
     this->_total_size += this->node_size(v);
 
   igraph_vector_t weights;
-  igraph_vector_t res;
+  igraph_vector_t *res = &this->_temp_igraph_vector;
+  igraph_vector_init(res, n);
 
   // Strength IN
-  igraph_vector_init(&res, n);
   // Copy weights to an igraph_vector_t
   igraph_vector_init_copy(&weights, &this->_edge_weights[0], this->ecount());
   // Calculcate strength
-  igraph_strength(this->_graph, &res, igraph_vss_all(), IGRAPH_IN, true, &weights);
-  igraph_vector_destroy(&weights);
+  igraph_strength(this->_graph, res, igraph_vss_all(), IGRAPH_IN, true, &weights);
 
   // Assign to strength vector
   this->_strength_in.clear();
   this->_strength_in.resize(n);
   for (size_t v = 0; v < n; v++)
-    this->_strength_in[v] = VECTOR(res)[v];
-  igraph_vector_destroy(&res);
+    this->_strength_in[v] = VECTOR(*res)[v];
 
   // Strength OUT
-  igraph_vector_init(&res, n);
   // Copy weights to an igraph_vector_t
   igraph_vector_init_copy(&weights, &this->_edge_weights[0], this->ecount());
   // Calculcate strength
-  igraph_strength(this->_graph, &res, igraph_vss_all(), IGRAPH_OUT, true, &weights);
+  igraph_strength(this->_graph, res, igraph_vss_all(), IGRAPH_OUT, true, &weights);
   igraph_vector_destroy(&weights);
 
   // Assign to strength vector
   this->_strength_out.clear();
   this->_strength_out.resize(n);
   for (size_t v = 0; v < n; v++)
-    this->_strength_out[v] = VECTOR(res)[v];
-  igraph_vector_destroy(&res);
+    this->_strength_out[v] = VECTOR(*res)[v];
 
   // Degree IN
-  igraph_vector_init(&res, n);
-  igraph_degree(this->_graph, &res, igraph_vss_all(), IGRAPH_IN, true);
+  igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_IN, true);
   this->_degree_in.clear();
   this->_degree_in.resize(n);
   for (size_t v = 0; v < n; v++)
-    this->_degree_in[v] = VECTOR(res)[v];
-  igraph_vector_destroy(&res);
+    this->_degree_in[v] = VECTOR(*res)[v];
 
   // Degree OUT
-  igraph_vector_init(&res, n);
-  igraph_degree(this->_graph, &res, igraph_vss_all(), IGRAPH_OUT, true);
+  igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_OUT, true);
   this->_degree_out.clear();
   this->_degree_out.resize(n);
   for (size_t v = 0; v < n; v++)
-    this->_degree_out[v] = VECTOR(res)[v];
-  igraph_vector_destroy(&res);
+    this->_degree_out[v] = VECTOR(*res)[v];
 
   // Degree ALL
-  igraph_vector_init(&res, n);
-  igraph_degree(this->_graph, &res, igraph_vss_all(), IGRAPH_ALL, true);
+  igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_ALL, true);
   this->_degree_all.clear();
   this->_degree_all.resize(n);
   for (size_t v = 0; v < n; v++)
-    this->_degree_all[v] = VECTOR(res)[v];
-  igraph_vector_destroy(&res);
+    this->_degree_all[v] = VECTOR(*res)[v];
 
   // Calculate density;
   double w = this->total_weight();
@@ -478,9 +469,8 @@ void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
     cerr << "Degree: " << degree << endl;
   #endif
 
-  igraph_vector_t incident_edges;
-  igraph_vector_init(&incident_edges, degree);
-  igraph_incident(this->_graph, &incident_edges, v, mode);
+  igraph_vector_t *incident_edges = &this->_temp_igraph_vector;
+  igraph_incident(this->_graph, incident_edges, v, mode);
 
   vector<size_t>* _cached_neigh_edges = NULL;
   switch (mode)
@@ -498,14 +488,12 @@ void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
       _cached_neigh_edges = &(this->_cached_neigh_edges_all);
       break;
   }
-  _cached_neigh_edges->assign(igraph_vector_e_ptr(&incident_edges, 0),
-                              igraph_vector_e_ptr(&incident_edges, degree));
+  _cached_neigh_edges->assign(igraph_vector_e_ptr(incident_edges, 0),
+                              igraph_vector_e_ptr(incident_edges, degree));
   #ifdef DEBUG
     cerr << "Number of edges: " << _cached_neigh_edges->size() << endl;
   #endif
 
-
-  igraph_vector_destroy(&incident_edges);
   #ifdef DEBUG
     cerr << "exit void Graph::cache_neighbour_edges(" << v << ", " << mode << ");" << endl;
   #endif
@@ -550,9 +538,8 @@ void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
     cerr << "Degree: " << degree << endl;
   #endif
 
-  igraph_vector_t neighbours;
-  igraph_vector_init(&neighbours, degree);
-  igraph_neighbors(this->_graph, &neighbours, v, mode);
+  igraph_vector_t *neighbours = &this->_temp_igraph_vector;
+  igraph_neighbors(this->_graph, neighbours, v, mode);
 
   vector<size_t>* _cached_neighs = NULL;
   switch (mode)
@@ -570,8 +557,7 @@ void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
       _cached_neighs = &(this->_cached_neighs_all);
       break;
   }
-  _cached_neighs->assign(igraph_vector_e_ptr(&neighbours, 0),igraph_vector_e_ptr(&neighbours, degree));
-  igraph_vector_destroy(&neighbours);
+  _cached_neighs->assign(igraph_vector_e_ptr(neighbours, 0),igraph_vector_e_ptr(neighbours, degree));
 
   #ifdef DEBUG
     cerr << "Number of edges: " << _cached_neighs->size() << endl;

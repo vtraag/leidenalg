@@ -174,6 +174,7 @@ class Graph
 
   private:
     igraph_t* _graph;
+    igraph_vector_t _temp_igraph_vector;
 
     // Utility variables to easily access the strength of each node
     vector<double> _strength_in;
