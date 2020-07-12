@@ -365,51 +365,45 @@ void Graph::init_admin()
 {
 
   size_t m = this->ecount();
+  size_t n = this->vcount();
   this->_is_directed = igraph_is_directed(this->_graph);
+
+  this->_strength_in.clear();
+  this->_strength_in.resize(n, 0.0);
+
+  this->_strength_out.clear();
+  this->_strength_out.resize(n, 0.0);
 
   // Determine total weight in the graph.
   this->_total_weight = 0.0;
-  for (size_t e = 0; e < m; e++)
-    this->_total_weight += this->edge_weight(e);
+  for (size_t e = 0; e < m; e++) {
+    double w = this->edge_weight(e);
+    this->_total_weight += w;
+
+    size_t from, to;
+    this->edge(e, &from, &to);
+
+    this->_strength_in[to] += w;
+    this->_strength_out[from] += w;
+
+    if (!this->is_directed()) {
+      // igraph forces IGRAPH_ALL when the graph is undirected, so we
+      // need to add the edge weights to both the in and out strengths here
+      this->_strength_in[from] += w;
+      this->_strength_out[to] += w;
+    }
+  }
 
   // Make sure to multiply by 2 for undirected graphs
   //if (!this->is_directed())
   //  this->_total_weight *= 2.0;
 
-  size_t n = this->vcount();
-
   this->_total_size = 0;
   for (size_t v = 0; v < n; v++)
     this->_total_size += this->node_size(v);
 
-  igraph_vector_t weights;
   igraph_vector_t *res = &this->_temp_igraph_vector;
   igraph_vector_init(res, n);
-
-  // Strength IN
-  // Copy weights to an igraph_vector_t
-  igraph_vector_init_copy(&weights, &this->_edge_weights[0], this->ecount());
-  // Calculcate strength
-  igraph_strength(this->_graph, res, igraph_vss_all(), IGRAPH_IN, true, &weights);
-
-  // Assign to strength vector
-  this->_strength_in.clear();
-  this->_strength_in.resize(n);
-  for (size_t v = 0; v < n; v++)
-    this->_strength_in[v] = VECTOR(*res)[v];
-
-  // Strength OUT
-  // Copy weights to an igraph_vector_t
-  igraph_vector_init_copy(&weights, &this->_edge_weights[0], this->ecount());
-  // Calculcate strength
-  igraph_strength(this->_graph, res, igraph_vss_all(), IGRAPH_OUT, true, &weights);
-  igraph_vector_destroy(&weights);
-
-  // Assign to strength vector
-  this->_strength_out.clear();
-  this->_strength_out.resize(n);
-  for (size_t v = 0; v < n; v++)
-    this->_strength_out[v] = VECTOR(*res)[v];
 
   // Degree IN
   igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_IN, true);
