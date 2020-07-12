@@ -688,60 +688,61 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   #ifdef DEBUG
     cerr << "Graph* Graph::collapse_graph(vector<size_t> membership)" << endl;
   #endif
-  size_t m = this->ecount();
 
   #ifdef DEBUG
     cerr << "Current graph has " << this->vcount() << " nodes and " << this->ecount() << " edges." << endl;
     cerr << "Collapsing to graph with " << partition->n_communities() << " nodes." << endl;
   #endif
 
-  vector< map<size_t, double> > collapsed_edge_weights(partition->n_communities());
-
-  size_t v, u;
-  for (size_t e = 0; e < m; e++)
-  {
-    double w = this->edge_weight(e);
-    this->edge(e, &v, &u);
-    size_t v_comm = partition->membership(v);
-    size_t u_comm = partition->membership(u);
-    if (collapsed_edge_weights[v_comm].count(u_comm) > 0)
-      collapsed_edge_weights[v_comm][u_comm] += w;
-    else
-      collapsed_edge_weights[v_comm][u_comm] = w;
-  }
-
-  // Now create vector for edges, first determined the number of edges
-  size_t m_collapsed = 0;
   size_t n_collapsed = partition->n_communities();
+  vector<vector<size_t>> community_memberships = partition->get_communities();
 
-  for (vector< map<size_t, double> >::iterator itr = collapsed_edge_weights.begin();
-       itr != collapsed_edge_weights.end(); itr++)
-  {
-      m_collapsed += itr->size();
-  }
-
-  igraph_vector_t edges;
-  vector<double> collapsed_weights(m_collapsed, 0.0);
+  vector<double> collapsed_weights;
   double total_collapsed_weight = 0.0;
 
-  igraph_vector_init(&edges, 2*m_collapsed); // Vector or edges with edges (edge[0], edge[1]), (edge[2], edge[3]), etc...
+  vector<double> edge_weight_to_community(n_collapsed, 0.0);
+  vector<bool> neighbour_comm_added(n_collapsed, false);
 
-  size_t e_idx = 0;
-  for (size_t v = 0; v < n_collapsed; v++)
-  {
-    for (map<size_t, double>::iterator itr = collapsed_edge_weights[v].begin();
-         itr != collapsed_edge_weights[v].end(); itr++)
-    {
-      size_t u = itr->first;
-      double w = itr->second;
-      VECTOR(edges)[2*e_idx] = v;
-      VECTOR(edges)[2*e_idx+1] = u;
-      collapsed_weights[e_idx] = w;
-      total_collapsed_weight += w;
-      if (e_idx >= m_collapsed)
-        throw Exception("Maximum number of possible edges exceeded.");
-      // next edge
-      e_idx += 1;
+  // collapsed edges for new graph
+  igraph_vector_t edges;
+  igraph_vector_init(&edges, 0);
+
+  for (size_t v_comm = 0; v_comm < n_collapsed; v_comm++) {
+    vector<size_t> neighbour_communities;
+    for (size_t v : community_memberships[v_comm]) {
+        for (size_t e : this->get_neighbour_edges(v, IGRAPH_OUT)) {
+            size_t from, to;
+            this->edge(e, &from, &to);
+
+            if ((size_t) from != v) {
+                // need to skip because IGRAPH_OUT is ignored for undirected graphs
+                continue;
+            }
+
+            size_t u_comm = partition->membership(to);
+
+            double w = this->edge_weight(e);
+            // Self loops appear twice here if the graph is undirected, so divide by 2.0 in that case.
+            if (from == to && !this->is_directed())
+                w /= 2.0;
+
+            if (!neighbour_comm_added[u_comm]) {
+                neighbour_comm_added[u_comm] = true;
+                neighbour_communities.push_back(u_comm);
+            }
+            edge_weight_to_community[u_comm] += w;
+        }
+    }
+
+    for (size_t u_comm : neighbour_communities) {
+        igraph_vector_push_back(&edges, v_comm);
+        igraph_vector_push_back(&edges, u_comm);
+        collapsed_weights.push_back(edge_weight_to_community[u_comm]);
+        total_collapsed_weight += edge_weight_to_community[u_comm];
+
+        // reset edge_weight_to_community to all 0.0 and neighbour_comm_added to all false
+        edge_weight_to_community[u_comm] = 0.0;
+        neighbour_comm_added[u_comm] = false;
     }
   }
 
