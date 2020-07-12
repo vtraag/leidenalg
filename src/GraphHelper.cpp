@@ -364,6 +364,7 @@ void Graph::init_admin()
 {
 
   size_t m = this->ecount();
+  this->_is_directed = igraph_is_directed(this->_graph);
 
   // Determine total weight in the graph.
   this->_total_weight = 0.0;
@@ -630,7 +631,7 @@ size_t Graph::get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t
   if (this->degree(v, mode) <= 0)
     throw Exception("Cannot select a random neighbour for an isolated node.");
 
-  if (igraph_is_directed(this->_graph) && mode != IGRAPH_ALL)
+  if (this->is_directed() && mode != IGRAPH_ALL)
   {
     if (mode == IGRAPH_OUT)
     {

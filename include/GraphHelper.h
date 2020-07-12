@@ -111,7 +111,7 @@ class Graph
     inline size_t ecount() { return igraph_ecount(this->_graph); };
     inline double total_weight() { return this->_total_weight; };
     inline size_t total_size() { return this->_total_size; };
-    inline int is_directed() { return igraph_is_directed(this->_graph); };
+    inline int is_directed() { return this->_is_directed; };
     inline double density() { return this->_density; };
     inline int correct_self_loops() { return this->_correct_self_loops; };
     inline int is_weighted() { return this->_is_weighted; };
@@ -200,6 +200,7 @@ class Graph
     double _total_weight;
     size_t _total_size;
     int _is_weighted;
+    bool _is_directed;
 
     int _correct_self_loops;
     double _density;
