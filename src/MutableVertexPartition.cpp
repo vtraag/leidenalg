@@ -164,9 +164,8 @@ void MutableVertexPartition::init_admin()
   size_t m = graph->ecount();
   for (size_t e = 0; e < m; e++)
   {
-    pair<size_t, size_t> endpoints = this->graph->get_endpoints(e);
-    size_t v = endpoints.first;
-    size_t u = endpoints.second;
+    size_t v, u;
+    this->graph->edge(e, &v, &u);
 
     size_t v_comm = this->_membership[v];
     size_t u_comm = this->_membership[u];

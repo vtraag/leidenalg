@@ -539,13 +539,6 @@ vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode
   throw Exception("Incorrect model for getting neighbour edges.");
 }
 
-pair<size_t, size_t> Graph::get_endpoints(size_t e)
-{
-  igraph_integer_t from, to;
-  igraph_edge(this->_graph, e,&from, &to);
-  return make_pair<size_t, size_t>((size_t)from, (size_t)to);
-}
-
 void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
 {
   #ifdef DEBUG
@@ -723,13 +716,13 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
 
   vector< map<size_t, double> > collapsed_edge_weights(partition->n_communities());
 
-  igraph_integer_t v, u;
+  size_t v, u;
   for (size_t e = 0; e < m; e++)
   {
     double w = this->edge_weight(e);
-    igraph_edge(this->_graph, e, &v, &u);
-    size_t v_comm = partition->membership((size_t)v);
-    size_t u_comm = partition->membership((size_t)u);
+    this->edge(e, &v, &u);
+    size_t v_comm = partition->membership(v);
+    size_t u_comm = partition->membership(u);
     if (collapsed_edge_weights[v_comm].count(u_comm) > 0)
       collapsed_edge_weights[v_comm][u_comm] += w;
     else

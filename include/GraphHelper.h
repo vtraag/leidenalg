@@ -100,8 +100,6 @@ class Graph
     vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t* rng);
 
-    pair<size_t, size_t> get_endpoints(size_t e);
-
     inline size_t get_random_node(igraph_rng_t* rng)
     {
       return get_random_int(0, this->vcount() - 1, rng);
@@ -128,12 +126,15 @@ class Graph
       return this->_edge_weights[e];
     };
 
+    inline void edge(size_t eid, size_t *from, size_t *to) {
+      *from = IGRAPH_FROM(this->get_igraph(), eid);
+      *to = IGRAPH_TO(this->get_igraph(), eid);
+    }
+
     inline vector<size_t> edge(size_t e)
     {
-      igraph_integer_t v1, v2;
-      igraph_edge(this->_graph, e, &v1, &v2);
       vector<size_t> edge(2);
-      edge[0] = v1; edge[1] = v2;
+      this->edge(e, &edge[0], &edge[1]);
       return edge;
     }
 
