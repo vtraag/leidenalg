@@ -840,6 +840,9 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
 
 vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode)
 {
+  if (!this->get_graph()->is_directed())
+    mode = IGRAPH_ALL; // igraph ignores mode for undirected graphs
+
   switch (mode)
   {
     case IGRAPH_IN:

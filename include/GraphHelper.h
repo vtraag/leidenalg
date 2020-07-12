@@ -148,7 +148,7 @@ class Graph
 
     inline size_t degree(size_t v, igraph_neimode_t mode)
     {
-      if (mode == IGRAPH_IN)
+      if (mode == IGRAPH_IN || !this->is_directed())
         return this->_degree_in[v];
       else if (mode == IGRAPH_OUT)
         return this->_degree_out[v];
@@ -160,7 +160,7 @@ class Graph
 
     inline double strength(size_t v, igraph_neimode_t mode)
     {
-      if (mode == IGRAPH_IN)
+      if (mode == IGRAPH_IN || !this->is_directed())
         return this->_strength_in[v];
       else if (mode == IGRAPH_OUT)
         return this->_strength_out[v];

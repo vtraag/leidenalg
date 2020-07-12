@@ -383,14 +383,13 @@ void Graph::init_admin()
     size_t from, to;
     this->edge(e, &from, &to);
 
-    this->_strength_in[to] += w;
-    this->_strength_out[from] += w;
-
-    if (!this->is_directed()) {
-      // igraph forces IGRAPH_ALL when the graph is undirected, so we
-      // need to add the edge weights to both the in and out strengths here
+    if (this->is_directed()) {
+      this->_strength_in[to] += w;
+      this->_strength_out[from] += w;
+    } else {
+      // we only compute strength_in for undirected graphs
+      this->_strength_in[to] += w;
       this->_strength_in[from] += w;
-      this->_strength_out[to] += w;
     }
   }
 
@@ -412,19 +411,21 @@ void Graph::init_admin()
   for (size_t v = 0; v < n; v++)
     this->_degree_in[v] = VECTOR(*res)[v];
 
-  // Degree OUT
-  igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_OUT, true);
-  this->_degree_out.clear();
-  this->_degree_out.resize(n);
-  for (size_t v = 0; v < n; v++)
-    this->_degree_out[v] = VECTOR(*res)[v];
+  if (this->is_directed()) {
+    // Degree OUT
+    igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_OUT, true);
+    this->_degree_out.clear();
+    this->_degree_out.resize(n);
+    for (size_t v = 0; v < n; v++)
+      this->_degree_out[v] = VECTOR(*res)[v];
 
-  // Degree ALL
-  igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_ALL, true);
-  this->_degree_all.clear();
-  this->_degree_all.resize(n);
-  for (size_t v = 0; v < n; v++)
-    this->_degree_all[v] = VECTOR(*res)[v];
+    // Degree ALL
+    igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_ALL, true);
+    this->_degree_all.clear();
+    this->_degree_all.resize(n);
+    for (size_t v = 0; v < n; v++)
+      this->_degree_all[v] = VECTOR(*res)[v];
+  }
 
   // Calculate density;
   double w = this->total_weight();
@@ -495,6 +496,9 @@ void Graph::cache_neighbour_edges(size_t v, igraph_neimode_t mode)
 
 vector<size_t> const& Graph::get_neighbour_edges(size_t v, igraph_neimode_t mode)
 {
+  if (!this->is_directed())
+    mode = IGRAPH_ALL; // igraph ignores mode for undirected graphs
+
   switch (mode)
   {
     case IGRAPH_IN:
@@ -564,6 +568,9 @@ void Graph::cache_neighbours(size_t v, igraph_neimode_t mode)
 
 vector< size_t > const& Graph::get_neighbours(size_t v, igraph_neimode_t mode)
 {
+  if (!this->is_directed())
+    mode = IGRAPH_ALL; // igraph ignores mode for undirected graphs
+
   switch (mode)
   {
     case IGRAPH_IN:
