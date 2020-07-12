@@ -553,8 +553,10 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       /****************************ALL NEIGH COMMS*****************************/
       for (size_t layer = 0; layer < nb_layers; layer++)
       {
-        vector<size_t> const& neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL);
-        comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+        for (size_t u : partitions[layer]->get_graph()->get_neighbours(v, IGRAPH_ALL)) {
+          size_t comm = partitions[layer]->membership(u);
+          comms.insert(comm);
+        }
       }
     }
     else if (consider_comms == RAND_COMM)
@@ -1209,8 +1211,12 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           /****************************ALL NEIGH COMMS*****************************/
           for (size_t layer = 0; layer < nb_layers; layer++)
           {
-            set<size_t> neigh_comm_layer = partitions[layer]->get_neigh_comms(v, IGRAPH_ALL, constrained_partition->membership());
-            comms.insert(neigh_comm_layer.begin(), neigh_comm_layer.end());
+            for (size_t u : partitions[layer]->get_graph()->get_neighbours(v, IGRAPH_ALL)) {
+              if (constrained_partition->membership(v) == constrained_partition->membership(u)) {
+                size_t comm = partitions[layer]->membership(u);
+                comms.insert(comm);
+              }
+            }
           }
       }
       else if (consider_comms == RAND_COMM)
