@@ -246,10 +246,54 @@ void MutableVertexPartition::renumber_communities()
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = this;
-  this->set_membership(MutableVertexPartition::renumber_communities(partitions));
+  vector<size_t> new_comm_id = MutableVertexPartition::comm_ids_by_decreasing_size(partitions);
+  this->rearrange_community_labels(new_comm_id);
 }
 
-vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertexPartition*> partitions)
+void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& new_comm_id) {
+  if (this->_n_communities != new_comm_id.size()) {
+    throw Exception("Problem swapping community labels. Mismatch between n_communities and new_comm_id vector.");
+  }
+
+  size_t n = this->graph->vcount();
+  size_t nbcomms = this->n_communities();
+  size_t new_nbcomms = nbcomms - this->_empty_communities.size();
+
+  for (size_t i = 0; i < n; i++)
+    this->_membership[i] = new_comm_id[this->_membership[i]];
+
+  vector<double> new_total_weight_in_comm(new_nbcomms, 0.0);
+  vector<double> new_total_weight_from_comm(new_nbcomms, 0.0);
+  vector<double> new_total_weight_to_comm(new_nbcomms, 0.0);
+  vector<size_t> new_csize(new_nbcomms, 0.0);
+  vector<size_t> new_cnodes(new_nbcomms, 0.0);
+
+  for (size_t c = 0; c < nbcomms; c++) {
+    size_t new_c = new_comm_id[c];
+    if (new_c < new_nbcomms) {
+      new_total_weight_in_comm[new_c] = this->_total_weight_in_comm[c];
+      new_total_weight_from_comm[new_c] = this->_total_weight_from_comm[c];
+      new_total_weight_to_comm[new_c] = this->_total_weight_to_comm[c];
+      new_csize[new_c] = this->_csize[c];
+      new_cnodes[new_c] = this->_cnodes[c];
+    }
+  }
+
+  this->_total_weight_in_comm = new_total_weight_in_comm;
+  this->_total_weight_from_comm = new_total_weight_from_comm;
+  this->_total_weight_to_comm = new_total_weight_to_comm;
+  this->_csize = new_csize;
+  this->_cnodes = new_cnodes;
+  this->_empty_communities.clear();
+  this->_n_communities = new_nbcomms;
+
+  // invalidate cached weight vectors
+  this->_current_node_cache_community_from = n + 1;
+  this->_current_node_cache_community_to = n + 1;
+  this->_current_node_cache_community_all = n + 1;
+}
+
+vector<size_t> MutableVertexPartition::comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions)
 {
   size_t nb_layers = partitions.size();
   size_t nb_comms = partitions[0]->n_communities();
@@ -295,11 +339,7 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
     delete[] csizes[i];
   }
 
-  vector<size_t> membership(n, 0);
-  for (size_t i = 0; i < n; i++)
-    membership[i] = new_comm_id[partitions[0]->_membership[i]];
-
-  return membership;
+  return new_comm_id;
 }
 
 
@@ -307,7 +347,7 @@ vector<size_t> MutableVertexPartition::renumber_communities(vector<MutableVertex
  Renumber the communities using the original fixed membership vector. Notice
  that this doesn't ensure any property of the community numbers.
 *****************************************************************************/
-vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
+void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
 {
 
   #ifdef DEBUG
@@ -316,7 +356,7 @@ vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> 
 
   // Skip whole thing if there are no fixed nodes for efficiency
   if (membership.size() == 0)
-    return _membership;
+    return;
 
   // The number of communities does not depend on whether some are fixed
   size_t nb_comms = n_communities();
@@ -357,17 +397,7 @@ vector<size_t> MutableVertexPartition::renumber_communities(map<size_t, size_t> 
     }
   }
 
-  // Set the new communities
-  vector<size_t> new_membership(this->graph->vcount());
-  for (size_t i = 0; i < this->graph->vcount(); i++)
-  {
-    #ifdef DEBUG
-      cerr << "Setting membership of node " << i << " from" << _membership[i] << " to " << new_comm_id[_membership[i]] << endl;
-    #endif
-    new_membership[i] = new_comm_id[_membership[i]];
-  }
-
-  return new_membership;
+  this->rearrange_community_labels(new_comm_id);
 }
 
 void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)

@@ -77,10 +77,11 @@ class MutableVertexPartition
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    vector<size_t> renumber_communities(map<size_t, size_t> const& original_fixed_membership);
+    void renumber_communities(map<size_t, size_t> const& original_fixed_membership);
     void renumber_communities(vector<size_t> const& new_membership);
     void set_membership(vector<size_t> const& new_membership);
-    vector<size_t> static renumber_communities(vector<MutableVertexPartition*> partitions);
+    void rearrange_community_labels(vector<size_t> const& new_comm_id);
+    vector<size_t> static comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions);
     size_t get_empty_community();
     size_t add_empty_community();
     void from_coarse_partition(vector<size_t> const& coarse_partition_membership);

@@ -349,13 +349,13 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // where r is the number of communities. The exception is fixed
   // nodes which should keep the numbers of the original communities
   q = 0.0;
-  vector<size_t> membership = MutableVertexPartition::renumber_communities(partitions);
-  partitions[0]->set_membership(membership);
-  membership = partitions[0]->renumber_communities(original_fixed_memberships);
+  partitions[0]->renumber_communities();
+  partitions[0]->renumber_communities(original_fixed_memberships);
+  vector<size_t> const& membership = partitions[0]->membership();
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
-  for (size_t layer = 0; layer < nb_layers; layer++)
+  for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
@@ -703,8 +703,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   }
 
   partitions[0]->renumber_communities();
-  vector<size_t> const& membership = partitions[0]->renumber_communities(original_fixed_memberships);
-  for (size_t layer = 0; layer < nb_layers; layer++)
+  partitions[0]->renumber_communities(original_fixed_memberships);
+  vector<size_t> const& membership = partitions[0]->membership();
+  for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
@@ -903,8 +904,9 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   }
 
   partitions[0]->renumber_communities();
-  vector<size_t> const& membership = partitions[0]->renumber_communities(original_fixed_memberships);
-  for (size_t layer = 0; layer < nb_layers; layer++)
+  partitions[0]->renumber_communities(original_fixed_memberships);
+  vector<size_t> const& membership = partitions[0]->membership();
+  for (size_t layer = 1; layer < nb_layers; layer++)
   {
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
