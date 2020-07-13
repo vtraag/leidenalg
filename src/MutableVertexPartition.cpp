@@ -262,24 +262,28 @@ void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& ne
   }
 
   size_t n = this->graph->vcount();
-  size_t nbcomms = this->n_communities();
 
   for (size_t i = 0; i < n; i++)
     this->_membership[i] = new_comm_id[this->_membership[i]];
 
+  this->update_n_communities();
+  size_t nbcomms = this->n_communities();
+
   vector<double> new_total_weight_in_comm(nbcomms, 0.0);
   vector<double> new_total_weight_from_comm(nbcomms, 0.0);
   vector<double> new_total_weight_to_comm(nbcomms, 0.0);
-  vector<size_t> new_csize(nbcomms, 0.0);
-  vector<size_t> new_cnodes(nbcomms, 0.0);
+  vector<size_t> new_csize(nbcomms, 0);
+  vector<size_t> new_cnodes(nbcomms, 0);
 
-  for (size_t c = 0; c < nbcomms; c++) {
+  for (size_t c = 0; c < new_comm_id.size(); c++) {
     size_t new_c = new_comm_id[c];
-    new_total_weight_in_comm[new_c] = this->_total_weight_in_comm[c];
-    new_total_weight_from_comm[new_c] = this->_total_weight_from_comm[c];
-    new_total_weight_to_comm[new_c] = this->_total_weight_to_comm[c];
-    new_csize[new_c] = this->_csize[c];
-    new_cnodes[new_c] = this->_cnodes[c];
+    if (this->_csize[c] > 0) {
+      new_total_weight_in_comm[new_c] = this->_total_weight_in_comm[c];
+      new_total_weight_from_comm[new_c] = this->_total_weight_from_comm[c];
+      new_total_weight_to_comm[new_c] = this->_total_weight_to_comm[c];
+      new_csize[new_c] = this->_csize[c];
+      new_cnodes[new_c] = this->_cnodes[c];
+    }
   }
 
   this->_total_weight_in_comm = new_total_weight_in_comm;
@@ -287,8 +291,13 @@ void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& ne
   this->_total_weight_to_comm = new_total_weight_to_comm;
   this->_csize = new_csize;
   this->_cnodes = new_cnodes;
+
   this->_empty_communities.clear();
-  this->update_n_communities();
+  for (size_t c = 0; c < nbcomms; c++) {
+    if (this->_csize[c] == 0) {
+      this->_empty_communities.push_back(c);
+    }
+  }
 
   // invalidate cached weight vectors
   this->_current_node_cache_community_from = n + 1;
