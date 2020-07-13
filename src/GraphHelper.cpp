@@ -702,7 +702,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
   #endif
 
   size_t n_collapsed = partition->n_communities();
-  vector<vector<size_t>> community_memberships = partition->get_communities();
+  vector<vector<size_t> > community_memberships = partition->get_communities();
 
   vector<double> collapsed_weights;
   double total_collapsed_weight = 0.0;
