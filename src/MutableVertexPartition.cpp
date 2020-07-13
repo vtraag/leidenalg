@@ -263,26 +263,23 @@ void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& ne
 
   size_t n = this->graph->vcount();
   size_t nbcomms = this->n_communities();
-  size_t new_nbcomms = nbcomms - this->_empty_communities.size();
 
   for (size_t i = 0; i < n; i++)
     this->_membership[i] = new_comm_id[this->_membership[i]];
 
-  vector<double> new_total_weight_in_comm(new_nbcomms, 0.0);
-  vector<double> new_total_weight_from_comm(new_nbcomms, 0.0);
-  vector<double> new_total_weight_to_comm(new_nbcomms, 0.0);
-  vector<size_t> new_csize(new_nbcomms, 0.0);
-  vector<size_t> new_cnodes(new_nbcomms, 0.0);
+  vector<double> new_total_weight_in_comm(nbcomms, 0.0);
+  vector<double> new_total_weight_from_comm(nbcomms, 0.0);
+  vector<double> new_total_weight_to_comm(nbcomms, 0.0);
+  vector<size_t> new_csize(nbcomms, 0.0);
+  vector<size_t> new_cnodes(nbcomms, 0.0);
 
   for (size_t c = 0; c < nbcomms; c++) {
     size_t new_c = new_comm_id[c];
-    if (new_c < new_nbcomms) {
-      new_total_weight_in_comm[new_c] = this->_total_weight_in_comm[c];
-      new_total_weight_from_comm[new_c] = this->_total_weight_from_comm[c];
-      new_total_weight_to_comm[new_c] = this->_total_weight_to_comm[c];
-      new_csize[new_c] = this->_csize[c];
-      new_cnodes[new_c] = this->_cnodes[c];
-    }
+    new_total_weight_in_comm[new_c] = this->_total_weight_in_comm[c];
+    new_total_weight_from_comm[new_c] = this->_total_weight_from_comm[c];
+    new_total_weight_to_comm[new_c] = this->_total_weight_to_comm[c];
+    new_csize[new_c] = this->_csize[c];
+    new_cnodes[new_c] = this->_cnodes[c];
   }
 
   this->_total_weight_in_comm = new_total_weight_in_comm;
@@ -291,7 +288,7 @@ void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& ne
   this->_csize = new_csize;
   this->_cnodes = new_cnodes;
   this->_empty_communities.clear();
-  this->_n_communities = new_nbcomms;
+  this->update_n_communities();
 
   // invalidate cached weight vectors
   this->_current_node_cache_community_from = n + 1;
