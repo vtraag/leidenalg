@@ -1,4 +1,5 @@
 #include "Optimiser.h"
+#include <stdio.h>
 
 /****************************************************************************
   Create a new Optimiser object
@@ -599,6 +600,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
       if (possible_improv > max_improv)
       {
+        printf("possible_improv=%g > max_improv=%g ?\n", possible_improv, max_improv);
+        printf("possible_improv=%a > max_improv=%a ?\n", possible_improv, max_improv);
+        printf("(gt=%d, eq=%d, lt=%d)\n", possible_improv > max_improv, possible_improv == max_improv, possible_improv < max_improv);
         max_comm = comm;
         max_improv = possible_improv;
       }
@@ -635,6 +639,9 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         #endif
         if (possible_improv > max_improv)
         {
+          printf("possible_improv=%g > max_improv=%g ?\n", possible_improv, max_improv);
+          printf("possible_improv=%a > max_improv=%a ?\n", possible_improv, max_improv);
+          printf("(gt=%d, eq=%d, lt=%d)\n", possible_improv > max_improv, possible_improv == max_improv, possible_improv < max_improv);
           max_improv = possible_improv;
           max_comm = comm;
         }
