@@ -300,9 +300,9 @@ void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& ne
   }
 
   // invalidate cached weight vectors
-  this->_current_node_cache_community_from = n + 1;
-  this->_current_node_cache_community_to = n + 1;
-  this->_current_node_cache_community_all = n + 1;
+  this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(nbcomms, 0);
+  this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(nbcomms, 0);
+  this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(nbcomms, 0);
 }
 
 vector<size_t> MutableVertexPartition::comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions)
