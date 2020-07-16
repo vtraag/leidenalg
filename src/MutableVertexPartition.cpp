@@ -303,6 +303,42 @@ void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& ne
   this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(nbcomms, 0);
   this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(nbcomms, 0);
   this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(nbcomms, 0);
+
+  #ifdef DEBUG
+    if (this->_csize.size() < this->_n_communities ||
+        this->_cnodes.size() < this->_n_communities ||
+        this->_total_weight_in_comm.size() < this->_n_communities ||
+        this->_total_weight_to_comm.size() < this->_n_communities ||
+        this->_total_weight_from_comm.size() < this->_n_communities ||
+        this->_cached_weight_from_community.size() < this->_n_communities ||
+        this->_cached_weight_to_community.size() < this->_n_communities ||
+        this->_cached_weight_all_community.size() < this->_n_communities) {
+      cerr << "ERROR: MutableVertexPartition bookkeeping is too small after rearrange_community_labels." << endl;
+    }
+
+    this->init_admin();
+
+    for (size_t c = 0; c < this->_n_communities; c++) {
+      if (fabs(new_total_weight_in_comm[c] - this->_total_weight_in_comm[c]) > 1e-6 ||
+          fabs(new_total_weight_from_comm[c] - this->_total_weight_from_comm[c]) > 1e-6 ||
+          fabs(new_total_weight_to_comm[c] - this->_total_weight_to_comm[c]) > 1e-6 ||
+          new_csize[c] != this->_csize[c] ||
+          new_cnodes[c] != this->_cnodes[c]) {
+        cerr << "ERROR: MutableVertexPartition bookkeeping is incorrect after rearrange_community_labels." << endl;
+        cerr << "Community c has " << endl
+             << "total_weight_in_comm=" << new_total_weight_in_comm[c]
+             << " (should be " << this->_total_weight_in_comm[c] << ")" << endl
+             << "total_weight_from_comm=" << new_total_weight_from_comm[c]
+             << " (should be " << this->_total_weight_from_comm[c] << ")" << endl
+             << "total_weight_to_comm=" << new_total_weight_to_comm[c]
+             << " (should be " << this->_total_weight_to_comm[c] << ")" << endl
+             << "csize=" << new_csize[c]
+             << " (should be " << this->_csize[c] << ")" << endl
+             << "cnodes=" << new_cnodes[c]
+             << " (should be " << this->_cnodes[c] << ")" << endl;
+      }
+    }
+  #endif
 }
 
 vector<size_t> MutableVertexPartition::comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions)
