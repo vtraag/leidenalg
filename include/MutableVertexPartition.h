@@ -114,6 +114,9 @@ class MutableVertexPartition
 
     inline double weight_from_comm(size_t v, size_t comm)
     {
+      if (!this->graph->is_directed())
+        return weight_to_comm(v, comm);
+
       if (this->_current_node_cache_community_from != v)
       {
         this->cache_neigh_communities(v, IGRAPH_IN);
