@@ -74,13 +74,37 @@ class OptimiserTest(unittest.TestCase):
               initial_membership=[2, 1, 0])
       # Equivalent to setting initial membership
       #partition.set_membership([2, 1, 2])
-      opt = leidenalg.Optimiser()
       fixed_nodes = [True, False, False]
-      opt.optimise_partition(partition, fixed_nodes=fixed_nodes)
+      original_quality = partition.quality()
+      diff = self.optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+      self.assertAlmostEqual(partition.quality() - original_quality, diff, places=10,
+                             msg="Optimisation with fixed nodes returns inconsistent quality")
       self.assertListEqual(
             partition.membership, [2, 2, 2],
             msg="After optimising partition with fixed nodes failed to recover initial fixed memberships"
             )
+
+  def test_optimiser_fixed_nodes_large_labels(self):
+    G = ig.Graph.Erdos_Renyi(n=100, p=5./100, directed=True, loops=True)
+
+    membership = list(range(G.vcount()))
+    partition = leidenalg.RBConfigurationVertexPartition(G, initial_membership=membership)
+
+    # large enough to force nonconsecutive labels in the final partition
+    fixed_node_idx = 90
+    fixed_nodes = [False] * G.vcount()
+    fixed_nodes[fixed_node_idx] = True
+
+    original_quality = partition.quality()
+    diff = self.optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+
+    self.assertLess(len(set(partition.membership)), len(partition),
+                    msg="Optimisation with fixed nodes yielded too many communities")
+    self.assertAlmostEqual(partition.quality() - original_quality, diff, places=10,
+                           msg="Optimisation with fixed nodes returned inconsistent quality")
+    self.assertEqual(partition.membership[fixed_node_idx], fixed_node_idx,
+                     msg="Optimisation with fixed nodes failed to keep the associated community labels fixed")
+
 
   def test_neg_weight_bipartite(self):
     G = ig.Graph.Full_Bipartite(50, 50);
