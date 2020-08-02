@@ -126,9 +126,9 @@ class Graph
       return this->_edge_weights[e];
     };
 
-    inline void edge(size_t eid, size_t *from, size_t *to) {
-      *from = IGRAPH_FROM(this->get_igraph(), eid);
-      *to = IGRAPH_TO(this->get_igraph(), eid);
+    inline void edge(size_t eid, size_t &from, size_t &to) {
+      from = IGRAPH_FROM(this->get_igraph(), eid);
+      to = IGRAPH_TO(this->get_igraph(), eid);
     }
 
     inline vector<size_t> edge(size_t e)
