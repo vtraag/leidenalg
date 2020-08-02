@@ -381,7 +381,7 @@ void Graph::init_admin()
     this->_total_weight += w;
 
     size_t from, to;
-    this->edge(e, &from, &to);
+    this->edge(e, from, to);
 
     if (this->is_directed()) {
       this->_strength_in[to] += w;
@@ -719,7 +719,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     for (size_t v : community_memberships[v_comm]) {
         for (size_t e : this->get_neighbour_edges(v, IGRAPH_OUT)) {
             size_t from, to;
-            this->edge(e, &from, &to);
+            this->edge(e, from, to);
 
             if ((size_t) from != v) {
                 // need to skip because IGRAPH_OUT is ignored for undirected graphs

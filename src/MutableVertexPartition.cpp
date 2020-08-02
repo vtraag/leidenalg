@@ -171,7 +171,7 @@ void MutableVertexPartition::init_admin()
   for (size_t e = 0; e < m; e++)
   {
     size_t v, u;
-    this->graph->edge(e, &v, &u);
+    this->graph->edge(e, v, u);
 
     size_t v_comm = this->_membership[v];
     size_t u_comm = this->_membership[u];

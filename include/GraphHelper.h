@@ -134,7 +134,7 @@ class Graph
     inline vector<size_t> edge(size_t e)
     {
       vector<size_t> edge(2);
-      this->edge(e, &edge[0], &edge[1]);
+      this->edge(e, edge[0], edge[1]);
       return edge;
     }
 
