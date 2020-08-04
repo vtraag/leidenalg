@@ -97,6 +97,7 @@ Graph::Graph(igraph_t* graph,
   this->_node_self_weights = node_self_weights;
 
   this->_correct_self_loops = correct_self_loops;
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
 }
 
@@ -120,6 +121,7 @@ Graph::Graph(igraph_t* graph,
   this->_correct_self_loops = this->has_self_loops();
 
   this->_node_self_weights = node_self_weights;
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
 }
 
@@ -140,6 +142,7 @@ Graph::Graph(igraph_t* graph,
   this->_node_sizes = node_sizes;
 
   this->_correct_self_loops = correct_self_loops;
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -161,6 +164,7 @@ Graph::Graph(igraph_t* graph,
 
   this->_correct_self_loops = this->has_self_loops();
 
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -175,6 +179,7 @@ Graph::Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_se
   this->_edge_weights = edge_weights;
   this->_is_weighted = true;
   this->set_default_node_size();
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -191,6 +196,7 @@ Graph::Graph(igraph_t* graph, vector<double> const& edge_weights)
   this->_correct_self_loops = this->has_self_loops();
 
   this->set_default_node_size();
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -207,6 +213,7 @@ Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self
 
   this->set_default_edge_weight();
   this->_is_weighted = false;
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -225,6 +232,7 @@ Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes)
 
   this->_correct_self_loops = this->has_self_loops();
 
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -236,6 +244,7 @@ Graph::Graph(igraph_t* graph, int correct_self_loops)
   this->_correct_self_loops = correct_self_loops;
   this->set_defaults();
   this->_is_weighted = false;
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -249,6 +258,7 @@ Graph::Graph(igraph_t* graph)
 
   this->_correct_self_loops = this->has_self_loops();
 
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -260,6 +270,7 @@ Graph::Graph()
   this->set_defaults();
   this->_is_weighted = false;
   this->_correct_self_loops = false;
+  igraph_vector_init(&this->_temp_igraph_vector, this->vcount());
   this->init_admin();
   this->set_self_weights();
 }
@@ -401,8 +412,8 @@ void Graph::init_admin()
   for (size_t v = 0; v < n; v++)
     this->_total_size += this->node_size(v);
 
+  // this is initialized in the constructors
   igraph_vector_t *res = &this->_temp_igraph_vector;
-  igraph_vector_init(res, n);
 
   // Degree IN
   igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_IN, true);
