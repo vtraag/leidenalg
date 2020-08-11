@@ -80,7 +80,7 @@ class MutableVertexPartition
     void renumber_communities(map<size_t, size_t> const& original_fixed_membership);
     void renumber_communities(vector<size_t> const& new_membership);
     void set_membership(vector<size_t> const& new_membership);
-    void rearrange_community_labels(vector<size_t> const& new_comm_id);
+    void relabel_communities(vector<size_t> const& new_comm_id);
     vector<size_t> static comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions);
     size_t get_empty_community();
     size_t add_empty_community();

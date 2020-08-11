@@ -253,10 +253,21 @@ void MutableVertexPartition::renumber_communities()
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = this;
   vector<size_t> new_comm_id = MutableVertexPartition::comm_ids_by_decreasing_size(partitions);
-  this->rearrange_community_labels(new_comm_id);
+  this->relabel_communities(new_comm_id);
 }
 
-void MutableVertexPartition::rearrange_community_labels(vector<size_t> const& new_comm_id) {
+/****************************************************************************
+ Renumber the communities according to the new labels in new_comm_id.
+
+ This adjusts the internal bookkeeping as required, avoiding the more costly
+ setup required in init_admin(). In particular, this avoids recomputation of
+ weights in/from/to each community by simply assigning the previously
+ computed values to the new, relabeled communities.
+
+ For instance, a new_comm_id of <1, 2, 0> will change the labels such that
+ community 0 becomes 1, community 1 becomes 2, and community 2 becomes 0.
+*****************************************************************************/
+void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_id) {
   if (this->_n_communities != new_comm_id.size()) {
     throw Exception("Problem swapping community labels. Mismatch between n_communities and new_comm_id vector.");
   }
@@ -445,7 +456,7 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
     }
   }
 
-  this->rearrange_community_labels(new_comm_id);
+  this->relabel_communities(new_comm_id);
 }
 
 void MutableVertexPartition::renumber_communities(vector<size_t> const& membership)
