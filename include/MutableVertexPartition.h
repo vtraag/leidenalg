@@ -81,7 +81,7 @@ class MutableVertexPartition
     void renumber_communities(vector<size_t> const& new_membership);
     void set_membership(vector<size_t> const& new_membership);
     void relabel_communities(vector<size_t> const& new_comm_id);
-    vector<size_t> static comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions);
+    vector<size_t> static rank_order_communities(vector<MutableVertexPartition*> partitions);
     size_t get_empty_community();
     size_t add_empty_community();
     void from_coarse_partition(vector<size_t> const& coarse_partition_membership);

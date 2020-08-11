@@ -252,7 +252,7 @@ void MutableVertexPartition::renumber_communities()
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = this;
-  vector<size_t> new_comm_id = MutableVertexPartition::comm_ids_by_decreasing_size(partitions);
+  vector<size_t> new_comm_id = MutableVertexPartition::rank_order_communities(partitions);
   this->relabel_communities(new_comm_id);
 }
 
@@ -352,7 +352,7 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
   #endif
 }
 
-vector<size_t> MutableVertexPartition::comm_ids_by_decreasing_size(vector<MutableVertexPartition*> partitions)
+vector<size_t> MutableVertexPartition::rank_order_communities(vector<MutableVertexPartition*> partitions)
 {
   size_t nb_layers = partitions.size();
   size_t nb_comms = partitions[0]->n_communities();
