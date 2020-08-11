@@ -523,12 +523,13 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   //       aggregating/collapsing the graph.
 
   vector<bool> comm_added(partitions[0]->n_communities(), false);
+  vector<size_t> comms;
 
   // As long as the queue is not empty
   while(!vertex_order.empty())
   {
     size_t v = vertex_order.front(); vertex_order.pop();
-    vector<size_t> comms;
+    comms.clear();
     Graph* graph = NULL;
     MutableVertexPartition* partition = NULL;
     // What is the current community of the node (this should be the same for all layers)
@@ -1186,6 +1187,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
   vector< vector<size_t> > constrained_comms = constrained_partition->get_communities();
 
   vector<bool> comm_added(partitions[0]->n_communities(), false);
+  vector<size_t> comms;
 
   // For each node
   for (vector<size_t>::iterator it = vertex_order.begin();
@@ -1198,7 +1200,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
 
     if (partitions[0]->cnodes(v_comm) == 1)
     {
-      vector<size_t> comms;
+      comms.clear();
       MutableVertexPartition* partition = NULL;
 
       if (consider_comms == ALL_COMMS)
