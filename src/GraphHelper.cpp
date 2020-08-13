@@ -382,8 +382,19 @@ void Graph::init_admin()
   this->_strength_in.clear();
   this->_strength_in.resize(n, 0.0);
 
-  this->_strength_out.clear();
-  this->_strength_out.resize(n, 0.0);
+  this->_degree_in.clear();
+  this->_degree_in.resize(n, 0.0);
+
+  if (this->_is_directed) {
+    this->_strength_out.clear();
+    this->_strength_out.resize(n, 0.0);
+
+    this->_degree_out.clear();
+    this->_degree_out.resize(n, 0);
+
+    this->_degree_all.clear();
+    this->_degree_all.resize(n, 0);
+  }
 
   // Determine total weight in the graph.
   this->_total_weight = 0.0;
@@ -397,10 +408,19 @@ void Graph::init_admin()
     if (this->is_directed()) {
       this->_strength_in[to] += w;
       this->_strength_out[from] += w;
+
+      this->_degree_in[to]++;
+      this->_degree_out[from]++;
+      this->_degree_all[to]++;
+      this->_degree_all[from]++;
     } else {
-      // we only compute strength_in for undirected graphs
+      // we only compute strength_in and degree_in for undirected graphs
       this->_strength_in[to] += w;
       this->_strength_in[from] += w;
+
+      // recall that igraph ignores the mode for undirected graphs
+      this->_degree_in[to]++;
+      this->_degree_in[from]++;
     }
   }
 
@@ -414,29 +434,6 @@ void Graph::init_admin()
 
   // this is initialized in the constructors
   igraph_vector_t *res = &this->_temp_igraph_vector;
-
-  // Degree IN
-  igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_IN, true);
-  this->_degree_in.clear();
-  this->_degree_in.resize(n);
-  for (size_t v = 0; v < n; v++)
-    this->_degree_in[v] = VECTOR(*res)[v];
-
-  if (this->is_directed()) {
-    // Degree OUT
-    igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_OUT, true);
-    this->_degree_out.clear();
-    this->_degree_out.resize(n);
-    for (size_t v = 0; v < n; v++)
-      this->_degree_out[v] = VECTOR(*res)[v];
-
-    // Degree ALL
-    igraph_degree(this->_graph, res, igraph_vss_all(), IGRAPH_ALL, true);
-    this->_degree_all.clear();
-    this->_degree_all.resize(n);
-    for (size_t v = 0; v < n; v++)
-      this->_degree_all[v] = VECTOR(*res)[v];
-  }
 
   // Calculate density;
   double w = this->total_weight();
