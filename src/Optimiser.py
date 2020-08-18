@@ -217,6 +217,22 @@ class Optimiser(object):
   def consider_empty_community(self, value):
     _c_leiden._Optimiser_set_consider_empty_community(self._optimiser, value)
 
+  #########################################################3
+  # max_comm_size
+  @property
+  def max_comm_size(self):
+    """ Constrain the maximal community size.
+
+    By default (zero), communities can be of any size. If this is set to a
+    positive integer value, then communities will be constrained to be at most
+    this total size.
+    """
+    return _c_leiden._Optimiser_get_max_comm_size(self._optimiser)
+
+  @max_comm_size.setter
+  def max_comm_size(self, value):
+    _c_leiden._Optimiser_set_max_comm_size(self._optimiser, value)
+
   ##########################################################
   # Set rng seed
   def set_rng_seed(self, value):
@@ -229,7 +245,7 @@ class Optimiser(object):
     """
     _c_leiden._Optimiser_set_rng_seed(self._optimiser, value)
 
-  def optimise_partition(self, partition, n_iterations=2, is_membership_fixed=None):
+  def optimise_partition(self, partition, n_iterations=2, is_membership_fixed=None, max_comm_size=None):
     """ Optimise the given partition.
 
     Parameters
@@ -246,6 +262,10 @@ class Optimiser(object):
       Boolean list of nodes that are not allowed to change community. The
       length of this list must be equal to the number of nodes. By default
       (None) all nodes can change community during the optimization.
+
+    max_comm_size : int or None
+      Maximal total size of nodes in a community. If zero, then communities can
+      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -268,6 +288,9 @@ class Optimiser(object):
     >>> diff = optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
     """
 
+    if max_comm_size is None:
+        max_comm_size = self.max_comm_size
+
     itr = 0
     diff = 0
     continue_iteration = itr < n_iterations or n_iterations < 0
@@ -276,6 +299,7 @@ class Optimiser(object):
               self._optimiser,
               partition._partition,
               is_membership_fixed=is_membership_fixed,
+              max_comm_size=max_comm_size,
               )
       diff += diff_inc
       itr += 1
@@ -287,7 +311,7 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, is_membership_fixed=None):
+  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, is_membership_fixed=None, max_comm_size=None):
     """ Optimise the given partitions simultaneously.
 
     Parameters
@@ -307,6 +331,10 @@ class Optimiser(object):
       Number of iterations to run the Leiden algorithm. By default, 2 iterations
       are run. If the number of iterations is negative, the Leiden algorithm is
       run until an iteration in which there was no improvement.
+
+    max_comm_size : int or None
+      Maximal total size of nodes in a community. If zero, then communities can
+      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -373,6 +401,9 @@ class Optimiser(object):
     if not layer_weights:
       layer_weights = [1]*len(partitions)
 
+    if max_comm_size is None:
+        max_comm_size = self.max_comm_size
+
     itr = 0
     diff = 0
     continue_iteration = itr < n_iterations or n_iterations < 0
@@ -381,7 +412,8 @@ class Optimiser(object):
         self._optimiser,
         [partition._partition for partition in partitions],
         layer_weights,
-        is_membership_fixed)
+        is_membership_fixed,
+        max_comm_size)
       diff += diff_inc
       itr += 1
       if n_iterations < 0:
@@ -393,7 +425,7 @@ class Optimiser(object):
       partition._update_internal_membership()
     return diff
 
-  def move_nodes(self, partition, is_membership_fixed=None, consider_comms=None):
+  def move_nodes(self, partition, is_membership_fixed=None, consider_comms=None, max_comm_size=None):
     """ Move nodes to alternative communities for *optimising* the partition.
 
     Parameters
@@ -409,6 +441,10 @@ class Optimiser(object):
     consider_comms
       If ``None`` uses :attr:`consider_comms`, but can be set to
       something else.
+
+    max_comm_size : int or None
+      Maximal total size of nodes in a community. If zero, then communities can
+      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -438,8 +474,12 @@ class Optimiser(object):
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms
+
+    if max_comm_size is None:
+        max_comm_size = self.max_comm_size
+
     diff = _c_leiden._Optimiser_move_nodes(
-            self._optimiser, partition._partition, is_membership_fixed, consider_comms)
+            self._optimiser, partition._partition, is_membership_fixed, consider_comms, max_comm_size)
     partition._update_internal_membership()
     return diff
 
@@ -492,7 +532,7 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def merge_nodes(self, partition, is_membership_fixed=None, consider_comms=None):
+  def merge_nodes(self, partition, is_membership_fixed=None, consider_comms=None, max_comm_size=None):
     """ Merge nodes for *optimising* the partition.
 
     Parameters
@@ -508,6 +548,10 @@ class Optimiser(object):
     consider_comms
       If ``None`` uses :attr:`consider_comms`, but can be set to
       something else.
+
+    max_comm_size : int or None
+      Maximal total size of nodes in a community. If zero, then communities can
+      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -536,12 +580,16 @@ class Optimiser(object):
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms
+
+    if max_comm_size is None:
+        max_comm_size = self.max_comm_size
+
     diff = _c_leiden._Optimiser_merge_nodes(
-            self._optimiser, partition._partition, is_membership_fixed, consider_comms)
+            self._optimiser, partition._partition, is_membership_fixed, consider_comms, max_comm_size)
     partition._update_internal_membership()
     return diff
 
-  def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None):
+  def merge_nodes_constrained(self, partition, constrained_partition, consider_comms=None, max_comm_size=None):
     """ Merge nodes for *refining* the partition.
 
     Parameters
@@ -555,6 +603,10 @@ class Optimiser(object):
     consider_comms
       If ``None`` uses :attr:`refine_consider_comms`, but can be set
       to something else.
+
+    max_comm_size : int or None
+      Maximal total size of nodes in a community. If zero, then communities can
+      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -586,7 +638,11 @@ class Optimiser(object):
     """
     if (consider_comms is None):
       consider_comms = self.refine_consider_comms
-    diff =  _c_leiden._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms)
+
+    if max_comm_size is None:
+        max_comm_size = self.max_comm_size
+
+    diff =  _c_leiden._Optimiser_merge_nodes_constrained(self._optimiser, partition._partition, constrained_partition._partition, consider_comms, max_comm_size)
     partition._update_internal_membership()
     return diff
 

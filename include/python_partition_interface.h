@@ -28,10 +28,9 @@ MutableVertexPartition* create_partition(Graph* graph, char* method, vector<size
 MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* method, PyObject* py_initial_membership, PyObject* py_weights, PyObject* py_node_sizes, double resolution_parameter);
 
 Graph* create_graph_from_py(PyObject* py_obj_graph);
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights);
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, int check_positive_weight);
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes);
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_weights, PyObject* py_node_sizes, int check_positive_weight);
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes);
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights);
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, int check_positive_weight);
 
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition);
 MutableVertexPartition* decapsule_MutableVertexPartition(PyObject* py_partition);

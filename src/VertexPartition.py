@@ -426,7 +426,7 @@ class ModularityVertexPartition(MutableVertexPartition):
          in Directed Networks. Physical Review Letters, 100(11), 118703.
          `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None):
     """
     Parameters
     ----------
@@ -439,6 +439,11 @@ class ModularityVertexPartition(MutableVertexPartition):
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
+
+    node_sizes : list of int, or vertex attribute
+      Sizes of nodes are necessary to know the size of communities in aggregate
+      graphs. Usually this is set to 1 for all nodes, but in specific cases
+      this could be changed.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
@@ -454,12 +459,12 @@ class ModularityVertexPartition(MutableVertexPartition):
         weights = list(weights)
 
     self._partition = _c_leiden._new_ModularityVertexPartition(pygraph_t,
-        initial_membership, weights)
+        initial_membership, weights, node_sizes)
     self._update_internal_membership()
 
   def __deepcopy__(self, memo):
     n, directed, edges, weights, node_sizes = _c_leiden._MutableVertexPartition_get_py_igraph(self._partition)
-    new_partition = ModularityVertexPartition(self.graph, self.membership, weights)
+    new_partition = ModularityVertexPartition(self.graph, self.membership, weights, node_sizes)
     return new_partition
 
 class SurpriseVertexPartition(MutableVertexPartition):
@@ -532,8 +537,15 @@ class SurpriseVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes]
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes)
+
     self._partition = _c_leiden._new_SurpriseVertexPartition(pygraph_t,
-        initial_membership, weights)
+        initial_membership, weights, node_sizes)
     self._update_internal_membership()
 
   def __deepcopy__(self, memo):
@@ -598,7 +610,14 @@ class SignificanceVertexPartition(MutableVertexPartition):
 
     pygraph_t = _get_py_capsule(graph)
 
-    self._partition = _c_leiden._new_SignificanceVertexPartition(pygraph_t, initial_membership)
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes]
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes)
+
+    self._partition = _c_leiden._new_SignificanceVertexPartition(pygraph_t, initial_membership, node_sizes)
     self._update_internal_membership()
 
   def __deepcopy__(self, memo):
@@ -786,7 +805,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
          `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
 
    """
-  def __init__(self, graph, initial_membership=None, weights=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
     """
     Parameters
     ----------
@@ -799,6 +818,11 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
+
+    node_sizes : list of int, or vertex attribute
+      Sizes of nodes are necessary to know the size of communities in aggregate
+      graphs. Usually this is set to 1 for all nodes, but in specific cases
+      this could be changed.
 
     resolution_parameter : double
       Resolution parameter.
@@ -817,13 +841,20 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes]
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes)
+
     self._partition = _c_leiden._new_RBConfigurationVertexPartition(pygraph_t,
-        initial_membership, weights, resolution_parameter)
+        initial_membership, weights, node_sizes, resolution_parameter)
     self._update_internal_membership()
 
   def __deepcopy__(self, memo):
     n, directed, edges, weights, node_sizes = _c_leiden._MutableVertexPartition_get_py_igraph(self._partition)
-    new_partition = RBConfigurationVertexPartition(self.graph, self.membership, weights, self.resolution_parameter)
+    new_partition = RBConfigurationVertexPartition(self.graph, self.membership, weights, node_sizes, self.resolution_parameter)
     return new_partition
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
