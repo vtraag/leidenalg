@@ -287,7 +287,7 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def optimise_partition_multiplex(self, partitions, layer_weights=None, fixed_nodes=None, n_iterations=2):
+  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, fixed_nodes=None):
     """ Optimise the given partitions simultaneously.
 
     Parameters
