@@ -100,8 +100,6 @@ class Graph
     vector<size_t> const& get_neighbours(size_t v, igraph_neimode_t mode);
     size_t get_random_neighbour(size_t v, igraph_neimode_t mode, igraph_rng_t* rng);
 
-    pair<size_t, size_t> get_endpoints(size_t e);
-
     inline size_t get_random_node(igraph_rng_t* rng)
     {
       return get_random_int(0, this->vcount() - 1, rng);
@@ -113,7 +111,7 @@ class Graph
     inline size_t ecount() { return igraph_ecount(this->_graph); };
     inline double total_weight() { return this->_total_weight; };
     inline size_t total_size() { return this->_total_size; };
-    inline int is_directed() { return igraph_is_directed(this->_graph); };
+    inline int is_directed() { return this->_is_directed; };
     inline double density() { return this->_density; };
     inline int correct_self_loops() { return this->_correct_self_loops; };
     inline int is_weighted() { return this->_is_weighted; };
@@ -128,12 +126,15 @@ class Graph
       return this->_edge_weights[e];
     };
 
+    inline void edge(size_t eid, size_t &from, size_t &to) {
+      from = IGRAPH_FROM(this->get_igraph(), eid);
+      to = IGRAPH_TO(this->get_igraph(), eid);
+    }
+
     inline vector<size_t> edge(size_t e)
     {
-      igraph_integer_t v1, v2;
-      igraph_edge(this->_graph, e, &v1, &v2);
       vector<size_t> edge(2);
-      edge[0] = v1; edge[1] = v2;
+      this->edge(e, edge[0], edge[1]);
       return edge;
     }
 
@@ -147,7 +148,7 @@ class Graph
 
     inline size_t degree(size_t v, igraph_neimode_t mode)
     {
-      if (mode == IGRAPH_IN)
+      if (mode == IGRAPH_IN || !this->is_directed())
         return this->_degree_in[v];
       else if (mode == IGRAPH_OUT)
         return this->_degree_out[v];
@@ -159,7 +160,7 @@ class Graph
 
     inline double strength(size_t v, igraph_neimode_t mode)
     {
-      if (mode == IGRAPH_IN)
+      if (mode == IGRAPH_IN || !this->is_directed())
         return this->_strength_in[v];
       else if (mode == IGRAPH_OUT)
         return this->_strength_out[v];
@@ -173,6 +174,7 @@ class Graph
 
   private:
     igraph_t* _graph;
+    igraph_vector_t _temp_igraph_vector;
 
     // Utility variables to easily access the strength of each node
     vector<double> _strength_in;
@@ -199,6 +201,7 @@ class Graph
     double _total_weight;
     size_t _total_size;
     int _is_weighted;
+    bool _is_directed;
 
     int _correct_self_loops;
     double _density;

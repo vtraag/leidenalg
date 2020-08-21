@@ -77,10 +77,11 @@ class MutableVertexPartition
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    vector<size_t> renumber_communities(map<size_t, size_t> const& original_fixed_membership);
+    void renumber_communities(map<size_t, size_t> const& original_fixed_membership);
     void renumber_communities(vector<size_t> const& new_membership);
     void set_membership(vector<size_t> const& new_membership);
-    vector<size_t> static renumber_communities(vector<MutableVertexPartition*> partitions);
+    void relabel_communities(vector<size_t> const& new_comm_id);
+    vector<size_t> static rank_order_communities(vector<MutableVertexPartition*> partitions);
     size_t get_empty_community();
     size_t add_empty_community();
     void from_coarse_partition(vector<size_t> const& coarse_partition_membership);
@@ -97,8 +98,36 @@ class MutableVertexPartition
     inline double total_weight_in_all_comms()         { return this->_total_weight_in_all_comms; };
     inline size_t total_possible_edges_in_all_comms() { return this->_total_possible_edges_in_all_comms; };
 
-    double weight_to_comm(size_t v, size_t comm);
-    double weight_from_comm(size_t v, size_t comm);
+    inline double weight_to_comm(size_t v, size_t comm)
+    {
+      if (this->_current_node_cache_community_to != v)
+      {
+        this->cache_neigh_communities(v, IGRAPH_OUT);
+        this->_current_node_cache_community_to = v;
+      }
+
+      if (comm < this->_cached_weight_to_community.size())
+        return this->_cached_weight_to_community[comm];
+      else
+        return 0.0;
+    }
+
+    inline double weight_from_comm(size_t v, size_t comm)
+    {
+      if (!this->graph->is_directed())
+        return weight_to_comm(v, comm);
+
+      if (this->_current_node_cache_community_from != v)
+      {
+        this->cache_neigh_communities(v, IGRAPH_IN);
+        this->_current_node_cache_community_from = v;
+      }
+
+      if (comm < this->_cached_weight_from_community.size())
+        return this->_cached_weight_from_community[comm];
+      else
+        return 0.0;
+    }
 
     vector<size_t> const& get_neigh_comms(size_t v, igraph_neimode_t);
     set<size_t> get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
