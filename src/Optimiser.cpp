@@ -529,7 +529,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   while(!vertex_order.empty())
   {
     size_t v = vertex_order.front(); vertex_order.pop();
+
+    // Clear comms
+    for (size_t comm : comms)
+      comm_added[comm] = false;
     comms.clear();
+
     Graph* graph = NULL;
     MutableVertexPartition* partition = NULL;
     // What is the current community of the node (this should be the same for all layers)
@@ -567,14 +572,22 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     else if (consider_comms == RAND_COMM)
     {
       /****************************RAND COMM***********************************/
-      comms.push_back( partitions[0]->membership(graphs[0]->get_random_node(&rng)) );
+      size_t rand_comm = partitions[0]->membership(graphs[0]->get_random_node(&rng));
+      // No need to check if random_comm is already added, we only add one comm
+      comms.push_back(rand_comm);
+      comm_added[rand_comm];
     }
     else if (consider_comms == RAND_NEIGH_COMM)
     {
       /****************************RAND NEIGH COMM*****************************/
       size_t rand_layer = get_random_int(0, nb_layers - 1, &rng);
       if (graphs[rand_layer]->degree(v, IGRAPH_ALL) > 0)
-        comms.push_back( partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng)) );
+      {
+        size_t rand_comm = partitions[0]->membership(graphs[rand_layer]->get_random_neighbour(v, IGRAPH_ALL, &rng));
+        // No need to check if random_comm is already added, we only add one comm
+        comms.push_back(rand_comm);
+        comm_added[rand_comm];
+      }
     }
 
     #ifdef DEBUG
@@ -1200,6 +1213,9 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
 
     if (partitions[0]->cnodes(v_comm) == 1)
     {
+      // Clear comms
+      for (size_t comm : comms)
+        comm_added[comm] = false;
       comms.clear();
       MutableVertexPartition* partition = NULL;
 
@@ -1240,7 +1256,10 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
         /****************************RAND COMM***********************************/
           size_t v_constrained_comm = constrained_partition->membership(v);
           size_t random_idx = get_random_int(0, constrained_comms[v_constrained_comm].size() - 1, &rng);
-          comms.push_back(constrained_comms[v_constrained_comm][random_idx]);
+          size_t rand_comm = constrained_comms[v_constrained_comm][random_idx];
+          // No need to check if random_comm is already added, we only add one comm
+          comms.push_back(rand_comm);
+          comm_added[rand_comm];
       }
       else if (consider_comms == RAND_NEIGH_COMM)
       {
@@ -1261,7 +1280,10 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
             if (get_random_int(0, k, &rng) > 0)
             {
               size_t random_idx = get_random_int(0, k - 1, &rng);
-              comms.push_back(all_neigh_comms_incl_dupes[random_idx]);
+              size_t rand_comm = all_neigh_comms_incl_dupes[random_idx];
+              // No need to check if random_comm is already added, we only add one comm
+              comms.push_back(rand_comm);
+              comm_added[rand_comm];
             }
           }
       }
