@@ -21,7 +21,7 @@ calling :func:`~leidenalg.Optimiser.optimise_partition` on the provided
 partition.
 
 .. testsetup::
-   
+
    G = ig.Graph.Erdos_Renyi(100, p=5./100)
    partition = la.CPMVertexPartition(G)
 
@@ -35,7 +35,7 @@ partition:
 >>> G = ig.Graph.Erdos_Renyi(100, p=5./100)
 >>> partition = la.ModularityVertexPartition(G)
 >>> diff = 1
->>> while diff > 0: 
+>>> while diff > 0:
 ...   diff = optimiser.optimise_partition(partition)
 
 Even if a call to :func:`~leidenalg.Optimiser.optimise_partition` did not improve
@@ -67,7 +67,7 @@ The simpler Louvain algorithm aggregates the partition and repeats the
 emulate that:
 
 >>> partition = la.ModularityVertexPartition(G)
->>> while optimiser.move_nodes(partition) > 0: 
+>>> while optimiser.move_nodes(partition) > 0:
 ...   partition = partition.aggregate_partition()
 
 This summarises the whole Louvain algorithm in just three lines of code.
@@ -117,7 +117,7 @@ This package builds on a previous implementation of the Louvain algorithm in
 the difference between ``louvain-igraph`` and ``leidenalg``, we ran both
 algorithms for 10 iterations on a `Youtube network
 <https://snap.stanford.edu/data/com-Youtube.html>`_ of more than 1 million
-nodes and almost 3 million edges. 
+nodes and almost 3 million edges.
 
 .. image:: figures/speed.png
 
@@ -148,11 +148,11 @@ for both :math:`\gamma_1` and :math:`\gamma_2` then the partition is also
 optimal for all :math:`\gamma_1 \leq \gamma \leq \gamma_2`.
 
 Such a resolution profile can be constructed using the
-:class:`~leidenalg.Optimiser` object. 
+:class:`~leidenalg.Optimiser` object.
 
 >>> G = ig.Graph.Famous('Zachary')
 >>> optimiser = la.Optimiser()
->>> profile = optimiser.resolution_profile(G, la.CPMVertexPartition, 
+>>> profile = optimiser.resolution_profile(G, la.CPMVertexPartition,
 ...                                        resolution_range=(0,1))
 
 Plotting the resolution parameter versus the total number of internal edges we
@@ -168,7 +168,7 @@ any resolution parameter between ``profile[i].resolution_parameter`` and
 ``profile[i+1].resolution_parameter`` the partition at position ``i`` should be
 better. Of course, there will be some variations because
 :func:`~leidenalg.Optimiser.optimise_partition` will find partitions of varying
-quality. The change points can then also vary for different runs. 
+quality. The change points can then also vary for different runs.
 
 This function repeatedly calls :func:`~leidenalg.Optimiser.optimise_partition`
 and can therefore require a lot of time. Especially for resolution parameters
@@ -183,7 +183,7 @@ For example, perhaps we previously already ran the Leiden algorithm on some
 dataset, and did some analysis on the resulting partition. If we then gather new
 data, and in particular new nodes, it might be useful to keep the previous
 community assignments fixed, while only updating the community assignments for
-the new nodes. This can be done using the ``fixed_nodes`` argument of
+the new nodes. This can be done using the ``is_membership_fixed`` argument of
 :func:`~leidenalg.Optimiser.find_partition`, see [2]_ for some details.
 
 For example, suppose we previously detected ``partition`` for graph ``G``, which
@@ -197,8 +197,8 @@ We can then only update the community assignments for the new nodes as follows
 
 >>> new_partition = la.CPMVertexPartition(G2, new_membership,
 ...                                       resolution_parameter=partition.resolution_parameter)
-... fixed_nodes = [i < G.vcount() for i in range(G2.vcount())]
->>> diff = optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+... is_membership_fixed = [i < G.vcount() for i in range(G2.vcount())]
+>>> diff = optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
 
 In this example we used :class:`~leidenalg.CPMVertexPartition`. but any other
 ``VertexPartition`` would work as well.

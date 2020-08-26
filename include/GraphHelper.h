@@ -5,7 +5,7 @@
 #include <vector>
 #include <set>
 #include <exception>
-#include <queue>
+#include <deque>
 
 //#ifdef DEBUG
 #include <iostream>
@@ -18,11 +18,10 @@ class MutableVertexPartition;
 using std::vector;
 using std::pair;
 using std::set;
-using std::queue;
+using std::deque;
 using std::make_pair;
 
 vector<size_t> range(size_t n);
-queue<size_t> queue_range(size_t n);
 
 bool orderCSize(const size_t* A, const size_t* B);
 
@@ -32,10 +31,8 @@ double KLL(double q, double p);
 template <class T> T sum(vector<T> vec)
 {
   T sum_of_elems = T();
-  for(typename vector<T>::iterator it=vec.begin();
-      it!=vec.end();
-      it++)
-      sum_of_elems += *it;
+  for (T x : vec)
+      sum_of_elems += x;
   return sum_of_elems;
 };
 

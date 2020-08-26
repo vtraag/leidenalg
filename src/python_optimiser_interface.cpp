@@ -39,9 +39,9 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
-    PyObject* py_fixed_nodes = NULL;
+    PyObject* py_is_membership_fixed = NULL;
 
-    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -49,11 +49,11 @@ extern "C"
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_fixed_nodes))
+                                     &py_is_membership_fixed))
         return NULL;
 
     #ifdef DEBUG
-      cerr << "optimise_partition(" << py_partition << ", fixed_nodes=" << py_fixed_nodes << ");" << endl;
+      cerr << "optimise_partition(" << py_partition << ", is_membership_fixed=" << py_is_membership_fixed << ");" << endl;
     #endif
 
     #ifdef DEBUG
@@ -73,30 +73,30 @@ extern "C"
     #endif
 
     size_t n = partition->get_graph()->vcount();
-    vector<bool> fixed_nodes(n, false);
-    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    vector<bool> is_membership_fixed(n, false);
+    if (py_is_membership_fixed != NULL && py_is_membership_fixed != Py_None)
     {
       #ifdef DEBUG
-        cerr << "Reading fixed_nodes." << endl;
+        cerr << "Reading is_membership_fixed." << endl;
       #endif
 
-      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
-      if (nb_fixed_nodes != n)
+      size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
+      if (nb_is_membership_fixed != n)
       {
         throw Exception("Node size vector not the same size as the number of nodes.");
       }
 
       for (size_t v = 0; v < n; v++)
       {
-        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
-        fixed_nodes[v] = PyObject_IsTrue(py_item);
+        PyObject* py_item = PyList_GetItem(py_is_membership_fixed, v);
+        is_membership_fixed[v] = PyObject_IsTrue(py_item);
       }
     }
 
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partition, fixed_nodes);
+      q = optimiser->optimise_partition(partition, is_membership_fixed);
     }
     catch (std::exception e)
     {
@@ -111,9 +111,9 @@ extern "C"
     PyObject* py_optimiser = NULL;
     PyObject* py_partitions = NULL;
     PyObject* py_layer_weights = NULL;
-    PyObject* py_fixed_nodes = NULL;
+    PyObject* py_is_membership_fixed = NULL;
 
-    static char* kwlist[] = {"optimiser", "partitions", "layer_weights", "fixed_nodes", NULL};
+    static char* kwlist[] = {"optimiser", "partitions", "layer_weights", "is_membership_fixed", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -121,7 +121,7 @@ extern "C"
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|O", kwlist,
                                      &py_optimiser, &py_partitions,
-                                     &py_layer_weights, &py_fixed_nodes))
+                                     &py_layer_weights, &py_is_membership_fixed))
         return NULL;
 
     size_t nb_partitions = PyList_Size(py_partitions);
@@ -174,23 +174,23 @@ extern "C"
       return NULL;
 
     size_t n = partitions[0]->get_graph()->vcount();
-    vector<bool> fixed_nodes(n, false);
-    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    vector<bool> is_membership_fixed(n, false);
+    if (py_is_membership_fixed != NULL && py_is_membership_fixed != Py_None)
     {
       #ifdef DEBUG
-        cerr << "Reading fixed_nodes." << endl;
+        cerr << "Reading is_membership_fixed." << endl;
       #endif
 
-      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
-      if (nb_fixed_nodes != n)
+      size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
+      if (nb_is_membership_fixed != n)
       {
         throw Exception("Node size vector not the same size as the number of nodes.");
       }
 
       for (size_t v = 0; v < n; v++)
       {
-        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
-        fixed_nodes[v] = PyObject_IsTrue(py_item);
+        PyObject* py_item = PyList_GetItem(py_is_membership_fixed, v);
+        is_membership_fixed[v] = PyObject_IsTrue(py_item);
       }
     }
 
@@ -206,7 +206,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partitions, layer_weights, fixed_nodes);
+      q = optimiser->optimise_partition(partitions, layer_weights, is_membership_fixed);
     }
     catch (std::exception e)
     {
@@ -220,10 +220,10 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
-    PyObject* py_fixed_nodes = NULL;
+    PyObject* py_is_membership_fixed = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", "consider_comms", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -231,7 +231,7 @@ extern "C"
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oi", kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_fixed_nodes, &consider_comms))
+                                     &py_is_membership_fixed, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -255,23 +255,23 @@ extern "C"
     #endif
 
     size_t n = partition->get_graph()->vcount();
-    vector<bool> fixed_nodes(n, false);
-    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    vector<bool> is_membership_fixed(n, false);
+    if (py_is_membership_fixed != NULL && py_is_membership_fixed != Py_None)
     {
       #ifdef DEBUG
-        cerr << "Reading fixed_nodes." << endl;
+        cerr << "Reading is_membership_fixed." << endl;
       #endif
 
-      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
-      if (nb_fixed_nodes != n)
+      size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
+      if (nb_is_membership_fixed != n)
       {
         throw Exception("Node size vector not the same size as the number of nodes.");
       }
 
       for (size_t v = 0; v < n; v++)
       {
-        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
-        fixed_nodes[v] = PyObject_IsTrue(py_item);
+        PyObject* py_item = PyList_GetItem(py_is_membership_fixed, v);
+        is_membership_fixed[v] = PyObject_IsTrue(py_item);
       }
     }
 
@@ -281,7 +281,7 @@ extern "C"
     double q  = 0.0;
     try
     {
-      q = optimiser->move_nodes(partition, fixed_nodes, consider_comms, true);
+      q = optimiser->move_nodes(partition, is_membership_fixed, consider_comms, true);
     }
     catch (std::exception e)
     {
@@ -295,10 +295,10 @@ extern "C"
   {
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
-    PyObject* py_fixed_nodes = NULL;
+    PyObject* py_is_membership_fixed = NULL;
     int consider_comms = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "fixed_nodes", "consider_comms", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
@@ -306,7 +306,7 @@ extern "C"
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oi", kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_fixed_nodes, &consider_comms))
+                                     &py_is_membership_fixed, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -330,23 +330,23 @@ extern "C"
     #endif
 
     size_t n = partition->get_graph()->vcount();
-    vector<bool> fixed_nodes(n, false);
-    if (py_fixed_nodes != NULL && py_fixed_nodes != Py_None)
+    vector<bool> is_membership_fixed(n, false);
+    if (py_is_membership_fixed != NULL && py_is_membership_fixed != Py_None)
     {
       #ifdef DEBUG
-        cerr << "Reading fixed_nodes." << endl;
+        cerr << "Reading is_membership_fixed." << endl;
       #endif
 
-      size_t nb_fixed_nodes = PyList_Size(py_fixed_nodes);
-      if (nb_fixed_nodes != n)
+      size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
+      if (nb_is_membership_fixed != n)
       {
         throw Exception("Node size vector not the same size as the number of nodes.");
       }
 
       for (size_t v = 0; v < n; v++)
       {
-        PyObject* py_item = PyList_GetItem(py_fixed_nodes, v);
-        fixed_nodes[v] = PyObject_IsTrue(py_item);
+        PyObject* py_item = PyList_GetItem(py_is_membership_fixed, v);
+        is_membership_fixed[v] = PyObject_IsTrue(py_item);
       }
     }
 
@@ -356,7 +356,7 @@ extern "C"
     double q = 0.0;
     try
     {
-      q = optimiser->merge_nodes(partition, fixed_nodes, consider_comms, true);
+      q = optimiser->merge_nodes(partition, is_membership_fixed, consider_comms, true);
     }
     catch (std::exception e)
     {
