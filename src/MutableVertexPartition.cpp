@@ -406,7 +406,7 @@ vector<size_t> MutableVertexPartition::rank_order_communities(vector<MutableVert
  Renumber the communities using the original fixed membership vector. Notice
  that this doesn't ensure any property of the community numbers.
 *****************************************************************************/
-void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& membership)
+void MutableVertexPartition::renumber_communities(vector<size_t> const& fixed_nodes, vector<size_t> const& fixed_membership)
 {
 
   #ifdef DEBUG
@@ -414,7 +414,7 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
   #endif
 
   // Skip whole thing if there are no fixed nodes for efficiency
-  if (membership.size() == 0)
+  if (fixed_nodes.size() == 0)
     return;
 
   // The number of communities does not depend on whether some are fixed
@@ -424,17 +424,16 @@ void MutableVertexPartition::renumber_communities(map<size_t, size_t> const& mem
   vector<size_t> new_comm_id(nb_comms);
   vector<bool> comm_assigned_bool(nb_comms);
   priority_queue<size_t, vector<size_t>, std::greater<size_t> > new_comm_assigned;
-  for (map<size_t, size_t>::const_iterator m = membership.begin();
-       m != membership.end();
-       m++) {
+  for (size_t v : fixed_nodes) {
     #ifdef DEBUG
       cerr << "Setting map for fixed community " << m->second << endl;
     #endif
-    if (!comm_assigned_bool[_membership[m->first]])
+    if (!comm_assigned_bool[_membership[v]])
     {
-      new_comm_id[_membership[m->first]] = m->second;
-      comm_assigned_bool[_membership[m->first]] = true;
-      new_comm_assigned.push(m->second);
+      size_t fixed_comm_v = fixed_membership[v];
+      new_comm_id[_membership[v]] = fixed_comm_v;
+      comm_assigned_bool[_membership[v]] = true;
+      new_comm_assigned.push(fixed_comm_v);
     }
   }
 
@@ -810,10 +809,8 @@ void MutableVertexPartition::cache_neigh_communities(size_t v, igraph_neimode_t 
   }
 
   // Reset cached communities
-  for (vector<size_t>::iterator it = _cached_neighs_comms->begin();
-       it != _cached_neighs_comms->end();
-       it++)
-       (*_cached_weight_tofrom_community)[*it] = 0;
+  for (size_t c : *_cached_neighs_comms)
+       (*_cached_weight_tofrom_community)[c] = 0;
 
   // Loop over all incident edges
   vector<size_t> const& neighbours = this->graph->get_neighbours(v, mode);
@@ -886,16 +883,21 @@ vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_n
   throw Exception("Problem obtaining neighbour communities, invalid mode.");
 }
 
-set<size_t> MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
+vector<size_t> MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
 {
-  size_t degree = this->graph->degree(v, mode);
-  vector<size_t> const& neigh = this->graph->get_neighbours(v, mode);
-  set<size_t> neigh_comms;
-  for (size_t i=0; i < degree; i++)
+  vector<size_t> neigh_comms;
+  vector<bool> comm_added(this->n_communities(), false);
+  for (size_t u : this->graph->get_neighbours(v, mode))
   {
-    size_t u = neigh[i];
     if (constrained_membership[v] == constrained_membership[u])
-      neigh_comms.insert( this->membership(u) );
+    {
+      size_t comm = this->membership(u);
+      if (!comm_added[comm])
+      {
+        neigh_comms.push_back(comm);
+        comm_added[comm];
+      }
+    }
   }
   return neigh_comms;
 }

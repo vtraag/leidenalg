@@ -24,11 +24,11 @@ class OptimiserTest(unittest.TestCase):
   def test_move_nodes_with_fixed(self):
     # One edge plus singleton, but the two connected nodes are fixed
     G = ig.Graph([(0, 2)])
-    fixed_nodes = [True, False, True]
+    is_membership_fixed = [True, False, True]
     partition = leidenalg.CPMVertexPartition(
             G,
             resolution_parameter=0.1);
-    self.optimiser.move_nodes(partition, fixed_nodes=fixed_nodes, consider_comms=leidenalg.ALL_NEIGH_COMMS);
+    self.optimiser.move_nodes(partition, is_membership_fixed=is_membership_fixed, consider_comms=leidenalg.ALL_NEIGH_COMMS);
     self.assertListEqual(
         partition.sizes(), [1, 1, 1],
         msg="CPMVertexPartition(resolution_parameter=0.1) of one edge plus singleton after move nodes with fixed nodes is incorrect.");
@@ -66,7 +66,7 @@ class OptimiserTest(unittest.TestCase):
         partition.sizes(), 10*[10],
         msg="After optimising partition failed to find different components with CPMVertexPartition(resolution_parameter=0)");
 
-  def test_optimiser_with_fixed_nodes(self):
+  def test_optimiser_with_is_membership_fixed(self):
       G = ig.Graph.Full(3)
       partition = leidenalg.CPMVertexPartition(
               G,
@@ -74,9 +74,9 @@ class OptimiserTest(unittest.TestCase):
               initial_membership=[2, 1, 0])
       # Equivalent to setting initial membership
       #partition.set_membership([2, 1, 2])
-      fixed_nodes = [True, False, False]
+      is_membership_fixed = [True, False, False]
       original_quality = partition.quality()
-      diff = self.optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+      diff = self.optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
       self.assertAlmostEqual(partition.quality() - original_quality, diff, places=10,
                              msg="Optimisation with fixed nodes returns inconsistent quality")
       self.assertListEqual(
@@ -84,7 +84,7 @@ class OptimiserTest(unittest.TestCase):
             msg="After optimising partition with fixed nodes failed to recover initial fixed memberships"
             )
 
-  def test_optimiser_fixed_nodes_large_labels(self):
+  def test_optimiser_is_membership_fixed_large_labels(self):
     G = ig.Graph.Erdos_Renyi(n=100, p=5./100, directed=True, loops=True)
 
     membership = list(range(G.vcount()))
@@ -92,11 +92,11 @@ class OptimiserTest(unittest.TestCase):
 
     # large enough to force nonconsecutive labels in the final partition
     fixed_node_idx = 90
-    fixed_nodes = [False] * G.vcount()
-    fixed_nodes[fixed_node_idx] = True
+    is_membership_fixed = [False] * G.vcount()
+    is_membership_fixed[fixed_node_idx] = True
 
     original_quality = partition.quality()
-    diff = self.optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+    diff = self.optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
 
     self.assertLess(len(set(partition.membership)), len(partition),
                     msg="Optimisation with fixed nodes yielded too many communities")

@@ -229,7 +229,7 @@ class Optimiser(object):
     """
     _c_leiden._Optimiser_set_rng_seed(self._optimiser, value)
 
-  def optimise_partition(self, partition, n_iterations=2, fixed_nodes=None):
+  def optimise_partition(self, partition, n_iterations=2, is_membership_fixed=None):
     """ Optimise the given partition.
 
     Parameters
@@ -242,7 +242,7 @@ class Optimiser(object):
       are run. If the number of iterations is negative, the Leiden algorithm is
       run until an iteration in which there was no improvement.
 
-    fixed_nodes: list of bools or None
+    is_membership_fixed: list of bools or None
       Boolean list of nodes that are not allowed to change community. The
       length of this list must be equal to the number of nodes. By default
       (None) all nodes can change community during the optimization.
@@ -260,12 +260,12 @@ class Optimiser(object):
     >>> partition = la.ModularityVertexPartition(G)
     >>> diff = optimiser.optimise_partition(partition)
 
-    or, fixing some nodes:
+    or, fixing the membership of some nodes:
 
-    >>> fixed_nodes = [False for v in G.vs]
-    >>> fixed_nodes[4] = True
-    >>> fixed_nodes[6] = True
-    >>> diff = optimiser.optimise_partition(partition, fixed_nodes=fixed_nodes)
+    >>> is_membership_fixed = [False for v in G.vs]
+    >>> is_membership_fixed[4] = True
+    >>> is_membership_fixed[6] = True
+    >>> diff = optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
     """
 
     itr = 0
@@ -275,7 +275,7 @@ class Optimiser(object):
       diff_inc = _c_leiden._Optimiser_optimise_partition(
               self._optimiser,
               partition._partition,
-              fixed_nodes=fixed_nodes,
+              is_membership_fixed=is_membership_fixed,
               )
       diff += diff_inc
       itr += 1
@@ -287,7 +287,7 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, fixed_nodes=None):
+  def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, is_membership_fixed=None):
     """ Optimise the given partitions simultaneously.
 
     Parameters
@@ -298,7 +298,7 @@ class Optimiser(object):
     layer_weights
       List of weights of layers.
 
-    fixed_nodes: list of bools or None
+    is_membership_fixed: list of bools or None
       Boolean list of nodes that are not allowed to change community. The
       length of this list must be equal to the number of nodes. By default
       (None) all nodes can change community during the optimization.
@@ -381,7 +381,7 @@ class Optimiser(object):
         self._optimiser,
         [partition._partition for partition in partitions],
         layer_weights,
-        fixed_nodes)
+        is_membership_fixed)
       diff += diff_inc
       itr += 1
       if n_iterations < 0:
@@ -393,7 +393,7 @@ class Optimiser(object):
       partition._update_internal_membership()
     return diff
 
-  def move_nodes(self, partition, fixed_nodes=None, consider_comms=None):
+  def move_nodes(self, partition, is_membership_fixed=None, consider_comms=None):
     """ Move nodes to alternative communities for *optimising* the partition.
 
     Parameters
@@ -401,7 +401,7 @@ class Optimiser(object):
     partition
       The partition for which to move nodes.
 
-    fixed_nodes: list of bools or None
+    is_membership_fixed: list of bools or None
       Boolean list of nodes that are not allowed to change community. The
       length of this list must be equal to the number of nodes. By default
       (None) all nodes can change community during the optimization.
@@ -439,7 +439,7 @@ class Optimiser(object):
     if (consider_comms is None):
       consider_comms = self.consider_comms
     diff = _c_leiden._Optimiser_move_nodes(
-            self._optimiser, partition._partition, fixed_nodes, consider_comms)
+            self._optimiser, partition._partition, is_membership_fixed, consider_comms)
     partition._update_internal_membership()
     return diff
 
@@ -492,7 +492,7 @@ class Optimiser(object):
     partition._update_internal_membership()
     return diff
 
-  def merge_nodes(self, partition, fixed_nodes=None, consider_comms=None):
+  def merge_nodes(self, partition, is_membership_fixed=None, consider_comms=None):
     """ Merge nodes for *optimising* the partition.
 
     Parameters
@@ -500,7 +500,7 @@ class Optimiser(object):
     partition
       The partition for which to merge nodes.
 
-    fixed_nodes: list of bools or None
+    is_membership_fixed: list of bools or None
       Boolean list of nodes that are not allowed to change community. The
       length of this list must be equal to the number of nodes. By default
       (None) all nodes can change community during the optimization.
@@ -537,7 +537,7 @@ class Optimiser(object):
     if (consider_comms is None):
       consider_comms = self.consider_comms
     diff = _c_leiden._Optimiser_merge_nodes(
-            self._optimiser, partition._partition, fixed_nodes, consider_comms)
+            self._optimiser, partition._partition, is_membership_fixed, consider_comms)
     partition._update_internal_membership()
     return diff
 

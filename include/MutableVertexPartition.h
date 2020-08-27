@@ -4,14 +4,12 @@
 #include <string>
 #include "GraphHelper.h"
 #include <map>
-#include <set>
 #include <queue>
 #include <utility>
 #include <algorithm>
 
 using std::string;
 using std::map;
-using std::set;
 using std::make_pair;
 using std::pair;
 using std::sort;
@@ -77,7 +75,7 @@ class MutableVertexPartition
     inline Graph* get_graph() { return this->graph; };
 
     void renumber_communities();
-    void renumber_communities(map<size_t, size_t> const& original_fixed_membership);
+    void renumber_communities(vector<size_t> const& fixed_nodes, vector<size_t> const& fixed_membership);
     void renumber_communities(vector<size_t> const& new_membership);
     void set_membership(vector<size_t> const& new_membership);
     void relabel_communities(vector<size_t> const& new_comm_id);
@@ -94,7 +92,7 @@ class MutableVertexPartition
     inline double total_weight_in_comm(size_t comm)   { return comm < _n_communities ? this->_total_weight_in_comm[comm] : 0.0; };
     inline double total_weight_from_comm(size_t comm) { return comm < _n_communities ? this->_total_weight_from_comm[comm] : 0.0; };
     inline double total_weight_to_comm(size_t comm)   { return comm < _n_communities ? this->_total_weight_to_comm[comm] : 0.0; };
-    
+
     inline double total_weight_in_all_comms()         { return this->_total_weight_in_all_comms; };
     inline size_t total_possible_edges_in_all_comms() { return this->_total_possible_edges_in_all_comms; };
 
@@ -130,7 +128,7 @@ class MutableVertexPartition
     }
 
     vector<size_t> const& get_neigh_comms(size_t v, igraph_neimode_t);
-    set<size_t> get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
+    vector<size_t> get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership);
 
     // By delegating the responsibility for deleting the graph to the partition,
     // we no longer have to worry about deleting this graph.
