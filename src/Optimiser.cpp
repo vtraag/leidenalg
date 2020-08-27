@@ -381,12 +381,12 @@ double Optimiser::move_nodes(MutableVertexPartition* partition, int consider_com
   return this->move_nodes(partition, is_membership_fixed, consider_comms, false);
 }
 
-double Optimiser::move_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_is_membership_fixed)
+double Optimiser::move_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes)
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->move_nodes(partitions, layer_weights, is_membership_fixed, consider_comms, this->consider_empty_community, renumber_is_membership_fixed);
+  return this->move_nodes(partitions, layer_weights, is_membership_fixed, consider_comms, this->consider_empty_community, renumber_fixed_nodes);
 }
 
 double Optimiser::merge_nodes(MutableVertexPartition* partition)
@@ -400,12 +400,12 @@ double Optimiser::merge_nodes(MutableVertexPartition* partition, int consider_co
   return this->merge_nodes(partition, is_membership_fixed, consider_comms, false);
 }
 
-double Optimiser::merge_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_is_membership_fixed)
+double Optimiser::merge_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes)
 {
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);
-  return this->merge_nodes(partitions, layer_weights, is_membership_fixed, consider_comms, renumber_is_membership_fixed);
+  return this->merge_nodes(partitions, layer_weights, is_membership_fixed, consider_comms, renumber_fixed_nodes);
 }
 
 double Optimiser::move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition)
@@ -447,9 +447,9 @@ double Optimiser::merge_nodes_constrained(MutableVertexPartition* partition, int
     partitions -- The partitions to optimise.
     layer_weights -- The weights used for the different layers.
 ******************************************************************************/
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_is_membership_fixed)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_fixed_nodes)
 {
-  return this->move_nodes(partitions, layer_weights, is_membership_fixed, this->consider_comms, this->consider_empty_community, renumber_is_membership_fixed);
+  return this->move_nodes(partitions, layer_weights, is_membership_fixed, this->consider_comms, this->consider_empty_community, renumber_fixed_nodes);
 }
 
 double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, int consider_empty_community)
@@ -457,7 +457,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return this->move_nodes(partitions, layer_weights, is_membership_fixed, consider_comms, consider_empty_community, true);
 }
 
-double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, int consider_empty_community, bool renumber_is_membership_fixed)
+double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, int consider_empty_community, bool renumber_fixed_nodes)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_multiplex(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -476,10 +476,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Get the fixed membership for fixed nodes
   vector<size_t> fixed_nodes;
   vector<size_t> fixed_membership(n);
-  for (size_t v = 0; v < n; v++) {
-    if (is_membership_fixed[v]) {
-      fixed_nodes.push_back(v);
-      fixed_membership[v] = partitions[0]->membership(v);
+  if (renumber_fixed_nodes) {
+    for (size_t v = 0; v < n; v++) {
+      if (is_membership_fixed[v]) {
+        fixed_nodes.push_back(v);
+        fixed_membership[v] = partitions[0]->membership(v);
+      }
     }
   }
 
@@ -714,7 +716,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   }
 
   partitions[0]->renumber_communities();
-  partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  if (renumber_fixed_nodes)
+    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
   vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
@@ -726,12 +729,12 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   return total_improv;
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_is_membership_fixed)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_fixed_nodes)
 {
-  return this->merge_nodes(partitions, layer_weights, is_membership_fixed, this->consider_comms, renumber_is_membership_fixed);
+  return this->merge_nodes(partitions, layer_weights, is_membership_fixed, this->consider_comms, renumber_fixed_nodes);
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_is_membership_fixed)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> weights)" << endl;
@@ -752,10 +755,12 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   // Get the fixed membership for fixed nodes
   vector<size_t> fixed_nodes;
   vector<size_t> fixed_membership(n);
-  for (size_t v = 0; v < n; v++) {
-    if (is_membership_fixed[v]) {
-      fixed_nodes.push_back(v);
-      fixed_membership[v] = partitions[0]->membership(v);
+  if (renumber_fixed_nodes) {
+    for (size_t v = 0; v < n; v++) {
+      if (is_membership_fixed[v]) {
+        fixed_nodes.push_back(v);
+        fixed_membership[v] = partitions[0]->membership(v);
+      }
     }
   }
 
@@ -930,7 +935,8 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   }
 
   partitions[0]->renumber_communities();
-  partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  if (renumber_fixed_nodes)
+    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
   vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
