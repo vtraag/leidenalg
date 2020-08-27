@@ -37,16 +37,16 @@ class Optimiser
 
     double move_nodes(MutableVertexPartition* partition);
     double move_nodes(MutableVertexPartition* partition, int consider_comms);
-    double move_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_is_membership_fixed);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_is_membership_fixed);
+    double move_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_fixed_nodes);
     double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, int consider_empty_community);
-    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, int consider_empty_community, bool renumber_is_membership_fixed);
+    double move_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, int consider_empty_community, bool renumber_fixed_nodes);
 
     double merge_nodes(MutableVertexPartition* partition);
     double merge_nodes(MutableVertexPartition* partition, int consider_comms);
-    double merge_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_is_membership_fixed);
-    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_is_membership_fixed);
-    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_is_membership_fixed);
+    double merge_nodes(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, bool renumber_fixed_nodes);
+    double merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes);
 
     double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
