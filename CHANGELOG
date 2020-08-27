@@ -1,3 +1,11 @@
+NEXT RELEASE
+  - Great performance improvement by @ragibson (PR #40)
+  - Minor improvements and clarifications
+
+0.8.1
+ - Fixed performance problem (issue #35)
+ - Improved documentation
+
 0.8.0
 - New option to keep some nodes "fixed"
 - Corrected bipartite clustering
