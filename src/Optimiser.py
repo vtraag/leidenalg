@@ -265,7 +265,7 @@ class Optimiser(object):
 
     max_comm_size : int or None
       Maximal total size of nodes in a community. If zero, then communities can
-      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
+      be of any size. If ``None`` (the default), uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -334,7 +334,7 @@ class Optimiser(object):
 
     max_comm_size : int or None
       Maximal total size of nodes in a community. If zero, then communities can
-      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
+      be of any size. If ``None`` (the default), uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -444,7 +444,7 @@ class Optimiser(object):
 
     max_comm_size : int or None
       Maximal total size of nodes in a community. If zero, then communities can
-      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
+      be of any size. If ``None`` (the default), uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -551,7 +551,7 @@ class Optimiser(object):
 
     max_comm_size : int or None
       Maximal total size of nodes in a community. If zero, then communities can
-      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
+      be of any size. If ``None`` (the default), uses :attr:`max_comm_size`.
 
     Returns
     -------
@@ -606,7 +606,7 @@ class Optimiser(object):
 
     max_comm_size : int or None
       Maximal total size of nodes in a community. If zero, then communities can
-      be of any size. If ``None`` (the default), uses uses :attr:`max_comm_size`.
+      be of any size. If ``None`` (the default), uses :attr:`max_comm_size`.
 
     Returns
     -------
