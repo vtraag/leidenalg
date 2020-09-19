@@ -79,7 +79,7 @@ function
 
 >>> partition = la.ModularityVertexPartition(G)
 >>> partition_agg = partition.aggregate_partition()
->>> while optimiser.move_nodes(partition_agg):
+>>> while optimiser.move_nodes(partition_agg) > 0:
 ...   partition.from_coarse_partition(partition_agg)
 ...   partition_agg = partition_agg.aggregate_partition()
 
@@ -96,7 +96,31 @@ One possibility is that rather than aggregating the partition based on the
 current partition, you can first refine the partition and then aggregate it.
 This is what is done in the Leiden algorithm, and can be done using the functions
 :func:`~leidenalg.Optimiser.move_nodes_constrained` and
-:func:`~leidenalg.Optimiser.merge_nodes_constrained`.
+:func:`~leidenalg.Optimiser.merge_nodes_constrained`. Implementing this, you
+end up with the following high-level implementation of the Leiden algorithm:
+
+>>> # Set initial partition
+>>> partition = la.ModularityVertexPartition(G)
+>>> refined_partition = la.ModularityVertexPartition(G)
+>>> partition_agg = refined_partition.aggregate_partition()
+>>>
+>>> while optimiser.move_nodes(partition_agg):
+...
+...   # Get individual membership for partition
+...   partition.from_coarse_partition(partition_agg, refined_partition.membership)
+...
+...   # Refine partition
+...   refined_partition = la.ModularityVertexPartition(G)
+...   optimiser.merge_nodes_constrained(refined_partition, partition)
+...
+...   # Define aggregate partition on refined partition
+...   partition_agg = refined_partition.aggregate_partition()
+...
+...   # But use membership of actual partition
+...   aggregate_membership = [None] * len(refined_partition)
+...   for i in range(G.vcount()):
+...     aggregate_membership[refined_partition.membership[i]] = partition.membership[i]
+...   partition_agg.set_membership(aggregate_membership)
 
 These functions in turn rely on two key functions of the partition:
 :func:`~leidenalg.VertexPartition.MutableVertexPartition.diff_move` and
