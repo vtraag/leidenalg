@@ -23,7 +23,7 @@ def _get_py_capsule(graph):
 from .VertexPartition import *
 from .Optimiser import *
 
-def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, seed=None, **kwargs):
+def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, max_comm_size=0, seed=None, **kwargs):
   """ Detect communities using the default settings.
 
   This function detects communities given the specified method in the
@@ -54,6 +54,10 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
 
+  max_comm_size : non-negative int
+    Maximal total size of nodes in a community. If zero (the default), then
+    communities can be of any size.
+
   seed : int
     Seed for the random number generator. By default uses a random seed
     if nothing is specified.
@@ -83,6 +87,10 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
                              initial_membership=initial_membership,
                              **kwargs)
   optimiser = Optimiser()
+
+  if max_comm_size < 0:
+    raise ValueError('negative max_comm_size: %s' % max_comm_size)
+  optimiser.max_comm_size = max_comm_size
 
   if (not seed is None):
     optimiser.set_rng_seed(seed)
@@ -155,6 +163,10 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
     partitions.append(partition_type(graph, **kwargs))
   optimiser = Optimiser()
 
+  if max_comm_size < 0:
+    raise ValueError('negative max_comm_size: %s' % max_comm_size)
+  optimiser.max_comm_size = max_comm_size;
+
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
@@ -166,7 +178,7 @@ def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
-                            n_iterations=2, seed=None,
+                            n_iterations=2, max_comm_size=0, seed=None,
                             **kwargs):
   """ Detect communities for temporal graphs.
 
@@ -209,6 +221,10 @@ def find_partition_temporal(graphs, partition_type,
     Number of iterations to run the Leiden algorithm. By default, 2 iterations
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
+
+  max_comm_size : non-negative int
+    Maximal total size of nodes in a community. If zero (the default), then
+    communities can be of any size.
 
   seed : int
     Seed for the random number generator. By default uses a random seed
@@ -271,6 +287,10 @@ def find_partition_temporal(graphs, partition_type,
   partition_interslice = CPMVertexPartition(G_interslice, resolution_parameter=0,
                                             node_sizes='node_size', weights=weight_attr)
   optimiser = Optimiser()
+
+  if max_comm_size < 0:
+    raise ValueError('negative max_comm_size: %s' % max_comm_size)
+  optimiser.max_comm_size = max_comm_size
 
   if (not seed is None):
     optimiser.set_rng_seed(seed)
