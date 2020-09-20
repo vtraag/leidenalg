@@ -4,11 +4,6 @@
 #define IS_PY3K
 #endif
 
-Graph* create_graph_from_py(PyObject* py_obj_graph)
-{
-  return create_graph_from_py(py_obj_graph, NULL, NULL, false);
-}
-
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes)
 {
   return create_graph_from_py(py_obj_graph, py_node_sizes, NULL, true);

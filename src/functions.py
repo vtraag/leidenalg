@@ -23,7 +23,7 @@ def _get_py_capsule(graph):
 from .VertexPartition import *
 from .Optimiser import *
 
-def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, seed=None, max_comm_size=0, **kwargs):
+def find_partition(graph, partition_type, initial_membership=None, weights=None, n_iterations=2, seed=None, **kwargs):
   """ Detect communities using the default settings.
 
   This function detects communities given the specified method in the
@@ -53,10 +53,6 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
     Number of iterations to run the Leiden algorithm. By default, 2 iterations
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
-
-  max_comm_size : int
-    Maximal total size of nodes in a community. If zero (the default), then
-    communities can be of any size.
 
   seed : int
     Seed for the random number generator. By default uses a random seed
@@ -91,11 +87,11 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  optimiser.optimise_partition(partition, n_iterations=n_iterations, max_comm_size=max_comm_size)
+  optimiser.optimise_partition(partition, n_iterations)
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, max_comm_size=0, **kwargs):
+def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -115,10 +111,6 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
     Number of iterations to run the Leiden algorithm. By default, 2 iterations
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
-
-  max_comm_size : int
-    Maximal total size of nodes in a community. If zero (the default), then
-    communities can be of any size.
 
   seed : int
     Seed for the random number generator. By default uses a random seed
@@ -166,7 +158,7 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations, max_comm_size=max_comm_size)
+  improvement = optimiser.optimise_partition_multiplex(partitions, layer_weights, n_iterations)
 
   return partitions[0].membership, improvement
 
@@ -174,7 +166,7 @@ def find_partition_temporal(graphs, partition_type,
                             interslice_weight=1,
                             slice_attr='slice', vertex_id_attr='id',
                             edge_type_attr='type', weight_attr='weight',
-                            n_iterations=2, seed=None, max_comm_size=0,
+                            n_iterations=2, seed=None,
                             **kwargs):
   """ Detect communities for temporal graphs.
 
@@ -217,10 +209,6 @@ def find_partition_temporal(graphs, partition_type,
     Number of iterations to run the Leiden algorithm. By default, 2 iterations
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
-
-  max_comm_size : int
-    Maximal total size of nodes in a community. If zero (the default), then
-    communities can be of any size.
 
   seed : int
     Seed for the random number generator. By default uses a random seed
@@ -287,7 +275,7 @@ def find_partition_temporal(graphs, partition_type,
   if (not seed is None):
     optimiser.set_rng_seed(seed)
 
-  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice], n_iterations=n_iterations, max_comm_size=max_comm_size)
+  improvement = optimiser.optimise_partition_multiplex(partitions + [partition_interslice], n_iterations=n_iterations)
 
   # Transform results back into original form.
   membership = {(v[slice_attr], v[vertex_id_attr]): m for v, m in zip(G.vs, partitions[0].membership)}

@@ -631,24 +631,24 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
     size_t max_comm = v_comm;
     double max_improv = 0.0;
+    size_t v_size = graphs[0]->node_size(v);
     for (size_t comm : comms)
     {
       // reset comm_added to all false
       comm_added[comm] = false;
+
+      // Do not create too-large communities.
+      if (0 < max_comm_size && max_comm_size < partitions[0]->csize(comm) + v_size) {
+        continue;
+      }
+
       double possible_improv = 0.0;
 
       // Consider the improvement of moving to a community for all layers
       for (size_t layer = 0; layer < nb_layers; layer++)
       {
-        graph = graphs[layer];
-        partition = partitions[layer];
-        // Do not create too-large communities.
-        if (0 < max_comm_size && max_comm_size < partition->csize(comm) + graph->node_size(v)) {
-          possible_improv = -1.0;
-          break;
-        }
         // Make sure to multiply it by the weight per layer
-        possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+        possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
       }
 
       if (possible_improv > max_improv)
@@ -846,9 +846,6 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       cerr << "Consider moving node " << v << " from " << v_comm << "." << endl;
     #endif
 
-    Graph *graph = NULL;
-    MutableVertexPartition* partition = NULL;
-
     if (partitions[0]->cnodes(v_comm) == 1)
     {
       if (consider_comms == ALL_COMMS)
@@ -914,22 +911,21 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
       size_t max_comm = v_comm;
       double max_improv = 0.0;
+      size_t v_size = graphs[0]->node_size(v);
       for (size_t comm : comms)
       {
+        // Do not create too-large communities.
+        if (0 < max_comm_size && max_comm_size < partitions[0]->csize(comm) + v_size) {
+          continue;
+        }
+
         double possible_improv = 0.0;
 
         // Consider the improvement of moving to a community for all layers
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          graph = graphs[layer];
-          partition = partitions[layer];
-          // Do not create too-large communities.
-          if (0 < max_comm_size && max_comm_size < partition->csize(comm) + graph->node_size(v)) {
-            possible_improv = -1.0;
-            break;
-          }
           // Make sure to multiply it by the weight per layer
-          possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+          possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
         #ifdef DEBUG
           cerr << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
@@ -1141,23 +1137,21 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
 
     size_t max_comm = v_comm;
     double max_improv = 0.0;
-
+    size_t v_size = graphs[0]->node_size(v);
     for (size_t comm : comms)
     {
+      // Do not create too-large communities.
+      if (0 < max_comm_size && max_comm_size < partitions[0]->csize(comm) + v_size) {
+        continue;
+      }
+
       double possible_improv = 0.0;
 
       // Consider the improvement of moving to a community for all layers
       for (size_t layer = 0; layer < nb_layers; layer++)
       {
-        graph = graphs[layer];
-        partition = partitions[layer];
-        // Do not create too-large communities.
-        if (0 < max_comm_size && max_comm_size < partition->csize(comm) + graph->node_size(v)) {
-          possible_improv = -1.0;
-          break;
-        }
         // Make sure to multiply it by the weight per layer
-        possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+        possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
       }
 
       // Check if improvement is best
@@ -1306,9 +1300,6 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
         comm_added[comm] = false;
       comms.clear();
 
-      Graph* graph = NULL;
-      MutableVertexPartition* partition = NULL;
-
       if (consider_comms == ALL_COMMS)
       {
           // Add all communities to the set comms that are within the constrained community.
@@ -1381,24 +1372,24 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
 
       size_t max_comm = v_comm;
       double max_improv = 0.0;
+      size_t v_size = graphs[0]->node_size(v);
       for (size_t comm : comms)
       {
         // reset comm_added to all false
         comm_added[comm] = false;
+
+        // Do not create too-large communities.
+        if (0 < max_comm_size && max_comm_size < partitions[0]->csize(comm) + v_size) {
+          continue;
+        }
+
         double possible_improv = 0.0;
 
         // Consider the improvement of moving to a community for all layers
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
-          graph = graphs[layer];
-          partition = partitions[layer];
-          // Do not create too-large communities.
-          if (0 < max_comm_size && max_comm_size < partition->csize(comm) + graph->node_size(v)) {
-            possible_improv = -1.0;
-            break;
-          }
           // Make sure to multiply it by the weight per layer
-          possible_improv += layer_weights[layer]*partition->diff_move(v, comm);
+          possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
 
         if (possible_improv >= max_improv)

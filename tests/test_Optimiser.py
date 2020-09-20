@@ -24,10 +24,11 @@ class OptimiserTest(unittest.TestCase):
   def test_move_nodes_with_max_comm_size(self):
     G = ig.Graph.Full(100);
     partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0.5);
-    self.optimiser.move_nodes(partition, consider_comms=leidenalg.ALL_NEIGH_COMMS, max_comm_size=17);
+    self.optimiser.max_comm_size = 17
+    self.optimiser.move_nodes(partition, consider_comms=leidenalg.ALL_NEIGH_COMMS);
     self.assertListEqual(
         partition.sizes(), [17, 17, 17, 17, 17, 15],
-        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes incorrect.");
+        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after move nodes (max_comm_size=17) incorrect.");
 
   def test_move_nodes_with_fixed(self):
     # One edge plus singleton, but the two connected nodes are fixed
@@ -56,10 +57,11 @@ class OptimiserTest(unittest.TestCase):
   def test_merge_nodes_with_max_comm_size(self):
     G = ig.Graph.Full(100);
     partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0.5);
-    self.optimiser.merge_nodes(partition, consider_comms=leidenalg.ALL_NEIGH_COMMS, max_comm_size=17);
+    self.optimiser.max_comm_size = 17
+    self.optimiser.merge_nodes(partition, consider_comms=leidenalg.ALL_NEIGH_COMMS);
     self.assertListEqual(
         partition.sizes(), [17, 17, 17, 17, 17, 15],
-        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after merge nodes incorrect.");
+        msg="CPMVertexPartition(resolution_parameter=0.5) of complete graph after merge nodes (max_comm_size=17) incorrect.");
 
   def test_diff_move_node_optimality(self):
     G = ig.Graph.Erdos_Renyi(100, p=5./100, directed=False, loops=False);
@@ -86,10 +88,11 @@ class OptimiserTest(unittest.TestCase):
     G = ig.Graph.Full(100);
     partition = leidenalg.CPMVertexPartition(G, resolution_parameter=0);
     self.optimiser.consider_comms=leidenalg.ALL_NEIGH_COMMS;
-    self.optimiser.optimise_partition(partition, max_comm_size=10);
+    self.optimiser.max_comm_size = 10
+    self.optimiser.optimise_partition(partition);
     self.assertListEqual(
         partition.sizes(), 10*[10],
-        msg="After optimising partition failed to find different components with CPMVertexPartition(resolution_parameter=0)");
+        msg="After optimising partition (max_comm_size=10) failed to find different components with CPMVertexPartition(resolution_parameter=0)");
 
   def test_optimiser_with_is_membership_fixed(self):
       G = ig.Graph.Full(3)

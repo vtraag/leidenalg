@@ -40,18 +40,16 @@ extern "C"
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
     PyObject* py_is_membership_fixed = NULL;
-    int py_max_comm_size = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "max_comm_size", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|OI", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_is_membership_fixed,
-                                     &py_max_comm_size))
+                                     &py_is_membership_fixed))
         return NULL;
 
     #ifdef DEBUG
@@ -95,12 +93,10 @@ extern "C"
       }
     }
 
-    size_t max_comm_size = py_max_comm_size >= 0 ? py_max_comm_size : optimiser->max_comm_size;
-
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partition, is_membership_fixed, max_comm_size);
+      q = optimiser->optimise_partition(partition, is_membership_fixed);
     }
     catch (std::exception e)
     {
@@ -116,17 +112,16 @@ extern "C"
     PyObject* py_partitions = NULL;
     PyObject* py_layer_weights = NULL;
     PyObject* py_is_membership_fixed = NULL;
-    int py_max_comm_size = -1;
 
-    static char* kwlist[] = {"optimiser", "partitions", "layer_weights", "is_membership_fixed", "max_comm_size", NULL};
+    static char* kwlist[] = {"optimiser", "partitions", "layer_weights", "is_membership_fixed", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|OI", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|O", kwlist,
                                      &py_optimiser, &py_partitions,
-                                     &py_layer_weights, &py_is_membership_fixed, &py_max_comm_size))
+                                     &py_layer_weights, &py_is_membership_fixed))
         return NULL;
 
     size_t nb_partitions = PyList_Size(py_partitions);
@@ -199,6 +194,7 @@ extern "C"
       }
     }
 
+
     #ifdef DEBUG
       cerr << "Capsule optimiser at address " << py_optimiser << endl;
     #endif
@@ -207,12 +203,10 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    size_t max_comm_size = py_max_comm_size >= 0 ? py_max_comm_size : optimiser->max_comm_size;
-
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partitions, layer_weights, is_membership_fixed, max_comm_size);
+      q = optimiser->optimise_partition(partitions, layer_weights, is_membership_fixed);
     }
     catch (std::exception e)
     {
@@ -228,17 +222,16 @@ extern "C"
     PyObject* py_partition = NULL;
     PyObject* py_is_membership_fixed = NULL;
     int consider_comms = -1;
-    int py_max_comm_size = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "consider_comms", "max_comm_size", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|OiI", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oi", kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_is_membership_fixed, &consider_comms, &py_max_comm_size))
+                                     &py_is_membership_fixed, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -285,12 +278,10 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->consider_comms;
 
-    size_t max_comm_size = py_max_comm_size >= 0 ? py_max_comm_size : optimiser->max_comm_size;
-
     double q  = 0.0;
     try
     {
-      q = optimiser->move_nodes(partition, is_membership_fixed, consider_comms, true, max_comm_size);
+      q = optimiser->move_nodes(partition, is_membership_fixed, consider_comms, true);
     }
     catch (std::exception e)
     {
@@ -306,17 +297,16 @@ extern "C"
     PyObject* py_partition = NULL;
     PyObject* py_is_membership_fixed = NULL;
     int consider_comms = -1;
-    int py_max_comm_size = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "consider_comms", "max_comm_size", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|OiI", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|Oi", kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_is_membership_fixed, &consider_comms, &py_max_comm_size))
+                                     &py_is_membership_fixed, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -363,12 +353,10 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->consider_comms;
 
-    size_t max_comm_size = py_max_comm_size >= 0 ? py_max_comm_size : optimiser->max_comm_size;
-
     double q = 0.0;
     try
     {
-      q = optimiser->merge_nodes(partition, is_membership_fixed, consider_comms, true, max_comm_size);
+      q = optimiser->merge_nodes(partition, is_membership_fixed, consider_comms, true);
     }
     catch (std::exception e)
     {
@@ -384,16 +372,15 @@ extern "C"
     PyObject* py_partition = NULL;
     PyObject* py_constrained_partition = NULL;
     int consider_comms = -1;
-    int py_max_comm_size = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", "consider_comms", "max_comm_size", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|iI", kwlist,
-                                     &py_optimiser, &py_partition, &py_constrained_partition, &consider_comms, &py_max_comm_size))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|i", kwlist,
+                                     &py_optimiser, &py_partition, &py_constrained_partition, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -427,12 +414,10 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->refine_consider_comms;
 
-    size_t max_comm_size = py_max_comm_size >= 0 ? py_max_comm_size : optimiser->max_comm_size;
-
     double q = 0.0;
     try
     {
-      q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition, max_comm_size);
+      q = optimiser->move_nodes_constrained(partition, consider_comms, constrained_partition);
     }
     catch (std::exception e)
     {
@@ -448,16 +433,15 @@ extern "C"
     PyObject* py_partition = NULL;
     PyObject* py_constrained_partition = NULL;
     int consider_comms = -1;
-    int py_max_comm_size = -1;
 
-    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", "consider_comms", "max_comm_size", NULL};
+    static char* kwlist[] = {"optimiser", "partition", "constrained_partition", "consider_comms", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|iI", kwlist,
-                                     &py_optimiser, &py_partition, &py_constrained_partition, &consider_comms, &py_max_comm_size))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OOO|i", kwlist,
+                                     &py_optimiser, &py_partition, &py_constrained_partition, &consider_comms))
         return NULL;
 
     #ifdef DEBUG
@@ -491,12 +475,10 @@ extern "C"
     if (consider_comms < 0)
       consider_comms = optimiser->refine_consider_comms;
 
-    size_t max_comm_size = py_max_comm_size >= 0 ? py_max_comm_size : optimiser->max_comm_size;
-
     double q = 0.0;
     try
     {
-      q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition, max_comm_size);
+      q = optimiser->merge_nodes_constrained(partition, consider_comms, constrained_partition);
     }
     catch (std::exception e)
     {
@@ -892,7 +874,7 @@ extern "C"
   PyObject* _Optimiser_set_max_comm_size(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
-    size_t max_comm_size = 0;
+    unsigned int max_comm_size = 0;
     static char* kwlist[] = {"optimiser", "max_comm_size", NULL};
 
     #ifdef DEBUG
