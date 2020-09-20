@@ -88,8 +88,6 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
                              **kwargs)
   optimiser = Optimiser()
 
-  if max_comm_size < 0:
-    raise ValueError('negative max_comm_size: %s' % max_comm_size)
   optimiser.max_comm_size = max_comm_size
 
   if (not seed is None):
@@ -163,8 +161,6 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
     partitions.append(partition_type(graph, **kwargs))
   optimiser = Optimiser()
 
-  if max_comm_size < 0:
-    raise ValueError('negative max_comm_size: %s' % max_comm_size)
   optimiser.max_comm_size = max_comm_size;
 
   if (not seed is None):
@@ -288,8 +284,6 @@ def find_partition_temporal(graphs, partition_type,
                                             node_sizes='node_size', weights=weight_attr)
   optimiser = Optimiser()
 
-  if max_comm_size < 0:
-    raise ValueError('negative max_comm_size: %s' % max_comm_size)
   optimiser.max_comm_size = max_comm_size
 
   if (not seed is None):
