@@ -928,11 +928,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    #ifdef IS_PY3K
-    return PyLong_FromLong(optimiser->max_comm_size);
-    #else
-    return PyInt_FromLong(optimiser->max_comm_size);
-    #endif
+    return PyLong_FromSize_t(optimiser->max_comm_size);
   }
 
   PyObject* _Optimiser_set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds)
