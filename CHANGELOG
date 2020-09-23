@@ -1,13 +1,14 @@
 NEXT RELEASE
-  - Great performance improvement by @ragibson (PR #40)
-  - Minor improvements and clarifications
+- New option to constrain community size by @orenbenkiki (PR #46)
+- Great performance improvement by @ragibson (PR #40)
+- Minor improvements and clarifications
 
 0.8.1
- - Fixed performance problem (issue #35)
- - Improved documentation
+- Fixed performance problem (issue #35)
+- Improved documentation
 
 0.8.0
-- New option to keep some nodes "fixed"
+- New option to keep some nodes "fixed" by @iosonofabio (PR #8, #9)
 - Corrected bipartite clustering
 - Corrected some documentation
 - Several minor bugfixes
