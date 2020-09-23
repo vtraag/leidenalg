@@ -217,6 +217,24 @@ class Optimiser(object):
   def consider_empty_community(self, value):
     _c_leiden._Optimiser_set_consider_empty_community(self._optimiser, value)
 
+  #########################################################3
+  # max_comm_size
+  @property
+  def max_comm_size(self):
+    """ Constrain the maximal community size.
+
+    By default (zero), communities can be of any size. If this is set to a
+    positive integer value, then communities will be constrained to be at most
+    this total size.
+    """
+    return _c_leiden._Optimiser_get_max_comm_size(self._optimiser)
+
+  @max_comm_size.setter
+  def max_comm_size(self, value):
+    if value < 0:
+        raise ValueError("negative max_comm_size: %s" % value)
+    _c_leiden._Optimiser_set_max_comm_size(self._optimiser, value)
+
   ##########################################################
   # Set rng seed
   def set_rng_seed(self, value):
@@ -536,6 +554,7 @@ class Optimiser(object):
     """
     if (consider_comms is None):
       consider_comms = self.consider_comms
+
     diff = _c_leiden._Optimiser_merge_nodes(
             self._optimiser, partition._partition, is_membership_fixed, consider_comms)
     partition._update_internal_membership()
