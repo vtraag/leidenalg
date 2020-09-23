@@ -227,6 +227,16 @@ We can then only update the community assignments for the new nodes as follows
 In this example we used :class:`~leidenalg.CPMVertexPartition`. but any other
 ``VertexPartition`` would work as well.
 
+Maximum community size
+----------------------
+
+In some cases, you may want to restrict the community sizes. It is possible to indicate this
+by setting the :attr:`~leidenalg.Optimiser.max_comm_size` parameter so that this constraint is
+taken into account during optimisation. In addition, it is possible to pass this parameter
+directly when using :func:`~leidenalg.find_partition`. For example
+
+>>> partition = la.find_partition(G, la.ModularityVertexPartition, max_comm_size=10)
+
 References
 ----------
 .. [1] Traag, V. A., Krings, G., & Van Dooren, P. (2013). Significant scales in

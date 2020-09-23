@@ -1,4 +1,4 @@
-NEXT RELEASE
+0.8.2
 - New option to constrain community size by @orenbenkiki (PR #46)
 - Great performance improvement by @ragibson (PR #40)
 - Minor improvements and clarifications

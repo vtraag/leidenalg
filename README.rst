@@ -6,16 +6,17 @@ This package implements the Leiden algorithm in ``C++`` and exposes it to
 relative flexibility of the implementation, it also scales well, and can be run
 on graphs of millions of nodes (as long as they can fit in memory). The core
 function is ``find_partition`` which finds the optimal partition using the
-Leiden algorithm [1]_, which is an extension of the Louvain algorithm [2]_ for
-a number of different methods. The methods currently implemented are (1)
+Leiden algorithm [1]_, which is an extension of the Louvain algorithm [2]_ for a
+number of different methods. The methods currently implemented are (1)
 modularity [3]_, (2) Reichardt and Bornholdt's model using the configuration
 null model and the Erdös-Rényi null model [4]_, (3) the constant Potts model
 (CPM) [5]_, (4) Significance [6]_, and finally (5) Surprise [7]_. In addition,
-it supports multiplex partition optimisation allowing community detection on
-for example negative links [8]_ or multiple time slices [9]_. There is the possibility of only partially optimising a partition, so that some community assignments remain fixed [10]_. It also provides
-some support for community detection on bipartite graphs. See the
-`documentation <http://leidenalg.readthedocs.io/en/latest/>`_ for more
-information.
+it supports multiplex partition optimisation allowing community detection on for
+example negative links [8]_ or multiple time slices [9]_. There is the
+possibility of only partially optimising a partition, so that some community
+assignments remain fixed [10]_. It also provides some support for community
+detection on bipartite graphs. See the `documentation
+<http://leidenalg.readthedocs.io/en/latest/>`_ for more information.
 
 .. image:: https://readthedocs.org/projects/leidenalg/badge
                 :target: http://leidenalg.readthedocs.io/en/latest/
@@ -27,7 +28,7 @@ information.
 
 .. image:: https://zenodo.org/badge/146722095.svg
                 :target: https://zenodo.org/badge/latestdoi/146722095
-                :alt: DOI 
+                :alt: DOI
 
 .. image:: https://anaconda.org/conda-forge/leidenalg/badges/version.svg
                 :target: https://anaconda.org/conda-forge/leidenalg
@@ -38,13 +39,13 @@ Installation
 
 In short: ``pip install leidenalg``. All major platforms are supported on
 Python>=3.5, earlier versions of Python are no longer supported. Alternatively,
-you can install from Anaconda (channels ``conda-forge``).
+you can install from Anaconda (channel ``conda-forge``).
 
 For Unix like systems it is possible to install from source. For Windows this is
 overly complicated, and you are recommended to use the binary wheels. The igraph
 ``C`` core library is provided within this package, and is automatically
 compiled. If you encounter any issue with compilation, please see
-http://igraph.org. 
+http://igraph.org.
 
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential autoconf automake flex
@@ -129,7 +130,7 @@ Please cite the references appropriately in case they are used.
 
 .. [2] Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008).
        Fast unfolding of communities in large networks. Journal of Statistical
-       Mechanics: Theory and Experiment, 10008(10), 6. 
+       Mechanics: Theory and Experiment, 10008(10), 6.
        `10.1088/1742-5468/2008/10/P10008 <http://doi.org/10.1088/1742-5468/2008/10/P10008>`_
 
 .. [3] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating community
