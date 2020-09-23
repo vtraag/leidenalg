@@ -874,14 +874,14 @@ extern "C"
   PyObject* _Optimiser_set_max_comm_size(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
-    unsigned int max_comm_size = 0;
+    size_t max_comm_size = 0;
     static char* kwlist[] = {"optimiser", "max_comm_size", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OI", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", kwlist,
                                      &py_optimiser, &max_comm_size))
         return NULL;
 
