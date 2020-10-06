@@ -424,9 +424,6 @@ void Graph::init_admin()
   for (size_t v = 0; v < n; v++)
     this->_total_size += this->node_size(v);
 
-  // this is initialized in the constructors
-  igraph_vector_t *res = &this->_temp_igraph_vector;
-
   // Calculate density;
   double w = this->total_weight();
   size_t n_size = this->total_size();

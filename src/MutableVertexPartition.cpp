@@ -410,7 +410,7 @@ void MutableVertexPartition::renumber_communities(vector<size_t> const& fixed_no
 {
 
   #ifdef DEBUG
-    cerr << "void MutableVertexPartition::renumber_communities(" << &membership << ")" << endl;
+    cerr << "void MutableVertexPartition::renumber_communities(" << &fixed_nodes << ", " << &fixed_membership << ")" << endl;
   #endif
 
   // Skip whole thing if there are no fixed nodes for efficiency
@@ -425,12 +425,12 @@ void MutableVertexPartition::renumber_communities(vector<size_t> const& fixed_no
   vector<bool> comm_assigned_bool(nb_comms);
   priority_queue<size_t, vector<size_t>, std::greater<size_t> > new_comm_assigned;
   for (size_t v : fixed_nodes) {
-    #ifdef DEBUG
-      cerr << "Setting map for fixed community " << m->second << endl;
-    #endif
     if (!comm_assigned_bool[_membership[v]])
     {
       size_t fixed_comm_v = fixed_membership[v];
+      #ifdef DEBUG
+        cerr << "Setting map for fixed community " << fixed_comm_v << endl;
+      #endif
       new_comm_id[_membership[v]] = fixed_comm_v;
       comm_assigned_bool[_membership[v]] = true;
       new_comm_assigned.push(fixed_comm_v);
