@@ -58,7 +58,7 @@ install:
   - bash -lc "pacman --noconfirm -S zstd"
   - bash -lc "pacman --noconfirm -S autoconf automake bison flex libtool mingw-w64-x86_64-libtool mingw-w64-i686-libxml2 mingw-w64-x86_64-libxml2 zip"
   - bash -lc "pacman --noconfirm -Rs git" # Must be removed in order to use Windows git
-  - python.exe -m pip install cibuildwheel==1.3.0
+  - python.exe -m pip install cibuildwheel
 
 on_success:
   - >
@@ -87,7 +87,7 @@ for:
         - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
         - APPVEYOR_JOB_NAME: "python38-sdist-ubuntu"
     install:
-      - python -m pip install cibuildwheel==1.3.0
+      - python -m pip install cibuildwheel
     build_script:
       # build the wheels, put them into './wheelhouse'
       - python -m cibuildwheel --output-dir wheelhouse
@@ -100,7 +100,7 @@ for:
       only:
         - APPVEYOR_JOB_NAME: "python38-sdist-ubuntu"
     install:
-      - python -m pip install cibuildwheel==1.3.0
+      - python -m pip install cibuildwheel
     build_script:
       # build the source distribution
       - python setup.py sdist
