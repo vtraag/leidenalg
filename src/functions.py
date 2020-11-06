@@ -118,6 +118,10 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, max_comm_si
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
 
+  max_comm_size : non-negative int
+    Maximal total size of nodes in a community. If zero (the default), then
+    communities can be of any size.
+
   seed : int
     Seed for the random number generator. By default uses a random seed
     if nothing is specified.
