@@ -97,7 +97,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, **kwargs):
+def find_partition_multiplex(graphs, partition_type, n_iterations=2, max_comm_size=0, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
