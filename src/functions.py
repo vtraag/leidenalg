@@ -97,7 +97,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, **kwargs):
+def find_partition_multiplex(graphs, partition_type, n_iterations=2, max_comm_size=0, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -117,6 +117,10 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, seed=None, 
     Number of iterations to run the Leiden algorithm. By default, 2 iterations
     are run. If the number of iterations is negative, the Leiden algorithm is
     run until an iteration in which there was no improvement.
+
+  max_comm_size : non-negative int
+    Maximal total size of nodes in a community. If zero (the default), then
+    communities can be of any size.
 
   seed : int
     Seed for the random number generator. By default uses a random seed
