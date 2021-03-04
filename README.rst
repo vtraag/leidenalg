@@ -9,7 +9,7 @@ function is ``find_partition`` which finds the optimal partition using the
 Leiden algorithm [1]_, which is an extension of the Louvain algorithm [2]_ for a
 number of different methods. The methods currently implemented are (1)
 modularity [3]_, (2) Reichardt and Bornholdt's model using the configuration
-null model and the Erdös-Rényi null model [4]_, (3) the constant Potts model
+null model and the Erdös-Rényi null model [4]_, (3) the Constant Potts model
 (CPM) [5]_, (4) Significance [6]_, and finally (5) Surprise [7]_. In addition,
 it supports multiplex partition optimisation allowing community detection on for
 example negative links [8]_ or multiple time slices [9]_. There is the

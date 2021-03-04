@@ -858,13 +858,13 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
     return new_partition
 
 class CPMVertexPartition(LinearResolutionParameterVertexPartition):
-  """ Implements CPM.
+  """ Implements the Constant Potts Model (CPM).
   This quality function is well-defined for both positive and negative edge weights.
   This quality function uses a linear resolution parameter.
 
   Notes
   -----
-  The quality function is
+  The Constant Potts Model (CPM) quality function is
 
   .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\right)\\delta(\\sigma_i, \\sigma_j)
 
