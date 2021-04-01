@@ -458,6 +458,13 @@ class ModularityVertexPartition(MutableVertexPartition):
         # Make sure it is a list
         weights = list(weights)
 
+    if node_sizes is not None:
+      if isinstance(node_sizes, str):
+        node_sizes = graph.vs[node_sizes]
+      else:
+        # Make sure it is a list
+        node_sizes = list(node_sizes)
+
     self._partition = _c_leiden._new_ModularityVertexPartition(pygraph_t,
         initial_membership, weights, node_sizes)
     self._update_internal_membership()
