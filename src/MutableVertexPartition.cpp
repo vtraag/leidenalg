@@ -311,6 +311,9 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
   }
 
   // invalidate cached weight vectors
+  this->_cached_neigh_comms_from.clear();
+  this->_cached_neigh_comms_to.clear();
+  this->_cached_neigh_comms_all.clear();
   this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(nbcomms, 0);
   this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(nbcomms, 0);
   this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(nbcomms, 0);
