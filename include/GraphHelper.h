@@ -1,7 +1,12 @@
 #ifndef GRAPHHELPER_INCLUDED
 #define GRAPHHELPER_INCLUDED
 
-#include <igraph.h>
+#include "igraph_interface.h"
+#include "igraph_datatype.h"
+#include "igraph_random.h"
+#include "igraph_structural.h"
+#include "igraph_constructors.h"
+
 #include <vector>
 #include <set>
 #include <exception>
