@@ -31,7 +31,8 @@ massif*
 *.code-workspace
 PACKAGE.txt
 vendor/source/igraph
+vendor/source/install
+vendor/install
 src/version.py
 pip-wheel-metadata
-vendor/source/install
 .eggs/
