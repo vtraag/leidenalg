@@ -33,6 +33,6 @@ PACKAGE.txt
 vendor/source/igraph
 vendor/source/install
 vendor/install
-src/version.py
+src/leidenalg/version.py
 pip-wheel-metadata
 .eggs/
