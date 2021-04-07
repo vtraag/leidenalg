@@ -776,7 +776,7 @@ options =  dict(
   test_suite = 'tests',
 
   provides = ['leidenalg'],
-  package_dir = {'leidenalg': 'src'},
+  package_dir = {'leidenalg': os.path.join('src', 'leidenalg')},
   packages = ['leidenalg'],
   ext_modules = [leiden_ext],
   install_requires = ['python-igraph >= 0.9.0'],
