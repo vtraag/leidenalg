@@ -749,7 +749,7 @@ buildcfg.process_args_from_command_line()
 
 # Define the extension
 leiden_ext = Extension('leidenalg._c_leiden',
-                    sources = glob.glob(os.path.join('src', '*.cpp')),
+                    sources = glob.glob(os.path.join('src', 'leidenalg', '*.cpp')),
                     include_dirs=['include']);
 
 options =  dict(

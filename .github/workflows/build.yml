@@ -111,7 +111,7 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
-          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo -A ${{ matrix.cmake_arch }}
+          IGRAPH_CMAKE_EXTRA_ARGS: -A ${{ matrix.cmake_arch }}
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest"
 
       - uses: actions/upload-artifact@v2
