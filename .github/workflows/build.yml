@@ -161,7 +161,9 @@ jobs:
           python setup.py install
 
       - name: Test
-        run: python -m unittest
+        run: |
+          pip install ddt
+          python -m unittest
 
       - uses: actions/upload-artifact@v2
         with:
