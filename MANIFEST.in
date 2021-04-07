@@ -7,9 +7,9 @@ include MANIFEST.in
 include tests/*.py
 
 exclude .git*
-exclude .github/
 exclude *.yml
 exclude release*
+prune .github
 
 graft vendor/source/igraph
 prune vendor/source/igraph/etc/abstracts
