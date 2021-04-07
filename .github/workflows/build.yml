@@ -118,6 +118,7 @@ jobs:
         env:
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
+          CMAKE_GENERATOR: Ninja
           IGRAPH_CMAKE_EXTRA_ARGS: -A ${{ matrix.cmake_arch }}
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest"
 
@@ -155,6 +156,7 @@ jobs:
 
       - name: Build sdist
         run: |
+          pip install setuptools_scm
           python setup.py build_c_core
           python setup.py sdist
           python setup.py install
