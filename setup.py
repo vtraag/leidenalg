@@ -667,6 +667,8 @@ class BuildConfiguration(object):
         if exclusions is None:
             exclusions = []
 
+        print(f"Libraries: {self.libraries}")
+        print(f"Exclusions: {exclusions}")
         for library_name in set(self.libraries) - set(exclusions):
             if only is not None and library_name not in only:
                 continue
