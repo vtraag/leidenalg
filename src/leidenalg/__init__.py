@@ -54,4 +54,4 @@ from .VertexPartition import RBERVertexPartition
 from .VertexPartition import RBConfigurationVertexPartition
 from .VertexPartition import CPMVertexPartition
 
-from .version import version
+from .version import *

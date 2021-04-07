@@ -768,7 +768,9 @@ options =  dict(
   license = 'GPLv3+',
   url = 'https://github.com/vtraag/leidenalg',
 
-  use_scm_version=True,
+  use_scm_version={
+        'write_to': 'src/leidenalg/version.py',
+  },
   setup_requires=['setuptools_scm'],
 
   author = 'V.A. Traag',
