@@ -429,7 +429,7 @@ class BuildConfiguration(object):
                     for extension in self.extensions
                     if extension.name == "leidenalg._c_leiden"
                 )
-                self.include_dirs += ext.include_dirs
+                ext.include_dirs += buildcfg.include_dirs
                 buildcfg.configure(ext)
 
                 # Run the original build_ext command
