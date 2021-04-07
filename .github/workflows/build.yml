@@ -111,7 +111,7 @@ jobs:
 
       - name: Install build dependencies
         if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
-        run: choco install winflexbison3
+        run: choco install winflexbison3 cmake
 
       - name: Build wheels
         uses: joerick/cibuildwheel@v1.10.0
