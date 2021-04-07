@@ -429,6 +429,7 @@ class BuildConfiguration(object):
                     for extension in self.extensions
                     if extension.name == "leidenalg._c_leiden"
                 )
+                self.include_dirs += ext.include_dirs
                 buildcfg.configure(ext)
 
                 # Run the original build_ext command
@@ -578,7 +579,7 @@ class BuildConfiguration(object):
     def configure(self, ext):
         """Configures the given Extension object using this build configuration."""
         ext.include_dirs = exclude_from_list(
-            ext.include_dirs + self.include_dirs, self.excluded_include_dirs
+            ext.include_dirs, self.excluded_include_dirs
         )
         ext.library_dirs = exclude_from_list(
             self.library_dirs, self.excluded_library_dirs
