@@ -162,7 +162,7 @@ jobs:
           python setup.py install
 
       - name: Test
-        run: python -m unittest discover -v -s ./tests/
+        run: python -m unittest
 
       - uses: actions/upload-artifact@v2
         with:
