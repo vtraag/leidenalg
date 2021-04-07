@@ -1,6 +1,13 @@
 name: Build and test, upload to PyPI on release
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
 env:
   CIBW_TEST_REQUIRES: ddt
   CIBW_TEST_COMMAND: "cd {project} && python -m unittest"
