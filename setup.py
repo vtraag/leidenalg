@@ -749,21 +749,6 @@ leiden_ext = Extension('leidenalg._c_leiden',
                     sources = glob.glob(os.path.join('src', '*.cpp')),
                     include_dirs=['include']);
 
-
-description = """Python interface to the igraph high performance graph
-library, primarily aimed at complex network research and analysis.
-
-Graph plotting functionality is provided by the Cairo library, so make
-sure you install the Python bindings of Cairo if you want to generate
-publication-quality graph plots. You can try either `pycairo
-<http://cairographics.org/pycairo>`_ or `cairocffi <http://cairocffi.readthedocs.io>`_,
-``cairocffi`` is recommended, in particular if you are on Python 3.x because
-there were bug reports affecting igraph graph plots in Jupyter notebooks
-when using ``pycairo`` (but not with ``cairocffi``).
-"""
-
-headers = ["src/_igraph/igraphmodule_api.h"] if not SKIP_HEADER_INSTALL else []
-
 options =  dict(
   name = 'leidenalg',
   description = 'Leiden is a general algorithm for methods of community detection in large networks.',
@@ -791,7 +776,7 @@ options =  dict(
   package_dir = {'leidenalg': 'src'},
   packages = ['leidenalg'],
   ext_modules = [leiden_ext],
-  install_requires = ['python-igraph >= 0.8.0'],
+  install_requires = ['python-igraph >= 0.9.0'],
   platforms="ALL",
   keywords=[
     'graph',
