@@ -6,6 +6,10 @@ include include/
 include MANIFEST.in
 include tests/*.py
 
+exclude .git*
+exclude .github/
+exclude *.yml
+
 graft vendor/source/igraph
 prune vendor/source/igraph/etc/abstracts
 prune vendor/source/igraph/etc/papers
