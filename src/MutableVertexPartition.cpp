@@ -311,12 +311,23 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
   }
 
   // invalidate cached weight vectors
+  for (size_t c : this->_cached_neigh_comms_from)
+    this->_cached_weight_from_community[c] = 0;
   this->_cached_neigh_comms_from.clear();
+  this->_cached_weight_from_community.resize(nbcomms, 0);
+  this->_current_node_cache_community_from = n + 1;
+
+  for (size_t c : this->_cached_neigh_comms_to)
+    this->_cached_weight_to_community[c] = 0;
   this->_cached_neigh_comms_to.clear();
+  this->_cached_weight_to_community.resize(nbcomms, 0);
+  this->_current_node_cache_community_to = n + 1;
+
+  for (size_t c : this->_cached_neigh_comms_all)
+    this->_cached_weight_all_community[c] = 0;
   this->_cached_neigh_comms_all.clear();
-  this->_current_node_cache_community_from = n + 1; this->_cached_weight_from_community.resize(nbcomms, 0);
-  this->_current_node_cache_community_to = n + 1;   this->_cached_weight_to_community.resize(nbcomms, 0);
-  this->_current_node_cache_community_all = n + 1;  this->_cached_weight_all_community.resize(nbcomms, 0);
+  this->_cached_weight_all_community.resize(nbcomms, 0);
+  this->_current_node_cache_community_all = n + 1;
 
   #ifdef DEBUG
     if (this->_csize.size() < this->_n_communities ||
