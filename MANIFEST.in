@@ -9,6 +9,7 @@ include tests/*.py
 exclude .git*
 exclude .github/
 exclude *.yml
+exclude release*
 
 graft vendor/source/igraph
 prune vendor/source/igraph/etc/abstracts
