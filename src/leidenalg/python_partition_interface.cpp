@@ -164,9 +164,9 @@ extern "C"
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", (char**) kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes))
         return NULL;
 
@@ -244,9 +244,9 @@ extern "C"
     PyObject* py_initial_membership = NULL;
     PyObject* py_node_sizes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "node_sizes", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "node_sizes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", (char**) kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_node_sizes))
         return NULL;
 
@@ -324,9 +324,9 @@ extern "C"
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", (char**) kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes))
         return NULL;
 
@@ -405,9 +405,9 @@ extern "C"
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", (char**) kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
@@ -489,9 +489,9 @@ extern "C"
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", (char**) kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
@@ -570,9 +570,9 @@ extern "C"
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", (char**) kwlist,
                                      &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
         return NULL;
 
@@ -647,13 +647,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -710,14 +710,14 @@ extern "C"
     PyObject* py_membership = NULL;
     PyObject* py_coarse_node = NULL;
 
-    static char* kwlist[] = {"partition", "membership", "coarse_node", NULL};
+    static const char* kwlist[] = {"partition", "membership", "coarse_node", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
     // TODO : Instead of simply returning NULL, we should also set an error.
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", (char**) kwlist,
                                      &py_partition, &py_membership, &py_coarse_node))
         return NULL;
 
@@ -811,13 +811,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -847,13 +847,13 @@ extern "C"
     size_t v;
     size_t new_comm;
 
-    static char* kwlist[] = {"partition", "v", "new_comm", NULL};
+    static const char* kwlist[] = {"partition", "v", "new_comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", (char**) kwlist,
                                      &py_partition, &v, &new_comm))
         return NULL;
 
@@ -881,13 +881,13 @@ extern "C"
     size_t v;
     size_t new_comm;
 
-    static char* kwlist[] = {"partition", "v", "new_comm", NULL};
+    static const char* kwlist[] = {"partition", "v", "new_comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", (char**) kwlist,
                                      &py_partition, &v, &new_comm))
         return NULL;
 
@@ -926,13 +926,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -958,13 +958,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -998,13 +998,13 @@ extern "C"
     PyObject* py_partition = NULL;
     size_t comm;
 
-    static char* kwlist[] = {"partition", "comm", NULL};
+    static const char* kwlist[] = {"partition", "comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", (char**) kwlist,
                                      &py_partition, &comm))
         return NULL;
 
@@ -1037,13 +1037,13 @@ extern "C"
     PyObject* py_partition = NULL;
     size_t comm;
 
-    static char* kwlist[] = {"partition", "comm", NULL};
+    static const char* kwlist[] = {"partition", "comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", (char**) kwlist,
                                      &py_partition, &comm))
         return NULL;
 
@@ -1076,13 +1076,13 @@ extern "C"
     PyObject* py_partition = NULL;
     size_t comm;
 
-    static char* kwlist[] = {"partition", "comm", NULL};
+    static const char* kwlist[] = {"partition", "comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", (char**) kwlist,
                                      &py_partition, &comm))
         return NULL;
 
@@ -1114,13 +1114,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -1146,13 +1146,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
 
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -1180,13 +1180,13 @@ extern "C"
     size_t v;
     size_t comm;
 
-    static char* kwlist[] = {"partition", "v", "comm", NULL};
+    static const char* kwlist[] = {"partition", "v", "comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", (char**) kwlist,
                                      &py_partition, &v, &comm))
         return NULL;
 
@@ -1226,13 +1226,13 @@ extern "C"
     size_t v;
     size_t comm;
 
-    static char* kwlist[] = {"partition", "v", "comm", NULL};
+    static const char* kwlist[] = {"partition", "v", "comm", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Onn", (char**) kwlist,
                                      &py_partition, &v, &comm))
         return NULL;
 
@@ -1269,13 +1269,13 @@ extern "C"
   PyObject* _MutableVertexPartition_get_membership(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -1312,13 +1312,13 @@ extern "C"
     PyObject* py_partition = NULL;
     PyObject* py_membership = NULL;
 
-    static char* kwlist[] = {"partition", "membership", NULL};
+    static const char* kwlist[] = {"partition", "membership", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO", (char**) kwlist,
                                      &py_partition, &py_membership))
         return NULL;
 
@@ -1379,13 +1379,13 @@ extern "C"
   PyObject* _ResolutionParameterVertexPartition_get_resolution(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_partition = NULL;
-    static char* kwlist[] = {"partition", NULL};
+    static const char* kwlist[] = {"partition", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
                                      &py_partition))
         return NULL;
 
@@ -1408,13 +1408,13 @@ extern "C"
   {
     PyObject* py_partition = NULL;
     double resolution_parameter = 1.0;
-    static char* kwlist[] = {"partition", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"partition", "resolution_parameter", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Od", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Od", (char**) kwlist,
                                      &py_partition, &resolution_parameter))
         return NULL;
 
@@ -1442,13 +1442,13 @@ extern "C"
     PyObject* py_res = NULL;
     double resolution_parameter = 0.0;
 
-    static char* kwlist[] = {"partition", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"partition", "resolution_parameter", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|O", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|O", (char**) kwlist,
                                      &py_partition, &py_res))
         return NULL;
 
