@@ -92,7 +92,7 @@ vector<size_t> MutableVertexPartition::get_community(size_t comm)
 {
   vector<size_t> community;
   community.reserve(this->_cnodes[comm]);
-  for (int i = 0; i < this->graph->vcount(); i++)
+  for (size_t i = 0; i < this->graph->vcount(); i++)
     if (this->_membership[i] == comm)
       community.push_back(i);
   return community;
@@ -238,7 +238,7 @@ void MutableVertexPartition::init_admin()
 void MutableVertexPartition::update_n_communities()
 {
   this->_n_communities = 0;
-  for (int i = 0; i < this->graph->vcount(); i++)
+  for (size_t i = 0; i < this->graph->vcount(); i++)
     if (this->_membership[i] >= this->_n_communities)
       this->_n_communities = this->_membership[i] + 1;
 }
@@ -370,9 +370,9 @@ vector<size_t> MutableVertexPartition::rank_order_communities(vector<MutableVert
 {
   size_t nb_layers = partitions.size();
   size_t nb_comms = partitions[0]->n_communities();
-  size_t n = partitions[0]->graph->vcount();
 
   #ifdef DEBUG
+    size_t n = partitions[0]->graph->vcount();
     for (size_t layer; layer < nb_layers; layer++)
     {
       for (size_t v = 0; v < n; v++)

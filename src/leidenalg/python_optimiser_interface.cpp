@@ -124,8 +124,8 @@ extern "C"
                                      &py_layer_weights, &py_is_membership_fixed))
         return NULL;
 
-    size_t nb_partitions = PyList_Size(py_partitions);
-    if (nb_partitions != PyList_Size(py_layer_weights))
+    size_t nb_partitions = (size_t)PyList_Size(py_partitions);
+    if (nb_partitions != (size_t)PyList_Size(py_layer_weights))
     {
       PyErr_SetString(PyExc_ValueError, "Number of layer weights does not equal the number of partitions");
       return NULL;
