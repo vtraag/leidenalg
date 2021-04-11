@@ -751,7 +751,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
-    #endif DEBUG
+    #endif //DEBUG
   }
   return total_improv;
 }
@@ -978,7 +978,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
-    #endif DEBUG
+    #endif //DEBUG
   }
   return total_improv;
 }
@@ -1218,7 +1218,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
-    #endif DEBUG
+    #endif //DEBUG
   }
   return total_improv;
 }
@@ -1437,7 +1437,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
     partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
-    #endif DEBUG
+    #endif //DEBUG
   }
   return total_improv;
 }
