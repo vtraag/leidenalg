@@ -1,0 +1,196 @@
+name: Build and test, upload to PyPI on release
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  CIBW_TEST_REQUIRES: ddt
+  CIBW_TEST_COMMAND: "cd {project} && python -m unittest"
+  CIBW_SKIP: "cp27-* pp27-* cp35-*"
+
+jobs:
+  build_wheel_linux:
+    name: Build wheels on Linux (${{ matrix.wheel_arch }})
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        wheel_arch: [x86_64, i686]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Build wheels
+        uses: joerick/cibuildwheel@v1.10.0
+        env:
+          CIBW_BEFORE_BUILD: "yum install -y flex bison && pip install cmake && python setup.py build_c_core"
+          CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_wheel_macos:
+    name: Build wheels on macOS
+    runs-on: macos-10.15
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Cache installed C core
+        id: cache-c-core
+        uses: actions/cache@v2
+        with:
+          path: vendor/install
+          key: C-core-${{ runner.os }}-${{ hashFiles('.gitmodules') }}
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Install OS dependencies
+        if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
+        run:
+          brew install autoconf automake libtool cmake
+
+      - name: Build wheels
+        uses: joerick/cibuildwheel@v1.10.0
+        env:
+          CIBW_BEFORE_BUILD: "python setup.py build_c_core"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_wheel_win:
+    name: Build wheels on Windows (${{ matrix.cmake_arch }})
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        include:
+          - cmake_arch: Win32
+            wheel_arch: win32
+            vcpkg_arch: x86
+          - cmake_arch: x64
+            wheel_arch: win_amd64
+            vcpkg_arch: x64
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Cache installed C core
+        id: cache-c-core
+        uses: actions/cache@v2
+        with:
+          path: vendor/install
+          key: C-core-build-${{ runner.os }}-${{ matrix.cmake_arch }}-${{ hashFiles('.gitmodules') }}-
+
+      - name: Install build dependencies
+        if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
+        run: choco install winflexbison3 cmake
+
+      - name: Build wheels
+        uses: joerick/cibuildwheel@v1.10.0
+        env:
+          CIBW_BEFORE_BUILD: "python setup.py build_c_core"
+          CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
+          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_BUILD_TYPE=Release -A ${{ matrix.cmake_arch }}
+          CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Cache installed C core
+        id: cache-c-core
+        uses: actions/cache@v2
+        with:
+          path: |
+            vendor/build
+            vendor/install
+          key: C-core-${{ runner.os }}-${{ hashFiles('.gitmodules') }}-4
+
+      - name: Install OS dependencies
+        if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
+        run:
+          sudo apt install cmake flex bison
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: '3.8'
+
+      - name: Build sdist
+        run: |
+          pip install setuptools_scm
+          python setup.py build_c_core
+          python setup.py sdist
+          python setup.py install
+
+      - name: Test
+        run: |
+          pip install ddt
+          python -m unittest
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheel_linux, build_wheel_macos, build_wheel_win, build_sdist]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every push from the master branch
+    if: github.event_name == 'push' #&&
+        #github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      # Alway upload to Test PyPI
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+
+      # Only upload tagged versions to production PyPI
+      - name: Publish distribution 📦 to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

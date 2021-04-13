@@ -683,10 +683,10 @@ class Optimiser(object):
     # Helper function for cleaning values to be a stepwise function
     def clean_stepwise(bisect_values):
       # Check best partition for each resolution parameter
-      for res, bisect in bisect_values.iteritems():
+      for res, bisect in bisect_values.items():
         best_bisect = bisect
         best_quality = bisect.partition.quality(res)
-        for res2, bisect2 in bisect_values.iteritems():
+        for res2, bisect2 in bisect_values.items():
           if bisect2.partition.quality(res) > best_quality:
             best_bisect = bisect2
             best_quality = bisect2.partition.quality(res)
@@ -695,7 +695,7 @@ class Optimiser(object):
 
       # We only need to keep the changes in the bisection values
       bisect_list = sorted([(res, part.bisect_value) for res, part in
-        bisect_values.iteritems()], key=lambda x: x[0])
+        bisect_values.items()], key=lambda x: x[0])
       for (res1, v1), (res2, v2) \
           in zip(bisect_list,
                  bisect_list[1:]):
@@ -704,7 +704,7 @@ class Optimiser(object):
         if v1 == v2:
           del bisect_values[res2]
 
-      for res, bisect in bisect_values.iteritems():
+      for res, bisect in bisect_values.items():
         bisect.partition.resolution_parameter = res
 
     # We assume here that the bisection values are
@@ -712,13 +712,13 @@ class Optimiser(object):
     # parameter values.
     def ensure_monotonicity(bisect_values, new_res):
       # First check if this partition improves on any other partition
-      for res, bisect_part in bisect_values.iteritems():
+      for res, bisect_part in bisect_values.items():
         if bisect_values[new_res].partition.quality(res) > bisect_part.partition.quality(res):
           bisect_values[res] = bisect_values[new_res]
       # Then check what is best partition for the new_res
       current_quality = bisect_values[new_res].partition.quality(new_res)
       best_res = new_res
-      for res, bisect_part in bisect_values.iteritems():
+      for res, bisect_part in bisect_values.items():
         if bisect_part.partition.quality(new_res) > current_quality:
           best_res = new_res
       bisect_values[new_res] = bisect_values[best_res]
@@ -786,7 +786,7 @@ class Optimiser(object):
         stack_res_range.append((new_res, current_range[1]))
         # If we haven't scanned this resolution value yet,
         # do so now
-        if not bisect_values.has_key(new_res):
+        if not new_res in bisect_values:
           partition = find_partition(self, graph, partition_type=partition_type,
               weights=weights, resolution_parameter=new_res, **kwargs)
           bisect_values[new_res] = BisectPartition(partition=partition,
@@ -809,4 +809,4 @@ class Optimiser(object):
     # Use an ordered dict so that when iterating over it, the results appear in
     # increasing order based on the resolution value.
     return sorted((bisect.partition for res, bisect in
-      bisect_values.iteritems()), key=lambda x: x.resolution_parameter)
+      bisect_values.items()), key=lambda x: x.resolution_parameter)
