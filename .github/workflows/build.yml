@@ -14,7 +14,7 @@ env:
   CIBW_SKIP: "cp27-* pp27-* cp35-*"
 
 jobs:
-  build_wheels:
+  build_wheel_linux:
     name: Build wheels on Linux (${{ matrix.wheel_arch }})
     runs-on: ubuntu-20.04
     strategy:
@@ -126,7 +126,7 @@ jobs:
           path: ./wheelhouse/*.whl
 
   build_sdist:
-    name: Build sdist and test extra dependencies
+    name: Build sdist
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -168,3 +168,29 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: dist/*.tar.gz
+
+  upload_pypi:
+    needs: [build_wheel_linux, build_wheel_macos, build_wheel_win, build_sdist]
+    runs-on: ubuntu-latest
+    # upload to PyPI on every push from the master branch
+    if: github.event_name == 'push' #&&
+        #github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: dist
+
+      # Alway upload to Test PyPI
+      - name: Publish distribution 📦 to Test PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+
+      # Only upload tagged versions to production PyPI
+      - name: Publish distribution 📦 to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
