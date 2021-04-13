@@ -174,23 +174,16 @@ jobs:
     runs-on: ubuntu-latest
     # upload to PyPI on every push from the master branch
     if: github.event_name == 'push' &&
-        github.ref == 'refs/heads/master'
+        github.ref == 'refs/heads/master' &&
+        startsWith(github.ref, 'refs/tags')
     steps:
       - uses: actions/download-artifact@v2
         with:
           name: artifact
           path: dist
 
-      # Alway upload to Test PyPI
-      - name: Publish distribution 📦 to Test PyPI
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
-
-      # Only upload tagged versions to production PyPI
+      # Upload tagged versions to production PyPI
       - name: Publish distribution 📦 to PyPI
-        if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
