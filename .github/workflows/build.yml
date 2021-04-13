@@ -173,8 +173,8 @@ jobs:
     needs: [build_wheel_linux, build_wheel_macos, build_wheel_win, build_sdist]
     runs-on: ubuntu-latest
     # upload to PyPI on every push from the master branch
-    if: github.event_name == 'push' #&&
-        #github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' &&
+        github.ref == 'refs/heads/master'
     steps:
       - uses: actions/download-artifact@v2
         with:
