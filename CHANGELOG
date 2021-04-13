@@ -1,3 +1,8 @@
+0.8.4
+- Update C core to 0.9.1
+- Fixed caching problem (issue #62)
+- Fixed missing node_sizes for modularity (issue #60)
+
 0.8.3
 - Fixed missing parameter in find_partition_multiplex by @TomKellyGenetics (PR #50)
 
