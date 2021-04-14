@@ -871,6 +871,66 @@ extern "C"
     return PyBool_FromLong(optimiser->refine_partition);
   }
 
+  PyObject* _Optimiser_set_min_comm_size(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    size_t min_comm_size = 0;
+    static const char* kwlist[] = {"optimiser", "min_comm_size", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", (char**) kwlist,
+                                     &py_optimiser, &min_comm_size))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_min_comm_size(" << min_comm_size << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->min_comm_size = min_comm_size;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_get_min_comm_size(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static const char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_min_comm_size();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyLong_FromSize_t(optimiser->min_comm_size);
+  }
+
   PyObject* _Optimiser_set_max_comm_size(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
@@ -929,6 +989,67 @@ extern "C"
     #endif
 
     return PyLong_FromSize_t(optimiser->max_comm_size);
+  }
+
+
+  PyObject* _Optimiser_set_community_constraint_enforcement(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    double community_constraint_enforcement = 0;
+    static const char* kwlist[] = {"optimiser", "community_constraint_enforcement", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Od", (char**) kwlist,
+                                     &py_optimiser, &community_constraint_enforcement))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "set_community_constraint_enforcement(" << community_constraint_enforcement << ");" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    optimiser->community_constraint_enforcement = community_constraint_enforcement;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+
+  PyObject* _Optimiser_get_community_constraint_enforcement(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_optimiser = NULL;
+    static const char* kwlist[] = {"optimiser", NULL};
+
+    #ifdef DEBUG
+      cerr << "Parsing arguments..." << endl;
+    #endif
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O", (char**) kwlist,
+                                     &py_optimiser))
+        return NULL;
+
+    #ifdef DEBUG
+      cerr << "get_max_comm_size();" << endl;
+    #endif
+
+    #ifdef DEBUG
+      cerr << "Capsule optimiser at address " << py_optimiser << endl;
+    #endif
+    Optimiser* optimiser = decapsule_Optimiser(py_optimiser);
+    #ifdef DEBUG
+      cerr << "Using optimiser at address " << optimiser << endl;
+    #endif
+
+    return PyFloat_FromDouble(optimiser->max_comm_size);
   }
 
   PyObject* _Optimiser_set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds)

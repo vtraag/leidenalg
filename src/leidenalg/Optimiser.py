@@ -220,6 +220,24 @@ class Optimiser(object):
   #########################################################3
   # max_comm_size
   @property
+  def min_comm_size(self):
+    """ Constrain the maximal community size.
+
+    By default (zero), communities can be of any size. If this is set to a
+    positive integer value, then communities will be constrained to be at least
+    this total size.
+    """
+    return _c_leiden._Optimiser_get_min_comm_size(self._optimiser)
+
+  @min_comm_size.setter
+  def min_comm_size(self, value):
+    if value < 0:
+        raise ValueError("negative min_comm_size: %s" % value)
+    _c_leiden._Optimiser_set_min_comm_size(self._optimiser, value)
+
+  #########################################################3
+  # max_comm_size
+  @property
   def max_comm_size(self):
     """ Constrain the maximal community size.
 
@@ -234,6 +252,24 @@ class Optimiser(object):
     if value < 0:
         raise ValueError("negative max_comm_size: %s" % value)
     _c_leiden._Optimiser_set_max_comm_size(self._optimiser, value)
+
+  #########################################################3
+  # community_constraint_enforcement
+  @property
+  def community_constraint_enforcement(self):
+    """ Constrain the maximal community size.
+
+    By default (zero), communities constraints are not enforced. If this is set
+    to a positive value, then community sizes will be constrained. The higher
+    this enforcement is set, the stricter the community sizes will be constrained.
+    """
+    return _c_leiden._Optimiser_get_community_constraint_enforcement(self._optimiser)
+
+  @community_constraint_enforcement.setter
+  def community_constraint_enforcement(self, value):
+    if value < 0:
+        raise ValueError("negative community_constraint_enforcement: %s" % value)
+    _c_leiden._Optimiser_set_community_constraint_enforcement(self._optimiser, value)
 
   ##########################################################
   # Set rng seed
