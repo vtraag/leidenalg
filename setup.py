@@ -35,13 +35,6 @@ from time import sleep
 
 ###########################################################################
 
-LIBIGRAPH_FALLBACK_INCLUDE_DIRS = ["/usr/include/igraph", "/usr/local/include/igraph"]
-LIBIGRAPH_FALLBACK_LIBRARIES = ["igraph"]
-LIBIGRAPH_FALLBACK_LIBRARY_DIRS = []
-
-###########################################################################
-
-
 is_windows = platform.system() == "windows"
 
 
@@ -300,6 +293,7 @@ class BuildConfiguration(object):
         self.define_macros = []
         self.extra_objects = []
         self.static_extension = False
+        self.external = False
         self.use_pkgconfig = False
         self._has_pkgconfig = None
         self.excluded_include_dirs = []
@@ -369,13 +363,16 @@ class BuildConfiguration(object):
                 # Check whether the user asked us to discover a pre-built igraph
                 # with pkg-config
                 detected = False
-                if buildcfg.use_pkgconfig:
-                    detected = buildcfg.detect_from_pkgconfig()
-                    if not detected:
-                        print(
-                            "Cannot find the C core of igraph on this system using pkg-config."
-                        )
-                        sys.exit(1)
+                if buildcfg.external:
+                    if buildcfg.use_pkgconfig:
+                        detected = buildcfg.detect_from_pkgconfig()
+                        if not detected:
+                            print(
+                                "Cannot find the C core of igraph on this system using pkg-config."
+                            )
+                            sys.exit(1)
+                    else:
+                        buildcfg.use_educated_guess()
                 else:
                     # Build the C core from the vendored igraph source
                     self.run_command("build_c_core")
@@ -383,6 +380,14 @@ class BuildConfiguration(object):
                         # Fall back to an educated guess if everything else failed
                         if not detected:
                             buildcfg.use_educated_guess()
+
+                # Add any extra include paths if needed; this is needed for the
+                # Appveyor CI build
+                if "IGRAPH_EXTRA_INCLUDE_PATH" in os.environ:
+                    buildcfg.include_dirs = (
+                        list(os.environ["IGRAPH_EXTRA_INCLUDE_PATH"].split(os.pathsep))
+                        + buildcfg.include_dirs
+                    )
 
                 # Add any extra library paths if needed; this is needed for the
                 # Appveyor CI build
@@ -649,6 +654,9 @@ class BuildConfiguration(object):
             elif option == "--no-wait":
                 opts_to_remove.append(idx)
                 self.wait = False
+            elif option == "--external":
+                opts_to_remove.append(idx)
+                self.external = True
             elif option == "--use-pkg-config":
                 opts_to_remove.append(idx)
                 self.use_pkgconfig = True
@@ -709,34 +717,25 @@ class BuildConfiguration(object):
             buildcfg.libraries = eval(buildcfg_file.open("r").read())
 
     def use_educated_guess(self):
-        """Tries to guess the proper library names, include and library paths
-        if everything else failed."""
+        """Tries to guess the proper library names, include and library paths."""
 
-        global LIBIGRAPH_FALLBACK_LIBRARIES
-        global LIBIGRAPH_FALLBACK_INCLUDE_DIRS
-        global LIBIGRAPH_FALLBACK_LIBRARY_DIRS
+        print("""WARNING: You are trying to install with an external igraph library.
+No include dirs or library dirs are specified, so they need to be set externally.
+If compilation fails you may adjust the following environment variables to adjust
+the required paths.
+- IGRAPH_EXTRA_INCLUDE_PATH
+- IGRAPH_EXTRA_LIBRARY_PATH
+- IGRAPH_EXTRA_LIBRARIES
+- IGRAPH_EXTRA_DYNAMIC_LIBRARIES
 
-        print("WARNING: we were not able to detect where igraph is installed on")
-        print("your machine (if it is installed at all). We will use the fallback")
-        print("library and include paths hardcoded in setup.py and hope that the")
-        print("C core of igraph is installed there.")
-        print("")
-        print("If the compilation fails and you are sure that igraph is installed")
-        print("on your machine, adjust the following two variables in setup.py")
-        print("accordingly and try again:")
-        print("")
-        print("- LIBIGRAPH_FALLBACK_INCLUDE_DIRS")
-        print("- LIBIGRAPH_FALLBACK_LIBRARY_DIRS")
-        print("")
+If a static build extension is used, we try to statically link to igraph. The extra
+libraries that are specified are then also assumed to be statically linked. If, in
+addition, some libraries need to be explicitly dynamically linked, you can specify this.
+        """)
 
-        if self.wait:
-            wait_for_keypress(seconds=10)
-
-        self.libraries = LIBIGRAPH_FALLBACK_LIBRARIES[:]
-        if self.static_extension:
-            self.libraries.extend(["xml2", "z", "m", "stdc++"])
-        self.include_dirs = LIBIGRAPH_FALLBACK_INCLUDE_DIRS[:]
-        self.library_dirs = LIBIGRAPH_FALLBACK_LIBRARY_DIRS[:]
+        self.libraries = ['igraph']
+        self.include_dirs = []
+        self.library_dirs = []
 
 
 ###########################################################################
