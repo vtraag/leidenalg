@@ -55,13 +55,10 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_node_sizes, v);
-      #ifdef IS_PY3K
-      if (PyLong_Check(py_item))
-      #else
-      if (PyInt_Check(py_item) || PyLong_Check(py_item))
-      #endif
+      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
       {
-        node_sizes[v] = PyLong_AsLong(py_item);
+        size_t e = PyLong_AsSize_t(PyNumber_Long(py_item));
+        node_sizes[v] = e;
       }
       else
       {
@@ -135,6 +132,27 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
   return graph;
 }
 
+vector<size_t> create_size_t_vector(PyObject* py_list)
+{
+    size_t n = PyList_Size(py_list);
+    vector<size_t> result(n);
+    for (size_t i = 0; i < n; i++)
+    {
+      PyObject* py_item = PyList_GetItem(py_list, i);
+      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
+      {
+        size_t e = PyLong_AsSize_t(PyNumber_Long(py_item));
+        if (e >= n)
+          throw Exception("Value cannot exceed length of list.");
+        else
+          result[i] = e;
+      }
+      else
+        throw Exception("Value cannot exceed length of list.");
+    }
+    return result;
+}
+
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition)
 {
   PyObject* py_partition = PyCapsule_New(partition, "leidenalg.VertexPartition.MutableVertexPartition", del_MutableVertexPartition);
@@ -180,34 +198,7 @@ extern "C"
       // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
-
-        vector<size_t> initial_membership;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-          {
-            size_t m = PyLong_AsSize_t(py_item);
-            if (m >= n)
-            {
-              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-              return NULL;
-            }
-            else
-              initial_membership[v] = m;
-          }
-          else
-          {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-        }
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
 
         partition = new ModularityVertexPartition(graph, initial_membership);
       }
@@ -255,34 +246,7 @@ extern "C"
       // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
-
-        vector<size_t> initial_membership;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-          {
-            size_t m = PyLong_AsSize_t(py_item);
-            if (m >= n)
-            {
-              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-              return NULL;
-            }
-            else
-              initial_membership[v] = m;
-          }
-          else
-          {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-        }
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
 
         partition = new SignificanceVertexPartition(graph, initial_membership);
       }
@@ -330,34 +294,7 @@ extern "C"
       // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
-
-        vector<size_t> initial_membership;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-          {
-            size_t m = PyLong_AsSize_t(py_item);
-            if (m >= n)
-            {
-              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-              return NULL;
-            }
-            else
-              initial_membership[v] = m;
-          }
-          else
-          {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-        }
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
 
         partition = new SurpriseVertexPartition(graph, initial_membership);
       }
@@ -406,37 +343,7 @@ extern "C"
       // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
-
-        vector<size_t> initial_membership;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        #ifdef DEBUG
-          cerr << "Size " << n << endl;
-        #endif
-        initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-          {
-            size_t m = PyLong_AsSize_t(py_item);
-            if (m >= n)
-            {
-              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-              return NULL;
-            }
-            else
-              initial_membership[v] = m;
-          }
-          else
-          {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-        }
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
 
         partition = new CPMVertexPartition(graph, initial_membership, resolution_parameter);
       }
@@ -485,34 +392,7 @@ extern "C"
       // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
-
-        vector<size_t> initial_membership;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-          {
-            size_t m = PyLong_AsSize_t(py_item);
-            if (m >= n)
-            {
-              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-              return NULL;
-            }
-            else
-              initial_membership[v] = m;
-          }
-          else
-          {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-        }
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
 
         partition = new RBERVertexPartition(graph, initial_membership, resolution_parameter);
       }
@@ -561,34 +441,7 @@ extern "C"
       // If necessary create an initial partition
       if (py_initial_membership != NULL && py_initial_membership != Py_None)
       {
-
-        vector<size_t> initial_membership;
-
-        #ifdef DEBUG
-          cerr << "Reading initial membership." << endl;
-        #endif
-        size_t n = PyList_Size(py_initial_membership);
-        initial_membership.resize(n);
-        for (size_t v = 0; v < n; v++)
-        {
-          PyObject* py_item = PyList_GetItem(py_initial_membership, v);
-          if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-          {
-            size_t m = PyLong_AsSize_t(py_item);
-            if (m >= n)
-            {
-              PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-              return NULL;
-            }
-            else
-              initial_membership[v] = m;
-          }
-          else
-          {
-            PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-            return NULL;
-          }
-        }
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
 
         partition = new RBConfigurationVertexPartition(graph, initial_membership, resolution_parameter);
       }
@@ -695,29 +548,18 @@ extern "C"
       cerr << "from_coarse_partition();" << endl;
     #endif
 
-    size_t n = PyList_Size(py_membership);
     vector<size_t> membership;
-    membership.resize(n);
-    for (size_t v = 0; v < n; v++)
+    try
     {
-      PyObject* py_item = PyList_GetItem(py_membership, v);
-      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-      {
-        size_t m = PyLong_AsSize_t(py_item);
-        if (m >= n)
-        {
-          PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-          return NULL;
-        }
-        else
-          membership[v] = m;
-      }
-      else
-      {
-        PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-        return NULL;
-      }
+      membership = create_size_t_vector(py_membership);
     }
+    catch (std::exception& e )
+    {
+      string s = "Could not create membership vector: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
+      return NULL;
+    }
+
 
     #ifdef DEBUG
       cerr << "Capsule partition at address " << py_partition << endl;
@@ -731,33 +573,18 @@ extern "C"
 
     if (py_coarse_node != NULL && py_coarse_node != Py_None)
     {
-      cerr << "Get coarse node list" << endl;
-      size_t n = PyList_Size(py_coarse_node);
       vector<size_t> coarse_node;
-      coarse_node.resize(n);
-      for (size_t v = 0; v < n; v++)
+      try
       {
-        PyObject* py_item = PyList_GetItem(py_coarse_node, v);
-
-        if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-        {
-          size_t m = PyLong_AsSize_t(py_item);
-          if (m >= n)
-          {
-            PyErr_SetString(PyExc_TypeError, "Coarse node cannot exceed number of nodes.");
-            return NULL;
-          }
-          else
-            coarse_node[v] = m;
-        }
-        else
-        {
-          PyErr_SetString(PyExc_TypeError, "Expected integer value for coarse vector.");
-          return NULL;
-        }
+        coarse_node = create_size_t_vector(py_coarse_node);
+      }
+      catch (std::exception& e )
+      {
+        string s = "Could not create coarse node vector: " + string(e.what());
+        PyErr_SetString(PyExc_BaseException, s.c_str());
+        return NULL;
       }
 
-    cerr << "Got coarse node list" << endl;
       partition->from_coarse_partition(membership, coarse_node);
     }
     else
@@ -1296,32 +1123,16 @@ extern "C"
       cerr << "Using partition at address " << partition << endl;
     #endif
 
-    size_t n = PyList_Size(py_membership);
-    vector<size_t> membership;
-    membership.resize(n);
-    for (size_t v = 0; v < n; v++)
+    try
     {
-      PyObject* py_item = PyList_GetItem(py_membership, v);
-
-      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
-      {
-          size_t m = PyLong_AsSize_t(py_item);
-          if (m >= n)
-          {
-            PyErr_SetString(PyExc_TypeError, "Membership cannot exceed number of nodes.");
-            return NULL;
-          }
-          else
-            membership[v] = m;
-      }
-      else
-      {
-        PyErr_SetString(PyExc_TypeError, "Expected integer value for membership vector.");
-        return NULL;
-      }
+      partition->set_membership(create_size_t_vector(py_membership));
     }
-
-    partition->set_membership(membership);
+    catch (std::exception& e )
+    {
+      string s = "Could not set membership: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
+      return NULL;
+    }
 
     #ifdef DEBUG
       cerr << "Exiting set_membership();" << endl;
