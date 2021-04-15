@@ -18,13 +18,14 @@ assignments remain fixed [10]_. It also provides some support for community
 detection on bipartite graphs. See the `documentation
 <http://leidenalg.readthedocs.io/en/latest/>`_ for more information.
 
+
 .. image:: https://readthedocs.org/projects/leidenalg/badge
                 :target: http://leidenalg.readthedocs.io/en/latest/
                 :alt: Leiden documentation status
 
-.. image:: https://ci.appveyor.com/api/projects/status/26au75vj8iwq32qp?svg=true
-                :target: https://ci.appveyor.com/project/vtraag/leidenalg
-                :alt: Leiden build status (AppVeyor)
+.. image:: https://github.com/vtraag/leidenalg/actions/workflows/build.yml/badge.svg?branch=master
+                :target: https://github.com/vtraag/leidenalg/actions/workflows/build.yml
+                :alt: Leiden build status (GitHub Actions)
 
 .. image:: https://zenodo.org/badge/146722095.svg
                 :target: https://zenodo.org/badge/latestdoi/146722095
