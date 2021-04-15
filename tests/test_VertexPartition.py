@@ -6,8 +6,6 @@ from copy import deepcopy
 
 from ddt import ddt, data, unpack
 
-import sys
-PY3 = (sys.version > '3')
 #%%
 
 def name_object(obj, name):

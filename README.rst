@@ -38,7 +38,7 @@ Installation
 ------------
 
 In short: ``pip install leidenalg``. All major platforms are supported on
-Python>=3.5, earlier versions of Python are no longer supported. Alternatively,
+Python>=3.6, earlier versions of Python are no longer supported. Alternatively,
 you can install from Anaconda (channel ``conda-forge``).
 
 For Unix like systems it is possible to install from source. For Windows this is

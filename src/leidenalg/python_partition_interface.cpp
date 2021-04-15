@@ -1,9 +1,5 @@
 #include "python_partition_interface.h"
 
-#if PY_MAJOR_VERSION >= 3
-#define IS_PY3K
-#endif
-
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes)
 {
   return create_graph_from_py(py_obj_graph, py_node_sizes, NULL, true);
@@ -20,11 +16,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     cerr << "create_graph_from_py" << endl;
   #endif
 
-  #ifdef IS_PY3K
-    igraph_t* py_graph = (igraph_t*) PyCapsule_GetPointer(py_obj_graph, NULL);
-  #else
-    igraph_t* py_graph = (igraph_t*) PyCObject_AsVoidPtr(py_obj_graph);
-  #endif
+  igraph_t* py_graph = (igraph_t*) PyCapsule_GetPointer(py_obj_graph, NULL);
   #ifdef DEBUG
     cerr << "Got igraph_t " << py_graph << endl;
   #endif
@@ -516,11 +508,7 @@ extern "C"
     PyObject* node_sizes = PyList_New(n);
     for (size_t v = 0; v < n; v++)
     {
-      #ifdef IS_PY3K
-        PyObject* item = PyLong_FromSize_t(graph->node_size(v));
-      #else
-        PyObject* item = PyInt_FromSize_t(graph->node_size(v));
-      #endif
+      PyObject* item = PyLong_FromSize_t(graph->node_size(v));
       PyList_SetItem(node_sizes, v, item);
     }
 
@@ -1084,11 +1072,7 @@ extern "C"
     PyObject* py_membership = PyList_New(n);
     for (size_t v = 0; v < n; v++)
     {
-      #ifdef IS_PY3K
-        PyObject* item = PyLong_FromSize_t(partition->membership(v));
-      #else
-        PyObject* item = PyInt_FromSize_t(partition->membership(v));
-      #endif
+      PyObject* item = PyLong_FromSize_t(partition->membership(v));
       PyList_SetItem(py_membership, v, item);
     }
     return py_membership;

@@ -1,10 +1,6 @@
 #ifndef PYNTERFACE_OPTIMISER_H_INCLUDED
 #define PYNTERFACE_OPTIMISER_H_INCLUDED
 
-#if PY_MAJOR_VERSION >= 3
-#define IS_PY3K
-#endif
-
 #include <Python.h>
 #include <igraph.h>
 #include "GraphHelper.h"

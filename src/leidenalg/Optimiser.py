@@ -2,10 +2,6 @@ from . import _c_leiden
 from .VertexPartition import LinearResolutionParameterVertexPartition
 from collections import namedtuple
 from math import log, sqrt
-import sys
-
-# Check if working with Python 3
-PY3 = (sys.version > '3')
 
 class Optimiser(object):
   """ Class for doing community detection using the Leiden algorithm.

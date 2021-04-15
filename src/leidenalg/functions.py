@@ -11,14 +11,9 @@ from ._c_leiden import MERGE_NODES
 
 from collections import Counter
 
-# Check if working with Python 3
-PY3 = (sys.version > '3')
 
 def _get_py_capsule(graph):
-  if PY3:
-    return graph.__graph_as_capsule()
-  else:
-    return graph.__graph_as_cobject()
+  return graph.__graph_as_capsule()
 
 from .VertexPartition import *
 from .Optimiser import *
