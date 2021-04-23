@@ -361,15 +361,15 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // where r is the number of communities. The exception is fixed
   // nodes which should keep the numbers of the original communities
   q = 0.0;
-  partitions[0]->renumber_communities();
-  partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
-  vector<size_t> const& membership = partitions[0]->membership();
+  //partitions[0]->renumber_communities();
+  //partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  //vector<size_t> const& membership = partitions[0]->membership();
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    partitions[layer]->set_membership(membership);
+    //partitions[layer]->set_membership(membership);
     q += partitions[layer]->quality()*layer_weights[layer];
   }
   return improv;
@@ -742,13 +742,13 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
   }
 
-  partitions[0]->renumber_communities();
-  if (renumber_fixed_nodes)
-    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
-  vector<size_t> const& membership = partitions[0]->membership();
+  //partitions[0]->renumber_communities();
+  //if (renumber_fixed_nodes)
+  //    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  //vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    partitions[layer]->set_membership(membership);
+    //partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
@@ -969,13 +969,13 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       }
   }
 
-  partitions[0]->renumber_communities();
-  if (renumber_fixed_nodes)
-    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
-  vector<size_t> const& membership = partitions[0]->membership();
+  //partitions[0]->renumber_communities();
+  //if (renumber_fixed_nodes)
+//    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  //vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    partitions[layer]->set_membership(membership);
+    //partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
@@ -1211,11 +1211,11 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       cerr << "Moved " << nb_moves << " nodes." << endl;
     #endif
   }
-  partitions[0]->renumber_communities();
-  vector<size_t> const& membership = partitions[0]->membership();
+  //partitions[0]->renumber_communities();
+  //vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    partitions[layer]->set_membership(membership);
+    //partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
@@ -1430,11 +1430,11 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
       }
   }
 
-  partitions[0]->renumber_communities();
-  vector<size_t> const& membership = partitions[0]->membership();
+  //partitions[0]->renumber_communities();
+  //vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    partitions[layer]->set_membership(membership);
+    //partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
