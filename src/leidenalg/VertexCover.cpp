@@ -1,0 +1,3 @@
+#include "VertexCover.h"
+
+VertexCover*
