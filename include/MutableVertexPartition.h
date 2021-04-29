@@ -61,6 +61,7 @@ class MutableVertexPartition
     vector<size_t> get_community(size_t comm);
     vector< vector<size_t> > get_communities();
     size_t n_communities();
+    size_t n_non_empty_communities();
 
     void move_node(size_t v,size_t new_comm);
     virtual double diff_move(size_t v, size_t new_comm)
@@ -164,6 +165,7 @@ class MutableVertexPartition
     double _total_weight_in_all_comms;
     size_t _total_possible_edges_in_all_comms;
     size_t _n_communities;
+    size_t _n_non_empty_communities;
 
     vector<size_t> _empty_communities;
 

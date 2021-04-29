@@ -119,6 +119,11 @@ size_t MutableVertexPartition::n_communities()
   return this->_n_communities;
 }
 
+size_t MutableVertexPartition::n_non_empty_communities()
+{
+  return this->_n_non_empty_communities;
+}
+
 /****************************************************************************
   Initialise all the administration based on the membership vector.
 *****************************************************************************/
@@ -156,6 +161,7 @@ void MutableVertexPartition::init_admin()
   }
 
   this->_empty_communities.clear();
+  this->_n_non_empty_communities = this->_n_communities;
 
   this->_total_weight_in_all_comms = 0.0;
   for (size_t v = 0; v < n; v++)
@@ -226,7 +232,10 @@ void MutableVertexPartition::init_admin()
     // is for example not consecutive. We add those communities to the empty
     // communities vector for consistency.
     if (this->_cnodes[c] == 0)
-      this->_empty_communities.push_back(c);
+    {
+        this->_empty_communities.push_back(c);
+        this->_n_non_empty_communities--;
+    }
   }
 
   #ifdef DEBUG
@@ -241,6 +250,8 @@ void MutableVertexPartition::update_n_communities()
   for (size_t i = 0; i < this->graph->vcount(); i++)
     if (this->_membership[i] >= this->_n_communities)
       this->_n_communities = this->_membership[i] + 1;
+
+  this->_n_non_empty_communities = this->_n_communities;
 }
 
 /****************************************************************************
@@ -304,9 +315,11 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
   this->_cnodes = new_cnodes;
 
   this->_empty_communities.clear();
+  this->_n_non_empty_communities = this->_n_communities;
   for (size_t c = 0; c < nbcomms; c++) {
     if (this->_csize[c] == 0) {
       this->_empty_communities.push_back(c);
+      this->_n_non_empty_communities--;
     }
   }
 
@@ -594,6 +607,7 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
       cerr << "Adding community " << old_comm << " to empty communities." << endl;
     #endif
     this->_empty_communities.push_back(old_comm);
+    this->_n_non_empty_communities--;
     #ifdef DEBUG
       cerr << "Added community " << old_comm << " to empty communities." << endl;
     #endif
@@ -618,7 +632,10 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
         cerr << "ERROR: empty community does not exist." << endl;
     #endif
     if (it_comm != this->_empty_communities.rend())
-      this->_empty_communities.erase( (++it_comm).base() );
+    {
+        this->_empty_communities.erase((++it_comm).base());
+        this->_n_non_empty_communities++;
+    }
   }
 
   #ifdef DEBUG

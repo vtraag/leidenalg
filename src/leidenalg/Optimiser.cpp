@@ -205,7 +205,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       // the partition are strictly partitioned in the subpartition.
 
       #ifdef DEBUG
-        cerr << "\tBefore SLM " << collapsed_partitions[0]->n_communities() << " communities." << endl;
+        cerr << "\tBefore refinement " << collapsed_partitions[0]->n_communities() << " communities." << endl;
       #endif
       for (size_t layer = 0; layer < nb_layers; layer++)
       {
@@ -299,7 +299,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     }
     // else, check whether anything has stirred since last time
     aggregate_further &= (new_collapsed_graphs[0]->vcount() < collapsed_graphs[0]->vcount()) &&
-                         (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->n_communities());
+                         (collapsed_graphs[0]->vcount() > collapsed_partitions[0]->n_non_empty_communities());
 
     #ifdef DEBUG
       cerr << "Aggregate further " << aggregate_further << endl;
@@ -1211,11 +1211,11 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       cerr << "Moved " << nb_moves << " nodes." << endl;
     #endif
   }
-  //partitions[0]->renumber_communities();
-  //vector<size_t> const& membership = partitions[0]->membership();
+  partitions[0]->renumber_communities();
+  vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    //partitions[layer]->set_membership(membership);
+    partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
@@ -1430,11 +1430,11 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
       }
   }
 
-  //partitions[0]->renumber_communities();
-  //vector<size_t> const& membership = partitions[0]->membership();
+  partitions[0]->renumber_communities();
+  vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    //partitions[layer]->set_membership(membership);
+    partitions[layer]->set_membership(membership);
     #ifdef DEBUG
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
