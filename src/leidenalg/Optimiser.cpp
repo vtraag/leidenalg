@@ -31,7 +31,7 @@ Optimiser::Optimiser()
   this->max_comm_size = 0;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
-  igraph_rng_seed(&rng, rand());
+  igraph_rng_seed(&rng, time(NULL));
 }
 
 Optimiser::~Optimiser()
