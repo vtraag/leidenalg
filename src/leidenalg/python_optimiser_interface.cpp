@@ -404,11 +404,11 @@ extern "C"
     #endif
 
     #ifdef DEBUG
-      cerr << "Capsule constrained partition at address " << py_partition << endl;
+      cerr << "Capsule constrained partition at address " << py_constrained_partition << endl;
     #endif
     MutableVertexPartition* constrained_partition = decapsule_MutableVertexPartition(py_constrained_partition);
     #ifdef DEBUG
-      cerr << "Using constrained partition at address " << partition << endl;
+      cerr << "Using constrained partition at address " << constrained_partition << endl;
     #endif
 
     if (consider_comms < 0)
