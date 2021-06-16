@@ -8,6 +8,7 @@ on:
     branches:
       - master
 
+
 env:
   CIBW_TEST_REQUIRES: ddt
   CIBW_TEST_COMMAND: "cd {project} && python -m unittest"
