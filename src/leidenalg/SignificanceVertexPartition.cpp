@@ -29,6 +29,7 @@ SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, v
 SignificanceVertexPartition::~SignificanceVertexPartition()
 { }
 
+#define DEBUG
 double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 {
   #ifdef DEBUG
@@ -110,8 +111,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 
     // Calculate actual diff
 
-    diff =   ((double)N_oldx*KLL(q_oldx, p) - (double)N_new *KLL(q_new,  p))
-           + ((double)N_newx*KLL(q_newx, p) - (double)N_old *KLL(q_old,  p)) ;
+    diff =   ((double)N_oldx*KLL(q_oldx, p) - (double)N_new*KLL(q_new,  p))
+           + ((double)N_newx*KLL(q_newx, p) - (double)N_old*KLL(q_old,  p));
     #ifdef DEBUG
       cerr << "\t" << "diff: " << diff << "." << endl;
     #endif
@@ -122,6 +123,7 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
   #endif
   return diff;
 }
+#undef DEBUG
 
 /********************************************************************************
    Calculate the significance of the partition.
