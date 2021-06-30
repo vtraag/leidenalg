@@ -373,7 +373,7 @@ vector<size_t> MutableVertexPartition::rank_order_communities(vector<MutableVert
 
   #ifdef DEBUG
     size_t n = partitions[0]->graph->vcount();
-    for (size_t layer; layer < nb_layers; layer++)
+    for (size_t layer = 0; layer < nb_layers; layer++)
     {
       for (size_t v = 0; v < n; v++)
       {
