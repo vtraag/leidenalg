@@ -11,7 +11,7 @@ on:
 
 env:
   CIBW_TEST_REQUIRES: ddt
-  CIBW_TEST_COMMAND: "cd {project} && python -m unittest"
+  CIBW_TEST_COMMAND: "cd {project} && python -m unittest -v"
   CIBW_SKIP: "cp27-* pp27-* cp35-*"
 
 jobs:
@@ -120,7 +120,7 @@ jobs:
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
           IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_BUILD_TYPE=Release -A ${{ matrix.cmake_arch }}
-          CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest"
+          CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
 
       - uses: actions/upload-artifact@v2
         with:
@@ -164,7 +164,7 @@ jobs:
       - name: Test
         run: |
           pip install ddt
-          python -m unittest
+          python -m unittest -v
 
       - uses: actions/upload-artifact@v2
         with:
