@@ -92,9 +92,9 @@ package to R. These typically do not offer all available functionality or have
 some other limitations, but nonetheless may be very useful. The available ports
 are:
 
-https://github.com/cole-trapnell-lab/leidenbase
-https://github.com/TomKellyGenetics/leiden
-https://github.com/kharchenkolab/leidenAlg
+- https://github.com/cole-trapnell-lab/leidenbase
+- https://github.com/TomKellyGenetics/leiden
+- https://github.com/kharchenkolab/leidenAlg
 
 Please refer to the documentation for more details
 on function calls and parameters.
