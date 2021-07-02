@@ -1,3 +1,6 @@
+Next release
+- Corrected iterating over nodes (PR #70).
+
 0.8.4
 - Update C core to 0.9.1
 - Fixed caching problem (issue #62)
