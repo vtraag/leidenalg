@@ -1,3 +1,6 @@
+0.8.6
+- Removed accidentally left DEBUG statement
+
 0.8.5
 - Corrected iterating over nodes (PR #70).
 - Fixed segfault with move_nodes_constrained (issue #68)
