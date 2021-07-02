@@ -29,7 +29,6 @@ SignificanceVertexPartition* SignificanceVertexPartition::create(Graph* graph, v
 SignificanceVertexPartition::~SignificanceVertexPartition()
 { }
 
-#define DEBUG
 double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
 {
   #ifdef DEBUG
@@ -127,7 +126,6 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
   #endif
   return diff;
 }
-#undef DEBUG
 
 /********************************************************************************
    Calculate the significance of the partition.
