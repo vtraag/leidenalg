@@ -85,9 +85,18 @@ sure to then install the ``C`` core library from source before. Make sure you
 Usage
 -----
 
-There is no standalone version of ``leidenalg``, and you will always need
-python to access it. There are no plans for developing a standalone version or
-R support. So, use python. Please refer to the documentation for more details
+There is no standalone version of ``leidenalg``, and you will always need python
+to access it. There are no plans at the moment for developing a standalone
+version or R support. However, there have been various efforts to port the
+package to R. These typically do not offer all available functionality or have
+some other limitations, but nonetheless may be very useful. The available ports
+are:
+
+https://github.com/cole-trapnell-lab/leidenbase
+https://github.com/TomKellyGenetics/leiden
+https://github.com/kharchenkolab/leidenAlg
+
+Please refer to the documentation for more details
 on function calls and parameters.
 
 This implementation is made for flexibility, but ``igraph`` nowadays also
