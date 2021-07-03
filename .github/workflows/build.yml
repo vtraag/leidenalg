@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - master
+    tags:
+      - '*'
   pull_request:
     branches:
       - master
-
 
 env:
   CIBW_TEST_REQUIRES: ddt
