@@ -645,7 +645,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     #endif
 
     size_t max_comm = v_comm;
-    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : __DBL_EPSILON__;
+    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : DBL_EPSILON;
     size_t v_size = graphs[0]->node_size(v);
     for (size_t comm : comms)
     {
@@ -1118,7 +1118,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     #endif
 
     size_t max_comm = v_comm;
-    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : __DBL_EPSILON__;
+    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : DBL_EPSILON;
     size_t v_size = graphs[0]->node_size(v);
     for (size_t comm : comms)
     {

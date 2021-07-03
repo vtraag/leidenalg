@@ -4,6 +4,7 @@
 #include "MutableVertexPartition.h"
 #include <set>
 #include <map>
+#include <cfloat>
 
 #include <iostream>
 using std::cerr;
