@@ -1,3 +1,6 @@
+0.8.7
+- Improved numerical stability
+
 0.8.6
 - Removed accidentally left DEBUG statement
 
