@@ -1,10 +1,6 @@
 #ifndef PYNTERFACE_PARTITION_H_INCLUDED
 #define PYNTERFACE_PARTITION_H_INCLUDED
 
-#if PY_MAJOR_VERSION >= 3
-#define IS_PY3K
-#endif
-
 #include <Python.h>
 #include <igraph.h>
 #include "GraphHelper.h"
@@ -30,6 +26,8 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes);
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights);
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, int check_positive_weight);
+
+vector<size_t> create_size_t_vector(PyObject* py_list);
 
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition);
 MutableVertexPartition* decapsule_MutableVertexPartition(PyObject* py_partition);

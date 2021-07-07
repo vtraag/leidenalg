@@ -33,7 +33,7 @@ Optimiser::Optimiser()
   this->community_constraint_enforcement = 0;
 
   igraph_rng_init(&rng, &igraph_rngtype_mt19937);
-  igraph_rng_seed(&rng, rand());
+  igraph_rng_seed(&rng, time(NULL));
 }
 
 Optimiser::~Optimiser()
@@ -574,8 +574,6 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   {
     size_t v = vertex_order.front(); vertex_order.pop_front();
 
-    Graph* graph = NULL;
-    MutableVertexPartition* partition = NULL;
     // What is the current community of the node (this should be the same for all layers)
     size_t v_comm = partitions[0]->membership(v);
 
@@ -634,17 +632,15 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     // Check if we should move to an empty community
     if (consider_empty_community)
     {
-      graph = graphs[0];
-      partition = partitions[0];
-      if ( partition->cnodes(v_comm) > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
+      if ( partitions[0]->cnodes(v_comm) > 1 )  // We should not move a node when it is already in its own empty community (this may otherwise create more empty communities than nodes)
       {
-        size_t n_comms = partition->n_communities();
-        size_t comm = partition->get_empty_community();
+        size_t n_comms = partitions[0]->n_communities();
+        size_t comm = partitions[0]->get_empty_community();
         #ifdef DEBUG
-          cerr << "Checking empty community (" << comm << ") for partition " << partition << endl;
+          cerr << "Checking empty community (" << comm << ") for partition " << partitions[0] << endl;
         #endif
         comms.push_back(comm);
-        if (partition->n_communities() > n_comms)
+        if (partitions[0]->n_communities() > n_comms)
         {
           // If the empty community has just been added, we need to make sure
           // that is has also been added to the other layers
@@ -660,7 +656,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
     #endif
 
     size_t max_comm = v_comm;
-    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 0;
+    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 10*DBL_EPSILON;
     size_t v_size = graphs[0]->node_size(v);
     size_t old_size = partitions[0]->csize(v_comm);
     for (size_t comm : comms)
@@ -736,15 +732,18 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         #endif
 
         // Mark neighbours as unstable (if not in new community and not fixed)
-        for (size_t u : graph->get_neighbours(v, IGRAPH_ALL))
+        for (Graph* graph : graphs)
         {
-          // If the neighbour was stable and is not in the new community, we
-          // should mark it as unstable, and add it to the queue, skipping
-          // fixed nodes
-          if (is_node_stable[u] && partition->membership(v) != max_comm && !is_membership_fixed[u])
+          for (size_t u : graph->get_neighbours(v, IGRAPH_ALL))
           {
-            vertex_order.push_back(u);
-            is_node_stable[u] = false;
+            // If the neighbour was stable and is not in the new community, we
+            // should mark it as unstable, and add it to the queue, skipping
+            // fixed nodes
+            if (is_node_stable[u] && partitions[0]->membership(u) != max_comm && !is_membership_fixed[u])
+            {
+              vertex_order.push_back(u);
+              is_node_stable[u] = false;
+            }
           }
         }
         // Keep track of number of moves
@@ -1049,8 +1048,6 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       comm_added[comm] = false;
     comms.clear();
 
-    Graph* graph = NULL;
-    MutableVertexPartition* partition = NULL;
     // What is the current community of the node (this should be the same for all layers)
     size_t v_comm = partitions[0]->membership(v);
 
@@ -1120,7 +1117,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     #endif
 
     size_t max_comm = v_comm;
-    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 0;
+    double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 10*DBL_EPSILON;
     size_t v_size = graphs[0]->node_size(v);
     size_t old_size = partitions[0]->csize(v_comm);
     for (size_t comm : comms)
@@ -1190,15 +1187,19 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         }
       #endif
 
-      // Mark neighbours as unstable (if not in new community)
-      for (size_t u : graph->get_neighbours(v, IGRAPH_ALL))
+      // Mark neighbours as unstable (if not in new community and not fixed)
+      for (Graph* graph : graphs)
       {
-        // If the neighbour was stable and is not in the new community, we
-        // should mark it as unstable, and add it to the queue
-        if (is_node_stable[u] && partition->membership(v) != max_comm)
+        for (size_t u : graph->get_neighbours(v, IGRAPH_ALL))
         {
-          vertex_order.push_back(u);
-          is_node_stable[u] = false;
+          // If the neighbour was stable and is not in the new community, we
+          // should mark it as unstable, and add it to the queue, skipping
+          // fixed nodes
+          if (is_node_stable[u] && partitions[0]->membership(u) != max_comm && constrained_partition->membership(u) == constrained_partition->membership(v))
+          {
+            vertex_order.push_back(u);
+            is_node_stable[u] = false;
+          }
         }
       }
 

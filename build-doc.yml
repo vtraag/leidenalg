@@ -12,3 +12,4 @@ dependencies:
   - flex
   - bison
   - libtool
+  - cmake

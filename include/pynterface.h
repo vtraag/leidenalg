@@ -1,10 +1,6 @@
 #ifndef PYNTERFACE_H_INCLUDED
 #define PYNTERFACE_H_INCLUDED
 
-#if PY_MAJOR_VERSION >= 3
-#define IS_PY3K
-#endif
-
 #include <Python.h>
 #include <igraph.h>
 #include "GraphHelper.h"
@@ -94,14 +90,7 @@ extern "C"
       PyObject *error;
   };
 
-  #if PY_MAJOR_VERSION >= 3
   #define GETSTATE(m) ((struct module_state*)PyModule_GetState(m))
-  #else
-  #define GETSTATE(m) (&_state)
-  static struct module_state _state;
-  #endif
-
-  #if PY_MAJOR_VERSION >= 3
 
   static int leiden_traverse(PyObject *m, visitproc visit, void *arg) {
       Py_VISIT(GETSTATE(m)->error);
@@ -129,19 +118,8 @@ extern "C"
 
   PyObject *
   PyInit__c_leiden(void)
-
-  #else
-  #define INITERROR return
-
-  void
-  init_c_leiden(void)
-  #endif
   {
-  #if PY_MAJOR_VERSION >= 3
       PyObject* module = PyModule_Create(&leidendef);
-  #else
-      PyObject *module = Py_InitModule3("_c_leiden", leiden_funcs, "Leiden extension using igraph.");
-  #endif
 
       PyModule_AddIntConstant(module, "ALL_COMMS", Optimiser::ALL_COMMS);
       PyModule_AddIntConstant(module, "ALL_NEIGH_COMMS", Optimiser::ALL_NEIGH_COMMS);
@@ -161,9 +139,7 @@ extern "C"
           INITERROR;
       }
 
-  #if PY_MAJOR_VERSION >= 3
       return module;
-  #endif
   }
 
 #ifdef __cplusplus

@@ -404,11 +404,11 @@ extern "C"
     #endif
 
     #ifdef DEBUG
-      cerr << "Capsule constrained partition at address " << py_partition << endl;
+      cerr << "Capsule constrained partition at address " << py_constrained_partition << endl;
     #endif
     MutableVertexPartition* constrained_partition = decapsule_MutableVertexPartition(py_constrained_partition);
     #ifdef DEBUG
-      cerr << "Using constrained partition at address " << partition << endl;
+      cerr << "Using constrained partition at address " << constrained_partition << endl;
     #endif
 
     if (consider_comms < 0)
@@ -545,11 +545,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    #ifdef IS_PY3K
     return PyLong_FromLong(optimiser->consider_comms);
-    #else
-    return PyInt_FromLong(optimiser->consider_comms);
-    #endif
   }
 
   PyObject* _Optimiser_set_refine_consider_comms(PyObject *self, PyObject *args, PyObject *keywds)
@@ -609,11 +605,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    #ifdef IS_PY3K
     return PyLong_FromLong(optimiser->refine_consider_comms);
-    #else
-    return PyInt_FromLong(optimiser->refine_consider_comms);
-    #endif
   }
 
   PyObject* _Optimiser_set_optimise_routine(PyObject *self, PyObject *args, PyObject *keywds)
@@ -673,11 +665,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    #ifdef IS_PY3K
     return PyLong_FromLong(optimiser->optimise_routine);
-    #else
-    return PyInt_FromLong(optimiser->optimise_routine);
-    #endif
   }
 
   PyObject* _Optimiser_set_refine_routine(PyObject *self, PyObject *args, PyObject *keywds)
@@ -737,11 +725,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    #ifdef IS_PY3K
     return PyLong_FromLong(optimiser->refine_routine);
-    #else
-    return PyInt_FromLong(optimiser->refine_routine);
-    #endif
   }
 
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds)

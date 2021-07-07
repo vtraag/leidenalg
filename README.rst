@@ -18,13 +18,14 @@ assignments remain fixed [10]_. It also provides some support for community
 detection on bipartite graphs. See the `documentation
 <http://leidenalg.readthedocs.io/en/latest/>`_ for more information.
 
+
 .. image:: https://readthedocs.org/projects/leidenalg/badge
                 :target: http://leidenalg.readthedocs.io/en/latest/
                 :alt: Leiden documentation status
 
-.. image:: https://ci.appveyor.com/api/projects/status/26au75vj8iwq32qp?svg=true
-                :target: https://ci.appveyor.com/project/vtraag/leidenalg
-                :alt: Leiden build status (AppVeyor)
+.. image:: https://github.com/vtraag/leidenalg/actions/workflows/build.yml/badge.svg?branch=master
+                :target: https://github.com/vtraag/leidenalg/actions/workflows/build.yml
+                :alt: Leiden build status (GitHub Actions)
 
 .. image:: https://zenodo.org/badge/146722095.svg
                 :target: https://zenodo.org/badge/latestdoi/146722095
@@ -38,7 +39,7 @@ Installation
 ------------
 
 In short: ``pip install leidenalg``. All major platforms are supported on
-Python>=3.5, earlier versions of Python are no longer supported. Alternatively,
+Python>=3.6, earlier versions of Python are no longer supported. Alternatively,
 you can install from Anaconda (channel ``conda-forge``).
 
 For Unix like systems it is possible to install from source. For Windows this is
@@ -84,9 +85,18 @@ sure to then install the ``C`` core library from source before. Make sure you
 Usage
 -----
 
-There is no standalone version of ``leidenalg``, and you will always need
-python to access it. There are no plans for developing a standalone version or
-R support. So, use python. Please refer to the documentation for more details
+There is no standalone version of ``leidenalg``, and you will always need python
+to access it. There are no plans at the moment for developing a standalone
+version or R support. However, there have been various efforts to port the
+package to R. These typically do not offer all available functionality or have
+some other limitations, but nonetheless may be very useful. The available ports
+are:
+
+- https://github.com/cole-trapnell-lab/leidenbase
+- https://github.com/TomKellyGenetics/leiden
+- https://github.com/kharchenkolab/leidenAlg
+
+Please refer to the documentation for more details
 on function calls and parameters.
 
 This implementation is made for flexibility, but ``igraph`` nowadays also

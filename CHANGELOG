@@ -1,3 +1,14 @@
+0.8.7
+- Improved numerical stability
+
+0.8.6
+- Removed accidentally left DEBUG statement
+
+0.8.5
+- Corrected iterating over nodes (PR #70).
+- Fixed segfault with move_nodes_constrained (issue #68)
+- Fixed problem with initial_membership (issue #66)
+
 0.8.4
 - Update C core to 0.9.1
 - Fixed caching problem (issue #62)

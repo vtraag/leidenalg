@@ -1,9 +1,6 @@
 import igraph as _ig
 from . import _c_leiden
 from .functions import _get_py_capsule
-import sys
-# Check if working with Python 3
-PY3 = (sys.version > '3')
 
 class MutableVertexPartition(_ig.VertexClustering):
   """ Contains a partition of graph, derives from :class:`ig.VertexClustering`.
