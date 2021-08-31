@@ -286,9 +286,10 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
   vector<size_t> new_csize(nbcomms, 0);
   vector<size_t> new_cnodes(nbcomms, 0);
 
+  // Relabel community admin
   for (size_t c = 0; c < new_comm_id.size(); c++) {
     size_t new_c = new_comm_id[c];
-    if (this->_csize[c] > 0) {
+    if (this->_cnodes[c] > 0) {
       new_total_weight_in_comm[new_c] = this->_total_weight_in_comm[c];
       new_total_weight_from_comm[new_c] = this->_total_weight_from_comm[c];
       new_total_weight_to_comm[new_c] = this->_total_weight_to_comm[c];
@@ -305,7 +306,7 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
 
   this->_empty_communities.clear();
   for (size_t c = 0; c < nbcomms; c++) {
-    if (this->_csize[c] == 0) {
+    if (this->_cnodes[c] == 0) {
       this->_empty_communities.push_back(c);
     }
   }
