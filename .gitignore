@@ -37,3 +37,6 @@ src/leidenalg/version.py
 pip-wheel-metadata
 .eggs/
 doc/source/_build
+.idea/
+cmake-build-*/
+build/
