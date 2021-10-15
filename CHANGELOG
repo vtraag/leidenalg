@@ -1,5 +1,6 @@
 0.8.8
 - Corrected relabeling bug (PR #82)
+- Improved error handling, avoiding some crashses (issue #81)
 
 0.8.7
 - Improved numerical stability
