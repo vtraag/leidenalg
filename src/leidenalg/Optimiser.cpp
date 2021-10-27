@@ -683,6 +683,8 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
       }
 
+      possible_improv += target_weight*target_cover->get_membership(v, comm);
+
       if (possible_improv > max_improv)
       {
         max_comm = comm;
@@ -779,7 +781,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   return this->merge_nodes(partitions, layer_weights, is_membership_fixed, consider_comms, renumber_fixed_nodes, this->max_comm_size, NULL, 0.0);
 }
 
-double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes, size_t max_comm_size, VertexCover* target_cover, double targetWeight)
+double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes, size_t max_comm_size, VertexCover* target_cover, double target_weight)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, vector<bool> const& is_membership_fixed, int consider_comms, bool renumber_fixed_nodes, size_t max_comm)" << std::endl;
@@ -925,6 +927,9 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
           // Make sure to multiply it by the weight per layer
           possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
+
+        possible_improv += target_weight*target_cover->get_membership(v, comm);
+
         #ifdef DEBUG
           cerr << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
         #endif
@@ -1006,7 +1011,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
   return this->move_nodes_constrained(partitions, layer_weights, refine_consider_comms, constrained_partition, this->max_comm_size, NULL, 0.0);
 }
 
-double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, size_t max_comm_size, VertexCover* target_cover, double targetWeight)
+double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, size_t max_comm_size, VertexCover* target_cover, double target_weight)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, size_t max_comm_size)" << std::endl;
@@ -1152,6 +1157,8 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
       }
 
+      possible_improv += target_weight*target_cover->get_membership(v, comm);
+
       // Check if improvement is best
       if (possible_improv > max_improv)
       {
@@ -1246,7 +1253,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
   return this->merge_nodes_constrained(partitions, layer_weights, refine_consider_comms, constrained_partition, this->max_comm_size, NULL, 0.0);
 }
 
-double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, size_t max_comm_size, VertexCover* target_cover, double targetWeight)
+double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, size_t max_comm_size, VertexCover* target_cover, double target_weight)
 {
   #ifdef DEBUG
     cerr << "double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, size_t max_comm_size)" << std::endl;
@@ -1389,6 +1396,8 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           // Make sure to multiply it by the weight per layer
           possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
+
+        possible_improv += target_weight*target_cover->get_membership(v, comm);
 
         if (possible_improv >= max_improv)
         {
