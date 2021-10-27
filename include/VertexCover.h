@@ -17,13 +17,7 @@ public:
 
     double get_membership(size_t node, size_t comm);
 
-    /**
-     * Create aggregate cover based on partition.
-     *
-     * @param partition Partition on basis of which to aggregate
-     * @return Aggregated partition
-     */
-    VertexCover* create_aggregate_cover(MutableVertexPartition& partition);
+    VertexCover* collapse_cover(MutableVertexPartition* partition);
 
 private:
 

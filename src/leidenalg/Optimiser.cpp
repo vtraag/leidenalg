@@ -123,6 +123,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // Initialize the vector of the collapsed graphs for all layers
   vector<Graph*> collapsed_graphs(nb_layers);
   vector<MutableVertexPartition*> collapsed_partitions(nb_layers);
+  VertexCover* collapsed_target_cover;
 
   // Declare the collapsed_graph variable which will contain the graph
   // collapsed by its communities. We will use this variables at each
@@ -132,6 +133,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     collapsed_graphs[layer] = graphs[layer];
     collapsed_partitions[layer] = partitions[layer];
   }
+  collapsed_target_cover = target_cover;
 
   // Declare which nodes in the collapsed graph are fixed, which to start is
   // simply equal to is_membership_fixed
@@ -197,6 +199,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
     vector<Graph*> new_collapsed_graphs(nb_layers);
     vector<MutableVertexPartition*> new_collapsed_partitions(nb_layers);
+    VertexCover* new_collapsed_target_cover;
 
     if (this->refine_partition)
     {
@@ -237,6 +240,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
         new_collapsed_graphs[layer] = collapsed_graphs[layer]->collapse_graph(sub_collapsed_partitions[layer]);
       }
 
+      // Collapse targer cover based on sub collapsed partition
+      new_collapsed_target_cover = collapsed_target_cover->collapse_cover(sub_collapsed_partitions[0]);
+
       // Determine the membership for the collapsed graph
       vector<size_t> new_collapsed_membership(new_collapsed_graphs[0]->vcount());
 
@@ -271,6 +277,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
         delete sub_collapsed_partitions[layer];
         new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer], new_collapsed_membership);
       }
+
     }
     else
     {
@@ -285,6 +292,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
           cerr << "New collapsed graph " << new_collapsed_graphs[layer] << ", vcount is " << new_collapsed_graphs[layer]->vcount() << endl;
         #endif
       }
+      new_collapsed_target_cover = collapsed_target_cover->collapse_cover(collapsed_partitions[0]);
     }
 
     // Determine whether to aggregate further
@@ -305,7 +313,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Aggregate further " << aggregate_further << endl;
     #endif
 
-    // Delete the previous collapsed partition and graph
+    // Delete the previous collapsed partition and graph and target cover
     for (size_t layer = 0; layer < nb_layers; layer++)
     {
       if (collapsed_partitions[layer] != partitions[layer])
@@ -313,10 +321,13 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       if (collapsed_graphs[layer] != graphs[layer])
         delete collapsed_graphs[layer];
     }
+    if (collapsed_target_cover != target_cover)
+      delete collapsed_target_cover;
 
     // and set them to the new one.
     collapsed_partitions = new_collapsed_partitions;
     collapsed_graphs = new_collapsed_graphs;
+    collapsed_target_cover = new_collapsed_target_cover;
 
     #ifdef DEBUG
       for (size_t layer = 0; layer < nb_layers; layer++)
@@ -356,6 +367,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
     if (collapsed_graphs[layer] != graphs[layer])
       delete collapsed_graphs[layer];
   }
+  if (collapsed_target_cover != target_cover)
+    delete collapsed_target_cover;
 
   // Make sure the resulting communities are called 0,...,r-1
   // where r is the number of communities. The exception is fixed

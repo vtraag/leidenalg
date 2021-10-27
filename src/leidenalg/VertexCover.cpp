@@ -59,9 +59,9 @@ double VertexCover::get_membership(size_t node, size_t comm)
   return this->_cached_node_membership[comm];
 }
 
-VertexCover* VertexCover::create_aggregate_cover(MutableVertexPartition& partition)
+VertexCover* VertexCover::collapse_cover(MutableVertexPartition* partition)
 {
-  vector< vector<size_t> > comms = partition.get_communities();
+  vector< vector<size_t> > comms = partition->get_communities();
   vector<double> aggregate_node_membership;
   vector< vector< pair<size_t, double> > > aggregate_cover = vector< vector< pair<size_t, double> > >(comms.size());
   vector<size_t> aggregate_memberships;
