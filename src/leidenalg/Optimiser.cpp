@@ -59,6 +59,12 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition, VertexCo
 {
   size_t n = partition->get_graph()->vcount();
   vector<bool> is_membership_fixed(n, false);
+  return this->optimise_partition(partition, is_membership_fixed, target_cover, target_weight);
+}
+
+double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, VertexCover* target_cover, double target_weight)
+{
+  size_t n = partition->get_graph()->vcount();
   vector<MutableVertexPartition*> partitions(1);
   partitions[0] = partition;
   vector<double> layer_weights(1, 1.0);

@@ -243,7 +243,8 @@ class Optimiser(object):
     """
     _c_leiden._Optimiser_set_rng_seed(self._optimiser, value)
 
-  def optimise_partition(self, partition, n_iterations=2, is_membership_fixed=None):
+  def optimise_partition(self, partition, n_iterations=2, is_membership_fixed=None,
+                         target_membership=None, target_weight=1.0):
     """ Optimise the given partition.
 
     Parameters
@@ -260,6 +261,19 @@ class Optimiser(object):
       Boolean list of nodes that are not allowed to change community. The
       length of this list must be equal to the number of nodes. By default
       (None) all nodes can change community during the optimization.
+
+    target_membership: list of integers
+      List of integers indicating what membership of nodes is targeted. This offers
+      a more flexible approach instead of fixing the membership completely. Nodes
+      are not guaranteed to have the same membership as the targeted membership, but
+      are nudged towards it. The degree to which the targeted membership is enforced is
+      controlled by the `target_weight`.
+
+    target_weight: double
+      This controls the extent to which the `target_membership` is enforced. Higher
+      weights enforce the target membership more. If the target weight is set
+      sufficiently high the membership of the will be identical to the target membership.
+      If the target weight is set to zero, the target membership has no effect.
 
     Returns
     -------
@@ -280,6 +294,13 @@ class Optimiser(object):
     >>> is_membership_fixed[4] = True
     >>> is_membership_fixed[6] = True
     >>> diff = optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
+
+    or, targeting some partition
+
+    >>> G = ig.Graph.Formula('0 - 1 - 2 - 0, 2 - 3 - 4, 4 - 5 - 6 - 4')
+    >>> partition = la.CPMVertexPartition(G, resolution_parameter=0.5)
+    >>> target_membership = [2, 2, 2, 2, 5, 5, 5]
+    >>> diff = optimiser.optimise_partition(partition, target_membership=target_membership)
     """
 
     itr = 0
@@ -290,6 +311,8 @@ class Optimiser(object):
               self._optimiser,
               partition._partition,
               is_membership_fixed=is_membership_fixed,
+              target_membership=target_membership,
+              target_weight=target_weight
               )
       diff += diff_inc
       itr += 1

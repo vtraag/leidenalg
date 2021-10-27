@@ -532,7 +532,7 @@ void MutableVertexPartition::add_empty_communities(size_t n_new_comms)
   this->_total_weight_from_comm.resize(this->_n_communities);
   this->_total_weight_to_comm.resize(this->_n_communities);
 
-  for (int i = this->_n_communities - n_new_comms; i < this->_n_communities; i++)
+  for (size_t i = this->_n_communities - n_new_comms; i < this->_n_communities; i++)
   {
     this->_csize[i] = 0;
     this->_cnodes[i] = 0;

@@ -77,7 +77,7 @@ VertexCover* VertexCover::collapse_cover(MutableVertexPartition* partition)
   vector< vector< pair<size_t, double> > > aggregate_cover = vector< vector< pair<size_t, double> > >(comms.size());
   vector<size_t> aggregate_memberships;
 
-  for (int i = 0; i < comms.size(); i++)
+  for (size_t i = 0; i < comms.size(); i++)
   {
     for (size_t v : comms[i])
     {

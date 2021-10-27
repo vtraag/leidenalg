@@ -40,16 +40,19 @@ extern "C"
     PyObject* py_optimiser = NULL;
     PyObject* py_partition = NULL;
     PyObject* py_is_membership_fixed = NULL;
+    PyObject* py_target_membership = NULL;
+    double target_weight = 0.0;
 
-    static const char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", NULL};
+    static const char* kwlist[] = {"optimiser", "partition", "is_membership_fixed", "target_membership", "target_weight", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|O", (char**) kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "OO|OOd", (char**) kwlist,
                                      &py_optimiser, &py_partition,
-                                     &py_is_membership_fixed))
+                                     &py_is_membership_fixed,
+                                     &py_target_membership, &target_weight))
         return NULL;
 
     #ifdef DEBUG
@@ -93,10 +96,34 @@ extern "C"
       }
     }
 
+    VertexCover* target_cover = NULL;
+    if (py_target_membership != NULL && py_target_membership != Py_None)
+    {
+      vector<size_t> target_membership(n);
+#ifdef DEBUG
+      cerr << "Reading target_membership." << endl;
+#endif
+
+      if (PyList_Size(py_target_membership) != n)
+      {
+        throw Exception("Target membership length not the same size as the number of nodes.");
+      }
+
+      for (size_t v = 0; v < n; v++)
+      {
+        PyObject* py_item = PyList_GetItem(py_target_membership, v);
+        target_membership[v] = PyLong_AsSize_t(PyNumber_Long(py_item));
+      }
+
+      target_cover = new VertexCover(target_membership);
+    }
+
     double q = 0.0;
     try
     {
-      q = optimiser->optimise_partition(partition, is_membership_fixed);
+      q = optimiser->optimise_partition(partition, is_membership_fixed, target_cover, target_weight);
+
+      delete target_cover;
     }
     catch (std::exception& e)
     {
