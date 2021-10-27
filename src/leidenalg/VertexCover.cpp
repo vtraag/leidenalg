@@ -7,19 +7,13 @@ VertexCover::VertexCover(vector<size_t>& membership)
   {
     this->_membership[i].push_back(make_pair(membership[i], 1.0));
   }
-  this->_cached_node = 0;
-
-  if (!membership.empty())
-    this->set_cache(0);
+  this->init_cache();
 }
 
 VertexCover::VertexCover(vector<vector<pair<size_t, double>>>& membership)
 {
   this->_membership = membership;
-
-  this->_cached_node = 0;
-  if (!membership.empty())
-    this->set_cache(0);
+  this->init_cache();
 }
 
 vector< pair<size_t, double> > VertexCover::get_memberships(size_t node)
@@ -36,11 +30,28 @@ void VertexCover::cache_membership(size_t node)
   }
 }
 
+void VertexCover::init_cache()
+{
+  this->_cached_node = 0;
+
+  // Determine maximum cover
+  this->_max_cover = 0;
+  for (const vector< pair<size_t, double> >& covers : _membership)
+    for (const pair<size_t, double>& cover_weight : covers)
+      if (cover_weight.first > this->_max_cover)
+        this->_max_cover = cover_weight.first;
+
+  this->_cached_node_membership.resize(this->_max_cover + 1);
+
+  if (!_membership.empty())
+    this->set_cache(0);
+}
+
 void VertexCover::set_cache(size_t node)
 {
-  for (const pair<size_t, double>& comm : this->_membership[_cached_node])
+  for (const pair<size_t, double>& comm : this->_membership[node])
   {
-    this->_cached_node_membership[comm.first] =comm.second;
+    this->_cached_node_membership[comm.first] = comm.second;
   }
   this->_cached_node = node;
 }
@@ -62,7 +73,7 @@ double VertexCover::get_membership(size_t node, size_t comm)
 VertexCover* VertexCover::collapse_cover(MutableVertexPartition* partition)
 {
   vector< vector<size_t> > comms = partition->get_communities();
-  vector<double> aggregate_node_membership;
+  vector<double> aggregate_node_membership(this->_max_cover + 1);
   vector< vector< pair<size_t, double> > > aggregate_cover = vector< vector< pair<size_t, double> > >(comms.size());
   vector<size_t> aggregate_memberships;
 

@@ -55,6 +55,16 @@ double Optimiser::optimise_partition(MutableVertexPartition* partition)
  return this->optimise_partition(partition, is_membership_fixed);
 }
 
+double Optimiser::optimise_partition(MutableVertexPartition* partition, VertexCover* target_cover, double target_weight)
+{
+  size_t n = partition->get_graph()->vcount();
+  vector<bool> is_membership_fixed(n, false);
+  vector<MutableVertexPartition*> partitions(1);
+  partitions[0] = partition;
+  vector<double> layer_weights(1, 1.0);
+  return this->optimise_partition(partitions, layer_weights, is_membership_fixed, this->max_comm_size, target_cover, target_weight);
+}
+
 double Optimiser::optimise_partition(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed)
 {
   return this->optimise_partition(partition, is_membership_fixed, this->max_comm_size);
@@ -155,17 +165,17 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       cerr << "Quality before moving " <<  q << endl;
     #endif
     if (this->optimise_routine == Optimiser::MOVE_NODES)
-      improv += this->move_nodes(collapsed_partitions, layer_weights, is_collapsed_membership_fixed, this->consider_comms, this->consider_empty_community, false, max_comm_size, target_cover, target_weight);
+      improv += this->move_nodes(collapsed_partitions, layer_weights, is_collapsed_membership_fixed, this->consider_comms, this->consider_empty_community, false, max_comm_size, collapsed_target_cover, target_weight);
 
     else if (this->optimise_routine == Optimiser::MERGE_NODES)
-      improv += this->merge_nodes(collapsed_partitions, layer_weights, is_collapsed_membership_fixed, this->consider_comms, false, max_comm_size, target_cover, target_weight);
+      improv += this->merge_nodes(collapsed_partitions, layer_weights, is_collapsed_membership_fixed, this->consider_comms, false, max_comm_size, collapsed_target_cover, target_weight);
 
     #ifdef DEBUG
       cerr << "Found " << collapsed_partitions[0]->n_communities() << " communities, improved " << improv << endl;
       q = 0.0;
       for (size_t layer = 0; layer < nb_layers; layer++)
         q += partitions[layer]->quality()*layer_weights[layer];
-      cerr << "Quality after moving " <<  q << endl;
+      cerr << "Quality after moving: " <<  q << endl;
     #endif // DEBUG
 
     // Make sure improvement on coarser scale is reflected on the
@@ -199,7 +209,7 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
 
     vector<Graph*> new_collapsed_graphs(nb_layers);
     vector<MutableVertexPartition*> new_collapsed_partitions(nb_layers);
-    VertexCover* new_collapsed_target_cover;
+    VertexCover* new_collapsed_target_cover = NULL;
 
     if (this->refine_partition)
     {
@@ -220,9 +230,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
         cerr << "\tStarting refinement with " << sub_collapsed_partitions[0]->n_communities() << " communities." << endl;
       #endif
       if (this->refine_routine == Optimiser::MOVE_NODES)
-        this->move_nodes_constrained(sub_collapsed_partitions, layer_weights, refine_consider_comms, collapsed_partitions[0], max_comm_size, target_cover, target_weight);
+        this->move_nodes_constrained(sub_collapsed_partitions, layer_weights, refine_consider_comms, collapsed_partitions[0], max_comm_size, collapsed_target_cover, target_weight);
       else if (this->refine_routine == Optimiser::MERGE_NODES)
-        this->merge_nodes_constrained(sub_collapsed_partitions, layer_weights, refine_consider_comms, collapsed_partitions[0], max_comm_size, target_cover, target_weight);
+        this->merge_nodes_constrained(sub_collapsed_partitions, layer_weights, refine_consider_comms, collapsed_partitions[0], max_comm_size, collapsed_target_cover, target_weight);
       #ifdef DEBUG
         cerr << "\tAfter applying refinement found " << sub_collapsed_partitions[0]->n_communities() << " communities." << endl;
       #endif
@@ -241,7 +251,8 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       }
 
       // Collapse targer cover based on sub collapsed partition
-      new_collapsed_target_cover = collapsed_target_cover->collapse_cover(sub_collapsed_partitions[0]);
+      if (collapsed_target_cover != NULL)
+        new_collapsed_target_cover = collapsed_target_cover->collapse_cover(sub_collapsed_partitions[0]);
 
       // Determine the membership for the collapsed graph
       vector<size_t> new_collapsed_membership(new_collapsed_graphs[0]->vcount());
@@ -292,7 +303,9 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
           cerr << "New collapsed graph " << new_collapsed_graphs[layer] << ", vcount is " << new_collapsed_graphs[layer]->vcount() << endl;
         #endif
       }
-      new_collapsed_target_cover = collapsed_target_cover->collapse_cover(collapsed_partitions[0]);
+
+      if (collapsed_target_cover != NULL)
+        new_collapsed_target_cover = collapsed_target_cover->collapse_cover(collapsed_partitions[0]);
     }
 
     // Determine whether to aggregate further
@@ -373,18 +386,19 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   // Make sure the resulting communities are called 0,...,r-1
   // where r is the number of communities. The exception is fixed
   // nodes which should keep the numbers of the original communities
-  q = 0.0;
-  //partitions[0]->renumber_communities();
-  //partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
-  //vector<size_t> const& membership = partitions[0]->membership();
+
+  /*
+  partitions[0]->renumber_communities();
+  partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  vector<size_t> const& membership = partitions[0]->membership();
   // We only renumber the communities for the first graph,
   // since the communities for the other graphs should just be equal
   // to the membership of the first graph.
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
-    //partitions[layer]->set_membership(membership);
-    q += partitions[layer]->quality()*layer_weights[layer];
+    partitions[layer]->set_membership(membership);
   }
+  */
   return improv;
 }
 
@@ -657,6 +671,17 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
     }
 
+    // Add target cover communities if they are not yet added
+    if (target_cover != NULL)
+    {
+      for (pair<size_t, double> cover_weight : target_cover->get_memberships(v))
+      {
+        size_t cover = cover_weight.first;
+        if (!comm_added[cover])
+          comms.push_back(cover);
+      }
+    }
+
     #ifdef DEBUG
       cerr << "Consider " << comms.size() << " communities for moving." << endl;
     #endif
@@ -683,7 +708,18 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
         possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
       }
 
-      possible_improv += target_weight*target_cover->get_membership(v, comm);
+      if (target_cover != NULL)
+      {
+        possible_improv += target_weight * target_cover->get_membership(v, comm);
+        #ifdef DEBUG
+          cerr << "Additional target weight to move node " << v << " to " << comm << " is "
+               << target_weight * target_cover->get_membership(v, comm) << endl;
+        #endif
+      }
+
+      #ifdef DEBUG
+        cerr << "Improvement to move node " << v << " to " << comm << " is " << possible_improv << endl;
+      #endif
 
       if (possible_improv > max_improv)
       {
@@ -757,10 +793,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       }
   }
 
-  //partitions[0]->renumber_communities();
-  //if (renumber_fixed_nodes)
-  //    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
-  //vector<size_t> const& membership = partitions[0]->membership();
+  /*
+  partitions[0]->renumber_communities();
+  if (renumber_fixed_nodes)
+      partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     //partitions[layer]->set_membership(membership);
@@ -768,6 +805,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
   }
+  */
   return total_improv;
 }
 
@@ -928,7 +966,8 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
           possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
 
-        possible_improv += target_weight*target_cover->get_membership(v, comm);
+        if (target_cover != NULL)
+          possible_improv += target_weight*target_cover->get_membership(v, comm);
 
         #ifdef DEBUG
           cerr << "Improvement of " << possible_improv << " when move to " << comm << "." << endl;
@@ -987,10 +1026,11 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       }
   }
 
-  //partitions[0]->renumber_communities();
-  //if (renumber_fixed_nodes)
-//    partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
-  //vector<size_t> const& membership = partitions[0]->membership();
+  /*
+  partitions[0]->renumber_communities();
+  if (renumber_fixed_nodes)
+      partitions[0]->renumber_communities(fixed_nodes, fixed_membership);
+  vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
   {
     //partitions[layer]->set_membership(membership);
@@ -998,6 +1038,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
       cerr << "Renumbered communities for layer " << layer << " for " << partitions[layer]->n_communities() << " communities." << endl;
     #endif //DEBUG
   }
+  */
   return total_improv;
 }
 
@@ -1134,6 +1175,17 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         }
     }
 
+    // Add target cover communities if they are not yet added
+    if (target_cover != NULL)
+    {
+      for (pair<size_t, double> cover_weight : target_cover->get_memberships(v))
+      {
+        size_t cover = cover_weight.first;
+        if (!comm_added[cover])
+          comms.push_back(cover);
+      }
+    }
+
     #ifdef DEBUG
       cerr << "Consider " << comms.size() << " communities for moving." << endl;
     #endif
@@ -1157,7 +1209,8 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
         possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
       }
 
-      possible_improv += target_weight*target_cover->get_membership(v, comm);
+      if (target_cover != NULL)
+        possible_improv += target_weight*target_cover->get_membership(v, comm);
 
       // Check if improvement is best
       if (possible_improv > max_improv)
@@ -1231,6 +1284,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       cerr << "Moved " << nb_moves << " nodes." << endl;
     #endif
   }
+
   partitions[0]->renumber_communities();
   vector<size_t> const& membership = partitions[0]->membership();
   for (size_t layer = 1; layer < nb_layers; layer++)
@@ -1397,7 +1451,18 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
           possible_improv += layer_weights[layer]*partitions[layer]->diff_move(v, comm);
         }
 
-        possible_improv += target_weight*target_cover->get_membership(v, comm);
+        if (target_cover != NULL)
+        {
+          possible_improv += target_weight * target_cover->get_membership(v, comm);
+          #ifdef DEBUG
+            cerr << "Additional target weight to move node " << v << " to " << comm << " is "
+                 << target_weight * target_cover->get_membership(v, comm) << endl;
+          #endif
+        }
+
+        #ifdef DEBUG
+          cerr << "Improvement to move node " << v << " to " << comm << " is " << possible_improv << endl;
+        #endif
 
         if (possible_improv >= max_improv)
         {

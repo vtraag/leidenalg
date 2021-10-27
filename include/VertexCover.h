@@ -28,6 +28,9 @@ private:
     void cache_membership(size_t node);
     void set_cache(size_t node);
     void reset_cache();
+    void init_cache();
+
+    size_t _max_cover;
 };
 
 #endif //LEIDENALG_TEST_VERTEXCOVER_H

@@ -28,6 +28,8 @@ class Optimiser
     double optimise_partition(MutableVertexPartition* partition);
     double optimise_partition(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed);
     double optimise_partition(MutableVertexPartition* partition, vector<bool> const& is_membership_fixed, size_t max_comm_size);
+    double optimise_partition(MutableVertexPartition* partition, VertexCover* target_cover, double target_weight);
+
     template <class T> T* find_partition(Graph* graph);
     template <class T> T* find_partition(Graph* graph, double resolution_parameter);
 

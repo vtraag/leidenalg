@@ -82,7 +82,8 @@ class MutableVertexPartition
     void relabel_communities(vector<size_t> const& new_comm_id);
     vector<size_t> static rank_order_communities(vector<MutableVertexPartition*> partitions);
     size_t get_empty_community();
-    size_t add_empty_community();
+    void add_empty_community();
+    void add_empty_communities(size_t n_new_comms);
     void from_coarse_partition(vector<size_t> const& coarse_partition_membership);
     void from_coarse_partition(MutableVertexPartition* partition);
     void from_coarse_partition(MutableVertexPartition* partition, vector<size_t> const& coarser_membership);
@@ -179,7 +180,7 @@ class MutableVertexPartition
     void init_graph_admin();
 
     void update_n_communities();
-
+    
 };
 
 #endif // MUTABLEVERTEXPARTITION_H
