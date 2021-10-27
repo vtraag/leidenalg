@@ -13,8 +13,9 @@ public:
     VertexCover(vector<size_t>& membership);
     VertexCover(vector< vector< pair<size_t, double> > >& membership);
 
-    void get_memberships(size_t node);
-    void add_membership(size_t node, size_t cover, double weight);
+    vector< pair<size_t, double> > get_memberships(size_t node);
+
+    double get_membership(size_t node, size_t comm);
 
     /**
      * Create aggregate cover based on partition.
@@ -26,7 +27,13 @@ public:
 
 private:
 
-    vector< vector< pair<size_t, double> > > membership; // (Weighted) membership of each node
+    size_t _cached_node;
+    vector<double> _cached_node_membership;
+    vector< vector< pair<size_t, double> > > _membership; // (Weighted) membership of each node
+
+    void cache_membership(size_t node);
+    void set_cache(size_t node);
+    void reset_cache();
 };
 
 #endif //LEIDENALG_TEST_VERTEXCOVER_H

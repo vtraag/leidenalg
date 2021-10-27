@@ -18,6 +18,7 @@ add_library(leidenalg
         src/leidenalg/RBERVertexPartition.cpp
         src/leidenalg/ResolutionParameterVertexPartition.cpp
         src/leidenalg/SignificanceVertexPartition.cpp
-        src/leidenalg/SurpriseVertexPartition.cpp)
+        src/leidenalg/SurpriseVertexPartition.cpp
+        src/leidenalg/VertexCover.cpp)
 
 target_link_libraries(leidenalg PUBLIC igraph::igraph)
