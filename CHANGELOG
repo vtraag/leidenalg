@@ -1,3 +1,8 @@
+0.8.9
+- Fixed bug with renaming of python-igraph to igraph (issue #93)
+- Removed irrelevant node_sizes argument for RBConfigurationVertexPartition and ModularityVertexPartition
+- Improved documentation
+
 0.8.8
 - Corrected relabeling bug (PR #82)
 - Improved error handling, avoiding some crashses (issue #81)
