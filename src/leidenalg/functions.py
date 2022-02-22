@@ -365,7 +365,9 @@ def slices_to_layers(G_coupling,
   """ Convert a coupling graph of slices to layers of graphs.
 
   This function converts a graph of slices to layers so that they can be used
-  with this package. This function assumes that the slices are represented by
+  with this package. 
+  
+  This function assumes that the slices are represented by
   nodes in ``G_coupling``, and stored in the attribute ``slice_attr``. In other
   words, ``G_coupling.vs[slice_attr]`` should contain :class:`ig.Graph` s . The
   slices will be converted to layers, and nodes in different slices will be
@@ -373,7 +375,11 @@ def slices_to_layers(G_coupling,
   connected slices are identified on the basis of the ``vertex_id_attr``, i.e.
   if two nodes in two connected slices have an identical value of the
   ``vertex_id_attr`` they will be coupled. The ``vertex_id_attr`` should hence
-  be unique in each slice.  The weight of the coupling is determined by the
+  be unique in each slice.  Each node in the resulting layer graphs will contain
+  two vertex attributes with the name of ``slice_attr`` and ``vertex_id_attr``
+  that refer respectively to the slice and id of the node.
+  
+  The weight of the coupling is determined by the
   weight of this link in ``G_coupling``, as determined by the ``weight_attr``.
 
   Parameters
