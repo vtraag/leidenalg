@@ -780,7 +780,7 @@ options =  dict(
   package_dir = {'leidenalg': os.path.join('src', 'leidenalg')},
   packages = ['leidenalg'],
   ext_modules = [leiden_ext],
-  install_requires = ['python-igraph >= 0.9.0'],
+  install_requires = ['igraph >= 0.9.0,< 0.10'],
   platforms="ALL",
   keywords=[
     'graph',
