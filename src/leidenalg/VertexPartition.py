@@ -3,7 +3,10 @@ from . import _c_leiden
 from .functions import _get_py_capsule
 
 class MutableVertexPartition(_ig.VertexClustering):
-  """ Contains a partition of graph, derives from :class:`ig.VertexClustering`.
+  """ Contains a partition of a graph, derives from
+  :class:`ig.VertexClustering`. Please see the `documentation
+  <https://igraph.org/python/api/latest/igraph.clustering.VertexClustering.html>`_
+  of :class:`ig.VertexClustering` for more details about its functionality.
 
   This class contains the basic implementation for optimising a partition.
   Specifically, it implements all the administration necessary to keep track of
@@ -38,12 +41,12 @@ class MutableVertexPartition(_ig.VertexClustering):
     Parameters
     ----------
     graph
-      The `ig.Graph` on which this partition is defined.
+      The :class:`ig.Graph` on which this partition is defined.
 
     membership
-      The membership vector of this partition. Membership[i] = c implies that
-      node i is in community c. If None, it is initialised with a singleton
-      partition community, i.e. membership[i] = i.
+      The membership vector of this partition. ``Membership[i] = c`` implies that
+      node ``i`` is in community ``c``. If ``None``, it is initialised with a singleton
+      partition community, i.e. ``membership[i] = i``.
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)

@@ -20,6 +20,12 @@ detect communities given a graph ``G`` using modularity, you simply use
 
 That's it.
 
+The result ``partition`` is in this case a
+:class:`~leidenalg.ModularityVertexPartition` which is derived from the
+:mod:`igraph` type :class:`ig.VertexClustering`, see the `documentation
+<https://igraph.org/python/api/latest/igraph.clustering.VertexClustering.html>`_
+for more details.
+
 Why then should you use this package rather than for example the Louvain
 algorithm :func:`community_multilevel` built into :mod:`igraph`? If you want to
 use modularity, and you work with a simple undirected, unweighted graph, then
