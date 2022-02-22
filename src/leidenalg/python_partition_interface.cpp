@@ -172,18 +172,17 @@ extern "C"
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
-    PyObject* py_node_sizes = NULL;
 
-    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", (char**) kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OO", (char**) kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_node_sizes, py_weights);
+      Graph* graph = create_graph_from_py(py_obj_graph, NULL, py_weights);
 
       ModularityVertexPartition* partition = NULL;
 
@@ -414,19 +413,18 @@ extern "C"
     PyObject* py_obj_graph = NULL;
     PyObject* py_initial_membership = NULL;
     PyObject* py_weights = NULL;
-    PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
 
-    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "resolution_parameter", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", (char**) kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOd", (char**) kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &resolution_parameter))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_node_sizes, py_weights);
+      Graph* graph = create_graph_from_py(py_obj_graph, NULL, py_weights);
 
       RBConfigurationVertexPartition* partition = NULL;
 
