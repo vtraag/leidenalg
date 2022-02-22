@@ -723,9 +723,11 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
       Weights of edges. Can be either an iterable or an edge attribute.
 
     node_sizes : list of int, or vertex attribute
-      Sizes of nodes are necessary to know the size of communities in aggregate
-      graphs. Usually this is set to 1 for all nodes, but in specific cases
-      this could be changed.
+      The quality function takes into account the size of a community, which
+      is defined as the sum over the sizes of each individual node. By default, 
+      the node sizes are set to 1, meaning that the size of a community equals 
+      the number of nodes of a community. If a node already represents an 
+      aggregation, this could be reflect in its node size.
 
     resolution_parameter : double
       Resolution parameter.
@@ -920,9 +922,11 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
       Weights of edges. Can be either an iterable or an edge attribute.
 
     node_sizes : list of int, or vertex attribute
-      Sizes of nodes are necessary to know the size of communities in aggregate
-      graphs. Usually this is set to 1 for all nodes, but in specific cases
-      this could be changed.
+      The quality function takes into account the size of a community, which
+      is defined as the sum over the sizes of each individual node. By default, 
+      the node sizes are set to 1, meaning that the size of a community equals 
+      the number of nodes of a community. If a node already represents an 
+      aggregation, this could be reflect in its node size.
 
     resolution_parameter : double
       Resolution parameter.
