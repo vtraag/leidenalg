@@ -5,6 +5,7 @@
 #include <igraph.h>
 #include "GraphHelper.h"
 #include "ModularityVertexPartition.h"
+#include "GeneralizedModularityVertexPartition.h"
 #include "SignificanceVertexPartition.h"
 #include "SurpriseVertexPartition.h"
 #include "RBConfigurationVertexPartition.h"
@@ -39,6 +40,7 @@ extern "C"
 {
 #endif
   PyObject* _new_ModularityVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _new_GeneralizedModularityVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_SignificanceVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_SurpriseVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _new_CPMVertexPartition(PyObject *self, PyObject *args, PyObject *keywds);

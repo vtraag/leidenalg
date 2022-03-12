@@ -5,6 +5,7 @@
 #include <igraph.h>
 #include "GraphHelper.h"
 #include "ModularityVertexPartition.h"
+#include "GeneralizedModularityVertexPartition.h"
 #include "SignificanceVertexPartition.h"
 #include "SurpriseVertexPartition.h"
 #include "RBConfigurationVertexPartition.h"
@@ -25,6 +26,7 @@ extern "C"
   static PyMethodDef leiden_funcs[] = {
 
       {"_new_ModularityVertexPartition",                            (PyCFunction)_new_ModularityVertexPartition,                            METH_VARARGS | METH_KEYWORDS, ""},
+      {"_new_GeneralizedModularityVertexPartition",                  (PyCFunction)_new_GeneralizedModularityVertexPartition,                 METH_VARARGS | METH_KEYWORDS, ""},
       {"_new_SignificanceVertexPartition",                          (PyCFunction)_new_SignificanceVertexPartition,                          METH_VARARGS | METH_KEYWORDS, ""},
       {"_new_SurpriseVertexPartition",                              (PyCFunction)_new_SurpriseVertexPartition,                              METH_VARARGS | METH_KEYWORDS, ""},
       {"_new_CPMVertexPartition",                                   (PyCFunction)_new_CPMVertexPartition,                                   METH_VARARGS | METH_KEYWORDS, ""},

@@ -145,6 +145,25 @@ vector<size_t> create_size_t_vector(PyObject* py_list)
     return result;
 }
 
+vector<vector<double> > create_double_array(PyObject* py_list)
+{
+    size_t n = PyList_Size(py_list);
+    vector<vector<double> > result(n);
+    for (size_t i = 0; i < n; i++)
+    {
+      PyObject* py_inner_list= PyList_GetItem(py_list, i);
+      size_t m = PyList_Size(py_inner_list);
+      result[i] = vector<double>(m);
+      for (size_t j = 0; j < m; j++)
+        {
+          PyObject* py_item = PyList_GetItem(py_inner_list, j);
+          result[i][j] = PyFloat_AsDouble(py_item);
+        }
+    }
+    return result;
+}
+
+
 PyObject* capsule_MutableVertexPartition(MutableVertexPartition* partition)
 {
   PyObject* py_partition = PyCapsule_New(partition, "leidenalg.VertexPartition.MutableVertexPartition", del_MutableVertexPartition);
@@ -195,6 +214,58 @@ extern "C"
       }
       else
         partition = new ModularityVertexPartition(graph);
+
+      // Do *NOT* forget to remove the graph upon deletion
+      partition->destructor_delete_graph = true;
+
+      PyObject* py_partition = capsule_MutableVertexPartition(partition);
+      #ifdef DEBUG
+        cerr << "Created capsule partition at address " << py_partition << endl;
+      #endif
+
+      return py_partition;
+    }
+    catch (std::exception& e )
+    {
+      string s = "Could not construct partition: " + string(e.what());
+      PyErr_SetString(PyExc_BaseException, s.c_str());
+      return NULL;
+    }
+  }
+
+  PyObject* _new_GeneralizedModularityVertexPartition(PyObject *self, PyObject *args, PyObject *keywds)
+  {
+    PyObject* py_obj_graph = NULL;
+    PyObject* py_initial_membership = NULL;
+    PyObject* py_weights = NULL;
+    PyObject* py_null_model = NULL;
+
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "null_model", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOO", (char**) kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_null_model))
+        return NULL;
+
+    try
+    {
+
+      Graph* graph = create_graph_from_py(py_obj_graph, NULL, py_weights);
+
+      GeneralizedModularityVertexPartition* partition = NULL;
+
+      // If necessary create an initial partition
+      if (py_initial_membership != NULL && py_initial_membership != Py_None)
+      {
+        vector<size_t> initial_membership = create_size_t_vector(py_initial_membership);
+
+        vector<vector<double> > null_model = create_double_array(py_null_model);
+        partition = new GeneralizedModularityVertexPartition(graph, initial_membership, null_model);
+      }
+      else
+      {
+        vector<vector<double> > null_model = create_double_array(py_null_model);
+        partition = new GeneralizedModularityVertexPartition(graph, null_model);
+      }
 
       // Do *NOT* forget to remove the graph upon deletion
       partition->destructor_delete_graph = true;

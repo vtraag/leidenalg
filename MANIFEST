@@ -6,6 +6,7 @@ include/CPMVertexPartition.h
 include/GraphHelper.h
 include/LinearResolutionParameterVertexPartition.h
 include/ModularityVertexPartition.h
+include/GeneralizedModularityVertexPartition.h
 include/MutableVertexPartition.h
 include/Optimiser.h
 include/RBConfigurationVertexPartition.h
@@ -17,6 +18,7 @@ src/CPMVertexPartition.cpp
 src/GraphHelper.cpp
 src/LinearResolutionParameterVertexPartition.cpp
 src/ModularityVertexPartition.cpp
+src/GeneralizedModularityVertexPartition.cpp
 src/MutableVertexPartition.cpp
 src/Optimiser.cpp
 src/RBConfigurationVertexPartition.cpp
