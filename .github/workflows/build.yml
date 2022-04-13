@@ -37,8 +37,6 @@ jobs:
       - name: Set up QEMU
         if: runner.os == 'Linux'
         uses: docker/setup-qemu-action@v1
-        with:
-          matrix.wheel_arch: aarch64
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.4.0
