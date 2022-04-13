@@ -12,7 +12,3 @@ exclude release*
 prune .github
 
 graft vendor/source/igraph
-prune vendor/source/igraph/etc/abstracts
-prune vendor/source/igraph/etc/papers
-prune vendor/source/igraph/etc/presentations
-prune vendor/source/igraph/vendor/simpleraytracer
