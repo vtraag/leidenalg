@@ -13,7 +13,7 @@ on:
 env:
   CIBW_TEST_REQUIRES: ddt
   CIBW_TEST_COMMAND: "cd {project} && python -m unittest -v"
-  CIBW_SKIP: "cp27-* pp27-* cp35-*"
+  CIBW_SKIP: "cp27-* pp27-* cp35-* cp36-*"
 
 jobs:
   build_wheel_linux:
