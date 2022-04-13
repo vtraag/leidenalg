@@ -44,6 +44,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.4.0
         env:
           CIBW_BEFORE_BUILD: "yum install -y flex bison && pip install cmake && python setup.py build_c_core"
+          CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
 
       - uses: actions/upload-artifact@v2
