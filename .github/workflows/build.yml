@@ -13,7 +13,7 @@ on:
 env:
   CIBW_TEST_REQUIRES: ddt
   CIBW_TEST_COMMAND: "cd {project} && python -m unittest -v"
-  CIBW_SKIP: "cp27-* pp27-* cp35-*"
+  CIBW_SKIP: "pp* cp27-* cp35-* cp36-*"
 
 jobs:
   build_wheel_linux:
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        wheel_arch: [x86_64, i686]
+        wheel_arch: [x86_64, i686, aarch64]
 
     steps:
       - uses: actions/checkout@v2
@@ -34,10 +34,15 @@ jobs:
         with:
           python-version: '3.8'
 
+      - name: Set up QEMU
+        if: runner.os == 'Linux'
+        uses: docker/setup-qemu-action@v1
+
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        uses: pypa/cibuildwheel@v2.4.0
         env:
           CIBW_BEFORE_BUILD: "yum install -y flex bison && pip install cmake && python setup.py build_c_core"
+          CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
 
       - uses: actions/upload-artifact@v2
@@ -47,6 +52,14 @@ jobs:
   build_wheel_macos:
     name: Build wheels on macOS
     runs-on: macos-10.15
+    strategy:
+      matrix:
+        include:
+          - cmake_arch: x86_64
+            wheel_arch: x86_64
+          - cmake_arch: arm64
+            cmake_extra_args: -DF2C_EXTERNAL_ARITH_HEADER=../../../etc/arith_apple_m1.h
+            wheel_arch: arm64
 
     steps:
       - uses: actions/checkout@v2
@@ -72,7 +85,7 @@ jobs:
           brew install autoconf automake libtool cmake
 
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        uses: pypa/cibuildwheel@v2.4.0
         env:
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
 
@@ -116,7 +129,7 @@ jobs:
         run: choco install winflexbison3 cmake
 
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        uses: pypa/cibuildwheel@v2.4.0
         env:
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
