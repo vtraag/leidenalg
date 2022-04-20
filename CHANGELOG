@@ -1,3 +1,6 @@
+0.8.10
+- Fixed installation from source package (issue #101)
+
 0.8.9
 - Fixed bug with renaming of python-igraph to igraph (issue #93)
 - Removed irrelevant node_sizes argument for RBConfigurationVertexPartition and ModularityVertexPartition
