@@ -817,6 +817,7 @@ else:
 # 3.8 so we cannot use an abi3 wheel built with CPython 3.7 or 3.8 on
 # CPython 3.9
 should_build_abi3_wheel = (
+    False and # Disable abi3 wheels for now
     bdist_wheel_abi3 and
     platform.python_implementation() == "CPython" and
     sys.version_info >= (3, 9)
