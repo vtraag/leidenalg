@@ -1,3 +1,6 @@
+0.9.0
+- Update C core to 0.10.1
+
 0.8.10
 - Fixed installation from source package (issue #101)
 
