@@ -50,6 +50,7 @@ class MutableVertexPartition
     MutableVertexPartition(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph);
     virtual MutableVertexPartition* create(Graph* graph, vector<size_t> const& membership);
+    virtual MutableVertexPartition* create(Graph* graph, vector<size_t> const& membership, vector< vector<size_t> > communities);
 
     virtual ~MutableVertexPartition();
 
