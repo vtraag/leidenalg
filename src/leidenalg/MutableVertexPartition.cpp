@@ -59,7 +59,7 @@ MutableVertexPartition* MutableVertexPartition::create(Graph* graph, vector<size
   return new MutableVertexPartition(graph, membership);
 }
 
-MutableVertexPartition* MutableVertexPartition::create(Graph* graph, vector<size_t> const& membership, vector< vector<size_t> > communities)
+MutableVertexPartition* MutableVertexPartition::create(Graph* graph, vector<size_t> const& membership, vector< vector<size_t> > collapsed_communities)
 {
   return new MutableVertexPartition(graph, membership);
 }

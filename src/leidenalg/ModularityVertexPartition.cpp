@@ -29,6 +29,12 @@ ModularityVertexPartition* ModularityVertexPartition::create(Graph* graph, vecto
   return new ModularityVertexPartition(graph, membership);
 }
 
+ModularityVertexPartition* ModularityVertexPartition::create(Graph* graph, vector<size_t> const& membership, vector< vector<size_t> > collapased_communities)
+{
+  return new ModularityVertexPartition(graph, membership);
+}
+
+
 /*****************************************************************************
   Returns the difference in modularity if we move a node to a new community
 *****************************************************************************/

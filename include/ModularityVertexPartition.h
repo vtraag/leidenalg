@@ -12,6 +12,7 @@ class ModularityVertexPartition : public MutableVertexPartition
     virtual ~ModularityVertexPartition();
     virtual ModularityVertexPartition* create(Graph* graph);
     virtual ModularityVertexPartition* create(Graph* graph, vector<size_t> const& membership);
+    virtual ModularityVertexPartition* create(Graph* graph, vector<size_t> const& membership, vector< vector<size_t> > collapased_communities);
 
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();

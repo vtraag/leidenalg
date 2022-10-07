@@ -1101,48 +1101,31 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
                      resolution_parameter=resolution_parameter_01 - resolution_parameter_1)
     return partition_01, partition_0, partition_1
 
+
 class GeneralizedModularityVertexPartition(MutableVertexPartition):
-  """ Implements modularity. This quality function is well-defined only for positive edge weights.
+  """ Implements generalized modularity, well-defined only for positive edge weights.
 
   Notes
   -----
   The quality function is
 
-  .. math:: Q = \\frac{1}{2m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i k_j}{2m} \\right)\\delta(\\sigma_i, \\sigma_j)
+  .. math:: Q = \\sum_{ij} \\left(F_{ij} - \\sum_{k}v_{2k, i} v_{2k+1, j} \\right)\\delta(\\sigma_i, \\sigma_j)
 
-  where :math:`A` is the adjacency matrix, :math:`k_i` is the (weighted) degree
-  of node :math:`i`, :math:`m` is the total number of edges (or total edge
-  weight), :math:`\\sigma_i` denotes the community of node :math:`i` and
+  where :math:`F` is a quality matrix, such as adjacency, or any other representations,
+  :math:`v_{k}` are null model vectors, which generalise the weighted degree vectors of modularity.
+  :math:`\\sigma_i` denotes the community of node :math:`i` and
   :math:`\\delta(\\sigma_i, \\sigma_j) = 1` if :math:`\\sigma_i = \\sigma_j`
   and `0` otherwise.
 
-  This can alternatively be formulated as a sum over communities:
-
-  .. math:: Q = \\frac{1}{2m} \\sum_{c} \\left(m_c - \\frac{K_c^2}{4m} \\right)
-
-  where :math:`m_c` is the number of internal edges (or total internal edge
-  weight) of community :math:`c` and :math:`K_c = \\sum_{i \\mid \\sigma_i = c}
-  k_i` is the total (weighted) degree of nodes in community :math:`c`.
-
-  Note that for directed graphs a slightly different formulation is used, as
-  proposed by Leicht and Newman [2]:
-
-  .. math:: Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
-
-  where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
-  respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
-  refers to an edge from :math:`i` to :math:`j`.
-
   References
   ----------
-  .. [1] Newman, M. E. J., & Girvan, M. (2004). Finding and evaluating
-         community structure in networks.  Physical Review E, 69(2), 026113.
-         `10.1103/PhysRevE.69.026113 <http://doi.org/10.1103/PhysRevE.69.026113>`_
+  .. [1] Schaub, M.T. & Delvenne, J.-C. & Lambiotte, R. & Barahona, M. (2019). Multiscale dynamical
+         embeddings of complex networks. Physical Review E, 99(6), 062308.
+         `doi.org/10.1103/PhysRevE.99.062308  <https://doi.org/10.1103/PhysRevE.99.062308>`_
 
-  .. [2] Leicht, E. A., & Newman, M. E. J. (2008). Community Structure
-         in Directed Networks. Physical Review Letters, 100(11), 118703.
-         `10.1103/PhysRevLett.100.118703 <https://doi.org/10.1103/PhysRevLett.100.118703>`_
+  .. [2] Pygenstability paper TO ADD
    """
+
   def __init__(self, graph, initial_membership=None, weights=None, null_model=None):
     """
     Parameters
@@ -1156,6 +1139,9 @@ class GeneralizedModularityVertexPartition(MutableVertexPartition):
 
     weights : list of double, or edge attribute
       Weights of edges. Can be either an iterable or an edge attribute.
+
+    null_model : list of list of null models, should be an even number of null models with same size
+      as number of nodes in the graph
     """
     if initial_membership is not None:
       initial_membership = list(initial_membership)
