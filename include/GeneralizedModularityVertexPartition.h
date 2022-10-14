@@ -18,6 +18,7 @@ class GeneralizedModularityVertexPartition : public MutableVertexPartition
     virtual double diff_move(size_t v, size_t new_comm);
     virtual double quality();
 
+    int need_collapsed_partition = 1;
   protected:
   private:
 

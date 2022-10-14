@@ -268,7 +268,10 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
       // Create new collapsed partition
       for (size_t layer = 0; layer < nb_layers; layer++)
       {
-        new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer], new_collapsed_membership, sub_collapsed_partitions[layer]->get_communities());
+        if (collapsed_partitions[layer]->need_collapsed_partition)
+            new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer], new_collapsed_membership, sub_collapsed_partitions[layer]->get_communities());
+        else
+            new_collapsed_partitions[layer] = collapsed_partitions[layer]->create(new_collapsed_graphs[layer], new_collapsed_membership);
         delete sub_collapsed_partitions[layer];
       }
     }

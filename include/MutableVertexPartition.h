@@ -135,6 +135,9 @@ class MutableVertexPartition
     // we no longer have to worry about deleting this graph.
     int destructor_delete_graph;
 
+    int need_collapsed_partition = 0;
+
+
   protected:
 
     void init_admin();

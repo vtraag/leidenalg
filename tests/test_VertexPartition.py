@@ -218,6 +218,24 @@ class SignificanceVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
     super(SignificanceVertexPartitionTest, self).setUp()
     self.partition_type = leidenalg.SignificanceVertexPartition
 
+"""
+class GeneralizedModularityVertexPartitionTest(BaseTest.MutableVertexPartitionTest):
+  def setUp(self):
+    super(GeneralizedModularityVertexPartitionTest, self).setUp()
+
+    def partition_type(graph, weights=None):
+        null_model = [graph.vcount()*[1.0], graph.vcount()*[1.0]]
+        print(null_model)
+        _graph = graph.copy()
+        _graph.to_directed()
+        return leidenalg.GeneralizedModularityVertexPartition(
+            _graph, weights=weights, null_model=null_model
+        )
+
+    self.partition_type = partition_type
+
+"""
+
 #%%
 if __name__ == '__main__':
   #%%
