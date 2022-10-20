@@ -43,11 +43,11 @@ graphs = [
 
     ###########################################################################
     # Tree
-    name_object(ig.Graph.Tree(100, 3, type=ig.TREE_UNDIRECTED),
+    name_object(ig.Graph.Tree(100, 3, mode='undirected'),
                 'Tree_undirected'),
-    name_object(ig.Graph.Tree(100, 3, type=ig.TREE_OUT),
+    name_object(ig.Graph.Tree(100, 3, mode='out'),
                 'Tree_directed_out'),
-    name_object(ig.Graph.Tree(100, 3, type=ig.TREE_IN),
+    name_object(ig.Graph.Tree(100, 3, mode='in'),
                 'Tree_directed_in'),
 
     ###########################################################################

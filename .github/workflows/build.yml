@@ -13,7 +13,12 @@ on:
 env:
   CIBW_TEST_REQUIRES: ddt
   CIBW_TEST_COMMAND: "cd {project} && python -m unittest -v"
-  CIBW_SKIP: "cp27-* pp27-* cp35-*"
+  CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
+  CIBW_MANYLINUX_I686_IMAGE: "manylinux2014"
+  CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2014"
+  CIBW_MANYLINUX_PYPY_I686_IMAGE: "manylinux2014"
+  CIBW_SKIP: "cp36-*"
+  MACOSX_DEPLOYMENT_TARGET: "10.9"  
 
 jobs:
   build_wheel_linux:
@@ -34,19 +39,61 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+      - name: Build wheels (manylinux)
+        uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD: "yum install -y flex bison && pip install cmake && python setup.py build_c_core"
+          CIBW_BEFORE_BUILD: "yum install -y flex bison && pip install cmake wheel && python setup.py build_c_core"
+          CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}          
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
+
+      - name: Build wheels (musllinux)
+        uses: pypa/cibuildwheel@v2.10.2
+        env:
+          CIBW_BEFORE_BUILD: "apk add flex bison zlib-dev && pip install cmake wheel && python setup.py build_c_core"
+          CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
+          CIBW_TEST_EXTRAS: "test-musl"
+
+      - uses: actions/upload-artifact@v2
+        with:
+          path: ./wheelhouse/*.whl
+
+  build_wheel_linux_aarch64:
+    name: Build wheels on Linux (aarch64)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        id: qemu
+        uses: docker/setup-qemu-action@v2
+
+      - name: Build wheels (manylinux)
+        uses: pypa/cibuildwheel@v2.10.2
+        env:
+          CIBW_BEFORE_BUILD: "yum install -y flex bison zlib-devel && pip install cmake wheel && python setup.py build_c_core"
+          CIBW_ARCHS_LINUX: aarch64
+          CIBW_BUILD: "*-manylinux_aarch64"
 
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
 
   build_wheel_macos:
-    name: Build wheels on macOS
-    runs-on: macos-10.15
+    name: Build wheels on macOS (${{ matrix.wheel_arch }})
+    runs-on: macos-latest
+    env:
+      LLVM_VERSION: "14.0.5"
+    strategy:
+      matrix:
+        include:
+          - cmake_arch: x86_64
+            wheel_arch: x86_64
+          - cmake_arch: arm64
+            cmake_extra_args: -DF2C_EXTERNAL_ARITH_HEADER=../../../etc/arith_apple_m1.h -DIEEE754_DOUBLE_ENDIANNESS_MATCHES=ON
+            wheel_arch: arm64
 
     steps:
       - uses: actions/checkout@v2
@@ -59,7 +106,14 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor/install
-          key: C-core-${{ runner.os }}-${{ hashFiles('.gitmodules') }}
+          key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}-${{ hashFiles('.git/modules/**/HEAD') }}
+
+      - name: Cache C core dependencies
+        id: cache-c-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/local
+          key: deps-cache-v2-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -67,14 +121,17 @@ jobs:
           python-version: '3.8'
 
       - name: Install OS dependencies
-        if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
+        if: steps.cache-c-core.outputs.cache-hit != 'true' || steps.cache-c-deps.outputs.cache-hit != 'true' # Only needed when building the C core
         run:
-          brew install autoconf automake libtool cmake
+          brew install ninja autoconf automake libtool cmake
 
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        uses: pypa/cibuildwheel@v2.10.2
         env:
+          CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
+          CIBW_ENVIRONMENT: "LDFLAGS=-L$HOME/local/lib"
+          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} ${{ matrix.cmake_extra_args }} -DCMAKE_PREFIX_PATH=$HOME/local
 
       - uses: actions/upload-artifact@v2
         with:
@@ -88,10 +145,8 @@ jobs:
         include:
           - cmake_arch: Win32
             wheel_arch: win32
-            vcpkg_arch: x86
           - cmake_arch: x64
             wheel_arch: win_amd64
-            vcpkg_arch: x64
 
     steps:
       - uses: actions/checkout@v2
@@ -109,18 +164,19 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor/install
-          key: C-core-build-${{ runner.os }}-${{ matrix.cmake_arch }}-${{ hashFiles('.gitmodules') }}-
+          key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-${{ hashFiles('.git/modules/**/HEAD') }}
 
       - name: Install build dependencies
         if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
-        run: choco install winflexbison3 cmake
+        run: choco install winflexbison3 cmake ninja
 
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        uses: pypa/cibuildwheel@v2.10.2
         env:
           CIBW_BEFORE_BUILD: "python setup.py build_c_core"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
-          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_BUILD_TYPE=Release -A ${{ matrix.cmake_arch }}
+          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo -A ${{ matrix.cmake_arch }}
+          IGRAPH_STATIC_EXTENSION: True
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
 
       - uses: actions/upload-artifact@v2
@@ -141,14 +197,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            vendor/build
             vendor/install
-          key: C-core-${{ runner.os }}-${{ hashFiles('.gitmodules') }}-4
+          key: C-core-cache-${{ runner.os }}-${{ hashFiles('.git/modules/**/HEAD') }}
 
       - name: Install OS dependencies
         if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
         run:
-          sudo apt install cmake flex bison
+          sudo apt install ninja-build cmake flex bison
 
       - uses: actions/setup-python@v2
         name: Install Python

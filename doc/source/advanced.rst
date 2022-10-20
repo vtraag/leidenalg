@@ -222,7 +222,7 @@ We can then only update the community assignments for the new nodes as follows
 >>> new_partition = la.CPMVertexPartition(G2, new_membership,
 ...                                       resolution_parameter=partition.resolution_parameter)
 ... is_membership_fixed = [i < G.vcount() for i in range(G2.vcount())]
->>> diff = optimiser.optimise_partition(partition, is_membership_fixed=is_membership_fixed)
+>>> diff = optimiser.optimise_partition(new_partition, is_membership_fixed=is_membership_fixed)
 
 In this example we used :class:`~leidenalg.CPMVertexPartition`. but any other
 ``VertexPartition`` would work as well.

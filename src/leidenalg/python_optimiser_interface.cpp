@@ -83,7 +83,8 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        throw Exception("Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_ValueError, "Node size vector not the same size as the number of nodes.");
+        return NULL;
       }
 
       for (size_t v = 0; v < n; v++)
@@ -167,7 +168,10 @@ extern "C"
       }
 
       if (isnan(layer_weights[layer]))
-        throw Exception("Cannot accept NaN weights.");
+      {
+        PyErr_SetString(PyExc_TypeError, "Cannot accept NaN weights.");
+        return NULL;
+      }
     }
 
     if (nb_partitions == 0)
@@ -184,7 +188,8 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        throw Exception("Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_TypeError, "Node size vector not the same size as the number of nodes.");
+        return NULL;
       }
 
       for (size_t v = 0; v < n; v++)
@@ -265,7 +270,8 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        throw Exception("Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_TypeError, "Node size vector not the same size as the number of nodes.");
+        return NULL;
       }
 
       for (size_t v = 0; v < n; v++)
@@ -340,7 +346,8 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        throw Exception("Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_TypeError, "Node size vector not the same size as the number of nodes.");
+        return NULL;
       }
 
       for (size_t v = 0; v < n; v++)
