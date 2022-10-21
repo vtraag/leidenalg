@@ -228,7 +228,9 @@ class Optimiser(object):
   @min_comm_size.setter
   def min_comm_size(self, value):
     if value < 0:
-        raise ValueError("negative min_comm_size: %s" % value)
+        raise ValueError("Negative minimum community size: %s" % value)
+    elif value > self.max_comm_size and self.max_comm_size > 0:
+        raise ValueError("Minimum community size should be less than or equal to the maximum community size")
     _c_leiden._Optimiser_set_min_comm_size(self._optimiser, value)
 
   #########################################################3
@@ -247,6 +249,8 @@ class Optimiser(object):
   def max_comm_size(self, value):
     if value < 0:
         raise ValueError("negative max_comm_size: %s" % value)
+    elif value < self.min_comm_size and self.min_comm_size > 0:
+        raise ValueError("Maximum community size should be larger than or equal to the minimum community size")        
     _c_leiden._Optimiser_set_max_comm_size(self._optimiser, value)
 
   #########################################################3

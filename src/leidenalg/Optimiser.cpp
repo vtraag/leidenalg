@@ -60,33 +60,39 @@ double Optimiser::improvement_community_constraints(size_t old_size, size_t new_
     if (community_constraint_enforcement <= 0)
         return 0.0;
 
-    // What is the difference for the old community wrt the maximum community size?
-    if (old_size > max_comm_size)
-        improvement += pow(old_size - max_comm_size, 2);
+    if (max_comm_size > 0)
+    {
+      // What is the difference for the old community wrt the maximum community size?
+      if (old_size > max_comm_size)
+          improvement += pow(old_size - max_comm_size, 2);
 
-    if (old_size - v_size > max_comm_size)
-        improvement -= pow((old_size - v_size) - max_comm_size, 2);
+      if (old_size - v_size > max_comm_size)
+          improvement -= pow((old_size - v_size) - max_comm_size, 2);
 
-    // What is the difference for the new community wrt the maximum community size?
-    if (new_size > max_comm_size)
-        improvement += pow(new_size - max_comm_size, 2);
+      // What is the difference for the new community wrt the maximum community size?
+      if (new_size > max_comm_size)
+          improvement += pow(new_size - max_comm_size, 2);
 
-    if (new_size + v_size > max_comm_size)
-        improvement -= pow((new_size + v_size) - max_comm_size, 2);
+      if (new_size + v_size > max_comm_size)
+          improvement -= pow((new_size + v_size) - max_comm_size, 2);
+    }
 
-    // What is the difference for the old community wrt the minimum community size?
-    if (old_size < min_comm_size)
-        improvement += pow(min_comm_size - old_size, 2);
+    if (min_comm_size > 0)
+    {
+      // What is the difference for the old community wrt the minimum community size?
+      if (old_size < min_comm_size)
+          improvement += pow(min_comm_size - old_size, 2);
 
-    if (old_size > v_size && old_size - v_size < min_comm_size)  // Only consider if community is not empty
-        improvement -= pow(min_comm_size - (old_size - v_size), 2);
+      if (old_size > v_size && old_size - v_size < min_comm_size)  // Only consider if community is not empty
+          improvement -= pow(min_comm_size - (old_size - v_size), 2);
 
-    // What is the difference for the new community wrt the minimum community size?
-    if (new_size > 0 && new_size < min_comm_size) // Only consider if community is not empty
-        improvement += pow(min_comm_size - new_size, 2);
+      // What is the difference for the new community wrt the minimum community size?
+      if (new_size > 0 && new_size < min_comm_size) // Only consider if community is not empty
+          improvement += pow(min_comm_size - new_size, 2);
 
-    if (new_size + v_size < min_comm_size)
-        improvement -= pow(min_comm_size - (new_size + v_size), 2);
+      if (new_size + v_size < min_comm_size)
+          improvement -= pow(min_comm_size - (new_size + v_size), 2);
+    }
 
     return community_constraint_enforcement*improvement;
 }
@@ -145,6 +151,11 @@ double Optimiser::optimise_partition(vector<MutableVertexPartition*> partitions,
   for (Graph* graph : graphs)
     if (graph->vcount() != n)
       throw Exception("Number of nodes are not equal for all graphs.");
+
+  // Make sure that the minimum community size is less than or equals the
+  // maximum community size
+  if (max_comm_size > 0 && min_comm_size > 0 && max_comm_size < min_comm_size)
+    throw Exception("Maximum community size is smaller than the minimum community size.");
 
   // Get the fixed membership for fixed nodes
   vector<size_t> fixed_nodes;
@@ -542,6 +553,11 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
   // Number of moved nodes during one loop
   size_t nb_moves = 0;
 
+  // Make sure that the minimum community size is less than or equals the
+  // maximum community size
+  if (max_comm_size > 0 && min_comm_size > 0 && max_comm_size < min_comm_size)
+    throw Exception("Maximum community size is smaller than the minimum community size.");  
+
   // Fixed nodes are also stable nodes
   vector<bool> is_node_stable(is_membership_fixed);
 
@@ -788,6 +804,11 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
   // Number of nodes in the graph
   size_t n = graphs[0]->vcount();
 
+  // Make sure that the minimum community size is less than or equals the
+  // maximum community size
+  if (max_comm_size > 0 && min_comm_size > 0 && max_comm_size < min_comm_size)
+    throw Exception("Maximum community size is smaller than the minimum community size.");
+
   // Get the fixed membership for fixed nodes
   vector<size_t> fixed_nodes;
   vector<size_t> fixed_membership(n);
@@ -1015,6 +1036,11 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
       throw Exception("Number of nodes are not equal for all graphs.");
   // Number of moved nodes during one loop
   size_t nb_moves = 0;
+
+  // Make sure that the minimum community size is less than or equals the
+  // maximum community size
+  if (max_comm_size > 0 && min_comm_size > 0 && max_comm_size < min_comm_size)
+    throw Exception("Maximum community size is smaller than the minimum community size.");  
 
   // Establish vertex order
   // We normally initialize the normal vertex order
@@ -1244,6 +1270,11 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
     graphs[layer] = partitions[layer]->get_graph();
   // Number of nodes in the graph
   size_t n = graphs[0]->vcount();
+
+  // Make sure that the minimum community size is less than or equals the
+  // maximum community size
+  if (max_comm_size > 0 && min_comm_size > 0 && max_comm_size < min_comm_size)
+    throw Exception("Maximum community size is smaller than the minimum community size.");
 
   // Total improvement while merging nodes
   double total_improv = 0.0;
