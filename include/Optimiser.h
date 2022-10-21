@@ -53,12 +53,12 @@ class Optimiser
     double move_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
     double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
-    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
+    double move_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, bool enforce_community_size_constraint);
 
     double merge_nodes_constrained(MutableVertexPartition* partition, MutableVertexPartition* constrained_partition);
     double merge_nodes_constrained(MutableVertexPartition* partition, int consider_comms, MutableVertexPartition* constrained_partition);
     double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, MutableVertexPartition* constrained_partition);
-    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition);
+    double merge_nodes_constrained(vector<MutableVertexPartition*> partitions, vector<double> layer_weights, int consider_comms, MutableVertexPartition* constrained_partition, bool enforce_community_size_constraint);
 
     inline void set_rng_seed(size_t seed) { igraph_rng_seed(&rng, seed); };
 
