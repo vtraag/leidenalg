@@ -646,7 +646,7 @@ double Optimiser::move_nodes(vector<MutableVertexPartition*> partitions, vector<
 
     size_t max_comm = v_comm;
     double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 10*DBL_EPSILON;
-    size_t v_size = graphs[0]->node_size(v);
+    double v_size = graphs[0]->node_size(v);
     for (size_t comm : comms)
     {
       // reset comm_added to all false
@@ -895,7 +895,7 @@ double Optimiser::merge_nodes(vector<MutableVertexPartition*> partitions, vector
 
       size_t max_comm = v_comm;
       double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 0;
-      size_t v_size = graphs[0]->node_size(v);
+      double v_size = graphs[0]->node_size(v);
       for (size_t comm : comms)
       {
         // Do not create too-large communities.
@@ -1119,7 +1119,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
 
     size_t max_comm = v_comm;
     double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 10*DBL_EPSILON;
-    size_t v_size = graphs[0]->node_size(v);
+    double v_size = graphs[0]->node_size(v);
     for (size_t comm : comms)
     {
       // Do not create too-large communities.
@@ -1358,7 +1358,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
 
       size_t max_comm = v_comm;
       double max_improv = (0 < max_comm_size && max_comm_size < partitions[0]->csize(v_comm)) ? -INFINITY : 0;
-      size_t v_size = graphs[0]->node_size(v);
+      double v_size = graphs[0]->node_size(v);
       for (size_t comm : comms)
       {
         // reset comm_added to all false

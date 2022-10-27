@@ -67,30 +67,31 @@ class Graph
   public:
     Graph(igraph_t* graph,
       vector<double> const& edge_weights,
-      vector<size_t> const& node_sizes,
+      vector<double> const& node_sizes,
       vector<double> const& node_self_weights, int correct_self_loops);
     Graph(igraph_t* graph,
       vector<double> const& edge_weights,
-      vector<size_t> const& node_sizes,
+      vector<double> const& node_sizes,
       vector<double> const& node_self_weights);
     Graph(igraph_t* graph,
       vector<double> const& edge_weights,
-      vector<size_t> const& node_sizes, int correct_self_loops);
+      vector<double> const& node_sizes, int correct_self_loops);
     Graph(igraph_t* graph,
       vector<double> const& edge_weights,
-      vector<size_t> const& node_sizes);
-    Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops);
-    Graph(igraph_t* graph, vector<double> const& edge_weights);
-    Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops);
-    Graph(igraph_t* graph, vector<size_t> const& node_sizes);
+      vector<double> const& node_sizes);
     Graph(igraph_t* graph, int correct_self_loops);
     Graph(igraph_t* graph);
     Graph();
     ~Graph();
 
+    static Graph* GraphFromEdgeWeights(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops);
+    static Graph* GraphFromEdgeWeights(igraph_t* graph, vector<double> const& edge_weights);
+    static Graph* GraphFromNodeSizes(igraph_t* graph, vector<double> const& node_sizes, int correct_self_loops);
+    static Graph* GraphFromNodeSizes(igraph_t* graph, vector<double> const& node_sizes);
+
     int has_self_loops();
-    size_t possible_edges();
-    size_t possible_edges(size_t n);
+    double possible_edges();
+    double possible_edges(double n);
 
     Graph* collapse_graph(MutableVertexPartition* partition);
 
@@ -108,7 +109,7 @@ class Graph
     inline size_t vcount() { return igraph_vcount(this->_graph); };
     inline size_t ecount() { return igraph_ecount(this->_graph); };
     inline double total_weight() { return this->_total_weight; };
-    inline size_t total_size() { return this->_total_size; };
+    inline double total_size() { return this->_total_size; };
     inline int is_directed() { return this->_is_directed; };
     inline double density() { return this->_density; };
     inline int correct_self_loops() { return this->_correct_self_loops; };
@@ -137,7 +138,7 @@ class Graph
     }
 
     // Get size of node based on attribute (or 1.0 if there is none).
-    inline size_t node_size(size_t v)
+    inline double node_size(size_t v)
     { return this->_node_sizes[v]; };
 
     // Get self weight of node based on attribute (or set to 0.0 if there is none)
@@ -170,7 +171,6 @@ class Graph
 
     int _remove_graph;
 
-  private:
     igraph_t* _graph;
     igraph_vector_int_t _temp_igraph_vector;
 
@@ -183,7 +183,7 @@ class Graph
     vector<size_t> _degree_all;
 
     vector<double> _edge_weights; // Used for the weight of the edges.
-    vector<size_t> _node_sizes; // Used for the size of the nodes.
+    vector<double> _node_sizes; // Used for the size of the nodes.
     vector<double> _node_self_weights; // Used for the self weight of the nodes.
 
     void cache_neighbours(size_t v, igraph_neimode_t mode);
@@ -197,7 +197,7 @@ class Graph
     vector<size_t> _cached_neigh_edges_all;  size_t _current_node_cache_neigh_edges_all;
 
     double _total_weight;
-    size_t _total_size;
+    double _total_size;
     int _is_weighted;
     bool _is_directed;
 

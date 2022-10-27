@@ -35,21 +35,21 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     cerr << "virtual double SignificanceVertexPartition::diff_move(" << v << ", " << new_comm << ")" << endl;
   #endif
   size_t old_comm = this->membership(v);
-  size_t nsize = this->graph->node_size(v);
+  double nsize = this->graph->node_size(v);
   double diff = 0.0;
   if (new_comm != old_comm)
   {
     double normalise = (2.0 - this->graph->is_directed());
     double p = this->graph->density();
     #ifdef DEBUG
-      size_t n = this->graph->total_size();
+      double n = this->graph->total_size();
       cerr << "\t" << "Community: " << old_comm << " => " << new_comm << "." << endl;
       cerr << "\t" << "n: " << n << ", m: " << this->graph->total_weight() << ", p: " << p << "." << endl;
     #endif
 
     //Old comm
-    size_t n_old = this->csize(old_comm);
-    size_t N_old = this->graph->possible_edges(n_old);
+    double n_old = this->csize(old_comm);
+    double N_old = this->graph->possible_edges(n_old);
     double m_old = this->total_weight_in_comm(old_comm);
     double q_old = 0.0;
     if (N_old > 0)
@@ -59,8 +59,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
            << ", KL: " << KL(q_old, p)  << "." << endl;
     #endif
     // Old comm after move
-    size_t n_oldx = n_old - nsize; // It should not be possible that this becomes negative, so no need for ptrdiff_t here.
-    size_t N_oldx = this->graph->possible_edges(n_oldx);
+    double n_oldx = n_old - nsize; // It should not be possible that this becomes negative, so no need for ptrdiff_t here.
+    double N_oldx = this->graph->possible_edges(n_oldx);
     double sw = this->graph->node_self_weight(v);
     // Be careful to exclude the self weight here, because this is include in the weight_to_comm function.
     double wtc = this->weight_to_comm(v, old_comm) - sw;
@@ -78,8 +78,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
 
     // New comm
-    size_t n_new = this->csize(new_comm);
-    size_t N_new = this->graph->possible_edges(n_new);
+    double n_new = this->csize(new_comm);
+    double N_new = this->graph->possible_edges(n_new);
     double m_new = this->total_weight_in_comm(new_comm);
     double q_new = 0.0;
     if (N_new > 0)
@@ -90,8 +90,8 @@ double SignificanceVertexPartition::diff_move(size_t v, size_t new_comm)
     #endif
 
     // New comm after move
-    size_t n_newx = n_new + nsize;
-    size_t N_newx = this->graph->possible_edges(n_newx);
+    double n_newx = n_new + nsize;
+    double N_newx = this->graph->possible_edges(n_newx);
     wtc = this->weight_to_comm(v, new_comm);
     wfc = this->weight_from_comm(v, new_comm);
     sw = this->graph->node_self_weight(v);
@@ -134,7 +134,7 @@ double SignificanceVertexPartition::quality()
 {
   #ifdef DEBUG
     cerr << "double SignificanceVertexPartition::quality()";
-    size_t n = this->graph->total_size();
+    double n = this->graph->total_size();
   #endif
   double S = 0.0;
   double p = this->graph->density();
@@ -143,7 +143,7 @@ double SignificanceVertexPartition::quality()
   #endif
   for (size_t c = 0; c < this->n_communities(); c++)
   {
-    size_t n_c = this->csize(c);
+    double n_c = this->csize(c);
     double m_c = this->total_weight_in_comm(c);
     double p_c = 0.0;
     size_t N_c = this->graph->possible_edges(n_c);

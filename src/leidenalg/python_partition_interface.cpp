@@ -30,7 +30,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
   size_t n = igraph_vcount(py_graph);
   size_t m = igraph_ecount(py_graph);
 
-  vector<size_t> node_sizes;
+  vector<double> node_sizes;
   vector<double> weights;
   if (py_node_sizes != NULL && py_node_sizes != Py_None)
   {
@@ -47,14 +47,14 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_node_sizes, v);
-      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
+      if (PyNumber_Check(py_item))
       {
-        size_t e = PyLong_AsSize_t(PyNumber_Long(py_item));
+        double e = PyFloat_AsDouble(py_item);
         node_sizes[v] = e;
       }
       else
       {
-        throw Exception("Expected integer value for node sizes vector.");
+        throw Exception("Expected numerical values for node sizes vector.");
       }
     }
   }
@@ -104,12 +104,12 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     if (weights.size() == m)
       graph = new Graph(py_graph, weights, node_sizes, correct_self_loops);
     else
-      graph = new Graph(py_graph, node_sizes, correct_self_loops);
+      graph = Graph::GraphFromNodeSizes(py_graph, node_sizes, correct_self_loops);
   }
   else
   {
     if (weights.size() == m)
-      graph = new Graph(py_graph, weights, correct_self_loops);
+      graph = Graph::GraphFromEdgeWeights(py_graph, weights, correct_self_loops);
     else
       graph = new Graph(py_graph, correct_self_loops);
   }

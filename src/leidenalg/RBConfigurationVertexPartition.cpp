@@ -147,7 +147,7 @@ double RBConfigurationVertexPartition::quality(double resolution_parameter)
     double w_out = this->total_weight_from_comm(c);
     double w_in = this->total_weight_to_comm(c);
     #ifdef DEBUG
-      size_t csize = this->csize(c);
+      double csize = this->csize(c);
       cerr << "\t" << "Comm: " << c << ", size=" << csize << ", w=" << w << ", w_out=" << w_out << ", w_in=" << w_in << "." << endl;
     #endif
     mod += w - resolution_parameter*w_out*w_in/((this->graph->is_directed() ? 1.0 : 4.0)*this->graph->total_weight());

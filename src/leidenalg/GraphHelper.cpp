@@ -69,7 +69,7 @@ double KLL(double q, double p)
 
 Graph::Graph(igraph_t* graph,
   vector<double> const& edge_weights,
-  vector<size_t> const& node_sizes,
+  vector<double> const& node_sizes,
   vector<double> const& node_self_weights, int correct_self_loops)
 {
   this->_graph = graph;
@@ -95,7 +95,7 @@ Graph::Graph(igraph_t* graph,
 
 Graph::Graph(igraph_t* graph,
   vector<double> const& edge_weights,
-  vector<size_t> const& node_sizes,
+  vector<double> const& node_sizes,
   vector<double> const& node_self_weights)
 {
   this->_graph = graph;
@@ -119,7 +119,7 @@ Graph::Graph(igraph_t* graph,
 
 Graph::Graph(igraph_t* graph,
   vector<double> const& edge_weights,
-  vector<size_t> const& node_sizes, int correct_self_loops)
+  vector<double> const& node_sizes, int correct_self_loops)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -141,7 +141,7 @@ Graph::Graph(igraph_t* graph,
 
 Graph::Graph(igraph_t* graph,
   vector<double> const& edge_weights,
-  vector<size_t> const& node_sizes)
+  vector<double> const& node_sizes)
 {
   this->_graph = graph;
   this->_remove_graph = false;
@@ -161,72 +161,76 @@ Graph::Graph(igraph_t* graph,
   this->set_self_weights();
 }
 
-Graph::Graph(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops)
+Graph* Graph::GraphFromEdgeWeights(igraph_t* graph, vector<double> const& edge_weights, int correct_self_loops)
 {
-  this->_graph = graph;
-  this->_remove_graph = false;
-  this->_correct_self_loops = correct_self_loops;
-  if (edge_weights.size() != this->ecount())
+  Graph* g = new Graph(graph, correct_self_loops);
+
+  if (edge_weights.size() != g->ecount())
     throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
-  this->_edge_weights = edge_weights;
-  this->_is_weighted = true;
-  this->set_default_node_size();
-  igraph_vector_int_init(&this->_temp_igraph_vector, this->vcount());
-  this->init_admin();
-  this->set_self_weights();
+  g->_edge_weights = edge_weights;
+  g->_is_weighted = true;
+  g->set_default_node_size();
+  igraph_vector_int_init(&g->_temp_igraph_vector, g->vcount());
+  g->init_admin();
+  g->set_self_weights();
+
+  return g;
 }
 
-Graph::Graph(igraph_t* graph, vector<double> const& edge_weights)
+Graph* Graph::GraphFromEdgeWeights(igraph_t* graph, vector<double> const& edge_weights)
 {
-  this->_graph = graph;
-  this->_remove_graph = false;
-  if (edge_weights.size() != this->ecount())
+  Graph* g = new Graph(graph);
+
+  if (edge_weights.size() != g->ecount())
     throw Exception("Edge weights vector inconsistent length with the edge count of the graph.");
-  this->_edge_weights = edge_weights;
-  this->_is_weighted = true;
+  g->_edge_weights = edge_weights;
+  g->_is_weighted = true;
+  g->set_default_node_size();
+  igraph_vector_int_init(&g->_temp_igraph_vector, g->vcount());
+  g->init_admin();
+  g->set_self_weights();
 
-  this->_correct_self_loops = this->has_self_loops();
-
-  this->set_default_node_size();
-  igraph_vector_int_init(&this->_temp_igraph_vector, this->vcount());
-  this->init_admin();
-  this->set_self_weights();
+  return g;
 }
 
-Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes, int correct_self_loops)
+Graph* Graph::GraphFromNodeSizes(igraph_t* graph, vector<double> const& node_sizes, int correct_self_loops)
 {
-  this->_graph = graph;
-  this->_remove_graph = false;
-  this->_correct_self_loops = correct_self_loops;
+  Graph* g = new Graph(graph, correct_self_loops);
 
-  if (node_sizes.size() != this->vcount())
+  if (node_sizes.size() != g->vcount())
     throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
-  this->_node_sizes = node_sizes;
+  g->_node_sizes = node_sizes;
 
-  this->set_default_edge_weight();
-  this->_is_weighted = false;
-  igraph_vector_int_init(&this->_temp_igraph_vector, this->vcount());
-  this->init_admin();
-  this->set_self_weights();
+  g->set_default_edge_weight();
+  g->_is_weighted = false;
+  igraph_vector_int_init(&g->_temp_igraph_vector, g->vcount());
+  g->init_admin();
+  g->set_self_weights();
+  
+  return g;
 }
 
-Graph::Graph(igraph_t* graph, vector<size_t> const& node_sizes)
+Graph* Graph::GraphFromNodeSizes(igraph_t* graph, vector<double> const& node_sizes)
 {
-  this->_graph = graph;
-  this->_remove_graph = false;
-  this->set_defaults();
-  this->_is_weighted = false;
+  Graph* g = new Graph(graph);
 
-  if (node_sizes.size() != this->vcount())
+  g->_graph = graph;
+  g->_remove_graph = false;
+  g->set_defaults();
+  g->_is_weighted = false;
+
+  if (node_sizes.size() != g->vcount())
     throw Exception("Node size vector inconsistent length with the vertex count of the graph.");
 
-  this->_node_sizes = node_sizes;
+  g->_node_sizes = node_sizes;
 
-  this->_correct_self_loops = this->has_self_loops();
+  g->_correct_self_loops = g->has_self_loops();
 
-  igraph_vector_int_init(&this->_temp_igraph_vector, this->vcount());
-  this->init_admin();
-  this->set_self_weights();
+  igraph_vector_int_init(&g->_temp_igraph_vector, g->vcount());
+  g->init_admin();
+  g->set_self_weights();
+
+  return g;
 }
 
 Graph::Graph(igraph_t* graph, int correct_self_loops)
@@ -284,12 +288,12 @@ int Graph::has_self_loops()
   return has_self_loops;
 }
 
-size_t Graph::possible_edges()
+double Graph::possible_edges()
 {
   return this->possible_edges(this->vcount());
 }
 
-size_t Graph::possible_edges(size_t n)
+double Graph::possible_edges(double n)
 {
   size_t possible_edges = n*(n-1);
   if (!this->is_directed())
@@ -413,7 +417,7 @@ void Graph::init_admin()
 
   // Calculate density;
   double w = this->total_weight();
-  size_t n_size = this->total_size();
+  double n_size = this->total_size();
 
   // For now we default to not correcting self loops.
   // this->_correct_self_loops = false; (remove this as this is set in the constructor)
@@ -747,7 +751,7 @@ Graph* Graph::collapse_graph(MutableVertexPartition* partition)
     throw Exception("Something went wrong with collapsing the graph.");
 
   // Calculate new node sizes
-  vector<size_t> csizes(n_collapsed, 0);
+  vector<double> csizes(n_collapsed, 0);
   for (size_t c = 0; c < partition->n_communities(); c++)
     csizes[c] = partition->csize(c);
 
