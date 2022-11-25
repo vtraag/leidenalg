@@ -25,7 +25,7 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes);
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights);
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, int check_positive_weight);
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, bool check_positive_weight, bool correct_self_loops);
 
 vector<size_t> create_size_t_vector(PyObject* py_list);
 
