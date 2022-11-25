@@ -295,7 +295,7 @@ double Graph::possible_edges()
 
 double Graph::possible_edges(double n)
 {
-  size_t possible_edges = n*(n-1);
+  double possible_edges = n*(n-1);
   if (!this->is_directed())
     possible_edges /= 2;
   if (this->correct_self_loops())
