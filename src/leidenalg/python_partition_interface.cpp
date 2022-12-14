@@ -2,15 +2,15 @@
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes)
 {
-  return create_graph_from_py(py_obj_graph, py_node_sizes, NULL, true);
+  return create_graph_from_py(py_obj_graph, py_node_sizes, NULL, true, false);
 }
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights)
 {
-  return create_graph_from_py(py_obj_graph, py_node_sizes, py_weights, true);
+  return create_graph_from_py(py_obj_graph, py_node_sizes, py_weights, true, false);
 }
 
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, int check_positive_weight)
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, bool check_positive_weight, bool correct_self_loops)
 {
   #ifdef DEBUG
     cerr << "create_graph_from_py" << endl;
@@ -30,7 +30,7 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
   size_t n = igraph_vcount(py_graph);
   size_t m = igraph_ecount(py_graph);
 
-  vector<size_t> node_sizes;
+  vector<double> node_sizes;
   vector<double> weights;
   if (py_node_sizes != NULL && py_node_sizes != Py_None)
   {
@@ -47,14 +47,14 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     for (size_t v = 0; v < n; v++)
     {
       PyObject* py_item = PyList_GetItem(py_node_sizes, v);
-      if (PyNumber_Check(py_item) && PyIndex_Check(py_item))
+      if (PyNumber_Check(py_item))
       {
-        size_t e = PyLong_AsSize_t(PyNumber_Long(py_item));
+        double e = PyFloat_AsDouble(py_item);
         node_sizes[v] = e;
       }
       else
       {
-        throw Exception("Expected integer value for node sizes vector.");
+        throw Exception("Expected numerical values for node sizes vector.");
       }
     }
   }
@@ -97,19 +97,17 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     }
   }
 
-  // TODO: Pass correct_for_self_loops as parameter
-  int correct_self_loops = false;
   if (node_sizes.size() == n)
   {
     if (weights.size() == m)
       graph = new Graph(py_graph, weights, node_sizes, correct_self_loops);
     else
-      graph = new Graph(py_graph, node_sizes, correct_self_loops);
+      graph = Graph::GraphFromNodeSizes(py_graph, node_sizes, correct_self_loops);
   }
   else
   {
     if (weights.size() == m)
-      graph = new Graph(py_graph, weights, correct_self_loops);
+      graph = Graph::GraphFromEdgeWeights(py_graph, weights, correct_self_loops);
     else
       graph = new Graph(py_graph, correct_self_loops);
   }
@@ -317,17 +315,18 @@ extern "C"
     PyObject* py_weights = NULL;
     PyObject* py_node_sizes = NULL;
     double resolution_parameter = 1.0;
+    int correct_self_loops = false;
 
-    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", NULL};
+    static const char* kwlist[] = {"graph", "initial_membership", "weights", "node_sizes", "resolution_parameter", "correct_self_loops", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOd", (char**) kwlist,
-                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter))
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "O|OOOdp", (char**) kwlist,
+                                     &py_obj_graph, &py_initial_membership, &py_weights, &py_node_sizes, &resolution_parameter, &correct_self_loops))
         return NULL;
 
     try
     {
 
-      Graph* graph = create_graph_from_py(py_obj_graph, py_node_sizes, py_weights, false);
+      Graph* graph = create_graph_from_py(py_obj_graph, py_node_sizes, py_weights, false, correct_self_loops);
 
       CPMVertexPartition* partition = NULL;
 

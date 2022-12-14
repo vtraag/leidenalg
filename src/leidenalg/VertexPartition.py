@@ -890,7 +890,7 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
          resolution-limit-free community detection.  Physical Review E, 84(1),
          016114.  `10.1103/PhysRevE.84.016114 <http://doi.org/10.1103/PhysRevE.84.016114>`_
    """
-  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0):
+  def __init__(self, graph, initial_membership=None, weights=None, node_sizes=None, resolution_parameter=1.0, correct_self_loops=None):
     """
     Parameters
     ----------
@@ -935,8 +935,11 @@ class CPMVertexPartition(LinearResolutionParameterVertexPartition):
         # Make sure it is a list
         node_sizes = list(node_sizes)
 
+    if correct_self_loops is None:
+      correct_self_loops = any(graph.is_loop())
+
     self._partition = _c_leiden._new_CPMVertexPartition(pygraph_t,
-        initial_membership, weights, node_sizes, resolution_parameter)
+        initial_membership, weights, node_sizes, resolution_parameter, correct_self_loops)
     self._update_internal_membership()
 
   def __deepcopy__(self, memo):

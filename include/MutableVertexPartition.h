@@ -56,7 +56,7 @@ class MutableVertexPartition
     inline size_t membership(size_t v) { return this->_membership[v]; };
     inline vector<size_t> const& membership() const { return this->_membership; };
 
-    size_t csize(size_t comm);
+    double csize(size_t comm);
     size_t cnodes(size_t comm);
     vector<size_t> get_community(size_t comm);
     vector< vector<size_t> > get_communities();
@@ -143,7 +143,7 @@ class MutableVertexPartition
     Graph* graph;
 
     // Community size
-    vector< size_t > _csize;
+    vector<double> _csize;
 
     // Number of nodes in community
     vector< size_t > _cnodes;

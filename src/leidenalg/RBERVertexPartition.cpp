@@ -63,15 +63,15 @@ double RBERVertexPartition::diff_move(size_t v, size_t new_comm)
     #ifdef DEBUG
       cerr << "\t" << "w_from_new: " << w_from_new << endl;
     #endif
-    size_t nsize = this->graph->node_size(v);
+    double nsize = this->graph->node_size(v);
     #ifdef DEBUG
       cerr << "\t" << "nsize: " << nsize << endl;
     #endif
-    size_t csize_old = this->csize(old_comm);
+    double csize_old = this->csize(old_comm);
     #ifdef DEBUG
       cerr << "\t" << "csize_old: " << csize_old << endl;
     #endif
-    size_t csize_new = this->csize(new_comm);
+    double csize_new = this->csize(new_comm);
     #ifdef DEBUG
       cerr << "\t" << "csize_new: " << csize_new << endl;
     #endif
@@ -126,9 +126,9 @@ double RBERVertexPartition::quality(double resolution_parameter)
   double mod = 0.0;
   for (size_t c = 0; c < this->n_communities(); c++)
   {
-    size_t csize = this->csize(c);
+    double csize = this->csize(c);
     double w = this->total_weight_in_comm(c);
-    size_t comm_possible_edges = this->graph->possible_edges(csize);
+    double comm_possible_edges = this->graph->possible_edges(csize);
 
     #ifdef DEBUG
       cerr << "\t" << "Comm: " << c << ", w_c=" << w << ", n_c=" << csize << ", comm_possible_edges=" << comm_possible_edges << ", p=" << this->graph->density() << "." << endl;

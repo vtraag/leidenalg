@@ -72,7 +72,7 @@ void MutableVertexPartition::clean_mem()
 
 }
 
-size_t MutableVertexPartition::csize(size_t comm)
+double MutableVertexPartition::csize(size_t comm)
 {
   if (comm < this->_csize.size())
     return this->_csize[comm];
@@ -213,8 +213,8 @@ void MutableVertexPartition::init_admin()
   this->_total_possible_edges_in_all_comms = 0;
   for (size_t c = 0; c < this->_n_communities; c++)
   {
-    size_t n_c = this->csize(c);
-    size_t possible_edges = this->graph->possible_edges(n_c);
+    double n_c = this->csize(c);
+    double possible_edges = this->graph->possible_edges(n_c);
 
     #ifdef DEBUG
       cerr << "\t" << "c=" << c << ", n_c=" << n_c << ", possible_edges=" << possible_edges << endl;
@@ -283,7 +283,7 @@ void MutableVertexPartition::relabel_communities(vector<size_t> const& new_comm_
   vector<double> new_total_weight_in_comm(nbcomms, 0.0);
   vector<double> new_total_weight_from_comm(nbcomms, 0.0);
   vector<double> new_total_weight_to_comm(nbcomms, 0.0);
-  vector<size_t> new_csize(nbcomms, 0);
+  vector<double> new_csize(nbcomms, 0);
   vector<size_t> new_cnodes(nbcomms, 0);
 
   // Relabel community admin
@@ -391,7 +391,7 @@ vector<size_t> MutableVertexPartition::rank_order_communities(vector<MutableVert
   vector<size_t*> csizes;
   for (size_t i = 0; i < nb_comms; i++)
   {
-      size_t csize = 0;
+      double csize = 0;
       for (size_t layer = 0; layer < nb_layers; layer++)
         csize += partitions[layer]->csize(i);
 
@@ -559,7 +559,7 @@ void MutableVertexPartition::move_node(size_t v,size_t new_comm)
   }
 
   // Keep track of all possible edges in all communities;
-  size_t node_size = this->graph->node_size(v);
+  double node_size = this->graph->node_size(v);
   size_t old_comm = this->_membership[v];
   #ifdef DEBUG
     cerr << "Node size: " << node_size << ", old comm: " << old_comm << ", new comm: " << new_comm << endl;
