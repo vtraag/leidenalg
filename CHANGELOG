@@ -1,3 +1,7 @@
+0.9.1
+- Allow node sizes to be float (PR #115)
+- Added correct_self_loops argument to CPMVertexPartition
+
 0.9.0
 - Update C core to 0.10.1
 
