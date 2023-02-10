@@ -64,34 +64,34 @@ double Optimiser::improvement_community_constraints(size_t old_size, size_t new_
     {
       // What is the difference for the old community wrt the maximum community size?
       if (old_size > max_comm_size)
-          improvement += pow(old_size - max_comm_size, 2);
+          improvement += log(old_size - max_comm_size);
 
       if (old_size - v_size > max_comm_size)
-          improvement -= pow((old_size - v_size) - max_comm_size, 2);
+          improvement -= log((old_size - v_size) - max_comm_size);
 
       // What is the difference for the new community wrt the maximum community size?
       if (new_size > max_comm_size)
-          improvement += pow(new_size - max_comm_size, 2);
+          improvement += log(new_size - max_comm_size);
 
       if (new_size + v_size > max_comm_size)
-          improvement -= pow((new_size + v_size) - max_comm_size, 2);
+          improvement -= log((new_size + v_size) - max_comm_size);
     }
 
     if (min_comm_size > 0)
     {
       // What is the difference for the old community wrt the minimum community size?
       if (old_size < min_comm_size)
-          improvement += pow(min_comm_size - old_size, 2);
+          improvement += log(min_comm_size - old_size);
 
       if (old_size > v_size && old_size - v_size < min_comm_size)  // Only consider if community is not empty
-          improvement -= pow(min_comm_size - (old_size - v_size), 2);
+          improvement -= log(min_comm_size - (old_size - v_size));
 
       // What is the difference for the new community wrt the minimum community size?
       if (new_size > 0 && new_size < min_comm_size) // Only consider if community is not empty
-          improvement += pow(min_comm_size - new_size, 2);
+          improvement += log(min_comm_size - new_size);
 
       if (new_size + v_size < min_comm_size)
-          improvement -= pow(min_comm_size - (new_size + v_size), 2);
+          improvement -= log(min_comm_size - (new_size + v_size));
     }
 
     return community_constraint_enforcement*improvement;
