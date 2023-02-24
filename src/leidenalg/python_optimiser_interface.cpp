@@ -1029,7 +1029,7 @@ extern "C"
         return NULL;
 
     #ifdef DEBUG
-      cerr << "get_max_comm_size();" << endl;
+      cerr << "get_community_constraint_enforcement();" << endl;
     #endif
 
     #ifdef DEBUG
@@ -1040,7 +1040,7 @@ extern "C"
       cerr << "Using optimiser at address " << optimiser << endl;
     #endif
 
-    return PyFloat_FromDouble(optimiser->max_comm_size);
+    return PyFloat_FromDouble(optimiser->community_constraint_enforcement);
   }
 
   PyObject* _Optimiser_set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds)
