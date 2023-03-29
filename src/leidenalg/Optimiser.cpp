@@ -1095,8 +1095,7 @@ double Optimiser::move_nodes_constrained(vector<MutableVertexPartition*> partiti
     {
       /****************************RAND NEIGH COMM*****************************/
         // Draw a random community among the neighbours, proportional to the
-        // frequency of the communities among the neighbours. Notice this is no
-        // longer
+        // frequency of the communities among the neighbours.
         vector<size_t> all_neigh_comms_incl_dupes;
         for (size_t layer = 0; layer < nb_layers; layer++)
         {
@@ -1329,8 +1328,7 @@ double Optimiser::merge_nodes_constrained(vector<MutableVertexPartition*> partit
       {
         /****************************RAND NEIGH COMM*****************************/
           // Draw a random community among the neighbours, proportional to the
-          // frequency of the communities among the neighbours. Notice this is no
-          // longer
+          // frequency of the communities among the neighbours.
           vector<size_t> all_neigh_comms_incl_dupes;
           for (size_t layer = 0; layer < nb_layers; layer++)
           {

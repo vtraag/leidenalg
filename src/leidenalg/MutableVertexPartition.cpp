@@ -898,20 +898,17 @@ vector<size_t> const& MutableVertexPartition::get_neigh_comms(size_t v, igraph_n
   throw Exception("Problem obtaining neighbour communities, invalid mode.");
 }
 
+// Get communities for all neighbours, even if they appear multiple times.
+// Only consider neighours that are in the same constrained community.
 vector<size_t> MutableVertexPartition::get_neigh_comms(size_t v, igraph_neimode_t mode, vector<size_t> const& constrained_membership)
 {
   vector<size_t> neigh_comms;
-  vector<bool> comm_added(this->n_communities(), false);
   for (size_t u : this->graph->get_neighbours(v, mode))
   {
     if (constrained_membership[v] == constrained_membership[u])
     {
       size_t comm = this->membership(u);
-      if (!comm_added[comm])
-      {
-        neigh_comms.push_back(comm);
-        comm_added[comm];
-      }
+      neigh_comms.push_back(comm);
     }
   }
   return neigh_comms;
