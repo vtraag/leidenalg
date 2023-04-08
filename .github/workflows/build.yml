@@ -43,11 +43,10 @@ jobs:
       - name: Build wheels (manylinux)
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD:
-            - yum install -y flex bison
-            - pip install cmake wheel
-            - scripts/build_igraph.sh
-            - scripts/build_libleidenalg.sh
+          CIBW_BEFORE_BUILD: "yum install -y flex bison &&
+                              pip install cmake wheel &&
+                              scripts/build_igraph.sh &&
+                              scripts/build_libleidenalg.sh "
           CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
           CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
@@ -55,11 +54,10 @@ jobs:
       - name: Build wheels (musllinux)
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD:
-            - apk add flex bison zlib-dev
-            - pip install cmake wheel
-            - scripts/build_igraph.sh
-            - scripts/build_libleidenalg.sh
+          CIBW_BEFORE_BUILD: "apk add flex bison zlib-dev &&
+                              pip install cmake wheel &&
+                              scripts/build_igraph.sh &&
+                              scripts/build_libleidenalg.sh"
           CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
           CIBW_TEST_EXTRAS: "test-musl"
           CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
@@ -84,9 +82,10 @@ jobs:
       - name: Build wheels (manylinux)
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD:
-            - scripts/build_igraph.sh
-            - scripts/build_libleidenalg.sh
+          CIBW_BEFORE_BUILD: "yum install -y flex bison zlib-devel && 
+                              pip install cmake wheel &&
+                              scripts/build_igraph.sh &&
+                              scripts/build_libleidenalg.sh"
           CIBW_ARCHS_LINUX: aarch64
           CIBW_BUILD: "*-manylinux_aarch64"
           CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
@@ -136,9 +135,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.10.2
         env:
           CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
-          CIBW_BEFORE_BUILD:
-            - scripts/build_igraph.sh
-            - scripts/build_libleidenalg.sh
+          CIBW_BEFORE_BUILD:"scripts/build_igraph.sh &&
+                             scripts/build_libleidenalg.sh"
           CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
 
       - uses: actions/upload-artifact@v2
@@ -181,9 +179,8 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD:
-            - scripts/build_igraph.bat
-            - scripts/build_libleidenalg.bat
+          CIBW_BEFORE_BUILD: "scripts/build_igraph.bat && 
+                              scripts/build_libleidenalg.bat"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
           LIBPATH: .\build-deps\install\lib
