@@ -1,3 +1,6 @@
+Next
+- Changed default refinement to consider a random neighbouring community.
+
 0.9.1
 - Allow node sizes to be float (PR #115)
 - Added correct_self_loops argument to CPMVertexPartition
