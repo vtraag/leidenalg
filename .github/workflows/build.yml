@@ -206,7 +206,6 @@ jobs:
       - name: Build sdist
         run: |
           pip install setuptools_scm
-          python setup.py build_c_core
           python setup.py sdist
           python setup.py install
 
