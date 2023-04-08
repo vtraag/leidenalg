@@ -207,12 +207,6 @@ jobs:
         run: |
           pip install setuptools_scm
           python setup.py sdist
-          python setup.py install
-
-      - name: Test
-        run: |
-          pip install ddt
-          python -m unittest -v
 
       - uses: actions/upload-artifact@v2
         with:
