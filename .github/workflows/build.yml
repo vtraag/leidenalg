@@ -135,7 +135,7 @@ jobs:
         uses: pypa/cibuildwheel@v2.10.2
         env:
           CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
-          CIBW_BEFORE_BUILD:"scripts/build_igraph.sh &&
+          CIBW_BEFORE_BUILD: "scripts/build_igraph.sh && 
                              scripts/build_libleidenalg.sh"
           CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
 
