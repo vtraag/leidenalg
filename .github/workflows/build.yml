@@ -49,7 +49,7 @@ jobs:
                               {package}/scripts/build_libleidenalg.sh "
           CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
-          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CIBW_ENVIRONMENT: CFLAGS='-I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L{package}/build-deps/install/lib'
 
       - name: Build wheels (musllinux)
         uses: pypa/cibuildwheel@v2.10.2
