@@ -26,6 +26,7 @@ jobs:
     name: Build wheels on Linux (${{ matrix.wheel_arch }})
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         wheel_arch: [x86_64, i686]
 
