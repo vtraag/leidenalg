@@ -49,7 +49,7 @@ jobs:
                               {package}/scripts/build_libleidenalg.sh "
           CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
-          CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
 
       - name: Build wheels (musllinux)
         uses: pypa/cibuildwheel@v2.10.2
@@ -60,7 +60,7 @@ jobs:
                               {package}/scripts/build_libleidenalg.sh"
           CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
           CIBW_TEST_EXTRAS: "test-musl"
-          CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
 
       - uses: actions/upload-artifact@v2
         with:
@@ -88,7 +88,7 @@ jobs:
                               {package}/scripts/build_libleidenalg.sh"
           CIBW_ARCHS_LINUX: aarch64
           CIBW_BUILD: "*-manylinux_aarch64"
-          CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
 
       - uses: actions/upload-artifact@v2
         with:
@@ -137,7 +137,7 @@ jobs:
           CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
           CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.sh &&
                              {package}/scripts/build_libleidenalg.sh"
-          CFLAGS: -I./build-deps/install/include/igraph -I./build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
 
       - uses: actions/upload-artifact@v2
         with:
