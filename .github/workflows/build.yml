@@ -61,7 +61,7 @@ jobs:
                               {package}/scripts/build_libleidenalg.sh"
           CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
           CIBW_TEST_EXTRAS: "test-musl"
-          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CIBW_ENVIRONMENT: CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/' LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - uses: actions/upload-artifact@v2
         with:
@@ -89,7 +89,7 @@ jobs:
                               {package}/scripts/build_libleidenalg.sh"
           CIBW_ARCHS_LINUX: aarch64
           CIBW_BUILD: "*-manylinux_aarch64"
-          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CIBW_ENVIRONMENT: CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/' LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - uses: actions/upload-artifact@v2
         with:
@@ -138,7 +138,7 @@ jobs:
           CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
           CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.sh &&
                              {package}/scripts/build_libleidenalg.sh"
-          CFLAGS: -I{package}/build-deps/install/include/igraph -I{package}/build-deps/install/include/libleidenalg -L./build-deps/install/lib
+          CFLAGS: -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib
 
       - uses: actions/upload-artifact@v2
         with:
@@ -184,8 +184,8 @@ jobs:
                               {package}/scripts/build_libleidenalg.bat"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
-          LIBPATH: .\build-deps\install\lib
-          INCLUDE: .\build-deps\install\include\igraph;.\build-deps\install\include\libleidenalg;%INCLUDE%
+          LIBPATH: D:/a/leidenalg/leidenalg/build-deps/install/lib
+          INCLUDE: D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;./build-deps/install/include/libleidenalg;%INCLUDE%
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
