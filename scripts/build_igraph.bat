@@ -1,6 +1,6 @@
 @echo off
 
-set IGRAPH_VERSION=0.10.0
+set IGRAPH_VERSION=0.10.4
 
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
@@ -47,6 +47,7 @@ cmake %ROOT_DIR%\build-deps\src\igraph ^
   -DIGRAPH_USE_INTERNAL_ARPACK=ON ^
   -DIGRAPH_USE_INTERNAL_GLPK=OFF ^
   -DIGRAPH_USE_INTERNAL_GMP=ON ^
+  -DIGRAPH_WARNINGS_AS_ERRORS=OFF ^
   -DCMAKE_BUILD_TYPE=Release
 
 echo.
