@@ -140,6 +140,7 @@ jobs:
                              {package}/scripts/build_libleidenalg.sh"
           C_INCLUDE_PATH: /Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph:/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg
           LIBRARY_PATH: /Users/runner/work/leidenalg/leidenalg/build-deps/install/lib
+          LD_LIBRARY_PATH: /Users/runner/work/leidenalg/leidenalg/build-deps/install/lib
 
       - uses: actions/upload-artifact@v2
         with:
