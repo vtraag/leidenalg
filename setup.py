@@ -53,7 +53,7 @@ leiden_ext = Extension('leidenalg._c_leiden',
                     sources = glob.glob(os.path.join('src', 'leidenalg', '*.cpp')),
                     py_limited_api=should_build_abi3_wheel,
                     define_macros=macros,
-                    libraries = ['libleidenalg'],
+                    libraries = ['libleidenalg', 'igraph'],
                     include_dirs=['include']);
 
 description = """
@@ -76,17 +76,17 @@ options =  dict(
   use_scm_version={
         'write_to': 'src/leidenalg/version.py',
   },
-  setup_requires=['setuptools_scm'],  
+  setup_requires=['setuptools_scm'],
   url = 'https://github.com/vtraag/leidenalg',
   description = 'Leiden is a general algorithm for methods of community detection in large networks.',
   long_description=description,
   license = 'GPLv3+',
   author = 'V.A. Traag',
   author_email = 'vincent@traag.net',
-  ext_modules = [leiden_ext],  
+  ext_modules = [leiden_ext],
   test_suite = 'tests',
   package_dir = {'leidenalg': os.path.join('src', 'leidenalg')},
-  packages = ['leidenalg'],  
+  packages = ['leidenalg'],
 
   provides = ['leidenalg'],
   python_requires=">=3.7",
