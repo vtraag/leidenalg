@@ -38,8 +38,6 @@ cd ${ROOT_DIR}/build-deps/build/igraph
 echo ""
 echo "Configure igraph build"
 cmake ${ROOT_DIR}/build-deps/src/igraph \
-  -DCMAKE_C_COMPILER=gcc \
-  -DCMAKE_CXX_COMPILER=g++ \
   -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/build-deps/install/ \
   -DBUILD_SHARED_LIBS=ON \
   -DIGRAPH_GLPK_SUPPORT=OFF \
