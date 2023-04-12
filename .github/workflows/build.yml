@@ -146,7 +146,7 @@ jobs:
                              {package}/scripts/build_libleidenalg.sh"
           CIBW_ENVIRONMENT: >
             CFLAGS='-Wno-unused-command-line-argument -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph/ -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
-            REPAIR_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/project/build-deps/install/lib64/:/project/build-deps/install/lib/"
+            REPAIR_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/:/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/"
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
             DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
       - uses: actions/upload-artifact@v2
@@ -157,6 +157,7 @@ jobs:
     name: Build wheels on Windows (${{ matrix.cmake_arch }})
     runs-on: windows-2019
     strategy:
+      fail-fast: false
       matrix:
         include:
           - cmake_arch: Win32
