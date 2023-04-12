@@ -146,7 +146,9 @@ jobs:
                              {package}/scripts/build_libleidenalg.sh"
           CIBW_ENVIRONMENT: >
             CFLAGS='-Wno-unused-command-line-argument -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph/ -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
-            DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/project/build-deps/install/lib64/:/project/build-deps/install/lib/"
+            REPAIR_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/project/build-deps/install/lib64/:/project/build-deps/install/lib/"
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
+            DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
@@ -193,8 +195,9 @@ jobs:
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
           CIBW_ENVIRONMENT: >
             LIB="D:/a/leidenalg/leidenalg/build-deps/install/lib;$LIB"
-            INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;D:/a/leidenalg/leidenalg/build-deps/install/include/libleidenalg;$INCLUDE" 
+            INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;D:/a/leidenalg/leidenalg/build-deps/install/include/libleidenalg;$INCLUDE"
             PATH="D:/a/leidenalg/leidenalg/build-deps/install/bin;$PATH"
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
