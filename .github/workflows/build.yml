@@ -145,7 +145,7 @@ jobs:
           CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.sh &&
                              {package}/scripts/build_libleidenalg.sh"
           CIBW_ENVIRONMENT: >
-            CFLAGS='--start-no-unused-arguments -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph/ -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
+            CFLAGS='-Wno-unused-command-line-argument -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph/ -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
             DYLD_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/project/build-deps/install/lib64/:/project/build-deps/install/lib/"
       - uses: actions/upload-artifact@v2
         with:
