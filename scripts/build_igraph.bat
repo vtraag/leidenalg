@@ -5,10 +5,18 @@ set IGRAPH_VERSION=0.10.4
 if defined CMAKE_ARCH (
   echo Building for %CMAKE_ARCH%
 ) else (
-  echo "No architecture (see CMAKE_GENERATOR_PLATFORM) defined."
+  echo No architecture defined.
   echo Defaulting to x64.
   echo If necessary, you change set CMAKE_ARCH to change this.
+  echo See CMAKE_GENERATOR_PLATFORM for more details.
   set CMAKE_ARCH=x64
+)
+
+if not defined VS_PLATFORM (
+  echo No VS_PLATFORM defined.
+  echo Please specify a valid Visual Studio generator in VS_PLATFORM to be used as a CMake generator.
+  echo See cmake generators for more details.
+  exit /b 2
 )
 
 set ROOT_DIR=%cd%
@@ -58,14 +66,16 @@ cmake %ROOT_DIR%\build-deps\src\igraph ^
   -DIGRAPH_USE_INTERNAL_GMP=ON ^
   -DIGRAPH_WARNINGS_AS_ERRORS=OFF ^
   -DCMAKE_BUILD_TYPE=Release ^
+  -DBUILD_TESTING=OFF ^
+  -G "%VS_PLATFORM%" ^
   -A %IGRAPH_ARCH%
 
 echo.
 echo Build igraph
-cmake --build .
+cmake --build . --config Release
 
 echo.
 echo Install igraph to %ROOT_DIR%\build-deps\install\
-cmake --build . --target install
+cmake --build . --target install --config Release
 
 cd "%ROOT_DIR%"

@@ -5,10 +5,18 @@ set LIBLEIDENALG_VERSION="main"
 if defined CMAKE_ARCH (
   echo Building for %CMAKE_ARCH%
 ) else (
-  echo "No architecture (see CMAKE_GENERATOR_PLATFORM) defined."
+  echo No architecture defined.
   echo Defaulting to x64.
   echo If necessary, you change set CMAKE_ARCH to change this.
+  echo See CMAKE_GENERATOR_PLATFORM for more details.
   set CMAKE_ARCH=x64
+)
+
+if not defined VS_PLATFORM (
+  echo No VS_PLATFORM defined.
+  echo Please specify a valid Visual Studio generator in VS_PLATFORM to be used as a CMake generator.
+  echo See cmake generators for more details.
+  exit /b 2
 )
 
 set ROOT_DIR=%cd%
@@ -49,14 +57,15 @@ cmake %ROOT_DIR%\build-deps\src\libleidenalg ^
     -DCMAKE_INSTALL_PREFIX=%ROOT_DIR%\build-deps\install\ ^
     -DBUILD_SHARED_LIBS=ON ^
     -Digraph_ROOT=%ROOT_DIR%\build-deps\install\lib\cmake\igraph\ ^
+    -G "%VS_PLATFORM%" ^
     -A %IGRAPH_ARCH%
 
 echo.
 echo Build libleidenalg
-cmake --build .
+cmake --build . --config Release
 
 echo.
 echo Install libleidenalg to %ROOT_DIR%\build-deps\install\
-cmake --build . --target install
+cmake --build . --target install --config Release
 
 cd "%ROOT_DIR%"
