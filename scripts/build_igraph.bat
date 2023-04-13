@@ -2,6 +2,15 @@
 
 set IGRAPH_VERSION=0.10.4
 
+if defined CMAKE_ARCH (
+  echo Building for %CMAKE_ARCH%
+) else (
+  echo "No architecture (see CMAKE_GENERATOR_PLATFORM) defined."
+  echo Defaulting to x64.
+  echo If necessary, you change set CMAKE_ARCH to change this.
+  set CMAKE_ARCH=x64
+)
+
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
 
@@ -48,7 +57,8 @@ cmake %ROOT_DIR%\build-deps\src\igraph ^
   -DIGRAPH_USE_INTERNAL_GLPK=OFF ^
   -DIGRAPH_USE_INTERNAL_GMP=ON ^
   -DIGRAPH_WARNINGS_AS_ERRORS=OFF ^
-  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_BUILD_TYPE=Release ^
+  -A %IGRAPH_ARCH%
 
 echo.
 echo Build igraph

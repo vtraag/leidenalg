@@ -198,7 +198,7 @@ jobs:
             LIB="D:/a/leidenalg/leidenalg/build-deps/install/lib;$LIB"
             INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;D:/a/leidenalg/leidenalg/build-deps/install/include/libleidenalg;$INCLUDE"
             PATH="D:/a/leidenalg/leidenalg/build-deps/install/bin;$PATH"
-          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: "delvewheel repair -w {dest_dir} {wheel}"
+            CMAKE_ARCH="${{ matrix.cmake_arch }}"
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
