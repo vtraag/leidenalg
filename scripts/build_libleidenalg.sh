@@ -23,7 +23,7 @@ echo ""
 echo "Checking out ${LIBLEIDENALG_VERSION} in ${ROOT_DIR}/build-deps/src/libleidenalg"
 cd ${ROOT_DIR}/build-deps/src/libleidenalg
 git fetch origin ${LIBLEIDENALG_VERSION} #tag ${LIBLEIDENALG_VERSION} --no-tags
-git switch ${LIBLEIDENALG_VERSION}
+git checkout ${LIBLEIDENALG_VERSION}
 
 # Make build directory
 if [ ! -d "${ROOT_DIR}/build-deps/build/libleidenalg" ]; then

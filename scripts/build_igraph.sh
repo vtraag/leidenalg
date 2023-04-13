@@ -23,7 +23,7 @@ echo ""
 echo "Checking out ${IGRAPH_VERSION} in ${ROOT_DIR}/build-deps/src/igraph"
 cd ${ROOT_DIR}/build-deps/src/igraph
 git fetch origin tag ${IGRAPH_VERSION} --no-tags
-git switch ${IGRAPH_VERSION}
+git checkout ${IGRAPH_VERSION}
 
 # Make build directory
 if [ ! -d "${ROOT_DIR}/build-deps/build/igraph" ]; then

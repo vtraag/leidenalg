@@ -31,7 +31,7 @@ echo.
 echo Checking out %libleidenalg_VERSION} in ${ROOT_DIR%\build-deps\src\libleidenalg
 cd "%ROOT_DIR%\build-deps\src\libleidenalg"
 git fetch origin ${LIBLEIDENALG_VERSION} REM tag ${LIBLEIDENALG_VERSION} --no-tags
-git switch ${LIBLEIDENALG_VERSION}
+git checkout ${LIBLEIDENALG_VERSION}
 
 REM Make build directory
 if not exist "%ROOT_DIR%\build-deps\build\libleidenalg\" (
