@@ -12,13 +12,6 @@ if defined CMAKE_ARCH (
   set CMAKE_ARCH=x64
 )
 
-if not defined VS_PLATFORM (
-  echo No VS_PLATFORM defined.
-  echo Please specify a valid Visual Studio generator in VS_PLATFORM to be used as a CMake generator.
-  echo See cmake generators for more details.
-  exit /b 2
-)
-
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
 
@@ -57,8 +50,7 @@ cmake %ROOT_DIR%\build-deps\src\libleidenalg ^
     -DCMAKE_INSTALL_PREFIX=%ROOT_DIR%\build-deps\install\ ^
     -DBUILD_SHARED_LIBS=ON ^
     -Digraph_ROOT=%ROOT_DIR%\build-deps\install\lib\cmake\igraph\ ^
-    -G "%VS_PLATFORM%" ^
-    -A %IGRAPH_ARCH%
+    -A %CMAKE_ARCH%
 
 echo.
 echo Build libleidenalg

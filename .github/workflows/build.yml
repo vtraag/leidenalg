@@ -199,7 +199,6 @@ jobs:
             LIB="D:/a/leidenalg/leidenalg/build-deps/install/lib;$LIB"
             INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;D:/a/leidenalg/leidenalg/build-deps/install/include/libleidenalg;$INCLUDE"
             PATH="D:/a/leidenalg/leidenalg/build-deps/install/bin;$PATH"
-            VS_PLATFORM="Visual Studio 17 2022"
             CMAKE_ARCH="${{ matrix.cmake_arch }}"
           CIBW_REPAIR_WHEEL_COMMAND: "delvewheel repair -w {dest_dir} {wheel}"
       - uses: actions/upload-artifact@v2
