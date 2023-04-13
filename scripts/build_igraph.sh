@@ -49,7 +49,8 @@ cmake ${ROOT_DIR}/build-deps/src/igraph \
   -DIGRAPH_USE_INTERNAL_GLPK=OFF \
   -DIGRAPH_USE_INTERNAL_GMP=ON \
   -DIGRAPH_WARNINGS_AS_ERRORS=OFF \
-  -DCMAKE_BUILD_TYPE=Release
+  -DCMAKE_BUILD_TYPE=Release \
+  ${EXTRA_CMAKE_ARGS}
 
 echo ""
 echo "Build igraph"

@@ -40,7 +40,8 @@ echo "Configure libleidenalg build"
 cmake ${ROOT_DIR}/build-deps/src/libleidenalg \
     -DCMAKE_INSTALL_PREFIX=${ROOT_DIR}/build-deps/install/ \
     -DBUILD_SHARED_LIBS=ON \
-    -Digraph_ROOT=${ROOT_DIR}/build-deps/install/lib/cmake/igraph/
+    -Digraph_ROOT=${ROOT_DIR}/build-deps/install/lib/cmake/igraph/ \
+    ${EXTRA_CMAKE_ARGS}
 
 echo ""
 echo "Build libleidenalg"
