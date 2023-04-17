@@ -15,7 +15,7 @@ if [ ! -d "igraph" ]; then
   echo ""
   echo "Cloning igraph into ${ROOT_DIR}/build-deps/src/igraph"
   # Clone repository if it does not exist yet
-  git clone --depth 1 --branch ${IGRAPH_VERSION} https://github.com/igraph/igraph.git
+  git clone --branch ${IGRAPH_VERSION} https://github.com/igraph/igraph.git --single-branch
 fi
 
 # Make sure the git repository points to the correct version
