@@ -1,5 +1,6 @@
 Next
 - Changed default refinement to consider a random neighbouring community.
+- Changed C++ core into external library at https://github.com/vtraag/libleidenalg.
 
 0.9.1
 - Allow node sizes to be float (PR #115)
