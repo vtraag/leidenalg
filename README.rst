@@ -43,54 +43,50 @@ Python>=3.6, earlier versions of Python are no longer supported. Alternatively,
 you can install from Anaconda (channel ``conda-forge``).
 
 For Unix like systems it is possible to install from source. For Windows this is
-overly complicated, and you are recommended to use the binary wheels. The igraph
-``C`` core library is provided within this package, and is automatically
-compiled. If you encounter any issue with compilation, please see
-http://igraph.org.
+more complicated, and you are recommended to use the binary wheels. This Python
+interface depends on the C++ package ``libleidenalg`` which in turn depends on
+``igraph``. You will need to build these packages yourself before you are able
+to build this Python interface.
 
 Make sure you have all necessary tools for compilation. In Ubuntu this can be
 installed using ``sudo apt-get install build-essential autoconf automake flex
 bison``, please refer to the documentation for your specific system.  Make sure
 that not only ``gcc`` is installed, but also ``g++``, as the ``leidenalg``
-package is programmed in ``C++``.
+package is programmed in ``C++``. Note that there are build scripts included in
+the ``scripts/`` directory. These are also used to build the binary wheels.
 
-You can check if all went well by running a variety of tests using ``python
-setup.py test``.
+1. Compile (and install) the C core of ``igraph`` (version >= 0.10). You can use
+   the file ``build_igraph.sh`` (on Unix-like systems) or ``build_igraph.bat``
+   (on Windows) in the ``scripts/`` directory to do this. For more details, see
+   https://igraph.org/c/doc/igraph-Installation.html.
+2. Compile (and install) the C core of ``libleidenalg`` (version >= 0.10). You
+   can use the file ``build_libleidenalg.sh`` (on Unix-like systems) or
+   ``build_libleidenalg.bat`` (on Windows) in the ``scripts/`` directory to do
+   this. For more details, see https://github.com/vtraag/libleidenalg.
+3. Build the Python interface using ``python setup.py build`` and ``python
+   setup.py install``, or use ``pip install .``
 
-There are basically two installation modes, similar to the python-igraph package
-itself (from which most of the setup.py comes).
-
-1. No ``C`` core library is installed yet. The ``C`` core
-   library of igraph that is provided within the ``leidenalg`` package is
-   compiled.
-2. A ``C`` core library is already installed. In this case, you may link
-   dynamically to the already installed version by specifying
-   ``--no-pkg-config``. This is probably also the version that is used by the
-   igraph package, but you may want to double check this.
-
-In case the ``python-igraph`` package is already installed before, make sure that
-both use the **same versions** (at least the same minor version, which should be
-API compatible).
+You can check if all went well by running a variety of tests using ``python -m
+unittest``.
 
 Troubleshooting
 ---------------
 
 In case of any problems, best to start over with a clean environment. Make sure
-you remove the ``python-igraph`` package completely, remove the ``C`` core
-library and remove the ``leidenalg`` package. Then, do a complete reinstall
-starting from ``pip install leidenalg``. In case you want a dynamic library be
-sure to then install the ``C`` core library from source before. Make sure you
-**install the same versions**.
+you remove the ``igraph`` and ``leidenalg`` package completely. Then, do a
+complete reinstall starting from ``pip install leidenalg``. In case you
+installed from source, and built the C libraries of ``igraph`` and
+``libleidenalg`` yourself, remove them completely and rebuild and reinstall
+them.
 
 Usage
 -----
 
-There is no standalone version of ``leidenalg``, and you will always need python
-to access it. There are no plans at the moment for developing a standalone
-version or R support. However, there have been various efforts to port the
-package to R. These typically do not offer all available functionality or have
-some other limitations, but nonetheless may be very useful. The available ports
-are:
+This is the Python interface for the C++ package ``libleidenalg``. There are no
+plans at the moment for developing an R interface to the package. However, there
+have been various efforts to port the package to R. These typically do not offer
+all available functionality or have some other limitations, but nonetheless may
+be very useful. The available ports are:
 
 - https://github.com/cole-trapnell-lab/leidenbase
 - https://github.com/TomKellyGenetics/leiden
