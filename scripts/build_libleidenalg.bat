@@ -1,6 +1,6 @@
 @echo off
 
-set LIBLEIDENALG_VERSION="main"
+set LIBLEIDENALG_VERSION="0.10.0"
 
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
@@ -21,7 +21,7 @@ REM Make sure the git repository points to the correct version
 echo.
 echo Checking out %libleidenalg_VERSION} in ${ROOT_DIR%\build-deps\src\libleidenalg
 cd "%ROOT_DIR%\build-deps\src\libleidenalg"
-git fetch origin ${LIBLEIDENALG_VERSION} REM tag ${LIBLEIDENALG_VERSION} --no-tags
+git fetch origin tag ${LIBLEIDENALG_VERSION} --no-tags
 git checkout ${LIBLEIDENALG_VERSION}
 
 REM Make build directory

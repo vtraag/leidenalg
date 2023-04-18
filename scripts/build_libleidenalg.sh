@@ -1,4 +1,4 @@
-LIBLEIDENALG_VERSION=main
+LIBLEIDENALG_VERSION=0.10.0
 
 ROOT_DIR=`pwd`
 echo "Using root dir ${ROOT_DIR}"
@@ -22,7 +22,7 @@ fi
 echo ""
 echo "Checking out ${LIBLEIDENALG_VERSION} in ${ROOT_DIR}/build-deps/src/libleidenalg"
 cd ${ROOT_DIR}/build-deps/src/libleidenalg
-git fetch origin ${LIBLEIDENALG_VERSION} #tag ${LIBLEIDENALG_VERSION} --no-tags
+git fetch origin tag ${LIBLEIDENALG_VERSION} --no-tags
 git checkout ${LIBLEIDENALG_VERSION}
 
 # Make build directory
