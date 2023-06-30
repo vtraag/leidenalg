@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - '*'
     tags:
       - '*'
   pull_request:
@@ -18,13 +19,14 @@ env:
   CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2014"
   CIBW_MANYLINUX_PYPY_I686_IMAGE: "manylinux2014"
   CIBW_SKIP: "cp36-*"
-  MACOSX_DEPLOYMENT_TARGET: "10.9"  
+  MACOSX_DEPLOYMENT_TARGET: "10.9"
 
 jobs:
   build_wheel_linux:
     name: Build wheels on Linux (${{ matrix.wheel_arch }})
     runs-on: ubuntu-20.04
     strategy:
+      fail-fast: false
       matrix:
         wheel_arch: [x86_64, i686]
 
@@ -42,16 +44,28 @@ jobs:
       - name: Build wheels (manylinux)
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD: "yum install -y flex bison && pip install cmake wheel && python setup.py build_c_core"
-          CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}          
+          CIBW_BEFORE_BUILD: "yum install -y flex bison &&
+                              pip install cmake wheel &&
+                              {package}/scripts/build_igraph.sh &&
+                              {package}/scripts/build_libleidenalg.sh "
+          CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
+          CIBW_ENVIRONMENT: >
+            CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
+            LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - name: Build wheels (musllinux)
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD: "apk add flex bison zlib-dev && pip install cmake wheel && python setup.py build_c_core"
+          CIBW_BEFORE_BUILD: "apk add flex bison zlib-dev &&
+                              pip install cmake wheel &&
+                              {package}/scripts/build_igraph.sh &&
+                              {package}/scripts/build_libleidenalg.sh"
           CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
           CIBW_TEST_EXTRAS: "test-musl"
+          CIBW_ENVIRONMENT: >
+            CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
+            LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - uses: actions/upload-artifact@v2
         with:
@@ -73,9 +87,15 @@ jobs:
       - name: Build wheels (manylinux)
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD: "yum install -y flex bison zlib-devel && pip install cmake wheel && python setup.py build_c_core"
+          CIBW_BEFORE_BUILD: "yum install -y flex bison zlib-devel &&
+                              pip install cmake wheel &&
+                              {package}/scripts/build_igraph.sh &&
+                              {package}/scripts/build_libleidenalg.sh"
           CIBW_ARCHS_LINUX: aarch64
           CIBW_BUILD: "*-manylinux_aarch64"
+          CIBW_ENVIRONMENT: >
+            CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
+            LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - uses: actions/upload-artifact@v2
         with:
@@ -92,7 +112,7 @@ jobs:
           - cmake_arch: x86_64
             wheel_arch: x86_64
           - cmake_arch: arm64
-            cmake_extra_args: -DF2C_EXTERNAL_ARITH_HEADER=../../../etc/arith_apple_m1.h -DIEEE754_DOUBLE_ENDIANNESS_MATCHES=ON
+            extra_cmake_args: -DF2C_EXTERNAL_ARITH_HEADER=../../../etc/arith_apple_m1.h -DIEEE754_DOUBLE_ENDIANNESS_MATCHES=ON
             wheel_arch: arm64
 
     steps:
@@ -105,15 +125,8 @@ jobs:
         id: cache-c-core
         uses: actions/cache@v2
         with:
-          path: vendor/install
-          key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}-${{ hashFiles('.git/modules/**/HEAD') }}
-
-      - name: Cache C core dependencies
-        id: cache-c-deps
-        uses: actions/cache@v2
-        with:
-          path: ~/local
-          key: deps-cache-v2-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}
+          path: build-deps
+          key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}-${{ hashFiles('scripts/build_igraph.sh') }}-${{ hashFiles('scripts/build_libleidenalg.sh') }}
 
       - uses: actions/setup-python@v2
         name: Install Python
@@ -123,24 +136,29 @@ jobs:
       - name: Install OS dependencies
         if: steps.cache-c-core.outputs.cache-hit != 'true' || steps.cache-c-deps.outputs.cache-hit != 'true' # Only needed when building the C core
         run:
-          brew install ninja autoconf automake libtool cmake
+          brew install ninja cmake
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.10.2
         env:
           CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
-          CIBW_BEFORE_BUILD: "python setup.py build_c_core"
-          CIBW_ENVIRONMENT: "LDFLAGS=-L$HOME/local/lib"
-          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} ${{ matrix.cmake_extra_args }} -DCMAKE_PREFIX_PATH=$HOME/local
-
+          CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.sh &&
+                             {package}/scripts/build_libleidenalg.sh"
+          CIBW_ENVIRONMENT: >
+            CFLAGS='-Wno-unused-command-line-argument -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph/ -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
+            REPAIR_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/:/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/"
+            EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} ${{ matrix.extra_cmake_args }}"
+          CIBW_REPAIR_WHEEL_COMMAND: >
+            DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
 
   build_wheel_win:
     name: Build wheels on Windows (${{ matrix.cmake_arch }})
-    runs-on: windows-2019
+    runs-on: windows-2022
     strategy:
+      fail-fast: false
       matrix:
         include:
           - cmake_arch: Win32
@@ -163,8 +181,8 @@ jobs:
         id: cache-c-core
         uses: actions/cache@v2
         with:
-          path: vendor/install
-          key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-${{ hashFiles('.git/modules/**/HEAD') }}
+          path: build-deps
+          key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}-${{ hashFiles('scripts/build_igraph.sh') }}-${{ hashFiles('scripts/build_libleidenalg.sh') }}
 
       - name: Install build dependencies
         if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
@@ -173,12 +191,18 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.10.2
         env:
-          CIBW_BEFORE_BUILD: "python setup.py build_c_core"
+          CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.bat &&
+                              {package}/scripts/build_libleidenalg.bat &&
+                              pip install delvewheel"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
-          IGRAPH_CMAKE_EXTRA_ARGS: -DCMAKE_BUILD_TYPE=RelWithDebInfo -A ${{ matrix.cmake_arch }}
-          IGRAPH_STATIC_EXTENSION: True
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
-
+          CIBW_SKIP: "cp36-* pp*"
+          CIBW_ENVIRONMENT: >
+            LIB="D:/a/leidenalg/leidenalg/build-deps/install/lib;$LIB"
+            INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;D:/a/leidenalg/leidenalg/build-deps/install/include/libleidenalg;$INCLUDE"
+            PATH="D:/a/leidenalg/leidenalg/build-deps/install/bin;$PATH"
+            EXTRA_CMAKE_ARGS="-A ${{ matrix.cmake_arch }}"
+          CIBW_REPAIR_WHEEL_COMMAND: "delvewheel repair -w {dest_dir} {wheel}"
       - uses: actions/upload-artifact@v2
         with:
           path: ./wheelhouse/*.whl
@@ -192,19 +216,6 @@ jobs:
           submodules: true
           fetch-depth: 0
 
-      - name: Cache installed C core
-        id: cache-c-core
-        uses: actions/cache@v2
-        with:
-          path: |
-            vendor/install
-          key: C-core-cache-${{ runner.os }}-${{ hashFiles('.git/modules/**/HEAD') }}
-
-      - name: Install OS dependencies
-        if: steps.cache-c-core.outputs.cache-hit != 'true' # Only needed when building the C core
-        run:
-          sudo apt install ninja-build cmake flex bison
-
       - uses: actions/setup-python@v2
         name: Install Python
         with:
@@ -213,14 +224,7 @@ jobs:
       - name: Build sdist
         run: |
           pip install setuptools_scm
-          python setup.py build_c_core
           python setup.py sdist
-          python setup.py install
-
-      - name: Test
-        run: |
-          pip install ddt
-          python -m unittest -v
 
       - uses: actions/upload-artifact@v2
         with:

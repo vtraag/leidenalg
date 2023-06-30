@@ -3,14 +3,15 @@
 
 #include <Python.h>
 #include <igraph.h>
-#include "GraphHelper.h"
-#include "ModularityVertexPartition.h"
-#include "SignificanceVertexPartition.h"
-#include "SurpriseVertexPartition.h"
-#include "RBConfigurationVertexPartition.h"
-#include "RBERVertexPartition.h"
-#include "CPMVertexPartition.h"
-#include "Optimiser.h"
+#include <GraphHelper.h>
+#include <ModularityVertexPartition.h>
+#include <SignificanceVertexPartition.h>
+#include <SurpriseVertexPartition.h>
+#include <RBConfigurationVertexPartition.h>
+#include <RBERVertexPartition.h>
+#include <CPMVertexPartition.h>
+#include <Optimiser.h>
+
 #include "python_partition_interface.h"
 
 #ifdef DEBUG
