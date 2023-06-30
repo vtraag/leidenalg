@@ -4,5 +4,4 @@ channels:
 dependencies:
   - python
   - python-igraph>=0.10,<0.11
-  - igraph>=0.10,<0.11
-  - libleidenalg>=0.11.0,<0.12
+  - cmake
