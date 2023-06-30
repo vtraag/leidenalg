@@ -2,15 +2,15 @@
 #define PYNTERFACE_PARTITION_H_INCLUDED
 
 #include <Python.h>
-#include <igraph.h>
-#include <GraphHelper.h>
-#include <ModularityVertexPartition.h>
-#include <SignificanceVertexPartition.h>
-#include <SurpriseVertexPartition.h>
-#include <RBConfigurationVertexPartition.h>
-#include <RBERVertexPartition.h>
-#include <CPMVertexPartition.h>
-#include <Optimiser.h>
+#include <igraph/igraph.h>
+#include <libleidenalg/GraphHelper.h>
+#include <libleidenalg/ModularityVertexPartition.h>
+#include <libleidenalg/SignificanceVertexPartition.h>
+#include <libleidenalg/SurpriseVertexPartition.h>
+#include <libleidenalg/RBConfigurationVertexPartition.h>
+#include <libleidenalg/RBERVertexPartition.h>
+#include <libleidenalg/CPMVertexPartition.h>
+#include <libleidenalg/Optimiser.h>
 
 #include <sstream>
 
