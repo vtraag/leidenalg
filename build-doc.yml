@@ -3,6 +3,6 @@ channels:
   - conda-forge
 dependencies:
   - python
-  - python-igraph>=0.10
-  - igraph>=0.10
-  - libleidenalg
+  - python-igraph>=0.10,<0.11
+  - igraph>=0.10,<0.11
+  - libleidenalg>=0.11.0,<0.12
