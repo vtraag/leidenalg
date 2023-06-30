@@ -17,7 +17,7 @@ build:
   tools:
     python: "mambaforge-4.10"
   jobs:
-    pre_build:
+    pre_install:
       - CFLAGS="-I${CONDA_PREFIX}/include/igraph -I${CONDA_PREFIX}/include/libleidenalg"
 
 python:
