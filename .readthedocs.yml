@@ -19,6 +19,10 @@ build:
   jobs:
     pre_install:
       - env
+      - conda env list
+      - conda activate
+      - env
+      - CONDA_PREFIX=${CONDA_ENVS_PATH}/latest
       - echo ${CONDA_PREFIX}
       - ls -1 ${CONDA_PREFIX}/include/igraph
       - CFLAGS="-I${CONDA_PREFIX}/include/igraph -I${CONDA_PREFIX}/include/libleidenalg"
