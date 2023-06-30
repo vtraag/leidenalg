@@ -16,6 +16,9 @@ build:
   os: ubuntu-22.04
   tools:
     python: "mambaforge-4.10"
+  jobs:
+    post_create_environment:
+      CFLAGS="-I${CONDA_PREFIX}/include/igraph -I${CONDA_PREFIX}/include/libleidenalg"
 
 python:
   install:
