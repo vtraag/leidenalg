@@ -14,6 +14,8 @@ formats: all
 # Optionally set the version of Python and requirements required to build your docs
 build:
   os: ubuntu-22.04
+  tools:
+    python: "mambaforge-4.10"
 
 python:
   install:
