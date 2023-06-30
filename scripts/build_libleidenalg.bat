@@ -1,6 +1,6 @@
 @echo off
 
-set LIBLEIDENALG_VERSION="0.10.0"
+set LIBLEIDENALG_VERSION="0.11.0"
 
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
