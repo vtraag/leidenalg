@@ -12,7 +12,7 @@ The core of the Leiden algorithm is implemented in ``C++`` in the package
 interface to the underlying ``C++`` library. New methods need to be added to the
 ``C++`` library first, and then exposed to the Python interface. For more
 information, please see the contributing guide of the ``libleidenalg`` package
-at https://github.com/vtraag/libleidenalg/CONTRIBUTING.md
+at https://github.com/vtraag/libleidenalg/blob/main/CONTRIBUTING.md
 
 Python
 ------
