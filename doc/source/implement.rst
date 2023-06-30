@@ -2,40 +2,25 @@ Implementation
 ==============
 
 If you have a cool new idea for a better method, and you want to optimise it,
-you can easily plug it in the current tool. This section explains how the
+you can easily plug it in the current package. This section explains how the
 package is setup internally, and how you can extend it. Most of this concerns
-``C++``, and ``python`` only comes in when exposing the resulting classes.
+``C++``, and Python only comes in when exposing the classes from ``C++``.
 
-Method
-------
-
-All methods in the end derive from :class:`MutableVertexPartition`, which
-implements almost all necessary details, such as moving actual nodes while
-maintaining the internal administration. Similarly, it provides all the
-necessary functionality for initialising a partition. Additionally, there are
-two abstract classes that derive from this base class:
-:class:`ResolutionParameterVertexPartition` and
-:class:`LinearResolutionParameterVertexPartition` (which in turn derives from
-the former class). If you want a method with a resolution parameter, you should
-derive from one of these two classes, otherwise, simply from the base class 
-:class:`MutableVertexPartition`.
-
-There are two functions that you need to implement yourself: :func:`diff_move`
-and :func:`quality`. Note that they should always be consistent, so that we can
-double check the internal consistency. You should also ensure that the
-diff_move function can be correctly used on any aggregate graph (i.e. moving a
-node in the aggregate graph indeed corresponds to moving a set of nodes in the
-individual graph).
-
-That's it. In principle, you could now use and test the method in ``C++``.
+The core of the Leiden algorithm is implemented in ``C++`` in the package
+``libleidenalg``, available from https://github.com/vtraag/libleidenalg. This
+``C++`` library is used as the core for the Python package, which is just an
+interface to the underlying ``C++`` library. New methods need to be added to the
+``C++`` library first, and then exposed to the Python interface. For more
+information, please see the contributing guide of the ``libleidenalg`` package
+at https://github.com/vtraag/libleidenalg/CONTRIBUTING.md
 
 Python
 ------
 
 Exposing the method to ``python`` takes a bit more effort. There are various
 places in which you need to change/add things. In the following, we assume you
-created a new class called ``CoolVertexPartition``. In order of dependencies, it
-goes as follows:
+created a new class called ``CoolVertexPartition`` in ``libleidenalg``. Please
+then follow the following steps:
 
 1. Your own new VertexPartition class should add some specific methods. In
    particular, you need to ensure you create a method
