@@ -4,4 +4,9 @@ channels:
 dependencies:
   - python
   - python-igraph>=0.10,<0.11
+  - ddt
+  - sphinx
+  - sphinx_rtd_theme
+  - flex
+  - bison
   - cmake
