@@ -16,7 +16,7 @@ build:
   os: ubuntu-22.04
   tools:
     python: "mambaforge-4.10"
-  job:
+  jobs:
     pre_install:
       - ./scripts/build_igraph.sh
       - ./scripts/build_libleidenalg.sh
