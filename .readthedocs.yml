@@ -18,7 +18,11 @@ build:
     python: "mambaforge-4.10"
   jobs:
     pre_install:
+      - env
+      - echo ${CONDA_PREFIX}
+      - ls -1 ${CONDA_PREFIX}/include/igraph
       - CFLAGS="-I${CONDA_PREFIX}/include/igraph -I${CONDA_PREFIX}/include/libleidenalg"
+      - echo ${CFLAGS}
 
 python:
   install:
