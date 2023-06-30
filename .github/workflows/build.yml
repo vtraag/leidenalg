@@ -51,7 +51,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.wheel_arch }}
           CIBW_BUILD: "*-manylinux_${{ matrix.wheel_arch }}"
           CIBW_ENVIRONMENT: >
-            CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
+            CFLAGS='-I/project/build-deps/install/include/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
             LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - name: Build wheels (musllinux)
@@ -64,7 +64,7 @@ jobs:
           CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
           CIBW_TEST_EXTRAS: "test-musl"
           CIBW_ENVIRONMENT: >
-            CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
+            CFLAGS='-I/project/build-deps/install/include/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
             LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - uses: actions/upload-artifact@v3
@@ -94,7 +94,7 @@ jobs:
           CIBW_ARCHS_LINUX: aarch64
           CIBW_BUILD: "*-manylinux_aarch64"
           CIBW_ENVIRONMENT: >
-            CFLAGS='-I/project/build-deps/install/include/igraph/ -I/project/build-deps/install/include/libleidenalg/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
+            CFLAGS='-I/project/build-deps/install/include/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
             LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - uses: actions/upload-artifact@v3
@@ -145,7 +145,7 @@ jobs:
           CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.sh &&
                              {package}/scripts/build_libleidenalg.sh"
           CIBW_ENVIRONMENT: >
-            CFLAGS='-Wno-unused-command-line-argument -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/igraph/ -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/libleidenalg/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
+            CFLAGS='-Wno-unused-command-line-argument -I/Users/runner/work/leidenalg/leidenalg/build-deps/install/include/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/ -L/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/'
             REPAIR_LIBRARY_PATH="${DYLD_LIBRARY_PATH}:/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib64/:/Users/runner/work/leidenalg/leidenalg/build-deps/install/lib/"
             EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} ${{ matrix.extra_cmake_args }}"
           CIBW_REPAIR_WHEEL_COMMAND: >
@@ -199,7 +199,7 @@ jobs:
           CIBW_SKIP: "cp36-* pp*"
           CIBW_ENVIRONMENT: >
             LIB="D:/a/leidenalg/leidenalg/build-deps/install/lib;$LIB"
-            INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/igraph;D:/a/leidenalg/leidenalg/build-deps/install/include/libleidenalg;$INCLUDE"
+            INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/;$INCLUDE"
             PATH="D:/a/leidenalg/leidenalg/build-deps/install/bin;$PATH"
             EXTRA_CMAKE_ARGS="-A ${{ matrix.cmake_arch }}"
           CIBW_REPAIR_WHEEL_COMMAND: "delvewheel repair -w {dest_dir} {wheel}"
