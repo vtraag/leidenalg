@@ -54,7 +54,8 @@ leiden_ext = Extension('leidenalg._c_leiden',
                     py_limited_api=should_build_abi3_wheel,
                     define_macros=macros,
                     libraries = ['libleidenalg', 'igraph'],
-                    include_dirs=['include']);
+                    include_dirs=['include', 'build-deps/install/include'],
+                    library_dirs=['build-deps/install/lib']);
 
 description = """
 Leiden is a general algorithm for methods of community detection in large networks.
