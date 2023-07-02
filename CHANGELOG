@@ -1,4 +1,4 @@
-Next
+0.10.0
 - Changed default refinement to consider a random neighbouring community.
 - Changed C++ core into external library at https://github.com/vtraag/libleidenalg.
 
