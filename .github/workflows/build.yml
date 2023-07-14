@@ -231,7 +231,7 @@ jobs:
           path: dist/*.tar.gz
 
   upload_pypi:
-    needs: [build_wheel_linux, build_wheel_macos, build_wheel_win, build_sdist]
+    needs: [build_wheel_linux, build_wheel_linux_aarch64, build_wheel_macos, build_wheel_win, build_sdist]
     runs-on: ubuntu-latest
     # upload to PyPI on every push from the master branch
     if: github.event_name == 'push' &&
