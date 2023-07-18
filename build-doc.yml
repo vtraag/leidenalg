@@ -11,3 +11,4 @@ dependencies:
   - flex
   - bison
   - cmake
+  - gcc
