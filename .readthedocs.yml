@@ -18,7 +18,7 @@ build:
     python: "mambaforge-4.10"
   jobs:
     pre_install:
-      - EXTRA_CMAKE_ARGS="-DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}" ./scripts/build_libleidenalg.sh
+      - EXTRA_CMAKE_ARGS="-DCMAKE_PREFIX_PATH=${CONDA_PREFIX} -DCMAKE_INSTALL_PREFIX=${CONDA_PREFIX}" ./scripts/build_libleidenalg.sh
 
 python:
   install:
