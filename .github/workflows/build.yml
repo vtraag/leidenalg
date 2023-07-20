@@ -223,8 +223,7 @@ jobs:
 
       - name: Build sdist
         run: |
-          pip install setuptools_scm
-          python setup.py sdist
+          python3 -m build --sdist
 
       - uses: actions/upload-artifact@v3
         with:
