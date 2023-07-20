@@ -1,3 +1,8 @@
+0.10.1
+- Switched to pyproject.toml based build
+- Making use of Limited API
+- Make available aarch64 wheels
+
 0.10.0
 - Changed default refinement to consider a random neighbouring community.
 - Changed C++ core into external library at https://github.com/vtraag/libleidenalg.
