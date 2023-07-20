@@ -71,11 +71,6 @@ Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyO
     for (size_t e = 0; e < m; e++)
     {
       PyObject* py_item = PyList_GetItem(py_weights, e);
-      #ifdef DEBUG
-        //PyObject* py_item_repr = PyObject_Repr(py_item);
-        //const char* s = PyUnicode_AsUTF8(py_item_repr);
-        //cerr << "Got item " << e << ": " << s << endl;
-      #endif
       if (PyNumber_Check(py_item))
       {
         weights[e] = PyFloat_AsDouble(py_item);
