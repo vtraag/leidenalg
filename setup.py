@@ -27,7 +27,7 @@ if bdist_wheel is not None:
             python, abi, plat = super().get_tag()
             if python.startswith("cp"):
                 # on CPython, our wheels are abi3 and compatible back to 3.5
-                return "cp35", "abi3", plat
+                return "cp38", "abi3", plat
 
             return python, abi, plat
 else:
@@ -36,7 +36,7 @@ else:
 should_build_abi3_wheel = (
     bdist_wheel_abi3 and
     platform.python_implementation() == "CPython" and
-    sys.version_info >= (3, 5)
+    sys.version_info >= (3, 8)
 )
 
 # Define the extension
