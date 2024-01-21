@@ -69,6 +69,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: wheels-linux-${{ matrix.wheel_arch }}
           path: ./wheelhouse/*.whl
 
   build_wheel_linux_aarch64:
@@ -99,6 +100,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: wheels-linux-aarch64
           path: ./wheelhouse/*.whl
 
   build_wheel_macos:
@@ -152,6 +154,7 @@ jobs:
             DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
       - uses: actions/upload-artifact@v4
         with:
+          name: wheels-macos-${{ matrix.wheel_arch }}
           path: ./wheelhouse/*.whl
 
   build_wheel_win:
@@ -205,6 +208,7 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND: "delvewheel repair -w {dest_dir} {wheel}"
       - uses: actions/upload-artifact@v4
         with:
+          name: wheels-win-${{ matrix.wheel_arch }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
@@ -230,6 +234,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: wheels-sdist
           path: dist/*.tar.gz
 
   upload_pypi:
@@ -241,7 +246,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: artifact
+          name: wheels-*
+          merge-multiple: true
           path: dist
 
       # Upload tagged versions to production PyPI
