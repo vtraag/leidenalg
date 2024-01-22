@@ -246,7 +246,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v4
         with:
-          name: wheels-*
+          pattern: wheels-*
           merge-multiple: true
           path: dist
 
