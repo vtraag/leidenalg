@@ -82,6 +82,8 @@ class Optimiser(object):
     Nodes will only move to alternative communities that improve the given
     quality function.
 
+    The default is :attr:`leidenalg.ALL_NEIGH_COMMS`.
+
     Notes
     -------
     This attribute should be set to one of the following values
@@ -119,6 +121,8 @@ class Optimiser(object):
     Nodes will only move to alternative communities that improve the given
     quality function.
 
+    The default is :attr:`leidenalg.ALL_NEIGH_COMMS`.
+
     Notes
     -------
     This attribute should be set to one of the following values
@@ -151,6 +155,7 @@ class Optimiser(object):
   @property
   def optimise_routine(self):
     """ Determine the routine to use for *optimising* a partition.
+    The default is :attr:`leidenalg.MOVE_NODES`.
 
     Notes
     -------
@@ -173,16 +178,17 @@ class Optimiser(object):
   @property
   def refine_routine(self):
     """ Determine the routine to use for *refining* a partition.
+    The default is :attr:`leidenalg.MERGE_NODES`.
 
     Notes
     -------
     This attribute should be set to one of the following values
 
     * :attr:`leidenalg.MOVE_NODES`
-      Use :func:`move_nodes`.
+      Use :func:`move_nodes_constrained`.
 
     * :attr:`leidenalg.MERGE_NODES`
-      Use :func:`merge_nodes`.
+      Use :func:`merge_nodes_constrained`.
     """
     return _c_leiden._Optimiser_get_refine_routine(self._optimiser)
 
