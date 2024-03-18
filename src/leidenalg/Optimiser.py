@@ -24,19 +24,19 @@ class Optimiser(object):
   algorithm that cannot be translated well in this framework: when merging
   subcommunities in the refinement procedure, it does not consider whether they
   are sufficiently well connected to the rest of the community. This
-  implementation therefore does not guarantee subpartition :math:`\gamma`-density.
+  implementation therefore does not guarantee subpartition :math:`\\gamma`-density.
   However, all other guarantees still hold:
 
   After each iteration
-    1. :math:`\gamma`-separation
-    2. :math:`\gamma`-connectivity
+    1. :math:`\\gamma`-separation
+    2. :math:`\\gamma`-connectivity
 
   After a stable iteration
     3. Node optimality
     4. Some subsets are locally optimally assigned
 
   Asymptotically
-    5. Uniform :math:`\gamma`-density
+    5. Uniform :math:`\\gamma`-density
     6. Subset optimality
 
   The optimiser class provides a number of different methods for optimising a
@@ -349,7 +349,7 @@ class Optimiser(object):
     layer :math:`k` and the weight by :math:`\\lambda_k`, the overall quality
     is then
 
-    .. math:: Q = \sum_k \\lambda_k Q_k.
+    .. math:: Q = \\sum_k \\lambda_k Q_k.
 
     This is particularly useful for graphs containing negative links. When
     separating the graph in two graphs, the one containing only the positive

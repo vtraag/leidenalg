@@ -410,7 +410,7 @@ class ModularityVertexPartition(MutableVertexPartition):
   Note that for directed graphs a slightly different formulation is used, as
   proposed by Leicht and Newman [2]:
 
-  .. math:: Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
+  .. math:: Q = \\frac{1}{m} \\sum_{ij} \\left(A_{ij} - \\frac{k_i^\\mathrm{out} k_j^\\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
 
   where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
   respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
@@ -785,7 +785,7 @@ class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
   Note that for directed graphs a slightly different formulation is used, as
   proposed by Leicht and Newman [2]:
 
-  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i^\mathrm{out} k_j^\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
+  .. math:: Q = \\sum_{ij} \\left(A_{ij} - \\gamma \\frac{k_i^\\mathrm{out} k_j^\\mathrm{in}}{m} \\right)\\delta(\\sigma_i, \\sigma_j),
 
   where :math:`k_i^\\mathrm{out}` and :math:`k_i^\\mathrm{in}` refers to
   respectively the outdegree and indegree of node :math:`i`, and :math:`A_{ij}`
