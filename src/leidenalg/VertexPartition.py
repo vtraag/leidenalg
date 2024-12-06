@@ -385,7 +385,7 @@ class MutableVertexPartition(_ig.VertexClustering):
     return _c_leiden._MutableVertexPartition_weight_from_comm(self._partition, v, comm)
 
 class ModularityVertexPartition(MutableVertexPartition):
-  """ Implements modularity. This quality function is well-defined only for positive edge weights.
+  r""" Implements modularity. This quality function is well-defined only for positive edge weights.
 
   Notes
   -----
@@ -758,7 +758,7 @@ class RBERVertexPartition(LinearResolutionParameterVertexPartition):
     return new_partition
 
 class RBConfigurationVertexPartition(LinearResolutionParameterVertexPartition):
-  """ Implements Reichardt and Bornholdt's Potts model with a configuration null model.
+  r""" Implements Reichardt and Bornholdt's Potts model with a configuration null model.
   This quality function is well-defined only for positive edge weights.
   This quality function uses a linear resolution parameter.
 
