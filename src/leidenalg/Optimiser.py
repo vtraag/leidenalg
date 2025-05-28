@@ -4,7 +4,7 @@ from collections import namedtuple
 from math import log, sqrt
 
 class Optimiser(object):
-  """ Class for doing community detection using the Leiden algorithm.
+  r""" Class for doing community detection using the Leiden algorithm.
 
   The Leiden algorithm [1] derives from the Louvain algorithm [2]. The Louvain
   algorithm has an elegant formulation. It consists of two phases: (1) move
@@ -308,7 +308,7 @@ class Optimiser(object):
     return diff
 
   def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, is_membership_fixed=None):
-    """ Optimise the given partitions simultaneously.
+    r""" Optimise the given partitions simultaneously.
 
     Parameters
     ----------
