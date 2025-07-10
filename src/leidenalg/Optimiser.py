@@ -291,6 +291,11 @@ class Optimiser(object):
     itr = 0
     diff = 0
     continue_iteration = itr < n_iterations or n_iterations < 0
+
+    if is_membership_fixed is not None:
+      # Make sure it is a list
+      is_membership_fixed = list(is_membership_fixed)
+
     while continue_iteration:
       diff_inc = _c_leiden._Optimiser_optimise_partition(
               self._optimiser,
