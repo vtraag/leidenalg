@@ -1,6 +1,6 @@
 @echo off
 
-set IGRAPH_VERSION=0.10.8
+set IGRAPH_VERSION=0.10.16
 
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
