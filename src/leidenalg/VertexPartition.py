@@ -5,7 +5,7 @@ from .functions import _get_py_capsule
 class MutableVertexPartition(_ig.VertexClustering):
   """ Contains a partition of a graph, derives from
   :class:`ig.VertexClustering`. Please see the `documentation
-  <https://igraph.org/python/api/latest/igraph.clustering.VertexClustering.html>`_
+  <https://python.igraph.org/en/stable/api/igraph.VertexClustering.html>`_
   of :class:`ig.VertexClustering` for more details about its functionality.
 
   This class contains the basic implementation for optimising a partition.

@@ -23,7 +23,7 @@ That's it.
 The result ``partition`` is in this case a
 :class:`~leidenalg.ModularityVertexPartition` which is derived from the
 :mod:`igraph` type :class:`ig.VertexClustering`, see the `documentation
-<https://igraph.org/python/api/latest/igraph.clustering.VertexClustering.html>`_
+<https://python.igraph.org/en/stable/api/igraph.VertexClustering.html>`_
 for more details.
 
 Why then should you use this package rather than for example the Louvain
