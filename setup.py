@@ -57,7 +57,7 @@ setup(
                   define_macros=macros,
                   libraries = ['libleidenalg', 'igraph'],
                   include_dirs=['include', 'build-deps/install/include'],
-                  library_dirs=['build-deps/install/lib']
+                  library_dirs=['build-deps/install/lib', 'build-deps/install/lib64'],
         )
     ],
     cmdclass=cmdclass
