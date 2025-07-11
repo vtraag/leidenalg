@@ -63,11 +63,10 @@ author = u'V.A. Traag'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
-from pkg_resources import get_distribution
+import importlib.metadata as md
 
 # The full version, including alpha/beta/rc tags.
-release = get_distribution('leidenalg').version
-del get_distribution
+release = md.version('leidenalg')
 
 # The short X.Y version.
 version = '.'.join(release.split('.')[:2])
