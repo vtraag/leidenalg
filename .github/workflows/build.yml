@@ -24,7 +24,7 @@ env:
 jobs:
   build_wheel_linux:
     name: Build wheels on Linux (${{ matrix.wheel_arch }})
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -74,7 +74,7 @@ jobs:
 
   build_wheel_linux_aarch64:
     name: Build wheels on Linux (aarch64)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -159,7 +159,7 @@ jobs:
 
   build_wheel_win:
     name: Build wheels on Windows (${{ matrix.cmake_arch }})
-    runs-on: windows-2022
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
