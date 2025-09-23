@@ -1,4 +1,4 @@
-IGRAPH_VERSION=0.10.16
+IGRAPH_VERSION=1.0.0
 
 ROOT_DIR=`pwd`
 echo "Using root dir ${ROOT_DIR}"
