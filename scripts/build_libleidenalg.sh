@@ -45,8 +45,8 @@ cmake ${ROOT_DIR}/build-deps/src/libleidenalg \
 
 echo ""
 echo "Build libleidenalg"
-cmake --build .
+cmake --build . --config Release
 
 echo ""
 echo "Install libleidenalg to ${ROOT_DIR}/build-deps/install/"
-cmake --build . --target install
+cmake --build . --target install --config Release

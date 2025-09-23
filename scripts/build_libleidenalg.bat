@@ -14,7 +14,7 @@ if not exist "libleidenalg\" (
   echo.
   echo Cloning libleidenalg into %ROOT_DIR%\build-deps\src\libleidenalg
   REM Clone repository if it does not exist yet
-  git clone --depth 1 --branch %libleidenalg_VERSION% https://github.com/vtraag/libleidenalg.git
+  git clone --branch %libleidenalg_VERSION% https://github.com/vtraag/libleidenalg.git
 )
 
 REM Make sure the git repository points to the correct version
