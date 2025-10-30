@@ -1,4 +1,4 @@
-LIBLEIDENALG_VERSION=0.11.0
+LIBLEIDENALG_VERSION=0.12.0
 
 ROOT_DIR=`pwd`
 echo "Using root dir ${ROOT_DIR}"
@@ -45,8 +45,8 @@ cmake ${ROOT_DIR}/build-deps/src/libleidenalg \
 
 echo ""
 echo "Build libleidenalg"
-cmake --build .
+cmake --build . --config Release
 
 echo ""
 echo "Install libleidenalg to ${ROOT_DIR}/build-deps/install/"
-cmake --build . --target install
+cmake --build . --target install --config Release

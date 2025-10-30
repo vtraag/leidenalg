@@ -1,4 +1,4 @@
-IGRAPH_VERSION=0.10.16
+IGRAPH_VERSION=1.0.0
 
 ROOT_DIR=`pwd`
 echo "Using root dir ${ROOT_DIR}"
@@ -15,7 +15,7 @@ if [ ! -d "igraph" ]; then
   echo ""
   echo "Cloning igraph into ${ROOT_DIR}/build-deps/src/igraph"
   # Clone repository if it does not exist yet
-  git clone --branch ${IGRAPH_VERSION} https://github.com/igraph/igraph.git --single-branch
+  git clone --depth 1 --branch ${IGRAPH_VERSION} https://github.com/igraph/igraph.git --single-branch
 fi
 
 # Make sure the git repository points to the correct version
@@ -50,12 +50,13 @@ cmake ${ROOT_DIR}/build-deps/src/igraph \
   -DIGRAPH_USE_INTERNAL_GMP=ON \
   -DIGRAPH_WARNINGS_AS_ERRORS=OFF \
   -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_TESTING=OFF \  
   ${EXTRA_CMAKE_ARGS}
 
 echo ""
 echo "Build igraph"
-cmake --build .
+cmake --build . --config Release
 
 echo ""
 echo "Install igraph to ${ROOT_DIR}/build-deps/install/"
-cmake --build . --target install
+cmake --build . --target install --config Release

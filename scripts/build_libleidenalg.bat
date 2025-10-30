@@ -1,6 +1,6 @@
 @echo off
 
-set LIBLEIDENALG_VERSION="0.11.0"
+set LIBLEIDENALG_VERSION="0.12.0"
 
 set ROOT_DIR=%cd%
 echo Using root dir %ROOT_DIR%
@@ -14,7 +14,7 @@ if not exist "libleidenalg\" (
   echo.
   echo Cloning libleidenalg into %ROOT_DIR%\build-deps\src\libleidenalg
   REM Clone repository if it does not exist yet
-  git clone --depth 1 --branch %libleidenalg_VERSION% https://github.com/vtraag/libleidenalg.git
+  git clone --branch %libleidenalg_VERSION% https://github.com/vtraag/libleidenalg.git
 )
 
 REM Make sure the git repository points to the correct version
