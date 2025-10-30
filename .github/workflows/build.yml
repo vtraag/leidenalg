@@ -15,12 +15,7 @@ env:
   CIBW_ENABLE: pypy
   CIBW_TEST_REQUIRES: ddt
   CIBW_TEST_COMMAND: "cd {project} && python -m unittest -v"
-  CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
-  CIBW_MANYLINUX_I686_IMAGE: "manylinux2014"
-  CIBW_MANYLINUX_PYPY_X86_64_IMAGE: "manylinux2014"
-  CIBW_MANYLINUX_PYPY_I686_IMAGE: "manylinux2014"
   CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9"
-  MACOSX_DEPLOYMENT_TARGET: "10.9"
   # Free-threaded builds excluded for Python because they do not support the limited API
   CIBW_SKIP: "cp3??t-*"
 
