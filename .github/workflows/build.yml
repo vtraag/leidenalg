@@ -200,7 +200,7 @@ jobs:
                               pip install delvewheel"
           CIBW_BUILD: "*-${{ matrix.wheel_arch }}"
           CIBW_TEST_COMMAND: "cd /d {project} && python -m unittest -v"
-          CIBW_SKIP: "cp3??t-*,pp*"
+          CIBW_SKIP: "cp3??t-*"
           CIBW_ENVIRONMENT: >
             LIB="D:/a/leidenalg/leidenalg/build-deps/install/lib;$LIB"
             INCLUDE="D:/a/leidenalg/leidenalg/build-deps/install/include/;$INCLUDE"
