@@ -34,7 +34,7 @@ classifiers = [
     "Topic :: Sociology"
 ]
 dependencies = [
-    "igraph >= 0.10.0,< 0.12",
+    "igraph >= 1.0.0,< 2.0",
 ]
 dynamic = ["version"]
 
