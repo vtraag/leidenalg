@@ -50,7 +50,7 @@ cmake ${ROOT_DIR}/build-deps/src/igraph \
   -DIGRAPH_USE_INTERNAL_GMP=ON \
   -DIGRAPH_WARNINGS_AS_ERRORS=OFF \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_TESTING=OFF \  
+  -DBUILD_TESTING=OFF \
   ${EXTRA_CMAKE_ARGS}
 
 echo ""
