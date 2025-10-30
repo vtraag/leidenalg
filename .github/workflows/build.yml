@@ -60,6 +60,7 @@ jobs:
                               {package}/scripts/build_igraph.sh &&
                               {package}/scripts/build_libleidenalg.sh"
           CIBW_BUILD: "*-musllinux_${{ matrix.wheel_arch }}"
+          CIBW_SKIP: "pp*"
           CIBW_TEST_EXTRAS: "test-musl"
           CIBW_ENVIRONMENT: >
             CFLAGS='-I/project/build-deps/install/include/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
