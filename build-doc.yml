@@ -3,9 +3,9 @@ channels:
   - conda-forge
 dependencies:
   - python
-  - igraph>=0.10,<0.11
-  - libleidenalg>=0.11,<0.12
-  - python-igraph>=0.10,<0.11
+  - igraph>=1.0.0,<2
+  - libleidenalg>=0.12,<0.13
+  - python-igraph>=1.0.0,<2
   - ddt
   - sphinx
   - sphinx_rtd_theme

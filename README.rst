@@ -39,7 +39,7 @@ Installation
 ------------
 
 In short: ``pip install leidenalg``. All major platforms are supported on
-Python>=3.6, earlier versions of Python are no longer supported. Alternatively,
+Python>=3.9, earlier versions of Python are no longer supported. Alternatively,
 you can install from Anaconda (channel ``conda-forge``).
 
 For Unix like systems it is possible to install from source. For Windows this is
@@ -55,11 +55,11 @@ that not only ``gcc`` is installed, but also ``g++``, as the ``leidenalg``
 package is programmed in ``C++``. Note that there are build scripts included in
 the ``scripts/`` directory. These are also used to build the binary wheels.
 
-1. Compile (and install) the C core of ``igraph`` (version >= 0.10). You can use
+1. Compile (and install) the C core of ``igraph`` (version >= 1.0.0). You can use
    the file ``build_igraph.sh`` (on Unix-like systems) or ``build_igraph.bat``
    (on Windows) in the ``scripts/`` directory to do this. For more details, see
    https://igraph.org/c/doc/igraph-Installation.html.
-2. Compile (and install) the C core of ``libleidenalg`` (version >= 0.10). You
+2. Compile (and install) the C core of ``libleidenalg`` (version >= 0.12). You
    can use the file ``build_libleidenalg.sh`` (on Unix-like systems) or
    ``build_libleidenalg.bat`` (on Windows) in the ``scripts/`` directory to do
    this. For more details, see https://github.com/vtraag/libleidenalg.
