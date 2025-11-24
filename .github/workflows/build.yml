@@ -40,7 +40,7 @@ jobs:
           python-version: '3.13'
 
       - name: Build wheels (manylinux)
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BEFORE_BUILD: "yum install -y flex bison &&
                               pip install cmake wheel &&
@@ -53,7 +53,7 @@ jobs:
             LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
       - name: Build wheels (musllinux)
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BEFORE_BUILD: "apk add flex bison zlib-dev &&
                               pip install cmake wheel &&
@@ -85,7 +85,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Build wheels (manylinux)
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BEFORE_BUILD: "yum install -y flex bison zlib-devel &&
                               pip install cmake wheel &&
@@ -140,7 +140,7 @@ jobs:
           brew install ninja cmake
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_ARCHS_MACOS: "${{ matrix.wheel_arch }}"
           CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.sh &&
@@ -191,7 +191,7 @@ jobs:
         run: choco install winflexbison3 cmake ninja
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.3.0
         env:
           CIBW_BEFORE_BUILD: "{package}/scripts/build_igraph.bat &&
                               {package}/scripts/build_libleidenalg.bat &&
