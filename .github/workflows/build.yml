@@ -124,7 +124,7 @@ jobs:
 
       - name: Cache installed C core
         id: cache-c-core
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: build-deps
           key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}-${{ hashFiles('scripts/build_igraph.sh') }}-${{ hashFiles('scripts/build_libleidenalg.sh') }}
@@ -181,7 +181,7 @@ jobs:
 
       - name: Cache installed C core
         id: cache-c-core
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: build-deps
           key: C-core-cache-${{ runner.os }}-${{ matrix.cmake_arch }}-llvm${{ env.LLVM_VERSION }}-${{ hashFiles('scripts/build_igraph.sh') }}-${{ hashFiles('scripts/build_libleidenalg.sh') }}
