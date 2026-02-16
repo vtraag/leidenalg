@@ -66,7 +66,7 @@ jobs:
             CFLAGS='-I/project/build-deps/install/include/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
             LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels-linux-${{ matrix.wheel_arch }}
           path: ./wheelhouse/*.whl
@@ -97,7 +97,7 @@ jobs:
             CFLAGS='-I/project/build-deps/install/include/ -L/project/build-deps/install/lib64/ -L/project/build-deps/install/lib/'
             LD_LIBRARY_PATH='/project/build-deps/install/lib64/:/project/build-deps/install/lib/'
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels-linux-aarch64
           path: ./wheelhouse/*.whl
@@ -151,7 +151,7 @@ jobs:
             EXTRA_CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake_arch }} ${{ matrix.extra_cmake_args }}"
           CIBW_REPAIR_WHEEL_COMMAND: >
             DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels-macos-${{ matrix.wheel_arch }}
           path: ./wheelhouse/*.whl
@@ -205,7 +205,7 @@ jobs:
             PATH="D:/a/leidenalg/leidenalg/build-deps/install/bin;$PATH"
             EXTRA_CMAKE_ARGS="-A ${{ matrix.cmake_arch }}"
           CIBW_REPAIR_WHEEL_COMMAND: "delvewheel repair -w {dest_dir} {wheel}"
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels-win-${{ matrix.wheel_arch }}
           path: ./wheelhouse/*.whl
@@ -231,7 +231,7 @@ jobs:
         run: |
           python3 -m build --sdist
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels-sdist
           path: dist/*.tar.gz
