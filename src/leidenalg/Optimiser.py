@@ -4,7 +4,7 @@ from collections import namedtuple
 from math import log, sqrt
 
 class Optimiser(object):
-  """ Class for doing community detection using the Leiden algorithm.
+  r""" Class for doing community detection using the Leiden algorithm.
 
   The Leiden algorithm [1] derives from the Louvain algorithm [2]. The Louvain
   algorithm has an elegant formulation. It consists of two phases: (1) move
@@ -24,19 +24,19 @@ class Optimiser(object):
   algorithm that cannot be translated well in this framework: when merging
   subcommunities in the refinement procedure, it does not consider whether they
   are sufficiently well connected to the rest of the community. This
-  implementation therefore does not guarantee subpartition :math:`\gamma`-density.
+  implementation therefore does not guarantee subpartition :math:`\\gamma`-density.
   However, all other guarantees still hold:
 
   After each iteration
-    1. :math:`\gamma`-separation
-    2. :math:`\gamma`-connectivity
+    1. :math:`\\gamma`-separation
+    2. :math:`\\gamma`-connectivity
 
   After a stable iteration
     3. Node optimality
     4. Some subsets are locally optimally assigned
 
   Asymptotically
-    5. Uniform :math:`\gamma`-density
+    5. Uniform :math:`\\gamma`-density
     6. Subset optimality
 
   The optimiser class provides a number of different methods for optimising a
@@ -82,6 +82,8 @@ class Optimiser(object):
     Nodes will only move to alternative communities that improve the given
     quality function.
 
+    The default is :attr:`leidenalg.ALL_NEIGH_COMMS`.
+
     Notes
     -------
     This attribute should be set to one of the following values
@@ -119,6 +121,8 @@ class Optimiser(object):
     Nodes will only move to alternative communities that improve the given
     quality function.
 
+    The default is :attr:`leidenalg.ALL_NEIGH_COMMS`.
+
     Notes
     -------
     This attribute should be set to one of the following values
@@ -151,6 +155,7 @@ class Optimiser(object):
   @property
   def optimise_routine(self):
     """ Determine the routine to use for *optimising* a partition.
+    The default is :attr:`leidenalg.MOVE_NODES`.
 
     Notes
     -------
@@ -173,16 +178,17 @@ class Optimiser(object):
   @property
   def refine_routine(self):
     """ Determine the routine to use for *refining* a partition.
+    The default is :attr:`leidenalg.MERGE_NODES`.
 
     Notes
     -------
     This attribute should be set to one of the following values
 
     * :attr:`leidenalg.MOVE_NODES`
-      Use :func:`move_nodes`.
+      Use :func:`move_nodes_constrained`.
 
     * :attr:`leidenalg.MERGE_NODES`
-      Use :func:`merge_nodes`.
+      Use :func:`merge_nodes_constrained`.
     """
     return _c_leiden._Optimiser_get_refine_routine(self._optimiser)
 
@@ -325,6 +331,11 @@ class Optimiser(object):
     itr = 0
     diff = 0
     continue_iteration = itr < n_iterations or n_iterations < 0
+
+    if is_membership_fixed is not None:
+      # Make sure it is a list
+      is_membership_fixed = list(is_membership_fixed)
+
     while continue_iteration:
       diff_inc = _c_leiden._Optimiser_optimise_partition(
               self._optimiser,
@@ -342,7 +353,7 @@ class Optimiser(object):
     return diff
 
   def optimise_partition_multiplex(self, partitions, layer_weights=None, n_iterations=2, is_membership_fixed=None):
-    """ Optimise the given partitions simultaneously.
+    r""" Optimise the given partitions simultaneously.
 
     Parameters
     ----------
@@ -383,7 +394,7 @@ class Optimiser(object):
     layer :math:`k` and the weight by :math:`\\lambda_k`, the overall quality
     is then
 
-    .. math:: Q = \sum_k \\lambda_k Q_k.
+    .. math:: Q = \\sum_k \\lambda_k Q_k.
 
     This is particularly useful for graphs containing negative links. When
     separating the graph in two graphs, the one containing only the positive

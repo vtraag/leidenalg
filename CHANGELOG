@@ -1,3 +1,24 @@
+0.11.0
+- Update to libleidenalg 0.12.0
+- Update to igraph 1.0
+
+0.10.2
+- Also allow python-igraph >= 0.11
+- Upgrade C core to 0.10.8 for binary wheels
+
+0.10.1
+- Switched to pyproject.toml based build
+- Making use of Limited API
+- Make available aarch64 wheels
+
+0.10.0
+- Changed default refinement to consider a random neighbouring community.
+- Changed C++ core into external library at https://github.com/vtraag/libleidenalg.
+
+0.9.1
+- Allow node sizes to be float (PR #115)
+- Added correct_self_loops argument to CPMVertexPartition
+
 0.9.0
 - Update C core to 0.10.1
 

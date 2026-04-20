@@ -2,15 +2,15 @@
 #define PYNTERFACE_PARTITION_H_INCLUDED
 
 #include <Python.h>
-#include <igraph.h>
-#include "GraphHelper.h"
-#include "ModularityVertexPartition.h"
-#include "SignificanceVertexPartition.h"
-#include "SurpriseVertexPartition.h"
-#include "RBConfigurationVertexPartition.h"
-#include "RBERVertexPartition.h"
-#include "CPMVertexPartition.h"
-#include "Optimiser.h"
+#include <igraph/igraph.h>
+#include <libleidenalg/GraphHelper.h>
+#include <libleidenalg/ModularityVertexPartition.h>
+#include <libleidenalg/SignificanceVertexPartition.h>
+#include <libleidenalg/SurpriseVertexPartition.h>
+#include <libleidenalg/RBConfigurationVertexPartition.h>
+#include <libleidenalg/RBERVertexPartition.h>
+#include <libleidenalg/CPMVertexPartition.h>
+#include <libleidenalg/Optimiser.h>
 
 #include <sstream>
 
@@ -25,7 +25,7 @@ MutableVertexPartition* create_partition_from_py(PyObject* py_obj_graph, char* m
 
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes);
 Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights);
-Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, int check_positive_weight);
+Graph* create_graph_from_py(PyObject* py_obj_graph, PyObject* py_node_sizes, PyObject* py_weights, bool check_positive_weight, bool correct_self_loops);
 
 vector<size_t> create_size_t_vector(PyObject* py_list);
 

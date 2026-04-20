@@ -92,7 +92,7 @@ def find_partition(graph, partition_type, initial_membership=None, weights=None,
 
   return partition
 
-def find_partition_multiplex(graphs, partition_type, n_iterations=2, max_comm_size=0, seed=None, **kwargs):
+def find_partition_multiplex(graphs, partition_type, layer_weights=None, n_iterations=2, max_comm_size=0, seed=None, **kwargs):
   """ Detect communities for multiplex graphs.
 
   Each graph should be defined on the same set of vertices, only the edges may
@@ -107,6 +107,10 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, max_comm_si
 
   partition_type : type of :class:`MutableVertexPartition`
     The type of partition to use for optimisation (identical for all graphs).
+
+  layer_weights : list of double
+    List containing weights of each layer. If None (the default), then all 
+    layers are weighted with 1.
 
   n_iterations : int
     Number of iterations to run the Leiden algorithm. By default, 2 iterations
@@ -153,9 +157,11 @@ def find_partition_multiplex(graphs, partition_type, n_iterations=2, max_comm_si
   >>> membership, improvement = la.find_partition_multiplex([G_1, G_2],
   ...                                                       la.ModularityVertexPartition)
   """
-  n_layers = len(graphs)
-  partitions = []
-  layer_weights = [1]*n_layers
+  if layer_weights is None:
+    n_layers = len(graphs)
+    layer_weights = [1]*n_layers
+
+  partitions = []  
   for graph in graphs:
     partitions.append(partition_type(graph, **kwargs))
   optimiser = Optimiser()

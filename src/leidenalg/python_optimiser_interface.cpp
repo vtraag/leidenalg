@@ -83,7 +83,7 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        PyErr_SetString(PyExc_ValueError, "Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_ValueError, "Membership fixed vector not the same size as the number of nodes.");
         return NULL;
       }
 
@@ -188,7 +188,7 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        PyErr_SetString(PyExc_TypeError, "Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_TypeError, "Membership fixed vector not the same size as the number of nodes.");
         return NULL;
       }
 
@@ -270,7 +270,7 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        PyErr_SetString(PyExc_TypeError, "Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_TypeError, "Membership fixed vector not the same size as the number of nodes.");
         return NULL;
       }
 
@@ -346,7 +346,7 @@ extern "C"
       size_t nb_is_membership_fixed = PyList_Size(py_is_membership_fixed);
       if (nb_is_membership_fixed != n)
       {
-        PyErr_SetString(PyExc_TypeError, "Node size vector not the same size as the number of nodes.");
+        PyErr_SetString(PyExc_TypeError, "Membership fixed vector not the same size as the number of nodes.");
         return NULL;
       }
 
