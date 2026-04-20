@@ -223,11 +223,12 @@ class Optimiser(object):
   # max_comm_size
   @property
   def min_comm_size(self):
-    """ Constrain the maximal community size.
+    """ Constrain the minimum community size.
 
     By default (zero), communities can be of any size. If this is set to a
     positive integer value, then communities will be constrained to be at least
-    this total size.
+    this total size. The degree to which solutions actually adhere to this
+    constraint depends on the ``community_constraint_enforcement`` parameter.
     """
     return _c_leiden._Optimiser_get_min_comm_size(self._optimiser)
 
@@ -247,7 +248,8 @@ class Optimiser(object):
 
     By default (zero), communities can be of any size. If this is set to a
     positive integer value, then communities will be constrained to be at most
-    this total size.
+    this total size.  The degree to which solutions actually adhere to this
+    constraint depends on the ``community_constraint_enforcement`` parameter.
     """
     return _c_leiden._Optimiser_get_max_comm_size(self._optimiser)
 
