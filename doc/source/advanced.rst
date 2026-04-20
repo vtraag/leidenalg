@@ -227,15 +227,24 @@ We can then only update the community assignments for the new nodes as follows
 In this example we used :class:`~leidenalg.CPMVertexPartition`. but any other
 ``VertexPartition`` would work as well.
 
-Maximum community size
+Minimum and maximum community size
 ----------------------
 
-In some cases, you may want to restrict the community sizes. It is possible to indicate this
-by setting the :attr:`~leidenalg.Optimiser.max_comm_size` parameter so that this constraint is
-taken into account during optimisation. In addition, it is possible to pass this parameter
-directly when using :func:`~leidenalg.find_partition`. For example
+In some cases, you may want to restrict the community sizes. It is possible to
+indicate this by setting the :attr:`~leidenalg.Optimiser.min_comm_size` and
+:attr:`~leidenalg.Optimiser.max_comm_size` parameters. Note that these
+constraints are only considered when the
+:attr:`~leidenalg.Optimiser.community_constraint_enforcement` parameter is
+larger than 0 with higher values indicating a more stringent enforcement of the
+community size constraints. For example
 
->>> partition = la.find_partition(G, la.ModularityVertexPartition, max_comm_size=10)
+>>> G = ig.Graph.Famous('Zachary')
+>>> part = la.ModularityVertexPartition(G)
+>>> opt = la.Optimiser()
+>>> opt.min_comm_size = 15
+>>> opt.max_comm_size = 30
+>>> opt.community_constraint_enforcement = 5
+>>> opt.optimise_partition(part)
 
 References
 ----------
