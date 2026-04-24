@@ -925,14 +925,14 @@ extern "C"
   PyObject* _Optimiser_set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds)
   {
     PyObject* py_optimiser = NULL;
-    int seed = 0;
+    size_t seed = 0;
     static const char* kwlist[] = {"optimiser", "seed", NULL};
 
     #ifdef DEBUG
       cerr << "Parsing arguments..." << endl;
     #endif
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "Oi", (char**) kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "On", (char**) kwlist,
                                     &py_optimiser, &seed))
        return NULL;
 
