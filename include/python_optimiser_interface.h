@@ -42,7 +42,9 @@ extern "C"
   PyObject* _Optimiser_set_refine_routine(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_refine_partition(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_set_min_comm_size(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_max_comm_size(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_set_community_constraint_enforcement(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_set_rng_seed(PyObject *self, PyObject *args, PyObject *keywds);
 
   PyObject* _Optimiser_get_consider_comms(PyObject *self, PyObject *args, PyObject *keywds);
@@ -51,7 +53,9 @@ extern "C"
   PyObject* _Optimiser_get_refine_routine(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_consider_empty_community(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_refine_partition(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_get_min_comm_size(PyObject *self, PyObject *args, PyObject *keywds);
   PyObject* _Optimiser_get_max_comm_size(PyObject *self, PyObject *args, PyObject *keywds);
+  PyObject* _Optimiser_get_community_constraint_enforcement(PyObject *self, PyObject *args, PyObject *keywds);
 
 #ifdef __cplusplus
 }
